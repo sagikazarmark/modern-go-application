@@ -25,12 +25,12 @@ script:
     - if [[ $TRAVIS_TAG = "$VERSION" ]]; then export DOCKER_LATEST=true; fi
     - make docker
 
-before_deploy: docker login -u $DOCKER_USER -p $DOCKER_PASS
-
-deploy:
-    provider: script
-    skip_cleanup: true
-    script: docker push $DOCKER_IMAGE
-    on:
-        all_branches: true
-        condition: $TRAVIS_GO_VERSION =~ ^1\.11(\.(x|[0-9]+))?$
+#before_deploy: docker login -u $DOCKER_USER -p $DOCKER_PASS
+#
+#deploy:
+#    provider: script
+#    skip_cleanup: true
+#    script: docker push $DOCKER_IMAGE
+#    on:
+#        all_branches: true
+#        condition: $TRAVIS_GO_VERSION =~ ^1\.11(\.(x|[0-9]+))?$
