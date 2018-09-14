@@ -1,0 +1,17 @@
+run:
+    build-tags:
+        - dev
+
+linters:
+    enable-all: true
+    disable:
+        - maligned
+
+linters-settings:
+    golint:
+        min-confidence: 0.1
+
+issues:
+    exclude:
+        - "Error return value of `\\(.*/github.com/go-kit/kit/log.Logger\\).Log` is not checked"
+        - G104

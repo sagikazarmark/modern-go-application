@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Build" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="build" workingDirectory="">
+      <envs />
+    </makefile>
+    <method />
+  </configuration>
+</component>

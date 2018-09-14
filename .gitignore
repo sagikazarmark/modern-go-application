@@ -1,0 +1,18 @@
+/bin/
+/build/
+/.docker/
+/docker-compose.override.yml
+/.env
+/.env.test
+/vendor/
+
+# IDE integration
+/.vscode/*
+!/.vscode/tasks.json
+/.idea/*
+!/.idea/copyright/
+!/.idea/runConfigurations/
+!/.idea/scopes/
+!/.idea/go.imports.xml
+!/.idea/modules.xml
+!/.idea/*.iml

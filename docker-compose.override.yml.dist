@@ -1,0 +1,8 @@
+version: "2.1"
+
+services:
+    db:
+        ports:
+            - 3306:3306
+        volumes:
+            - ./.docker/volumes/mysql:/var/lib/mysql

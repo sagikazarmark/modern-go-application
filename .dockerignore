@@ -1,0 +1,10 @@
+*
+
+!pkg/app/
+!build/
+!cmd/
+!glide.*
+!.git/
+!*.go
+!Makefile
+!.make/
