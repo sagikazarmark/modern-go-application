@@ -53,15 +53,15 @@
   version = "v0.4.0"
 
 [[projects]]
-  digest = "1:02fe67aaf9069426413a8112feccf5a94445c8dabdb74ba85d9f8a7ec5e7b3a6"
+  digest = "1:8860216870b288d7cef30dcf17cfa6c160d748d1b6ce3248271211ec30927b12"
   name = "github.com/goph/emperror"
   packages = [
     ".",
-    "log",
+    "errorlog",
   ]
   pruneopts = "UT"
-  revision = "f22603a985e060ab1c2138d84c68d1e7cf796ed9"
-  version = "v0.9.1"
+  revision = "d328ac744d45a846ad0608dda4a70cea9d90f935"
+  version = "v0.11.0"
 
 [[projects]]
   digest = "1:4983917833acf2bd32af940e3914dc5b3fa8bdf3da8e2f11ed05a8ea9926c9e3"
@@ -86,6 +86,14 @@
   pruneopts = "UT"
   revision = "e3702bed27f0d39777b0b37b664b6280e8ef8fbf"
   version = "v1.6.2"
+
+[[projects]]
+  digest = "1:ecd9aa82687cf31d1585d4ac61d0ba180e42e8a6182b85bd785fcca8dfeefc1b"
+  name = "github.com/joho/godotenv"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "23d116af351c84513e1946b527c88823e476be13"
+  version = "v1.3.0"
 
 [[projects]]
   branch = "master"
@@ -147,8 +155,9 @@
     "github.com/go-sql-driver/mysql",
     "github.com/goph/conf",
     "github.com/goph/emperror",
-    "github.com/goph/emperror/log",
+    "github.com/goph/emperror/errorlog",
     "github.com/gorilla/mux",
+    "github.com/joho/godotenv",
     "github.com/pkg/errors",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",

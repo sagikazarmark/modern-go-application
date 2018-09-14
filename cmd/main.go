@@ -13,7 +13,7 @@ import (
 	"github.com/go-kit/kit/log/level"
 	"github.com/goph/conf"
 	"github.com/goph/emperror"
-	errorlog "github.com/goph/emperror/log"
+	"github.com/goph/emperror/errorlog"
 	"github.com/pkg/errors"
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal"
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal/helloworld"
