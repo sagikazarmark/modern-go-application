@@ -20,6 +20,5 @@ rep "s|name=\"project\"|name=\"${project}\"|" .idea/runConfigurations/Unit.xml
 rep "s|name=\"project\"|name=\"${project}\"|" .idea/runConfigurations/Acceptance.xml
 rep "s|name=\"project\"|name=\"${project}\"|" .idea/runConfigurations/Integration.xml
 
-rep "s|${boilerplatePackage}|${package}|" cmd/app.go
 rep "s|${boilerplatePackage}|${package}|" cmd/config.go
 rep "s|${boilerplatePackage}|${package}|" cmd/main.go

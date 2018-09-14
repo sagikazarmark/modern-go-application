@@ -1,4 +1,4 @@
-package app
+package database
 
 import (
 	"testing"
@@ -6,8 +6,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDatabaseConfig_Validate(t *testing.T) {
-	tests := map[string]DatabaseConfig{
+func TestConfig_Validate(t *testing.T) {
+	tests := map[string]Config{
 		"database host is required": {
 			Port: 3306,
 			User: "root",
@@ -43,8 +43,8 @@ func TestDatabaseConfig_Validate(t *testing.T) {
 	}
 }
 
-func TestDatabaseConfig_DSN(t *testing.T) {
-	config := DatabaseConfig{
+func TestConfig_DSN(t *testing.T) {
+	config := Config{
 		Host: "host",
 		Port: 3306,
 		User: "root",

@@ -1,4 +1,4 @@
-package app
+package log
 
 import (
 	"testing"
@@ -6,8 +6,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLogConfig_Validate(t *testing.T) {
-	tests := map[string]LogConfig{
+func TestConfig_Validate(t *testing.T) {
+	tests := map[string]Config{
 		"log format is required": {},
 		"invalid log format: xml": {
 			Format: "xml",

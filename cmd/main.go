@@ -9,16 +9,17 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/go-kit/kit/log"
+	kitlog "github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/goph/conf"
 	"github.com/goph/emperror"
 	errorlog "github.com/goph/emperror/log"
 	"github.com/pkg/errors"
-	"github.com/sagikazarmark/go-service-project-boilerplate/app"
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal"
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal/helloworld"
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal/helloworld/driver/web"
+	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/database"
+	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/log"
 )
 
 func main() {
@@ -48,8 +49,10 @@ func main() {
 		os.Exit(3)
 	}
 
+	config.ApplyContext(appCtx)
+
 	// Create logger
-	logger, err := app.NewLogger(config.Log, appCtx)
+	logger, err := log.NewLogger(config.Log)
 	if err != nil {
 		panic(err)
 	}
@@ -61,7 +64,7 @@ func main() {
 
 	// Connect to the database
 	level.Debug(logger).Log("msg", "connecting to database")
-	db, err := app.NewDatabaseConnection(config.Database)
+	db, err := database.NewConnection(config.Database)
 	if err != nil {
 		panic(err)
 	}
@@ -76,7 +79,7 @@ func main() {
 
 	router := internal.NewRouter(helloWorldDriver)
 
-	httpErrorLog := stdlog.New(log.NewStdlibAdapter(level.Error(logger)), "", 0)
+	httpErrorLog := stdlog.New(kitlog.NewStdlibAdapter(level.Error(logger)), "", 0)
 
 	httpServer := &http.Server{
 		Addr:     config.HTTPAddr,

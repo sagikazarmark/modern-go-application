@@ -1,4 +1,4 @@
-package app
+package main
 
 const (
 	// ServiceName is an identifier-like name used anywhere this app needs to be identified.

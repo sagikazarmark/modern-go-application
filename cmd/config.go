@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/goph/conf"
-	"github.com/sagikazarmark/go-service-project-boilerplate/app"
+	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/database"
+	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/log"
 )
 
 // Config holds any kind of configuration that comes from the outside world and
@@ -27,13 +28,13 @@ type Config struct {
 	ShutdownTimeout time.Duration
 
 	// Log configuration
-	Log app.LogConfig
+	Log log.Config
 
 	// HTTP address
 	HTTPAddr string
 
 	// Database connection information
-	Database app.DatabaseConfig
+	Database database.Config
 }
 
 // NewConfig returns a Config struct with sane defaults.
@@ -41,9 +42,9 @@ func NewConfig() Config {
 	return Config{
 		Environment:     "production",
 		ShutdownTimeout: 15 * time.Second,
-		Log:             app.NewLogConfig(),
+		Log:             log.NewConfig(),
 		HTTPAddr:        ":8000",
-		Database:        app.NewDatabaseConfig(),
+		Database:        database.NewConfig(),
 	}
 }
 
@@ -90,4 +91,11 @@ func (c *Config) Prepare(conf *conf.Configurator) {
 	conf.StringVar(&c.Database.Pass, "db-pass", c.Database.Pass, "Database password")
 	conf.StringVar(&c.Database.Name, "db-name", c.Database.Name, "Database name")
 	conf.QueryStringVar(&c.Database.Params, "db-params", c.Database.Params, "Database params")
+}
+
+// ApplyContext updates configuration values based on the application context.
+func (c *Config) ApplyContext(ctx Context) {
+	c.Log.Debug = ctx.Debug
+	c.Log.Environment = ctx.Environment
+	c.Log.ServiceName = ctx.Name
 }

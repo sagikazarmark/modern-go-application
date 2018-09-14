@@ -1,16 +1,13 @@
-package app
+package database
 
 import (
-	"database/sql"
 	"fmt"
-	"time"
 
-	_ "github.com/go-sql-driver/mysql" // Importing mysql driver here
 	"github.com/pkg/errors"
 )
 
-// DatabaseConfig holds information necessary for connecting to a database.
-type DatabaseConfig struct {
+// Config holds information necessary for connecting to a database.
+type Config struct {
 	Host string
 	Port int
 	User string
@@ -21,7 +18,7 @@ type DatabaseConfig struct {
 }
 
 // Validate checks that the configuration is valid.
-func (c DatabaseConfig) Validate() error {
+func (c Config) Validate() error {
 	if c.Host == "" {
 		return errors.New("database host is required")
 	}
@@ -42,7 +39,7 @@ func (c DatabaseConfig) Validate() error {
 }
 
 // DSN returns a MySQL driver compatible data source name.
-func (c DatabaseConfig) DSN() string {
+func (c Config) DSN() string {
 	var params string
 
 	if len(c.Params) > 0 {
@@ -70,9 +67,9 @@ func (c DatabaseConfig) DSN() string {
 	)
 }
 
-// NewDatabaseConfig returns a new DatabaseConfig instance with some defaults.
-func NewDatabaseConfig() DatabaseConfig {
-	return DatabaseConfig{
+// NewConfig returns a new Config instance with some defaults.
+func NewConfig() Config {
+	return Config{
 		Host: "localhost",
 		Port: 3306,
 		User: "root",
@@ -80,22 +77,4 @@ func NewDatabaseConfig() DatabaseConfig {
 			"charset": "utf8mb4",
 		},
 	}
-}
-
-// NewDatabaseConnection returns a new database connection for the application.
-func NewDatabaseConnection(config DatabaseConfig) (*sql.DB, error) {
-	// Set some mandatory parameters
-	config.Params["parseTime"] = "true"
-	config.Params["rejectReadOnly"] = "true"
-
-	db, err := sql.Open("mysql", config.DSN())
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	db.SetMaxIdleConns(2)
-	db.SetMaxOpenConns(10)
-	db.SetConnMaxLifetime(time.Minute)
-
-	return db, nil
 }
