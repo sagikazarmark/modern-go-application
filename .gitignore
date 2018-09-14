@@ -11,8 +11,9 @@
 !/.vscode/tasks.json
 /.idea/*
 !/.idea/copyright/
-!/.idea/runConfigurations/
-!/.idea/scopes/
+!/.idea/*.iml
+!/.idea/externalDependencies.xml
 !/.idea/go.imports.xml
 !/.idea/modules.xml
-!/.idea/*.iml
+!/.idea/runConfigurations/
+!/.idea/scopes/
