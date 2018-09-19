@@ -20,9 +20,11 @@ DOCKER_LATEST ?= false
 DEP_VERSION = 0.5.0
 GOLANGCI_VERSION = 1.10.2
 
-bin/dep: ## Install dep
+bin/dep: bin/dep-${DEP_VERSION}
+bin/dep-${DEP_VERSION}:
 	@mkdir -p ./bin/
 	curl https://raw.githubusercontent.com/golang/dep/master/install.sh | INSTALL_DIRECTORY=./bin DEP_RELEASE_TAG=v${DEP_VERSION} sh
+	@touch bin/dep-${DEP_VERSION}
 
 .PHONY: vendor
 vendor: bin/dep ## Install dependencies
@@ -82,9 +84,11 @@ test: ## Run all tests
 test-%: ## Run a specific test suite
 	go test -tags '$*' ${ARGS} ./...
 
-bin/golangci-lint: ## Install golangci linter
+bin/golangci-lint: bin/golangci-lint-${GOLANGCI_VERSION}
+bin/golangci-lint-${GOLANGCI_VERSION}:
 	@mkdir -p ./bin/
 	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s -- -b ./bin/ v${GOLANGCI_VERSION}
+	@touch bin/golangci-lint-${GOLANGCI_VERSION}
 
 .PHONY: lint
 lint: bin/golangci-lint ## Run linter
