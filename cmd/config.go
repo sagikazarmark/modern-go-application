@@ -114,6 +114,4 @@ func (c *Config) Prepare(conf *conf.Configurator) {
 // ApplyContext updates configuration values based on the application context.
 func (c *Config) ApplyContext(ctx Context) {
 	c.Log.Debug = ctx.Debug
-	c.Log.Environment = ctx.Environment
-	c.Log.ServiceName = ctx.Name
 }

@@ -10,10 +10,7 @@ type Config struct {
 	// Valid values are: json, logfmt
 	Format string
 
-	Environment string
-	Debug       bool
-
-	ServiceName string
+	Debug bool
 }
 
 // NewConfig returns a new Config instance with some defaults.

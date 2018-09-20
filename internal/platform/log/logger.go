@@ -26,13 +26,6 @@ func NewLogger(config Config) (log.Logger, error) {
 		return nil, fmt.Errorf("unsupported log format: %s", config.Format)
 	}
 
-	// Provide some basic context to all log lines
-	logger = log.With(
-		logger,
-		"environment", config.Environment,
-		"service", config.ServiceName,
-	)
-
 	// Fallback to Info level
 	logger = level.NewInjector(logger, level.InfoValue())
 

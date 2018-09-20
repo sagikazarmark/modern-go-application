@@ -60,6 +60,13 @@ func main() {
 		panic(err)
 	}
 
+	// Provide some basic context to all log lines
+	logger = kitlog.With(
+		logger,
+		"environment", config.Environment,
+		"service", appCtx.Name,
+	)
+
 	// Configure error handler
 	errorHandler := errorlog.NewHandler(logger)
 
