@@ -65,6 +65,13 @@ func main() {
 
 	defer emperror.HandleRecover(errorHandler)
 
+	level.Info(logger).Log(
+		"version", appCtx.Build.Version,
+		"commit_hash", appCtx.Build.CommitHash,
+		"build_date", appCtx.Build.Date,
+		"msg", "starting",
+	)
+
 	// Trace everything in development environment
 	if config.Environment == "development" {
 		trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
@@ -109,13 +116,6 @@ func main() {
 		ErrorLog: httpErrorLog,
 	}
 	defer httpServer.Close()
-
-	level.Info(logger).Log(
-		"version", appCtx.Build.Version,
-		"commit_hash", appCtx.Build.CommitHash,
-		"build_date", appCtx.Build.Date,
-		"msg", "starting",
-	)
 
 	httpServerChan := make(chan error, 1)
 	go startHTTPServer(httpServer, httpServerChan, logger)
