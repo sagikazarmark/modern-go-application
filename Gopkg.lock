@@ -2,6 +2,15 @@
 
 
 [[projects]]
+  branch = "master"
+  digest = "1:e95de5c830369d6592224de57a31cd87a2ba1cec2abaf050d06a63ee8f7babd8"
+  name = "git.apache.org/thrift.git"
+  packages = ["lib/go/thrift"]
+  pruneopts = "UT"
+  revision = "cbcfb2573f924cb051b7678b5cb4f7ef7138be49"
+  source = "github.com/apache/thrift"
+
+[[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
@@ -147,18 +156,52 @@
   version = "v1.2.2"
 
 [[projects]]
-  digest = "1:0a1f2ec6d5e0ef1c5de13a1b19768240045f30c6a3b8973644b4fbcb705bad28"
+  digest = "1:88fba15899e1d059e188d64136b96648f3937a22c135d05e20accc2ab531099c"
   name = "go.opencensus.io"
   packages = [
     ".",
+    "exporter/jaeger",
+    "exporter/jaeger/internal/gen-go/jaeger",
     "internal",
+    "internal/tagencoding",
+    "plugin/ochttp",
+    "plugin/ochttp/propagation/b3",
+    "stats",
+    "stats/internal",
+    "stats/view",
+    "tag",
     "trace",
     "trace/internal",
+    "trace/propagation",
     "trace/tracestate",
   ]
   pruneopts = "UT"
   revision = "79993219becaa7e29e3b60cb67f5b8e82dee11d6"
   version = "v0.17.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:76ee51c3f468493aff39dbacc401e8831fbb765104cbf613b89bef01cf4bad70"
+  name = "golang.org/x/net"
+  packages = ["context"]
+  pruneopts = "UT"
+  revision = "26e67e76b6c3f6ce91f7c52def5af501b4e0f3a2"
+
+[[projects]]
+  branch = "master"
+  digest = "1:e0140c0c868c6e0f01c0380865194592c011fe521d6e12d78bfd33e756fe018a"
+  name = "golang.org/x/sync"
+  packages = ["semaphore"]
+  pruneopts = "UT"
+  revision = "1d60e4601c6fd243af51cc01ddf169918a5407ca"
+
+[[projects]]
+  branch = "master"
+  digest = "1:938b0c4e4e71e191c52c959ae60ab4d814b4402e5d53a6db6ceec06cd2150058"
+  name = "google.golang.org/api"
+  packages = ["support/bundler"]
+  pruneopts = "UT"
+  revision = "19ff8768a5c0b8e46ea281065664787eefc24121"
 
 [[projects]]
   digest = "1:c25289f43ac4a68d88b02245742347c94f1e108c534dda442188015ff80669b3"
@@ -184,7 +227,9 @@
     "github.com/pkg/errors",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
-    "go.opencensus.io",
+    "go.opencensus.io/exporter/jaeger",
+    "go.opencensus.io/plugin/ochttp",
+    "go.opencensus.io/trace",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

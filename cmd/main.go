@@ -19,7 +19,10 @@ import (
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal/helloworld"
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal/helloworld/driver/web"
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/database"
+	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/jaeger"
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/log"
+	"go.opencensus.io/plugin/ochttp"
+	"go.opencensus.io/trace"
 )
 
 func main() {
@@ -62,6 +65,23 @@ func main() {
 
 	defer emperror.HandleRecover(errorHandler)
 
+	// Trace everything in development environment
+	if config.Environment == "development" {
+		trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
+	}
+
+	// Configure Jaeger
+	if config.JaegerEnabled {
+		level.Debug(logger).Log("msg", "jaeger exporter enabled")
+
+		exporter, err := jaeger.NewExporter(config.Jaeger, appCtx.Name, errorHandler)
+		if err != nil {
+			panic(err)
+		}
+
+		trace.RegisterExporter(exporter)
+	}
+
 	// Connect to the database
 	level.Debug(logger).Log("msg", "connecting to database")
 	db, err := database.NewConnection(config.Database)
@@ -82,8 +102,10 @@ func main() {
 	httpErrorLog := stdlog.New(kitlog.NewStdlibAdapter(level.Error(logger)), "", 0)
 
 	httpServer := &http.Server{
-		Addr:     config.HTTPAddr,
-		Handler:  router,
+		Addr: config.HTTPAddr,
+		Handler: &ochttp.Handler{
+			Handler: router,
+		},
 		ErrorLog: httpErrorLog,
 	}
 	defer httpServer.Close()
