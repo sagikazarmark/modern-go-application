@@ -70,9 +70,7 @@ func (c Config) DSN() string {
 // NewConfig returns a new Config instance with some defaults.
 func NewConfig() Config {
 	return Config{
-		Host: "localhost",
 		Port: 3306,
-		User: "root",
 		Params: map[string]string{
 			"charset": "utf8mb4",
 		},
