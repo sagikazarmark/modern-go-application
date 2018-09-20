@@ -11,6 +11,14 @@
   source = "github.com/apache/thrift"
 
 [[projects]]
+  branch = "master"
+  digest = "1:d6afaeed1502aa28e80a4ed0981d570ad91b2579193404256ce672ed0a609e0d"
+  name = "github.com/beorn7/perks"
+  packages = ["quantile"]
+  pruneopts = "UT"
+  revision = "3a771d992973f24aa725d07868b467d1ddfceafb"
+
+[[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
@@ -52,6 +60,14 @@
   pruneopts = "UT"
   revision = "2fee6af1a9795aafbe0253a0cfbdf668e1fb8a9a"
   version = "v1.8.0"
+
+[[projects]]
+  digest = "1:97df918963298c287643883209a2c3f642e6593379f97ab400c2a2e219ab647d"
+  name = "github.com/golang/protobuf"
+  packages = ["proto"]
+  pruneopts = "UT"
+  revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
+  version = "v1.2.0"
 
 [[projects]]
   digest = "1:781153fca7a5262167ef4e9aa8ea7c4f7c3b50c7237296772d6ffc383a7da75d"
@@ -113,6 +129,14 @@
   revision = "b84e30acd515aadc4b783ad4ff83aff3299bdfe0"
 
 [[projects]]
+  digest = "1:ff5ebae34cfbf047d505ee150de27e60570e8c394b3b8fdbb720ff6ac71985fc"
+  name = "github.com/matttproud/golang_protobuf_extensions"
+  packages = ["pbutil"]
+  pruneopts = "UT"
+  revision = "c12348ce28de40eed0136aa2b644d0ee0650e56c"
+  version = "v1.0.1"
+
+[[projects]]
   branch = "master"
   digest = "1:011c252cbeca9d6b7fd995ef704e259d959affcbae4fde70fdb2de603e4bab55"
   name = "github.com/opencensus-integrations/ocsql"
@@ -137,6 +161,50 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:d14a5f4bfecf017cb780bdde1b6483e5deb87e12c332544d2c430eda58734bcb"
+  name = "github.com/prometheus/client_golang"
+  packages = [
+    "prometheus",
+    "prometheus/promhttp",
+  ]
+  pruneopts = "UT"
+  revision = "c5b7fccd204277076155f10851dad72b76a49317"
+  version = "v0.8.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:2d5cd61daa5565187e1d96bae64dbbc6080dacf741448e9629c64fd93203b0d4"
+  name = "github.com/prometheus/client_model"
+  packages = ["go"]
+  pruneopts = "UT"
+  revision = "5c3871d89910bfb32f5fcab2aa4b9ec68e65a99f"
+
+[[projects]]
+  branch = "master"
+  digest = "1:63b68062b8968092eb86bedc4e68894bd096ea6b24920faca8b9dcf451f54bb5"
+  name = "github.com/prometheus/common"
+  packages = [
+    "expfmt",
+    "internal/bitbucket.org/ww/goautoneg",
+    "model",
+  ]
+  pruneopts = "UT"
+  revision = "c7de2306084e37d54b8be01f3541a8464345e9a5"
+
+[[projects]]
+  branch = "master"
+  digest = "1:ef1dd9945e58ee9b635273d28c0ef3fa3742a7dedc038ebe207fd63e6ce000ef"
+  name = "github.com/prometheus/procfs"
+  packages = [
+    ".",
+    "internal/util",
+    "nfs",
+    "xfs",
+  ]
+  pruneopts = "UT"
+  revision = "418d78d0b9a7b7de3a6bbc8a23def624cc977bb2"
+
+[[projects]]
   digest = "1:dab83a1bbc7ad3d7a6ba1a1cc1760f25ac38cdf7d96a5cdd55cd915a4f5ceaf9"
   name = "github.com/spf13/pflag"
   packages = ["."]
@@ -156,12 +224,13 @@
   version = "v1.2.2"
 
 [[projects]]
-  digest = "1:88fba15899e1d059e188d64136b96648f3937a22c135d05e20accc2ab531099c"
+  digest = "1:088081deb658468a5d675728e77d315437b7902c6e433a0ec44ee9bbf7daa8cc"
   name = "go.opencensus.io"
   packages = [
     ".",
     "exporter/jaeger",
     "exporter/jaeger/internal/gen-go/jaeger",
+    "exporter/prometheus",
     "internal",
     "internal/tagencoding",
     "plugin/ochttp",
@@ -228,7 +297,9 @@
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
     "go.opencensus.io/exporter/jaeger",
+    "go.opencensus.io/exporter/prometheus",
     "go.opencensus.io/plugin/ochttp",
+    "go.opencensus.io/stats/view",
     "go.opencensus.io/trace",
   ]
   solver-name = "gps-cdcl"

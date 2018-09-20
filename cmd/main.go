@@ -21,7 +21,9 @@ import (
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/database"
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/jaeger"
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/log"
+	"go.opencensus.io/exporter/prometheus"
 	"go.opencensus.io/plugin/ochttp"
+	"go.opencensus.io/stats/view"
 	"go.opencensus.io/trace"
 )
 
@@ -59,6 +61,31 @@ func main() {
 
 	level.Info(logger).Log("version", Version, "commit_hash", CommitHash, "build_date", BuildDate, "msg", "starting")
 
+	// Connect to the database
+	level.Debug(logger).Log("msg", "connecting to database")
+	db, err := database.NewConnection(config.Database)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	instrumentRouter := http.NewServeMux()
+
+	// Configure prometheus
+	if config.PrometheusEnabled {
+		level.Debug(logger).Log("msg", "prometheus exporter enabled")
+
+		exporter, err := prometheus.NewExporter(prometheus.Options{
+			OnError: errorHandler.Handle,
+		})
+		if err != nil {
+			panic(errors.Wrap(err, "failed to create prometheus exporter"))
+		}
+
+		view.RegisterExporter(exporter)
+		instrumentRouter.Handle("/metrics", exporter)
+	}
+
 	// Trace everything in development environment
 	if config.Environment == "development" {
 		trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
@@ -76,19 +103,11 @@ func main() {
 		trace.RegisterExporter(exporter)
 	}
 
-	// Connect to the database
-	level.Debug(logger).Log("msg", "connecting to database")
-	db, err := database.NewConnection(config.Database)
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
-
 	// Set up instrumentation server
 	instrumentLogger := kitlog.With(logger, "server", "instrumentation")
 	instrumentServer := &http.Server{
 		Addr:     config.InstrumentAddr,
-		Handler:  nil,
+		Handler:  instrumentRouter,
 		ErrorLog: stdlog.New(kitlog.NewStdlibAdapter(level.Error(instrumentLogger)), "", 0),
 	}
 	defer instrumentServer.Close()
@@ -99,6 +118,11 @@ func main() {
 
 		instrumentServerChan <- instrumentServer.ListenAndServe()
 	}()
+
+	// Register HTTP stat views
+	if err := view.Register(ochttp.DefaultServerViews...); err != nil {
+		panic(errors.Wrap(err, "failed to register HTTP server stat views"))
+	}
 
 	helloWorld := &helloworld.UseCase{}
 	helloWorldDriver := web.NewHelloWorldDriver(

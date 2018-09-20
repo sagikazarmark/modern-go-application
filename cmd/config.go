@@ -40,6 +40,9 @@ type Config struct {
 	// Database connection information
 	Database database.Config
 
+	// Prometheus configuration
+	PrometheusEnabled bool
+
 	// Jaeger configuration
 	JaegerEnabled bool
 	Jaeger        jaeger.Config
@@ -115,8 +118,11 @@ func (c *Config) Prepare(conf *conf.Configurator) {
 	conf.StringVar(&c.Database.Name, "db-name", c.Database.Name, "Database name")
 	conf.QueryStringVar(&c.Database.Params, "db-params", c.Database.Params, "Database params")
 
+	// Prometheus configuration
+	conf.BoolVar(&c.PrometheusEnabled, "prometheus-enabled", c.PrometheusEnabled, "Enable Prometheus metrics exporter")
+
 	// Jaeger configuration
-	conf.BoolVar(&c.JaegerEnabled, "jaeger-enabled", c.JaegerEnabled, "Enable Jaeger tracing")
+	conf.BoolVar(&c.JaegerEnabled, "jaeger-enabled", c.JaegerEnabled, "Enable Jaeger trace exporter")
 	conf.StringVar(&c.Jaeger.Endpoint, "jaeger-endpoint", c.Jaeger.Endpoint, "Jaeger HTTP Thrift endpoint")
 	conf.StringVar(&c.Jaeger.AgentEndpoint, "jaeger-agent-endpoint", c.Jaeger.AgentEndpoint, "Jaeger Agent endpoint")
 	conf.StringVar(&c.Jaeger.Username, "jaeger-username", c.Jaeger.Username, "Username to be used if basic auth is required") // nolint: lll
