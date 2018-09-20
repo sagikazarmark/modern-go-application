@@ -11,6 +11,11 @@ go:
     - 1.11.x
     - tip
 
+branches:
+    only:
+        - master
+        - /^v?\d+\.\d+\.\d+(-\S*)?$/
+
 matrix:
     allow_failures:
         - go: tip
