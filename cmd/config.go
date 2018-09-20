@@ -31,6 +31,9 @@ type Config struct {
 	// Log configuration
 	Log log.Config
 
+	// Instrumentation HTTP address
+	InstrumentAddr string
+
 	// HTTP address
 	HTTPAddr string
 
@@ -48,6 +51,7 @@ func NewConfig() Config {
 		Environment:     "production",
 		ShutdownTimeout: 15 * time.Second,
 		Log:             log.NewConfig(),
+		InstrumentAddr:  ":10000",
 		HTTPAddr:        ":8000",
 		Database:        database.NewConfig(),
 	}
@@ -59,8 +63,12 @@ func (c Config) Validate() error {
 		return errors.New("environment is required")
 	}
 
+	if c.InstrumentAddr == "" {
+		return errors.New("instrumentation http server address is required")
+	}
+
 	if c.HTTPAddr == "" {
-		return errors.New("http address is required")
+		return errors.New("http server address is required")
 	}
 
 	if err := c.Log.Validate(); err != nil {
@@ -94,7 +102,10 @@ func (c *Config) Prepare(conf *conf.Configurator) {
 	conf.StringVar(&c.Log.Format, "log-format", c.Log.Format, "Output log format (json or logfmt)")
 	conf.StringVar(&c.Log.Level, "log-level", c.Log.Level, "Minimum log level that should appear on the output")
 
-	conf.StringVarF(&c.HTTPAddr, "http-addr", c.HTTPAddr, "HTTP address")
+	// Instrumentation configuration
+	conf.StringVarF(&c.InstrumentAddr, "instrument-addr", c.InstrumentAddr, "Instrumentation HTTP server address")
+
+	conf.StringVarF(&c.HTTPAddr, "http-addr", c.HTTPAddr, "HTTP server address")
 
 	// Database configuration
 	conf.StringVar(&c.Database.Host, "db-host", c.Database.Host, "Database host")

@@ -84,6 +84,22 @@ func main() {
 	}
 	defer db.Close()
 
+	// Set up instrumentation server
+	instrumentLogger := kitlog.With(logger, "server", "instrumentation")
+	instrumentServer := &http.Server{
+		Addr:     config.InstrumentAddr,
+		Handler:  nil,
+		ErrorLog: stdlog.New(kitlog.NewStdlibAdapter(level.Error(instrumentLogger)), "", 0),
+	}
+	defer instrumentServer.Close()
+
+	instrumentServerChan := make(chan error, 1)
+	go func() {
+		level.Info(instrumentLogger).Log("msg", "starting server", "addr", instrumentServer.Addr)
+
+		instrumentServerChan <- instrumentServer.ListenAndServe()
+	}()
+
 	helloWorld := &helloworld.UseCase{}
 	helloWorldDriver := web.NewHelloWorldDriver(
 		helloWorld,
@@ -117,6 +133,11 @@ func main() {
 	case sig := <-signalChan:
 		level.Info(logger).Log("msg", "captured signal", "signal", sig)
 
+	case err := <-instrumentServerChan:
+		if err != nil && err != http.ErrServerClosed {
+			errorHandler.Handle(emperror.With(errors.Wrap(err, "http server crashed"), "server", "instrumentation"))
+		}
+
 	case err := <-httpServerChan:
 		if err != nil && err != http.ErrServerClosed {
 			errorHandler.Handle(emperror.With(errors.Wrap(err, "http server crashed"), "server", "http"))
@@ -126,6 +147,17 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), config.ShutdownTimeout)
 	defer cancel()
 
+	// Shut down instrumentation server
+	go func() {
+		level.Info(instrumentLogger).Log("msg", "shutting server down")
+
+		err := instrumentServer.Shutdown(ctx)
+		if err != nil {
+			errorHandler.Handle(err)
+		}
+	}()
+
+	// Shut down HTTP server
 	go func() {
 		level.Info(httpLogger).Log("msg", "shutting server down")
 
