@@ -93,35 +93,45 @@ func main() {
 
 	router := internal.NewRouter(helloWorldDriver)
 
-	httpErrorLog := stdlog.New(kitlog.NewStdlibAdapter(level.Error(logger)), "", 0)
-
+	httpLogger := kitlog.With(logger, "server", "http")
 	httpServer := &http.Server{
 		Addr: config.HTTPAddr,
 		Handler: &ochttp.Handler{
 			Handler: router,
 		},
-		ErrorLog: httpErrorLog,
+		ErrorLog: stdlog.New(kitlog.NewStdlibAdapter(level.Error(httpLogger)), "", 0),
 	}
 	defer httpServer.Close()
 
 	httpServerChan := make(chan error, 1)
-	go startHTTPServer(httpServer, httpServerChan, logger)
+	go func() {
+		level.Info(httpLogger).Log("msg", "starting server", "addr", httpServer.Addr)
+
+		httpServerChan <- httpServer.ListenAndServe()
+	}()
 
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
 
 	select {
 	case sig := <-signalChan:
-		level.Info(logger).Log("msg", fmt.Sprintf("captured %v signal", sig))
+		level.Info(logger).Log("msg", "captured signal", "signal", sig)
 
 	case err := <-httpServerChan:
 		if err != nil && err != http.ErrServerClosed {
-			errorHandler.Handle(errors.Wrap(err, "private API server crashed"))
+			errorHandler.Handle(emperror.With(errors.Wrap(err, "http server crashed"), "server", "http"))
 		}
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), config.ShutdownTimeout)
 	defer cancel()
 
-	go stopHTTPServer(ctx, httpServer, errorHandler)
+	go func() {
+		level.Info(httpLogger).Log("msg", "shutting server down")
+
+		err := httpServer.Shutdown(ctx)
+		if err != nil {
+			errorHandler.Handle(err)
+		}
+	}()
 }
