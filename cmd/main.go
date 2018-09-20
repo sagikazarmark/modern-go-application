@@ -31,16 +31,8 @@ func main() {
 	config.Prepare(conf.Global)
 	conf.Parse()
 
-	appCtx := NewAppContext(config)
-
 	if config.ShowVersion {
-		fmt.Printf(
-			"%s version %s (%s) built on %s",
-			appCtx.FriendlyName,
-			appCtx.Build.Version,
-			appCtx.Build.CommitHash,
-			appCtx.Build.Date,
-		)
+		fmt.Printf("%s version %s (%s) built on %s", FriendlyServiceName, Version, CommitHash, BuildDate)
 
 		os.Exit(0)
 	}
@@ -59,23 +51,14 @@ func main() {
 	}
 
 	// Provide some basic context to all log lines
-	logger = kitlog.With(
-		logger,
-		"environment", config.Environment,
-		"service", appCtx.Name,
-	)
+	logger = kitlog.With(logger, "environment", config.Environment, "service", ServiceName)
 
 	// Configure error handler
 	errorHandler := errorlog.NewHandler(logger)
 
 	defer emperror.HandleRecover(errorHandler)
 
-	level.Info(logger).Log(
-		"version", appCtx.Build.Version,
-		"commit_hash", appCtx.Build.CommitHash,
-		"build_date", appCtx.Build.Date,
-		"msg", "starting",
-	)
+	level.Info(logger).Log("version", Version, "commit_hash", CommitHash, "build_date", BuildDate, "msg", "starting")
 
 	// Trace everything in development environment
 	if config.Environment == "development" {
@@ -86,7 +69,7 @@ func main() {
 	if config.JaegerEnabled {
 		level.Debug(logger).Log("msg", "jaeger exporter enabled")
 
-		exporter, err := jaeger.NewExporter(config.Jaeger, appCtx.Name, errorHandler)
+		exporter, err := jaeger.NewExporter(config.Jaeger, ServiceName, errorHandler)
 		if err != nil {
 			panic(err)
 		}
