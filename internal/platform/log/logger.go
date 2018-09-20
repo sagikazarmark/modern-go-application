@@ -4,6 +4,7 @@ package log
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -29,10 +30,23 @@ func NewLogger(config Config) (log.Logger, error) {
 	// Fallback to Info level
 	logger = level.NewInjector(logger, level.InfoValue())
 
-	// Only log debug level messages if debug mode is turned on
-	if !config.Debug {
-		logger = level.NewFilter(logger, level.AllowInfo())
+	// Set log level
+	var levelOption level.Option
+	switch strings.ToLower(config.Level) {
+	case debugLevel:
+		levelOption = level.AllowDebug()
+
+	case infoLevel, "": // Info is the default level
+		levelOption = level.AllowInfo()
+
+	case warnLevel, warningLevel:
+		levelOption = level.AllowWarn()
+
+	case errorLevel:
+		levelOption = level.AllowError()
 	}
+
+	logger = level.NewFilter(logger, levelOption)
 
 	return logger, nil
 }

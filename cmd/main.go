@@ -52,8 +52,6 @@ func main() {
 		os.Exit(3)
 	}
 
-	config.ApplyContext(appCtx)
-
 	// Create logger
 	logger, err := log.NewLogger(config.Log)
 	if err != nil {

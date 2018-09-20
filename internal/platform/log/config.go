@@ -4,19 +4,30 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Log level constants
+const (
+	debugLevel   = "debug"
+	infoLevel    = "info"
+	warnLevel    = "warn"
+	warningLevel = "warning"
+	errorLevel   = "error"
+)
+
 // Config holds details necessary for logging.
 type Config struct {
-	// Defines the log format.
-	// Valid values are: json, logfmt
+	// Format specifies the output log format.
+	// Accepted values are: json, logfmt
 	Format string
 
-	Debug bool
+	// Level is the minimum log level that should appear on the output.
+	Level string
 }
 
 // NewConfig returns a new Config instance with some defaults.
 func NewConfig() Config {
 	return Config{
 		Format: "json",
+		Level:  infoLevel,
 	}
 }
 

@@ -91,7 +91,8 @@ func (c *Config) Prepare(conf *conf.Configurator) {
 	conf.DurationVarF(&c.ShutdownTimeout, "shutdown-timeout", c.ShutdownTimeout, "Timeout for graceful shutdown")
 
 	// Log configuration
-	conf.StringVar(&c.Log.Format, "log-format", c.Log.Format, "Defines the log format (json or logfmt)")
+	conf.StringVar(&c.Log.Format, "log-format", c.Log.Format, "Output log format (json or logfmt)")
+	conf.StringVar(&c.Log.Level, "log-level", c.Log.Level, "Minimum log level that should appear on the output")
 
 	conf.StringVarF(&c.HTTPAddr, "http-addr", c.HTTPAddr, "HTTP address")
 
@@ -109,9 +110,4 @@ func (c *Config) Prepare(conf *conf.Configurator) {
 	conf.StringVar(&c.Jaeger.AgentEndpoint, "jaeger-agent-endpoint", c.Jaeger.AgentEndpoint, "Jaeger Agent endpoint")
 	conf.StringVar(&c.Jaeger.Username, "jaeger-username", c.Jaeger.Username, "Username to be used if basic auth is required") // nolint: lll
 	conf.StringVar(&c.Jaeger.Password, "jaeger-password", c.Jaeger.Password, "Password to be used if basic auth is required") // nolint: lll
-}
-
-// ApplyContext updates configuration values based on the application context.
-func (c *Config) ApplyContext(ctx Context) {
-	c.Log.Debug = ctx.Debug
 }
