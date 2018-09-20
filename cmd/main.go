@@ -55,7 +55,6 @@ func main() {
 
 	// Configure error handler
 	errorHandler := errorlog.NewHandler(logger)
-
 	defer emperror.HandleRecover(errorHandler)
 
 	level.Info(logger).Log("version", Version, "commit_hash", CommitHash, "build_date", BuildDate, "msg", "starting")
