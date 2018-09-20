@@ -6,3 +6,9 @@ services:
             - 3306:3306
         volumes:
             - ./.docker/volumes/mysql:/var/lib/mysql
+
+    jaeger:
+        ports:
+            - 6831:6831
+            - 14268:14268
+            - 16686:16686
