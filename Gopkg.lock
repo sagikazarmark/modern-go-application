@@ -104,6 +104,14 @@
   revision = "b84e30acd515aadc4b783ad4ff83aff3299bdfe0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:011c252cbeca9d6b7fd995ef704e259d959affcbae4fde70fdb2de603e4bab55"
+  name = "github.com/opencensus-integrations/ocsql"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "a6884a0940caf7e34fca9e4838cdc75dd7ac88bf"
+
+[[projects]]
   digest = "1:40e195917a951a8bf867cd05de2a46aaf1806c50cf92eebf4c16f78cd196f747"
   name = "github.com/pkg/errors"
   packages = ["."]
@@ -139,6 +147,20 @@
   version = "v1.2.2"
 
 [[projects]]
+  digest = "1:0a1f2ec6d5e0ef1c5de13a1b19768240045f30c6a3b8973644b4fbcb705bad28"
+  name = "go.opencensus.io"
+  packages = [
+    ".",
+    "internal",
+    "trace",
+    "trace/internal",
+    "trace/tracestate",
+  ]
+  pruneopts = "UT"
+  revision = "79993219becaa7e29e3b60cb67f5b8e82dee11d6"
+  version = "v0.17.0"
+
+[[projects]]
   digest = "1:c25289f43ac4a68d88b02245742347c94f1e108c534dda442188015ff80669b3"
   name = "google.golang.org/appengine"
   packages = ["cloudsql"]
@@ -158,9 +180,11 @@
     "github.com/goph/emperror/errorlog",
     "github.com/gorilla/mux",
     "github.com/joho/godotenv",
+    "github.com/opencensus-integrations/ocsql",
     "github.com/pkg/errors",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
+    "go.opencensus.io",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
