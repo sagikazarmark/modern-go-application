@@ -22,9 +22,10 @@ GOLANGCI_VERSION = 1.10.2
 
 bin/dep: bin/dep-${DEP_VERSION}
 bin/dep-${DEP_VERSION}:
-	@mkdir -p ./bin/
+	@mkdir -p bin
+	@rm -rf bin/dep-*
 	curl https://raw.githubusercontent.com/golang/dep/master/install.sh | INSTALL_DIRECTORY=./bin DEP_RELEASE_TAG=v${DEP_VERSION} sh
-	@touch bin/dep-${DEP_VERSION}
+	@touch $@
 
 .PHONY: vendor
 vendor: bin/dep ## Install dependencies
@@ -86,9 +87,10 @@ test-%: ## Run a specific test suite
 
 bin/golangci-lint: bin/golangci-lint-${GOLANGCI_VERSION}
 bin/golangci-lint-${GOLANGCI_VERSION}:
-	@mkdir -p ./bin/
+	@mkdir -p bin
+	@rm -rf bin/golangci-lint-*
 	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s -- -b ./bin/ v${GOLANGCI_VERSION}
-	@touch bin/golangci-lint-${GOLANGCI_VERSION}
+	@touch $@
 
 .PHONY: lint
 lint: bin/golangci-lint ## Run linter
