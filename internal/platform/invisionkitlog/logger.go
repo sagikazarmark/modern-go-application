@@ -1,4 +1,4 @@
-package health
+package invisionkitlog
 
 import (
 	"fmt"
@@ -10,6 +10,11 @@ import (
 
 type loggerShim struct {
 	logger kitlog.Logger
+}
+
+// New returns a new kitlog shim for invision logger interface.
+func New(logger kitlog.Logger) *loggerShim {
+	return &loggerShim{logger}
 }
 
 // this will add a space between all elements in the slice

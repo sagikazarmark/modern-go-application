@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/InVisionApp/go-health"
 	"github.com/InVisionApp/go-health/checkers"
 	"github.com/InVisionApp/go-health/handlers"
 	kitlog "github.com/go-kit/kit/log"
@@ -22,7 +23,7 @@ import (
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal/helloworld"
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal/helloworld/driver/web"
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/database"
-	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/health"
+	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/invisionkitlog"
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/jaeger"
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/log"
 	"go.opencensus.io/exporter/prometheus"
@@ -66,7 +67,8 @@ func main() {
 	level.Info(logger).Log("version", Version, "commit_hash", CommitHash, "build_date", BuildDate, "msg", "starting")
 
 	// Configure health checker
-	healthz := health.New(logger)
+	healthz := health.New()
+	healthz.Logger = invisionkitlog.New(logger)
 
 	// Connect to the database
 	level.Debug(logger).Log("msg", "connecting to database")
