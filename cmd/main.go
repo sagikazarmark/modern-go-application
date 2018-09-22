@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/InVisionApp/go-health/handlers"
 	kitlog "github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/goph/conf"
@@ -19,6 +20,7 @@ import (
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal/helloworld"
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal/helloworld/driver/web"
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/database"
+	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/health"
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/jaeger"
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/log"
 	"go.opencensus.io/exporter/prometheus"
@@ -70,6 +72,15 @@ func main() {
 	defer db.Close()
 
 	instrumentRouter := http.NewServeMux()
+
+	// Configure health checks
+	healthChecker, err := health.New(db)
+	if err != nil {
+		panic(err)
+	}
+	healthChecker.Start()
+
+	instrumentRouter.Handle("/healthz", handlers.NewJSONHandlerFunc(healthChecker, nil))
 
 	// Configure prometheus
 	if config.PrometheusEnabled {
