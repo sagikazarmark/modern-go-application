@@ -90,7 +90,7 @@ func (s *loggerShim) Errorf(format string, args ...interface{}) {
 // kitlog logger, with the provided fields added to the log string,
 // as a key-value pair
 func (s *loggerShim) WithFields(fields log.Fields) log.Logger {
-	var keyvals []interface{}
+	var keyvals []interface{} // nolint: prealloc
 
 	for key, value := range fields {
 		keyvals = append(keyvals, key, value)

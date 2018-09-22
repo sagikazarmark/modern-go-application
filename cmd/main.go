@@ -80,7 +80,7 @@ func main() {
 	if err != nil {
 		panic(errors.Wrap(err, "failed to create db health checker"))
 	}
-	healthz.AddCheck(&health.Config{
+	err = healthz.AddCheck(&health.Config{
 		Name:     "database",
 		Checker:  dbCheck,
 		Interval: time.Duration(3) * time.Second,
@@ -92,7 +92,9 @@ func main() {
 
 	instrumentRouter := http.NewServeMux()
 
-	healthz.Start()
+	if err := healthz.Start(); err != nil {
+		panic(errors.Wrap(err, "failed to start health checker"))
+	}
 
 	instrumentRouter.Handle("/healthz", handlers.NewJSONHandlerFunc(healthz, nil))
 
