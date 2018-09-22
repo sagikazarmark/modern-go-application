@@ -8,7 +8,9 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
+	"github.com/InVisionApp/go-health/checkers"
 	"github.com/InVisionApp/go-health/handlers"
 	kitlog "github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -63,6 +65,9 @@ func main() {
 
 	level.Info(logger).Log("version", Version, "commit_hash", CommitHash, "build_date", BuildDate, "msg", "starting")
 
+	// Configure health checker
+	healthz := health.New(logger)
+
 	// Connect to the database
 	level.Debug(logger).Log("msg", "connecting to database")
 	db, err := database.NewConnection(config.Database)
@@ -71,16 +76,25 @@ func main() {
 	}
 	defer db.Close()
 
+	dbCheck, err := checkers.NewSQL(&checkers.SQLConfig{Pinger: db})
+	if err != nil {
+		panic(errors.Wrap(err, "failed to create db health checker"))
+	}
+	healthz.AddCheck(&health.Config{
+		Name:     "database",
+		Checker:  dbCheck,
+		Interval: time.Duration(3) * time.Second,
+		Fatal:    true,
+	})
+	if err != nil {
+		panic(errors.Wrap(err, "failed to add health checker"))
+	}
+
 	instrumentRouter := http.NewServeMux()
 
-	// Configure health checks
-	healthChecker, err := health.New(db)
-	if err != nil {
-		panic(err)
-	}
-	healthChecker.Start()
+	healthz.Start()
 
-	instrumentRouter.Handle("/healthz", handlers.NewJSONHandlerFunc(healthChecker, nil))
+	instrumentRouter.Handle("/healthz", handlers.NewJSONHandlerFunc(healthz, nil))
 
 	// Configure prometheus
 	if config.PrometheusEnabled {

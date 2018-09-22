@@ -335,6 +335,7 @@
     "github.com/InVisionApp/go-health",
     "github.com/InVisionApp/go-health/checkers",
     "github.com/InVisionApp/go-health/handlers",
+    "github.com/InVisionApp/go-logger",
     "github.com/go-kit/kit/log",
     "github.com/go-kit/kit/log/level",
     "github.com/go-sql-driver/mysql",
