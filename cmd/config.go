@@ -8,6 +8,7 @@ import (
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/database"
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/jaeger"
 	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/log"
+	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/redis"
 )
 
 // Config holds any kind of configuration that comes from the outside world and
@@ -40,6 +41,9 @@ type Config struct {
 	// Database connection information
 	Database database.Config
 
+	// Redis configuration
+	Redis redis.Config
+
 	// Prometheus configuration
 	PrometheusEnabled bool
 
@@ -57,6 +61,7 @@ func NewConfig() Config {
 		InstrumentAddr:  ":10000",
 		HTTPAddr:        ":8000",
 		Database:        database.NewConfig(),
+		Redis:           redis.NewConfig(),
 	}
 }
 
@@ -79,6 +84,10 @@ func (c Config) Validate() error {
 	}
 
 	if err := c.Database.Validate(); err != nil {
+		return err
+	}
+
+	if err := c.Redis.Validate(); err != nil {
 		return err
 	}
 
@@ -117,6 +126,11 @@ func (c *Config) Prepare(conf *conf.Configurator) {
 	conf.StringVar(&c.Database.Pass, "db-pass", c.Database.Pass, "Database password")
 	conf.StringVar(&c.Database.Name, "db-name", c.Database.Name, "Database name")
 	conf.QueryStringVar(&c.Database.Params, "db-params", c.Database.Params, "Database params")
+
+	// Redis configuration
+	conf.StringVar(&c.Redis.Host, "redis-host", c.Redis.Host, "Redis host")
+	conf.IntVar(&c.Redis.Port, "redis-port", c.Redis.Port, "Redis port")
+	conf.StringSliceVar(&c.Redis.Password, "redis-password", c.Redis.Password, "Redis password list supports passing multiple passwords making password changes easier") // nolint: lll
 
 	// Prometheus configuration
 	conf.BoolVar(&c.PrometheusEnabled, "prometheus-enabled", c.PrometheusEnabled, "Enable Prometheus metrics exporter")

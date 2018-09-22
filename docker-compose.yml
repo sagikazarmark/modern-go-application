@@ -8,6 +8,9 @@ services:
             MYSQL_ROOT_PASSWORD: root
             MYSQL_DATABASE: database
 
+    redis:
+        image: redis:4.0
+
     jaeger:
         image: jaegertracing/all-in-one:latest
         environment:

@@ -70,6 +70,17 @@
   version = "v1.2.0"
 
 [[projects]]
+  digest = "1:38ec74012390146c45af1f92d46e5382b50531247929ff3a685d2b2be65155ac"
+  name = "github.com/gomodule/redigo"
+  packages = [
+    "internal",
+    "redis",
+  ]
+  pruneopts = "UT"
+  revision = "9c11da706d9b7902c6da69c592f75637793fe121"
+  version = "v2.0.0"
+
+[[projects]]
   digest = "1:781153fca7a5262167ef4e9aa8ea7c4f7c3b50c7237296772d6ffc383a7da75d"
   name = "github.com/goph/conf"
   packages = ["."]
@@ -287,6 +298,7 @@
     "github.com/go-kit/kit/log",
     "github.com/go-kit/kit/log/level",
     "github.com/go-sql-driver/mysql",
+    "github.com/gomodule/redigo/redis",
     "github.com/goph/conf",
     "github.com/goph/emperror",
     "github.com/goph/emperror/errorlog",
