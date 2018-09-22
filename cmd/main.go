@@ -36,7 +36,7 @@ func main() {
 	conf.Parse()
 
 	if config.ShowVersion {
-		fmt.Printf("%s version %s (%s) built on %s", FriendlyServiceName, Version, CommitHash, BuildDate)
+		fmt.Printf("%s version %s (%s) built on %s\n", FriendlyServiceName, Version, CommitHash, BuildDate)
 
 		os.Exit(0)
 	}
