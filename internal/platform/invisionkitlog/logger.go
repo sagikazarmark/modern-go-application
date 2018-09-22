@@ -13,7 +13,7 @@ type loggerShim struct {
 }
 
 // New returns a new kitlog shim for invision logger interface.
-func New(logger kitlog.Logger) *loggerShim {
+func New(logger kitlog.Logger) log.Logger {
 	return &loggerShim{logger}
 }
 
