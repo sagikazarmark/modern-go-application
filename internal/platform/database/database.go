@@ -2,7 +2,6 @@ package database
 
 import (
 	"database/sql"
-	"time"
 
 	_ "github.com/go-sql-driver/mysql" // Importing mysql driver here
 	"github.com/opencensus-integrations/ocsql"
@@ -36,10 +35,6 @@ func NewConnection(config Config) (*sql.DB, error) {
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-
-	db.SetMaxIdleConns(2)
-	db.SetMaxOpenConns(10)
-	db.SetConnMaxLifetime(time.Minute)
 
 	return db, nil
 }
