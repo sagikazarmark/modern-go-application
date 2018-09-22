@@ -1,3 +1,7 @@
+run:
+    skip-dirs:
+        - .gen
+
 linters:
     enable-all: true
     disable:

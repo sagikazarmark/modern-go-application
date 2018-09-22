@@ -1,0 +1,66 @@
+openapi: 3.0.1
+info:
+  description: Some description
+  title: Hello World API
+  version: 1.0.0
+servers:
+- url: https://api.hello.world/
+- url: http://api.hello.world/
+paths:
+  /hello:
+    get:
+      operationId: helloWorld
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hello'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Hello'
+          description: successful operation
+      summary: Say hello to the world
+    post:
+      operationId: sayHello
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HelloRequest'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/HelloRequest'
+        required: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hello'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Hello'
+          description: successful operation
+      summary: Say hello to someone
+components:
+  schemas:
+    Hello:
+      example:
+        message: message
+      properties:
+        message:
+          type: string
+      type: object
+    HelloRequest:
+      example:
+        who: who
+      properties:
+        who:
+          type: string
+      type: object
+  securitySchemes:
+    api_key:
+      in: header
+      name: api_key
+      type: apiKey

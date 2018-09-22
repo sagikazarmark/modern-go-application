@@ -1,0 +1,66 @@
+swagger: "2.0"
+info:
+    title: "Hello World API"
+    description: "Some description"
+    version: "1.0.0"
+host: "api.hello.world"
+basePath: "/"
+schemes:
+    - "https"
+    - "http"
+
+securityDefinitions:
+    api_key:
+        type: "apiKey"
+        name: "api_key"
+        in: "header"
+
+paths:
+    /hello:
+        get:
+            summary: "Say hello to the world"
+            description: ""
+            operationId: "helloWorld"
+            produces:
+                - "application/json"
+                - "application/xml"
+            responses:
+                200:
+                    description: "successful operation"
+                    schema:
+                        $ref: "#/definitions/Hello"
+        post:
+            summary: "Say hello to someone"
+            description: ""
+            operationId: "sayHello"
+            consumes:
+                - "application/json"
+                - "application/xml"
+            produces:
+                - "application/json"
+                - "application/xml"
+            parameters:
+                -
+                    name: "body"
+                    in: "body"
+                    required: true
+                    schema:
+                        $ref: "#/definitions/HelloRequest"
+            responses:
+                200:
+                    description: "successful operation"
+                    schema:
+                        $ref: "#/definitions/Hello"
+
+definitions:
+    Hello:
+        type: "object"
+        properties:
+            message:
+                type: "string"
+
+    HelloRequest:
+        type: "object"
+        properties:
+            who:
+                type: "string"

@@ -96,6 +96,16 @@ bin/golangci-lint-${GOLANGCI_VERSION}:
 lint: bin/golangci-lint ## Run linter
 	bin/golangci-lint run
 
+.PHONY: generate-api
+generate-api:
+	rm -rf .gen/openapi
+	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli generate \
+	--additional-properties packageName=api \
+	--additional-properties withGoCodegenComment=true \
+	-i /local/swagger.yaml \
+	-g go-server \
+	-o /local/.gen/openapi
+
 .PHONY: help
 .DEFAULT_GOAL := help
 help:

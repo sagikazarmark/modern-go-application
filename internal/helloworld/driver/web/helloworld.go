@@ -1,11 +1,13 @@
 package web
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/goph/emperror"
+	"github.com/sagikazarmark/go-service-project-boilerplate/.gen/openapi/go"
 )
 
 // HelloWorldDriverOption configures a HelloWorldDriver.
@@ -36,6 +38,7 @@ func ErrorHandler(h emperror.Handler) HelloWorldDriverOption {
 
 type helloWorlder interface {
 	HelloWorld() string
+	SayHello(who string) string
 }
 
 // HelloWorldDriver exposes the UseCase on an HTTP interface.
@@ -69,11 +72,48 @@ func NewHelloWorldDriver(helloWorld helloWorlder, opts ...HelloWorldDriverOption
 	return d
 }
 
-func (d *HelloWorldDriver) HelloWorld(rw http.ResponseWriter, r *http.Request) {
+func (d *HelloWorldDriver) HelloWorld(w http.ResponseWriter, r *http.Request) {
 	level.Info(d.logger).Log("msg", "Hello, World!")
 
-	_, err := rw.Write([]byte(d.helloWorld.HelloWorld()))
-	if err != nil {
+	response := api.Hello{
+		Message: d.helloWorld.HelloWorld(),
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+
+	encoder := json.NewEncoder(w)
+
+	if err := encoder.Encode(response); err != nil {
+		d.errorHandler.Handle(err)
+	}
+}
+
+func (d *HelloWorldDriver) SayHello(w http.ResponseWriter, r *http.Request) {
+	level.Info(d.logger).Log("msg", "Say hello")
+
+	decoder := json.NewDecoder(r.Body)
+
+	var request api.HelloRequest
+
+	if err := decoder.Decode(&request); err != nil {
+		d.errorHandler.Handle(err)
+
+		http.Error(w, "invalid request", http.StatusBadRequest)
+
+		return
+	}
+
+	response := api.Hello{
+		Message: d.helloWorld.SayHello(request.Who),
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+
+	encoder := json.NewEncoder(w)
+
+	if err := encoder.Encode(response); err != nil {
 		d.errorHandler.Handle(err)
 	}
 }
