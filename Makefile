@@ -19,6 +19,7 @@ DOCKER_LATEST ?= false
 # Dependency versions
 DEP_VERSION = 0.5.0
 GOLANGCI_VERSION = 1.10.2
+OPENAPI_GENERATOR_VERSION = 3.3.0
 
 bin/dep: bin/dep-${DEP_VERSION}
 bin/dep-${DEP_VERSION}:
@@ -99,7 +100,7 @@ lint: bin/golangci-lint ## Run linter
 .PHONY: generate-api
 generate-api:
 	rm -rf .gen/openapi
-	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli generate \
+	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli:v${OPENAPI_GENERATOR_VERSION} generate \
 	--additional-properties packageName=api \
 	--additional-properties withGoCodegenComment=true \
 	-i /local/swagger.yaml \
