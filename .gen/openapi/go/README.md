@@ -10,10 +10,10 @@ By using the [OpenAPI-Spec](https://github.com/OAI/OpenAPI-Specification) from a
 
 To see how to make this your own, look here:
 
-[README]((https://openapi-generator.tech))
+[README](https://openapi-generator.tech)
 
 - API version: 1.0.0
-- Build date: 2018-09-22T08:54:16.516Z[GMT]
+- Build date: 2018-10-09T21:00:59.040Z[GMT]
 
 
 ### Running the server

@@ -51,21 +51,21 @@ var routes = Routes{
 	{
 		"Index",
 		"GET",
-		"//",
+		"/",
 		Index,
 	},
 
 	{
 		"HelloWorld",
 		strings.ToUpper("Get"),
-		"//hello",
+		"/hello",
 		HelloWorld,
 	},
 
 	{
 		"SayHello",
 		strings.ToUpper("Post"),
-		"//hello",
+		"/hello",
 		SayHello,
 	},
 }
