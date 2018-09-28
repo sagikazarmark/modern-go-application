@@ -153,9 +153,9 @@ func main() {
 		panic(errors.Wrap(err, "failed to register HTTP server stat views"))
 	}
 
-	helloWorld := &helloworld.UseCase{}
+	helloWorldUseCase := &helloworld.UseCase{}
 	helloWorldDriver := web.NewHelloWorldDriver(
-		helloWorld,
+		helloWorldUseCase,
 		web.Logger(logger),
 		web.ErrorHandler(errorHandler),
 	)

@@ -8,6 +8,7 @@ import (
 	"github.com/go-kit/kit/log/level"
 	"github.com/goph/emperror"
 	"github.com/sagikazarmark/go-service-project-boilerplate/.gen/openapi/go"
+	"github.com/sagikazarmark/go-service-project-boilerplate/internal/helloworld"
 )
 
 // HelloWorldDriverOption configures a HelloWorldDriver.
@@ -36,23 +37,28 @@ func ErrorHandler(h emperror.Handler) HelloWorldDriverOption {
 	})
 }
 
-type helloWorlder interface {
-	HelloWorld() string
-	SayHello(who string) string
+type helloOutput struct {
+	Hello helloworld.Hello
+}
+
+func (o *helloOutput) Say(hello helloworld.Hello) {
+	o.Hello = hello
 }
 
 // HelloWorldDriver exposes the UseCase on an HTTP interface.
 type HelloWorldDriver struct {
-	helloWorld helloWorlder
+	helloWorld helloworld.HelloWorld
+	sayHello   helloworld.SayHello
 
 	logger       log.Logger
 	errorHandler emperror.Handler
 }
 
 // NewHelloWorldDriver returns a new HelloWorldDriver instance.
-func NewHelloWorldDriver(helloWorld helloWorlder, opts ...HelloWorldDriverOption) *HelloWorldDriver {
+func NewHelloWorldDriver(helloWorldUseCase *helloworld.UseCase, opts ...HelloWorldDriverOption) *HelloWorldDriver {
 	d := &HelloWorldDriver{
-		helloWorld: helloWorld,
+		helloWorld: helloWorldUseCase,
+		sayHello:   helloWorldUseCase,
 	}
 
 	for _, opt := range opts {
@@ -75,8 +81,12 @@ func NewHelloWorldDriver(helloWorld helloWorlder, opts ...HelloWorldDriverOption
 func (d *HelloWorldDriver) HelloWorld(w http.ResponseWriter, r *http.Request) {
 	level.Info(d.logger).Log("msg", "Hello, World!")
 
+	output := &helloOutput{}
+
+	d.helloWorld.HelloWorld(r.Context(), output)
+
 	response := api.Hello{
-		Message: d.helloWorld.HelloWorld(),
+		Message: output.Hello.Message,
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -104,8 +114,16 @@ func (d *HelloWorldDriver) SayHello(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	sayHelloTo := helloworld.SayHelloTo{
+		Who: request.Who,
+	}
+
+	output := &helloOutput{}
+
+	d.sayHello.SayHello(r.Context(), sayHelloTo, output)
+
 	response := api.Hello{
-		Message: d.helloWorld.SayHello(request.Who),
+		Message: output.Hello.Message,
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
