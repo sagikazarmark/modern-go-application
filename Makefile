@@ -30,7 +30,7 @@ bin/dep-${DEP_VERSION}:
 
 .PHONY: vendor
 vendor: bin/dep ## Install dependencies
-	bin/dep ensure -vendor-only
+	bin/dep ensure -v -vendor-only
 
 .env: ## Create local env file
 	cp .env.dist .env
