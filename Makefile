@@ -63,15 +63,15 @@ docker-compose.override.yml: ## Create docker compose override file
 	cp docker-compose.override.yml.dist docker-compose.override.yml
 
 .PHONY: start
-start: docker-compose.override.yml # Start docker development environment
+start: docker-compose.override.yml ## Start docker development environment
 	docker-compose up -d
 
 .PHONY: stop
-stop: # Stop docker development environment
+stop: ## Stop docker development environment
 	docker-compose stop
 
 .PHONY: reset
-reset: # Reset docker development environment
+reset: ## Reset docker development environment
 	docker-compose down
 	rm -rf .docker/
 
