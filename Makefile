@@ -21,6 +21,9 @@ DEP_VERSION = 0.5.0
 GOLANGCI_VERSION = 1.10.2
 OPENAPI_GENERATOR_VERSION = 3.3.0
 
+.PHONY: up
+up: vendor start .env .env.test ## Set up the development environment
+
 bin/dep: bin/dep-${DEP_VERSION}
 bin/dep-${DEP_VERSION}:
 	@mkdir -p bin
