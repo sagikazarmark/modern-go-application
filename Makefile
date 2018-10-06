@@ -24,6 +24,26 @@ OPENAPI_GENERATOR_VERSION = 3.3.0
 .PHONY: up
 up: vendor start .env .env.test ## Set up the development environment
 
+.PHONY: clean
+clean: reset ## Clean the working area and the project
+	rm -rf bin/ ${BUILD_DIR}/ vendor/ .env .env.test
+
+docker-compose.override.yml: ## Create docker compose override file
+	cp docker-compose.override.yml.dist docker-compose.override.yml
+
+.PHONY: start
+start: docker-compose.override.yml ## Start docker development environment
+	docker-compose up -d
+
+.PHONY: stop
+stop: ## Stop docker development environment
+	docker-compose stop
+
+.PHONY: reset
+reset: ## Reset docker development environment
+	docker-compose down
+	rm -rf .docker/
+
 bin/dep: bin/dep-${DEP_VERSION}
 bin/dep-${DEP_VERSION}:
 	@mkdir -p bin
@@ -41,10 +61,6 @@ vendor: bin/dep ## Install dependencies
 .env.test: ## Create local env file for running tests
 	cp .env.dist .env.test
 
-.PHONY: clean
-clean: reset ## Clean the working area and the project
-	rm -rf bin/ ${BUILD_DIR}/ vendor/ .env .env.test
-
 .PHONY: run
 run: TAGS += dev
 run: build .env ## Build and execute a binary
@@ -61,22 +77,6 @@ docker: build ## Build a Docker image
 ifeq (${DOCKER_LATEST}, true)
 	docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
 endif
-
-docker-compose.override.yml: ## Create docker compose override file
-	cp docker-compose.override.yml.dist docker-compose.override.yml
-
-.PHONY: start
-start: docker-compose.override.yml ## Start docker development environment
-	docker-compose up -d
-
-.PHONY: stop
-stop: ## Stop docker development environment
-	docker-compose stop
-
-.PHONY: reset
-reset: ## Reset docker development environment
-	docker-compose down
-	rm -rf .docker/
 
 .PHONY: check
 check: test lint ## Run tests and linters
