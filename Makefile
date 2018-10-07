@@ -24,9 +24,17 @@ OPENAPI_GENERATOR_VERSION = 3.3.0
 .PHONY: up
 up: vendor start .env .env.test ## Set up the development environment
 
+.PHONY: down
+down: clean ## Destroy the development environment
+	docker-compose down
+	rm -rf .docker/
+
+.PHONY: reset
+reset: down up ## Reset the development environment
+
 .PHONY: clean
-clean: reset ## Clean the working area and the project
-	rm -rf bin/ ${BUILD_DIR}/ vendor/ .env .env.test
+clean: ## Clean the working area and the project
+	rm -rf bin/ ${BUILD_DIR}/ vendor/
 
 docker-compose.override.yml: ## Create docker compose override file
 	cp docker-compose.override.yml.dist docker-compose.override.yml
@@ -38,11 +46,6 @@ start: docker-compose.override.yml ## Start docker development environment
 .PHONY: stop
 stop: ## Stop docker development environment
 	docker-compose stop
-
-.PHONY: reset
-reset: ## Reset docker development environment
-	docker-compose down
-	rm -rf .docker/
 
 bin/dep: bin/dep-${DEP_VERSION}
 bin/dep-${DEP_VERSION}:
