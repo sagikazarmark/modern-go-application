@@ -7,6 +7,7 @@ DOCKER_IMAGE ?= $(shell echo ${PACKAGE} | cut -d '/' -f 2,3)
 
 # Build variables
 BUILD_DIR = build
+BUILD_PACKAGE = ${PACKAGE}/cmd
 VERSION ?= $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT_HASH ?= $(shell git rev-parse --short HEAD 2>/dev/null)
 BUILD_DATE ?= $(shell date +%FT%T%z)
@@ -71,7 +72,7 @@ run: build .env ## Build and execute a binary
 
 .PHONY: build
 build: ## Build a binary
-	CGO_ENABLED=0 go build -tags '${TAGS}' ${LDFLAGS} -o ${BUILD_DIR}/${BINARY_NAME} ${PACKAGE}/cmd
+	CGO_ENABLED=0 go build -tags '${TAGS}' ${LDFLAGS} -o ${BUILD_DIR}/${BINARY_NAME} ${BUILD_PACKAGE}
 
 .PHONY: docker
 docker: BINARY_NAME := ${BINARY_NAME}-docker
