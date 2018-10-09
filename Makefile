@@ -3,15 +3,17 @@
 # Project variables
 PACKAGE = $(shell echo $${PWD\#\#*src/})
 BINARY_NAME = $(shell basename $$PWD)
-DOCKER_IMAGE ?= $(shell echo ${PACKAGE} | cut -d '/' -f 2,3)
+DOCKER_IMAGE = $(shell echo ${PACKAGE} | cut -d '/' -f 2,3)
 
 # Build variables
 BUILD_DIR = build
 BUILD_PACKAGE = ${PACKAGE}/cmd
+BUILD = release
 VERSION ?= $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT_HASH ?= $(shell git rev-parse --short HEAD 2>/dev/null)
 BUILD_DATE ?= $(shell date +%FT%T%z)
-LDFLAGS = -ldflags "-w -X main.Version=${VERSION} -X main.CommitHash=${COMMIT_HASH} -X main.BuildDate=${BUILD_DATE}"
+LDFLAGS = -ldflags "-w -X main.Version=${VERSION} -X main.CommitHash=${COMMIT_HASH} -X main.BuildDate=${BUILD_DATE} -X main.Build=${BUILD}"
+export CGO_ENABLED ?= 0
 
 # Docker variables
 DOCKER_TAG ?= ${VERSION}
@@ -66,21 +68,37 @@ vendor: bin/dep ## Install dependencies
 	cp .env.dist .env.test
 
 .PHONY: run
-run: TAGS += dev
+run: GOTAGS += dev
 run: build .env ## Build and execute a binary
 	${BUILD_DIR}/${BINARY_NAME} ${ARGS}
 
 .PHONY: build
 build: ## Build a binary
-	CGO_ENABLED=0 go build -tags '${TAGS}' ${LDFLAGS} -o ${BUILD_DIR}/${BINARY_NAME} ${BUILD_PACKAGE}
+ifeq ($(VERBOSE), 1)
+	go env
+	$(eval GOFLAGS += -v)
+endif
+	go build -tags '${GOTAGS}' ${LDFLAGS} ${GOFLAGS} -o ${BUILD_DIR}/${BINARY_NAME} ${BUILD_PACKAGE}
 
 .PHONY: docker
+docker: export GOOS = linux
 docker: BINARY_NAME := ${BINARY_NAME}-docker
 docker: build ## Build a Docker image
 	docker build --build-arg BUILD_DIR=${BUILD_DIR} --build-arg BINARY_NAME=${BINARY_NAME} -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
 ifeq (${DOCKER_LATEST}, true)
 	docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
 endif
+
+.PHONY: build-debug
+build-debug: GOFLAGS += -gcflags "all=-N -l"
+build-debug: BUILD = debug
+build-debug: build ## Build a binary with remote debugging capabilities
+
+.PHONY: docker-debug
+docker-debug: export GOOS = linux
+docker-debug: BINARY_NAME := ${BINARY_NAME}-debug-docker
+docker-debug: build-debug ## Build a Docker image with remote debugging capabilities
+	docker build --build-arg BUILD_DIR=${BUILD_DIR} --build-arg BINARY_NAME=${BINARY_NAME} -t ${DOCKER_IMAGE}:${DOCKER_TAG}-debug .
 
 .PHONY: check
 check: test lint ## Run tests and linters

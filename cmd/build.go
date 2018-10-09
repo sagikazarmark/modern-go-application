@@ -5,4 +5,5 @@ var (
 	Version    string
 	CommitHash string
 	BuildDate  string
+	Build      string
 )
