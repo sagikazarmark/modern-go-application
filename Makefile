@@ -17,7 +17,7 @@ export CGO_ENABLED ?= 0
 
 # Docker variables
 DOCKER_TAG ?= ${VERSION}
-DOCKER_LATEST ?= false
+DOCKER_LATEST ?= 0
 
 # Dependency versions
 DEP_VERSION = 0.5.0
@@ -85,7 +85,7 @@ docker: export GOOS = linux
 docker: BINARY_NAME := ${BINARY_NAME}-docker
 docker: build ## Build a Docker image
 	docker build --build-arg BUILD_DIR=${BUILD_DIR} --build-arg BINARY_NAME=${BINARY_NAME} -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
-ifeq (${DOCKER_LATEST}, true)
+ifeq (${DOCKER_LATEST}, 1)
 	docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
 endif
 
@@ -105,11 +105,17 @@ check: test lint ## Run tests and linters
 
 .PHONY: test
 test: ## Run all tests
-	go test -tags 'unit integration acceptance' ${ARGS} ./...
+ifeq ($(VERBOSE), 1)
+	$(eval GOFLAGS += -v)
+endif
+	go test -tags 'unit integration acceptance' ${GOFLAGS} ./...
 
 .PHONY: test-%
 test-%: ## Run a specific test suite
-	go test -tags '$*' ${ARGS} ./...
+ifeq ($(VERBOSE), 1)
+	$(eval GOFLAGS += -v)
+endif
+	go test -tags '$*' ${GOFLAGS} ./...
 
 bin/golangci-lint: bin/golangci-lint-${GOLANGCI_VERSION}
 bin/golangci-lint-${GOLANGCI_VERSION}:
@@ -139,7 +145,7 @@ release-%: ## Release a new version
 	@sed -e "s|^\[Unreleased\]: \(.*\)HEAD$$|[Unreleased]: https://${PACKAGE}/compare/v$*...HEAD\\"$$'\n'"[$*]: \1v$*|g" CHANGELOG.md > CHANGELOG.md.new
 	@mv CHANGELOG.md.new CHANGELOG.md
 
-ifeq ($(TAG), true)
+ifeq ($(TAG), 1)
 	git add CHANGELOG.md
 	git commit -s -S -m 'Prepare release v$*'
 	git tag -s -m 'Release v$*' v$*
@@ -148,7 +154,7 @@ endif
 	@echo "Version updated to $*!"
 	@echo
 	@echo "Review the changes made by this script then execute the following:"
-ifneq ($(TAG), true)
+ifneq ($(TAG), 1)
 	@echo
 	@echo "git add CHANGELOG.md && git commit -S -m 'Prepare release v$*' && git tag -s -m 'Release v$*' v$*"
 	@echo
