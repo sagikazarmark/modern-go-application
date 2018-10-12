@@ -2,6 +2,10 @@
   go-tests = true
   unused-packages = true
 
+  [[prune.project]]
+    name = "github.com/joho/godotenv"
+    unused-packages = false
+
 [[constraint]]
   name = "github.com/go-kit/kit"
   version = "0.7.0"

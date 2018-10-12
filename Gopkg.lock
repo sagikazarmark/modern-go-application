@@ -161,10 +161,10 @@
   version = "v1.6.2"
 
 [[projects]]
-  digest = "1:ecd9aa82687cf31d1585d4ac61d0ba180e42e8a6182b85bd785fcca8dfeefc1b"
+  digest = "1:ee5840274624ad20cac08227aeca582fbdaf3727ef9dd37ae935706240679e09"
   name = "github.com/joho/godotenv"
   packages = ["."]
-  pruneopts = "UT"
+  pruneopts = "T"
   revision = "23d116af351c84513e1946b527c88823e476be13"
   version = "v1.3.0"
 
