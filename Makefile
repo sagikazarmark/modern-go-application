@@ -79,7 +79,7 @@ build: GOARGS += -tags "${GOTAGS}" -ldflags "${LDFLAGS}" -o ${BUILD_DIR}/${BINAR
 build: ## Build a binary
 ifeq ($(VERBOSE), 1)
 	go env
-	$(eval GOARGS += -v)
+	$(eval GOARGS = -v)
 endif
 	@go version | grep -q -E "go${GOLANG_VERSION} " || (echo "Required Go version is ${GOLANG_VERSION}\nInstalled: `go version`" && exit 1)
 	go build ${GOARGS} ${BUILD_PACKAGE}
@@ -111,18 +111,17 @@ docker-debug: build-debug ## Build a Docker image with remote debugging capabili
 check: test lint ## Run tests and linters
 
 .PHONY: test
+test: GOTAGS ?= unit integration acceptance
+test: GOARGS += -tags "${GOTAGS}"
 test: ## Run all tests
 ifeq ($(VERBOSE), 1)
-	$(eval GOARGS += -v)
+	$(eval GOARGS = -v)
 endif
-	go test -tags 'unit integration acceptance' ${GOARGS} ./...
+	go test ${GOARGS} ./...
 
 .PHONY: test-%
 test-%: ## Run a specific test suite
-ifeq ($(VERBOSE), 1)
-	$(eval GOARGS += -v)
-endif
-	go test -tags '$*' ${GOARGS} ./...
+	@${MAKE} GOTAGS=$* test
 
 bin/golangci-lint: bin/golangci-lint-${GOLANGCI_VERSION}
 	@ln -sf golangci-lint-${GOLANGCI_VERSION} bin/golangci-lint
@@ -172,15 +171,15 @@ endif
 
 .PHONY: patch
 patch: ## Release a new patch version
-	@$(MAKE) release-$(shell git describe --abbrev=0 --tags | sed 's/^v//' | awk -F'[ .]' '{print $$1"."$$2"."$$3+1}')
+	@${MAKE} release-$(shell git describe --abbrev=0 --tags | sed 's/^v//' | awk -F'[ .]' '{print $$1"."$$2"."$$3+1}')
 
 .PHONY: minor
 minor: ## Release a new minor version
-	@$(MAKE) release-$(shell git describe --abbrev=0 --tags | sed 's/^v//' | awk -F'[ .]' '{print $$1"."$$2+1".0"}')
+	@${MAKE} release-$(shell git describe --abbrev=0 --tags | sed 's/^v//' | awk -F'[ .]' '{print $$1"."$$2+1".0"}')
 
 .PHONY: major
 major: ## Release a new major version
-	@$(MAKE) release-$(shell git describe --abbrev=0 --tags | sed 's/^v//' | awk -F'[ .]' '{print $$1+1".0.0"}')
+	@${MAKE} release-$(shell git describe --abbrev=0 --tags | sed 's/^v//' | awk -F'[ .]' '{print $$1+1".0.0"}')
 
 .PHONY: help
 .DEFAULT_GOAL := help
