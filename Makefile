@@ -12,8 +12,9 @@ BUILD = release
 VERSION ?= $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT_HASH ?= $(shell git rev-parse --short HEAD 2>/dev/null)
 BUILD_DATE ?= $(shell date +%FT%T%z)
-LDFLAGS = -ldflags "-w -X main.Version=${VERSION} -X main.CommitHash=${COMMIT_HASH} -X main.BuildDate=${BUILD_DATE} -X main.Build=${BUILD}"
+LDFLAGS += -X main.Version=${VERSION} -X main.CommitHash=${COMMIT_HASH} -X main.BuildDate=${BUILD_DATE} -X main.Build=${BUILD}
 export CGO_ENABLED ?= 0
+export GOOS = $(shell go env GOOS)
 
 # Docker variables
 DOCKER_TAG ?= ${VERSION}
@@ -23,7 +24,8 @@ DOCKER_LATEST ?= 0
 DEP_VERSION = 0.5.0
 GOLANGCI_VERSION = 1.10.2
 OPENAPI_GENERATOR_VERSION = 3.3.0
-GODOTENV_VERSION = c0b86d6
+
+GOLANG_VERSION = 1.11(.[0-9]+)?
 
 .PHONY: up
 up: vendor start .env .env.test ## Set up the development environment
@@ -74,32 +76,37 @@ run: build .env ## Build and execute a binary
 	${BUILD_DIR}/${BINARY_NAME} ${ARGS}
 
 .PHONY: build
+build: GOARGS += -tags "${GOTAGS}" -ldflags "${LDFLAGS}" -o ${BUILD_DIR}/${BINARY_NAME}-${GOOS}
 build: ## Build a binary
 ifeq ($(VERBOSE), 1)
 	go env
-	$(eval GOFLAGS += -v)
+	$(eval GOARGS += -v)
 endif
-	go build -tags '${GOTAGS}' ${LDFLAGS} ${GOFLAGS} -o ${BUILD_DIR}/${BINARY_NAME} ${BUILD_PACKAGE}
+	@go version | grep -q -E "go${GOLANG_VERSION} " || (echo "Required Go version is ${GOLANG_VERSION}\nInstalled: `go version`" && exit 1)
+	go build ${GOARGS} ${BUILD_PACKAGE}
+
+.PHONY: build-release
+build-release: LDFLAGS += -w
+build-release: build ## Build a binary without debug information
+
+.PHONY: build-debug
+build-debug: GOARGS += -gcflags "all=-N -l"
+build-debug: BUILD = debug
+build-debug: BINARY_NAME := ${BINARY_NAME}-debug
+build-debug: build ## Build a binary with remote debugging capabilities
 
 .PHONY: docker
 docker: export GOOS = linux
-docker: BINARY_NAME := ${BINARY_NAME}-docker
-docker: build ## Build a Docker image
-	docker build --build-arg BUILD_DIR=${BUILD_DIR} --build-arg BINARY_NAME=${BINARY_NAME} -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+docker: build-release ## Build a Docker image
+	docker build --build-arg BUILD_DIR=${BUILD_DIR} --build-arg BINARY_NAME=${BINARY_NAME}-linux -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
 ifeq (${DOCKER_LATEST}, 1)
 	docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
 endif
 
-.PHONY: build-debug
-build-debug: GOFLAGS += -gcflags "all=-N -l"
-build-debug: BUILD = debug
-build-debug: build ## Build a binary with remote debugging capabilities
-
 .PHONY: docker-debug
 docker-debug: export GOOS = linux
-docker-debug: BINARY_NAME := ${BINARY_NAME}-debug-docker
 docker-debug: build-debug ## Build a Docker image with remote debugging capabilities
-	docker build --build-arg BUILD_DIR=${BUILD_DIR} --build-arg BINARY_NAME=${BINARY_NAME} -t ${DOCKER_IMAGE}:${DOCKER_TAG}-debug .
+	docker build --build-arg BUILD_DIR=${BUILD_DIR} --build-arg BINARY_NAME=${BINARY_NAME}-debug-linux -t ${DOCKER_IMAGE}:${DOCKER_TAG}-debug .
 
 .PHONY: check
 check: test lint ## Run tests and linters
@@ -107,16 +114,16 @@ check: test lint ## Run tests and linters
 .PHONY: test
 test: ## Run all tests
 ifeq ($(VERBOSE), 1)
-	$(eval GOFLAGS += -v)
+	$(eval GOARGS += -v)
 endif
-	go test -tags 'unit integration acceptance' ${GOFLAGS} ./...
+	go test -tags 'unit integration acceptance' ${GOARGS} ./...
 
 .PHONY: test-%
 test-%: ## Run a specific test suite
 ifeq ($(VERBOSE), 1)
-	$(eval GOFLAGS += -v)
+	$(eval GOARGS += -v)
 endif
-	go test -tags '$*' ${GOFLAGS} ./...
+	go test -tags '$*' ${GOARGS} ./...
 
 bin/golangci-lint: bin/golangci-lint-${GOLANGCI_VERSION}
 	@ln -sf golangci-lint-${GOLANGCI_VERSION} bin/golangci-lint
