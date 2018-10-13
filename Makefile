@@ -4,6 +4,7 @@
 PACKAGE = $(shell echo $${PWD\#\#*src/})
 BINARY_NAME = $(shell basename $$PWD)
 DOCKER_IMAGE = $(shell echo ${PACKAGE} | cut -d '/' -f 2,3)
+OPENAPI_DESCRIPTOR = swagger.yaml
 
 # Build variables
 BUILD_DIR = build
@@ -134,13 +135,17 @@ bin/golangci-lint-${GOLANGCI_VERSION}:
 lint: bin/golangci-lint ## Run linter
 	bin/golangci-lint run
 
+.PHONY: validate-openapi
+validate-openapi: ## Validate the OpenAPI descriptor
+	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli:v${OPENAPI_GENERATOR_VERSION} validate --recommend -i /local/${OPENAPI_DESCRIPTOR}
+
 .PHONY: generate-api
-generate-api:
+generate-api: ## Generate server stubs from the OpenAPI descriptor
 	rm -rf .gen/openapi
 	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli:v${OPENAPI_GENERATOR_VERSION} generate \
 	--additional-properties packageName=api \
 	--additional-properties withGoCodegenComment=true \
-	-i /local/swagger.yaml \
+	-i /local/${OPENAPI_DESCRIPTOR} \
 	-g go-server \
 	-o /local/.gen/openapi
 
