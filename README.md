@@ -1,4 +1,9 @@
-# Boilerplate Service
+# Modern Go Application
+
+This repository has multiple purposes:
+
+- It serves as a boilerplate for new projects
+- It tries to collect the best practices for various areas of developing a (modern) application
 
 ## License
 

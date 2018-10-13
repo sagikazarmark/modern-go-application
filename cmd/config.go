@@ -5,10 +5,10 @@ import (
 	"time"
 
 	"github.com/goph/conf"
-	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/database"
-	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/jaeger"
-	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/log"
-	"github.com/sagikazarmark/go-service-project-boilerplate/internal/platform/redis"
+	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
+	"github.com/sagikazarmark/modern-go-application/internal/platform/jaeger"
+	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
+	"github.com/sagikazarmark/modern-go-application/internal/platform/redis"
 )
 
 // Config holds any kind of configuration that comes from the outside world and

@@ -7,8 +7,8 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/goph/emperror"
-	"github.com/sagikazarmark/go-service-project-boilerplate/.gen/openapi/go"
-	"github.com/sagikazarmark/go-service-project-boilerplate/internal/helloworld"
+	"github.com/sagikazarmark/modern-go-application/.gen/openapi/go"
+	"github.com/sagikazarmark/modern-go-application/internal/helloworld"
 )
 
 // HelloWorldDriverOption configures a HelloWorldDriver.

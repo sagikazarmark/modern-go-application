@@ -3,7 +3,7 @@
 project=`basename $PWD`
 package=`make var-PACKAGE`
 
-boilerplatePackage="github.com/sagikazarmark/go-service-project-boilerplate"
+boilerplatePackage="github.com/sagikazarmark/modern-go-application"
 
 rep() {
     sed -E -e $1 $2 > $2.new
