@@ -25,9 +25,10 @@ before_script:
     - export $(make varexport-DOCKER_IMAGE)
 
 script:
-    - TEST_RANDOMIZE=true make ARGS="-v" check
-    - if [[ $TRAVIS_TAG = "$VERSION" ]]; then export DOCKER_LATEST=true; fi
+    - TEST_RANDOMIZE=true VERBOSE=1 make check
+    - if [[ $TRAVIS_TAG = "$VERSION" ]]; then export DOCKER_LATEST=1; fi
     - make docker
+    - make docker-debug
 
 #before_deploy: docker login -u $DOCKER_USER -p $DOCKER_PASS
 #
