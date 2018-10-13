@@ -18,7 +18,6 @@ export GOOS = $(shell go env GOOS)
 
 # Docker variables
 DOCKER_TAG ?= ${VERSION}
-DOCKER_LATEST ?= 0
 
 # Dependency versions
 DEP_VERSION = 0.5.0
