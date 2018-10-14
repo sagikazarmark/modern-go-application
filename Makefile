@@ -80,8 +80,8 @@ run: build .env ## Build and execute a binary
 
 .PHONY: debug
 debug: GOTAGS += dev
-debug: build-debug bin/dlv .env ## Build and execute a binary
-	bin/dlv --listen=127.0.0.1:40000 --headless=true --api-version=2 --log exec ${BUILD_DIR}/${BINARY_NAME}-debug-${GOOS} ${ARGS}
+debug: build-debug bin/dlv .env ## Build and execute a binary with remote debugging enabled
+	bin/dlv --listen=127.0.0.1:40000 --headless=true --api-version=2 --log exec -- ${BUILD_DIR}/${BINARY_NAME}-debug-${GOOS} ${ARGS}
 
 bin/dlv:
 	@mkdir -p bin
@@ -119,7 +119,7 @@ endif
 .PHONY: docker-debug
 docker-debug: export GOOS = linux
 docker-debug: build-debug ## Build a Docker image with remote debugging capabilities
-	docker build --build-arg BUILD_DIR=${BUILD_DIR} --build-arg BINARY_NAME=${BINARY_NAME}-debug-linux -t ${DOCKER_IMAGE}:${DOCKER_TAG}-debug .
+	docker build --build-arg BUILD_DIR=${BUILD_DIR} --build-arg BINARY_NAME=${BINARY_NAME}-debug-linux -t ${DOCKER_IMAGE}:${DOCKER_TAG}-debug -f Dockerfile.debug .
 
 .PHONY: check
 check: test lint ## Run tests and linters

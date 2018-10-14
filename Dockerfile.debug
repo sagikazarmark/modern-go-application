@@ -1,0 +1,19 @@
+FROM golang:1.11-alpine
+
+RUN apk add --update --no-cache ca-certificates git
+
+RUN go get github.com/derekparker/delve/cmd/dlv
+
+
+FROM alpine:3.7
+
+RUN apk add --update --no-cache libc6-compat
+
+ARG BUILD_DIR
+ARG BINARY_NAME
+
+COPY $BUILD_DIR/$BINARY_NAME /service
+COPY --from=0 /go/bin/dlv /
+
+EXPOSE 8000 10000 40000
+CMD ["/dlv", "--listen=:40000", "--headless=true", "--api-version=2", "--log", "exec", "--", "/service", "--instrument-addr", ":10000", "--http-addr", ":8000"]
