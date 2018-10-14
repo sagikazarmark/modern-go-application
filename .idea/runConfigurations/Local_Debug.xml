@@ -1,0 +1,6 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Local Debug" type="GoRemoteDebugConfigurationType" factoryName="Go Remote" port="40000">
+    <output_file path="$PROJECT_DIR$/build/local-debug.log" is_save="true" />
+    <method v="2" />
+  </configuration>
+</component>

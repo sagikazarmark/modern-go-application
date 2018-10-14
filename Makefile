@@ -76,7 +76,16 @@ vendor: bin/dep ## Install dependencies
 .PHONY: run
 run: GOTAGS += dev
 run: build .env ## Build and execute a binary
-	${BUILD_DIR}/${BINARY_NAME} ${ARGS}
+	${BUILD_DIR}/${BINARY_NAME}-${GOOS} ${ARGS}
+
+.PHONY: debug
+debug: GOTAGS += dev
+debug: build-debug bin/dlv .env ## Build and execute a binary
+	bin/dlv --listen=127.0.0.1:40000 --headless=true --api-version=2 --log exec ${BUILD_DIR}/${BINARY_NAME}-debug-${GOOS} ${ARGS}
+
+bin/dlv:
+	@mkdir -p bin
+	GOBIN=${PWD}/bin go get -u github.com/derekparker/delve/cmd/dlv
 
 .PHONY: build
 build: GOARGS += -tags "${GOTAGS}" -ldflags "${LDFLAGS}" -o ${BUILD_DIR}/${BINARY_NAME}-${GOOS}
