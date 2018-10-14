@@ -44,7 +44,7 @@ reset: down up ## Reset the development environment
 clean: ## Clean the working area and the project
 	rm -rf bin/ ${BUILD_DIR}/ vendor/
 
-docker-compose.override.yml: ## Create docker compose override file
+docker-compose.override.yml:
 	cp docker-compose.override.yml.dist docker-compose.override.yml
 
 .PHONY: start
@@ -66,10 +66,10 @@ bin/dep-${DEP_VERSION}:
 vendor: bin/dep ## Install dependencies
 	bin/dep ensure -v -vendor-only
 
-.env: ## Create local env file
+.env:
 	cp .env.dist .env
 
-.env.test: ## Create local env file for running tests
+.env.test:
 	cp .env.dist .env.test
 
 .PHONY: run
