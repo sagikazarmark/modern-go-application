@@ -28,7 +28,7 @@ DEP_VERSION = 0.5.0
 GOLANGCI_VERSION = 1.10.2
 OPENAPI_GENERATOR_VERSION = 3.3.0
 
-GOLANG_VERSION = 1.11(.[0-9]+)?
+GOLANG_VERSION = 1.11
 
 .PHONY: up
 up: vendor start .env .env.test ## Set up the development environment
@@ -84,7 +84,9 @@ build: ## Build a binary
 ifeq (${VERBOSE}, 1)
 	go env
 endif
-	@go version | grep -q -E "go${GOLANG_VERSION} " || (echo "Required Go version is ${GOLANG_VERSION}\nInstalled: `go version`" && exit 1)
+ifneq (${IGNORE_GOLANG_VERSION_REQ}, 1)
+	@echo "${GOLANG_VERSION}\n$$(go version | awk '{sub(/^go/, "", $$3);print $$3}')" | sort -t '.' -k 1,1 -k 2,2 -k 3,3 -g | head -1 | grep -q -E "^${GOLANG_VERSION}$$" || (echo "Required Go version is ${GOLANG_VERSION}\nInstalled: `go version`" && exit 1)
+endif
 	go build ${GOARGS} ${BUILD_PACKAGE}
 
 .PHONY: build-release
