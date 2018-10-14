@@ -16,6 +16,9 @@ BUILD_DATE ?= $(shell date +%FT%T%z)
 LDFLAGS += -X main.Version=${VERSION} -X main.CommitHash=${COMMIT_HASH} -X main.BuildDate=${BUILD_DATE} -X main.Build=${BUILD}
 export CGO_ENABLED ?= 0
 export GOOS = $(shell go env GOOS)
+ifeq (${VERBOSE}, 1)
+	GOARGS += -v
+endif
 
 # Docker variables
 DOCKER_TAG ?= ${VERSION}
@@ -78,9 +81,8 @@ run: build .env ## Build and execute a binary
 .PHONY: build
 build: GOARGS += -tags "${GOTAGS}" -ldflags "${LDFLAGS}" -o ${BUILD_DIR}/${BINARY_NAME}-${GOOS}
 build: ## Build a binary
-ifeq ($(VERBOSE), 1)
+ifeq (${VERBOSE}, 1)
 	go env
-	$(eval GOARGS = -v)
 endif
 	@go version | grep -q -E "go${GOLANG_VERSION} " || (echo "Required Go version is ${GOLANG_VERSION}\nInstalled: `go version`" && exit 1)
 	go build ${GOARGS} ${BUILD_PACKAGE}
@@ -115,14 +117,11 @@ check: test lint ## Run tests and linters
 test: GOTAGS ?= unit integration acceptance
 test: GOARGS += -tags "${GOTAGS}"
 test: ## Run all tests
-ifeq ($(VERBOSE), 1)
-	$(eval GOARGS = -v)
-endif
 	go test ${GOARGS} ./...
 
 .PHONY: test-%
 test-%: ## Run a specific test suite
-	@${MAKE} GOTAGS=$* test
+	@${MAKE} VERBOSE=0 GOTAGS=$* test
 
 bin/golangci-lint: bin/golangci-lint-${GOLANGCI_VERSION}
 	@ln -sf golangci-lint-${GOLANGCI_VERSION} bin/golangci-lint
