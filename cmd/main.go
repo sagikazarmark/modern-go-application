@@ -39,7 +39,7 @@ func main() {
 	conf.Parse()
 
 	if config.ShowVersion {
-		fmt.Printf("%s version %s#%s (%s) built on %s\n", FriendlyServiceName, Version, Build, CommitHash, BuildDate)
+		fmt.Printf("%s version %s (%s) built on %s\n", FriendlyServiceName, Version, CommitHash, BuildDate)
 
 		os.Exit(0)
 	}
@@ -65,7 +65,7 @@ func main() {
 	defer emperror.HandleRecover(errorHandler)
 
 	level.Info(logger).Log(
-		"version", Version, "commit_hash", CommitHash, "build_date", BuildDate, "build", Build,
+		"version", Version, "commit_hash", CommitHash, "build_date", BuildDate,
 		"msg", "starting",
 	)
 

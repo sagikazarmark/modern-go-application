@@ -9,11 +9,10 @@ OPENAPI_DESCRIPTOR = swagger.yaml
 # Build variables
 BUILD_DIR = build
 BUILD_PACKAGE = ${PACKAGE}/cmd
-BUILD = release
 VERSION ?= $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT_HASH ?= $(shell git rev-parse --short HEAD 2>/dev/null)
 BUILD_DATE ?= $(shell date +%FT%T%z)
-LDFLAGS += -X main.Version=${VERSION} -X main.CommitHash=${COMMIT_HASH} -X main.BuildDate=${BUILD_DATE} -X main.Build=${BUILD}
+LDFLAGS += -X main.Version=${VERSION} -X main.CommitHash=${COMMIT_HASH} -X main.BuildDate=${BUILD_DATE}
 export CGO_ENABLED ?= 0
 export GOOS = $(shell go env GOOS)
 ifeq (${VERBOSE}, 1)
@@ -104,7 +103,6 @@ build-release: build ## Build a binary without debug information
 
 .PHONY: build-debug
 build-debug: GOARGS += -gcflags "all=-N -l"
-build-debug: BUILD = debug
 build-debug: BINARY_NAME := ${BINARY_NAME}-debug
 build-debug: build ## Build a binary with remote debugging capabilities
 

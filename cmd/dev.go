@@ -33,8 +33,4 @@ func init() {
 	if BuildDate == "" {
 		BuildDate = time.Now().Format(time.RFC3339)
 	}
-
-	if Build == "" {
-		Build = "dev"
-	}
 }
