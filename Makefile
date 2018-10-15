@@ -2,12 +2,12 @@
 
 # Project variables
 PACKAGE = $(shell echo $${PWD\#\#*src/})
-BINARY_NAME = $(shell basename $$PWD)
+BINARY_NAME ?= $(shell basename $$PWD)
 DOCKER_IMAGE = $(shell echo ${PACKAGE} | cut -d '/' -f 2,3)
 OPENAPI_DESCRIPTOR = swagger.yaml
 
 # Build variables
-BUILD_DIR = build
+BUILD_DIR ?= build
 BUILD_PACKAGE = ${PACKAGE}/cmd
 VERSION ?= $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT_HASH ?= $(shell git rev-parse --short HEAD 2>/dev/null)
@@ -80,7 +80,7 @@ run: build .env ## Build and execute a binary
 .PHONY: debug
 debug: GOTAGS += dev
 debug: build-debug bin/dlv .env ## Build and execute a binary with remote debugging enabled
-	bin/dlv --listen=127.0.0.1:40000 --headless=true --api-version=2 --log exec -- ${BUILD_DIR}/${BINARY_NAME}-debug-${GOOS} ${ARGS}
+	bin/dlv --listen=127.0.0.1:40000 --headless=true --api-version=2 --log exec -- ${BUILD_DIR}/${GENERATED_BINARY_NAME} ${ARGS}
 
 bin/dlv:
 	@mkdir -p bin
@@ -113,7 +113,7 @@ build-debug: build ## Build a binary with remote debugging capabilities
 docker: export GOOS = linux
 docker: BINARY_NAME_SUFFIX += docker
 docker: build-release ## Build a Docker image
-	docker build --build-arg BUILD_DIR=${BUILD_DIR} --build-arg BINARY_NAME=${GENERATED_BINARY_NAME} -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+	docker build --build-arg BUILD_DIR=${BUILD_DIR} --build-arg BINARY_NAME=${GENERATED_BINARY_NAME} -t ${DOCKER_IMAGE}:${DOCKER_TAG} -f Dockerfile.local .
 ifeq (${DOCKER_LATEST}, 1)
 	docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
 endif

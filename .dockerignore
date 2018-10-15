@@ -1,10 +1,11 @@
 *
 
-!pkg/app/
+!.git/
+!.gen/
+!*.go
 !build/
 !cmd/
-!glide.*
-!.git/
-!*.go
+!Gopkg.*
+!internal/
+!pkg/
 !Makefile
-!.make/

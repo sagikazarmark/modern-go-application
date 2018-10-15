@@ -23,3 +23,4 @@ rep "s|name=\"project\"|name=\"${project}\"|" .idea/runConfigurations/Integratio
 rep "s|${boilerplatePackage}|${package}|" cmd/config.go
 rep "s|${boilerplatePackage}|${package}|" cmd/main.go
 rep "s|${boilerplatePackage}|${package}|" CHANGELOG.md
+rep "s|${boilerplatePackage}|${package}|" Dockerfile
