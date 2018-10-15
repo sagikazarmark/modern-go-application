@@ -169,7 +169,7 @@ release-%: ## Release a new version
 	@sed -e "s|^\[Unreleased\]: \(.*\)HEAD$$|[Unreleased]: https://${PACKAGE}/compare/v$*...HEAD\\"$$'\n'"[$*]: \1v$*|g" CHANGELOG.md > CHANGELOG.md.new
 	@mv CHANGELOG.md.new CHANGELOG.md
 
-ifeq ($(TAG), 1)
+ifeq (${TAG}, 1)
 	git add CHANGELOG.md
 	git commit -s -S -m 'Prepare release v$*'
 	git tag -s -m 'Release v$*' v$*
@@ -178,7 +178,7 @@ endif
 	@echo "Version updated to $*!"
 	@echo
 	@echo "Review the changes made by this script then execute the following:"
-ifneq ($(TAG), 1)
+ifneq (${TAG}, 1)
 	@echo
 	@echo "git add CHANGELOG.md && git commit -S -m 'Prepare release v$*' && git tag -s -m 'Release v$*' v$*"
 	@echo
@@ -201,7 +201,7 @@ major: ## Release a new major version
 
 .PHONY: list
 list: ## List all make targets
-	@$(MAKE) -pRrn : -f $(MAKEFILE_LIST) 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | egrep -v -e '^[^[:alnum:]]' -e '^$@$$' | sort
+	@${MAKE} -pRrn : -f $(MAKEFILE_LIST) 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | egrep -v -e '^[^[:alnum:]]' -e '^$@$$' | sort
 
 .PHONY: help
 .DEFAULT_GOAL := help
