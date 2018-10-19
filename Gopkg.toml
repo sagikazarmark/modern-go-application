@@ -53,3 +53,7 @@
 [[constraint]]
   name = "github.com/InVisionApp/go-health"
   version = "1.1.2"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/cloudflare/tableflip"

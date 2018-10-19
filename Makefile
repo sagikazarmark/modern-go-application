@@ -75,7 +75,7 @@ vendor: bin/dep ## Install dependencies
 .PHONY: run
 run: GOTAGS += dev
 run: build .env ## Build and execute a binary
-	${BUILD_DIR}/${BINARY_NAME}-${GOOS} ${ARGS}
+	${BUILD_DIR}/${GENERATED_BINARY_NAME} ${ARGS}
 
 .PHONY: debug
 debug: GOTAGS += dev
