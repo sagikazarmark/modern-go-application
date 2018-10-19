@@ -14,9 +14,6 @@ import (
 // Config holds any kind of configuration that comes from the outside world and
 // is necessary for running the application.
 type Config struct {
-	// Show the application build information.
-	ShowVersion bool
-
 	// Meaningful values are recommended (eg. production, development, staging, release/123, etc)
 	//
 	// "development" is treated special: address types will use the loopback interface as default when none is defined.
@@ -103,8 +100,6 @@ func (c Config) Validate() error {
 // Prepare prepares the configuration to be populated from various sources
 // (determined by the console nature of the application).
 func (c *Config) Prepare(conf *conf.Configurator) {
-	conf.BoolVarF(&c.ShowVersion, "version", false, "Show version information")
-
 	// General configuration
 	conf.StringVar(&c.Environment, "environment", c.Environment, "Application environment")
 	conf.BoolVar(&c.Debug, "debug", c.Debug, "Turns on debug functionality")

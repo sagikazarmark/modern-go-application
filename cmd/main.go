@@ -38,9 +38,12 @@ func main() {
 	config := NewConfig()
 
 	config.Prepare(conf.Global)
+
+	showVersion := conf.BoolF("version", false, "Show version information")
+
 	conf.Parse()
 
-	if config.ShowVersion {
+	if *showVersion {
 		fmt.Printf("%s version %s (%s) built on %s\n", FriendlyServiceName, Version, CommitHash, BuildDate)
 
 		os.Exit(0)
