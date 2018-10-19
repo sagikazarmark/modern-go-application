@@ -7,12 +7,14 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
 	"github.com/InVisionApp/go-health"
 	"github.com/InVisionApp/go-health/checkers"
 	"github.com/InVisionApp/go-health/handlers"
+	"github.com/cloudflare/tableflip"
 	kitlog "github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/goph/conf"
@@ -58,7 +60,7 @@ func main() {
 	}
 
 	// Provide some basic context to all log lines
-	logger = kitlog.With(logger, "environment", config.Environment, "service", ServiceName)
+	logger = kitlog.With(logger, "environment", config.Environment, "service", ServiceName, "pid", os.Getpid())
 
 	// Configure error handler
 	errorHandler := errorlog.NewHandler(logger)
@@ -135,10 +137,27 @@ func main() {
 		trace.RegisterExporter(exporter)
 	}
 
+	// Graceful restart
+	upg, _ := tableflip.New(tableflip.Options{})
+	defer upg.Stop()
+
+	// Do an upgrade on SIGHUP
+	go func() {
+		sig := make(chan os.Signal, 1)
+		signal.Notify(sig, syscall.SIGHUP)
+		for range sig {
+			level.Info(logger).Log("msg", "graceful reloading")
+
+			_ = upg.Upgrade()
+		}
+	}()
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
 	// Set up instrumentation server
 	instrumentLogger := kitlog.With(logger, "server", "instrumentation")
 	instrumentServer := &http.Server{
-		Addr:     config.InstrumentAddr,
 		Handler:  instrumentRouter,
 		ErrorLog: stdlog.New(kitlog.NewStdlibAdapter(level.Error(instrumentLogger)), "", 0),
 	}
@@ -146,9 +165,16 @@ func main() {
 
 	instrumentServerChan := make(chan error, 1)
 	go func() {
-		level.Info(instrumentLogger).Log("msg", "starting server", "addr", instrumentServer.Addr)
+		level.Info(instrumentLogger).Log("msg", "starting server", "addr", config.InstrumentAddr)
 
-		instrumentServerChan <- instrumentServer.ListenAndServe()
+		ln, err := upg.Fds.Listen("tcp", config.InstrumentAddr)
+		if err != nil {
+			panic(err)
+		}
+
+		wg.Done()
+
+		instrumentServerChan <- instrumentServer.Serve(ln)
 	}()
 
 	// Register HTTP stat views
@@ -167,7 +193,6 @@ func main() {
 
 	httpLogger := kitlog.With(logger, "server", "http")
 	httpServer := &http.Server{
-		Addr: config.HTTPAddr,
 		Handler: &ochttp.Handler{
 			Handler: router,
 		},
@@ -177,15 +202,31 @@ func main() {
 
 	httpServerChan := make(chan error, 1)
 	go func() {
-		level.Info(httpLogger).Log("msg", "starting server", "addr", httpServer.Addr)
+		level.Info(httpLogger).Log("msg", "starting server", "addr", config.HTTPAddr)
 
-		httpServerChan <- httpServer.ListenAndServe()
+		ln, err := upg.Fds.Listen("tcp", config.HTTPAddr)
+		if err != nil {
+			panic(err)
+		}
+
+		wg.Done()
+
+		httpServerChan <- httpServer.Serve(ln)
 	}()
+
+	wg.Wait()
+
+	// Tell the parent we are ready
+	_ = upg.Ready()
 
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
 
 	select {
+	// Wait to be replaced with a new process
+	case <-upg.Exit():
+		level.Info(logger).Log("msg", "upgrading")
+
 	case sig := <-signalChan:
 		level.Info(logger).Log("msg", "captured signal", "signal", sig)
 
@@ -203,6 +244,8 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), config.ShutdownTimeout)
 	defer cancel()
 
+	wg.Add(2)
+
 	// Shut down instrumentation server
 	go func() {
 		level.Info(instrumentLogger).Log("msg", "shutting server down")
@@ -211,6 +254,8 @@ func main() {
 		if err != nil {
 			errorHandler.Handle(err)
 		}
+
+		wg.Done()
 	}()
 
 	// Shut down HTTP server
@@ -221,5 +266,9 @@ func main() {
 		if err != nil {
 			errorHandler.Handle(err)
 		}
+
+		wg.Done()
 	}()
+
+	wg.Wait()
 }

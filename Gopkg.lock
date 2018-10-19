@@ -39,6 +39,14 @@
   revision = "3a771d992973f24aa725d07868b467d1ddfceafb"
 
 [[projects]]
+  branch = "master"
+  digest = "1:a1077f3ac19c5a2bda54c3da4fae1208f2b334a949fe3b56a8d27a586e7238eb"
+  name = "github.com/cloudflare/tableflip"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "78281f93d0754df1263259949d2468c5d0376dc6"
+
+[[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
@@ -336,6 +344,7 @@
     "github.com/InVisionApp/go-health/checkers",
     "github.com/InVisionApp/go-health/handlers",
     "github.com/InVisionApp/go-logger",
+    "github.com/cloudflare/tableflip",
     "github.com/go-kit/kit/log",
     "github.com/go-kit/kit/log/level",
     "github.com/go-sql-driver/mysql",
