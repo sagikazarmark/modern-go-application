@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 	"time"
 
@@ -20,6 +19,7 @@ import (
 	"github.com/goph/conf"
 	"github.com/goph/emperror"
 	"github.com/goph/emperror/errorlog"
+	"github.com/oklog/run"
 	"github.com/pkg/errors"
 	"github.com/sagikazarmark/modern-go-application/internal"
 	"github.com/sagikazarmark/modern-go-application/internal/helloworld"
@@ -142,7 +142,9 @@ func main() {
 
 	// Graceful restart
 	upg, _ := tableflip.New(tableflip.Options{})
-	defer upg.Stop()
+	//defer upg.Stop()
+
+	var group run.Group
 
 	// Do an upgrade on SIGHUP
 	go func() {
@@ -155,30 +157,40 @@ func main() {
 		}
 	}()
 
-	var wg sync.WaitGroup
-	wg.Add(2)
-
 	// Set up instrumentation server
 	instrumentLogger := kitlog.With(logger, "server", "instrumentation")
 	instrumentServer := &http.Server{
 		Handler:  instrumentRouter,
 		ErrorLog: stdlog.New(kitlog.NewStdlibAdapter(level.Error(instrumentLogger)), "", 0),
 	}
-	defer instrumentServer.Close()
 
-	instrumentServerChan := make(chan error, 1)
-	go func() {
-		level.Info(instrumentLogger).Log("msg", "starting server", "addr", config.InstrumentAddr)
-
+	{
 		ln, err := upg.Fds.Listen("tcp", config.InstrumentAddr)
 		if err != nil {
 			panic(err)
 		}
 
-		wg.Done()
+		group.Add(
+			func() error {
+				level.Info(instrumentLogger).Log("msg", "starting server", "addr", config.InstrumentAddr)
 
-		instrumentServerChan <- instrumentServer.Serve(ln)
-	}()
+				return instrumentServer.Serve(ln)
+			},
+			func(e error) {
+				ctx, cancel := context.WithTimeout(context.Background(), config.ShutdownTimeout)
+				defer cancel()
+
+				level.Info(instrumentLogger).Log("msg", "shutting server down")
+
+				err := instrumentServer.Shutdown(ctx)
+				if err != nil {
+					errorHandler.Handle(err)
+				}
+
+				instrumentServer.Close()
+			},
+		)
+	}
 
 	// Register HTTP stat views
 	if err := view.Register(ochttp.DefaultServerViews...); err != nil {
@@ -201,77 +213,76 @@ func main() {
 		},
 		ErrorLog: stdlog.New(kitlog.NewStdlibAdapter(level.Error(httpLogger)), "", 0),
 	}
-	defer httpServer.Close()
 
-	httpServerChan := make(chan error, 1)
-	go func() {
-		level.Info(httpLogger).Log("msg", "starting server", "addr", config.HTTPAddr)
-
+	{
 		ln, err := upg.Fds.Listen("tcp", config.HTTPAddr)
 		if err != nil {
 			panic(err)
 		}
 
-		wg.Done()
+		group.Add(
+			func() error {
+				level.Info(httpLogger).Log("msg", "starting server", "addr", config.HTTPAddr)
 
-		httpServerChan <- httpServer.Serve(ln)
-	}()
+				return httpServer.Serve(ln)
+			},
+			func(e error) {
+				ctx, cancel := context.WithTimeout(context.Background(), config.ShutdownTimeout)
+				defer cancel()
 
-	wg.Wait()
+				level.Info(httpLogger).Log("msg", "shutting server down")
 
-	// Tell the parent we are ready
-	_ = upg.Ready()
+				err := httpServer.Shutdown(ctx)
+				if err != nil {
+					errorHandler.Handle(err)
+				}
 
-	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
-
-	select {
-	// Wait to be replaced with a new process
-	case <-upg.Exit():
-		level.Info(logger).Log("msg", "upgrading")
-
-	case sig := <-signalChan:
-		level.Info(logger).Log("msg", "captured signal", "signal", sig)
-
-	case err := <-instrumentServerChan:
-		if err != nil && err != http.ErrServerClosed {
-			errorHandler.Handle(emperror.With(errors.Wrap(err, "http server crashed"), "server", "instrumentation"))
-		}
-
-	case err := <-httpServerChan:
-		if err != nil && err != http.ErrServerClosed {
-			errorHandler.Handle(emperror.With(errors.Wrap(err, "http server crashed"), "server", "http"))
-		}
+				httpServer.Close()
+			},
+		)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), config.ShutdownTimeout)
-	defer cancel()
+	{
+		signalChan := make(chan os.Signal, 1)
 
-	wg.Add(2)
+		group.Add(
+			func() error {
+				signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
 
-	// Shut down instrumentation server
-	go func() {
-		level.Info(instrumentLogger).Log("msg", "shutting server down")
+				sig := <-signalChan
+				if sig != nil {
+					level.Info(logger).Log("msg", "captured signal", "signal", sig)
+				}
 
-		err := instrumentServer.Shutdown(ctx)
-		if err != nil {
-			errorHandler.Handle(err)
-		}
+				return nil
+			},
+			func(e error) {
+				signal.Stop(signalChan)
+				close(signalChan)
+			},
+		)
+	}
 
-		wg.Done()
-	}()
+	{
+		group.Add(
+			func() error {
+				// Tell the parent we are ready
+				_ = upg.Ready()
 
-	// Shut down HTTP server
-	go func() {
-		level.Info(httpLogger).Log("msg", "shutting server down")
+				<-upg.Exit()
 
-		err := httpServer.Shutdown(ctx)
-		if err != nil {
-			errorHandler.Handle(err)
-		}
+				//level.Info(logger).Log("msg", "upgrading")
 
-		wg.Done()
-	}()
+				return nil
+			},
+			func(e error) {
+				upg.Stop()
+			},
+		)
+	}
 
-	wg.Wait()
+	err = group.Run()
+	if err != nil {
+		errorHandler.Handle(err)
+	}
 }
