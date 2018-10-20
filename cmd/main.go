@@ -57,13 +57,10 @@ func main() {
 	}
 
 	// Create logger
-	logger, err := log.NewLogger(config.Log)
-	if err != nil {
-		panic(err)
-	}
+	logger := log.NewLogger(config.Log)
 
 	// Provide some basic context to all log lines
-	logger = kitlog.With(logger, "environment", config.Environment, "service", ServiceName, "pid", os.Getpid())
+	logger = kitlog.With(logger, "environment", config.Environment, "service", ServiceName)
 
 	// Configure error handler
 	errorHandler := errorlog.NewHandler(logger)

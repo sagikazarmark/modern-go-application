@@ -2,7 +2,6 @@
 package log
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -11,7 +10,7 @@ import (
 )
 
 // NewLogger creates a new logger.
-func NewLogger(config Config) (log.Logger, error) {
+func NewLogger(config Config) log.Logger {
 	var logger log.Logger
 
 	w := log.NewSyncWriter(os.Stdout)
@@ -23,8 +22,10 @@ func NewLogger(config Config) (log.Logger, error) {
 	case "json":
 		logger = log.NewJSONLogger(w)
 
-	default:
-		return nil, fmt.Errorf("unsupported log format: %s", config.Format)
+	default: // Fall back to JSON logger
+		logger = log.NewJSONLogger(w)
+
+		level.Warn(logger).Log("msg", "unsupported log format", "format", config.Format)
 	}
 
 	// Fallback to Info level
@@ -39,6 +40,9 @@ func NewLogger(config Config) (log.Logger, error) {
 	case infoLevel, "": // Info is the default level
 		levelOption = level.AllowInfo()
 
+	default: // Info is the default level
+		levelOption = level.AllowInfo()
+
 	case warnLevel, warningLevel:
 		levelOption = level.AllowWarn()
 
@@ -48,5 +52,5 @@ func NewLogger(config Config) (log.Logger, error) {
 
 	logger = level.NewFilter(logger, levelOption)
 
-	return logger, nil
+	return logger
 }
