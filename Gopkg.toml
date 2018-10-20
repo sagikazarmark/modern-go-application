@@ -57,3 +57,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/cloudflare/tableflip"
+
+[[constraint]]
+  name = "github.com/oklog/run"
+  version = "1.0.0"
