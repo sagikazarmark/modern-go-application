@@ -70,38 +70,11 @@ func main() {
 		"msg", "starting",
 	)
 
+	instrumentRouter := http.NewServeMux()
+
 	// Configure health checker
 	healthz := health.New()
 	healthz.Logger = invisionkitlog.New(logger)
-
-	// Connect to the database
-	level.Debug(logger).Log("msg", "connecting to database")
-	db, err := database.NewConnection(config.Database)
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
-
-	dbCheck, err := checkers.NewSQL(&checkers.SQLConfig{Pinger: db})
-	if err != nil {
-		panic(errors.Wrap(err, "failed to create db health checker"))
-	}
-	err = healthz.AddCheck(&health.Config{
-		Name:     "database",
-		Checker:  dbCheck,
-		Interval: time.Duration(3) * time.Second,
-		Fatal:    true,
-	})
-	if err != nil {
-		panic(errors.Wrap(err, "failed to add health checker"))
-	}
-
-	instrumentRouter := http.NewServeMux()
-
-	if err := healthz.Start(); err != nil {
-		panic(errors.Wrap(err, "failed to start health checker"))
-	}
-
 	instrumentRouter.Handle("/healthz", handlers.NewJSONHandlerFunc(healthz, nil))
 
 	// Configure prometheus
@@ -188,9 +161,34 @@ func main() {
 		)
 	}
 
-	// Register HTTP stat views
-	if err := view.Register(ochttp.DefaultServerViews...); err != nil {
-		panic(errors.Wrap(err, "failed to register HTTP server stat views"))
+	// Connect to the database
+	level.Debug(logger).Log("msg", "connecting to database")
+	db, err := database.NewConnection(config.Database)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	// Register database health check
+	{
+		check, err := checkers.NewSQL(&checkers.SQLConfig{Pinger: db})
+		if err != nil {
+			panic(errors.Wrap(err, "failed to create db health checker"))
+		}
+		err = healthz.AddCheck(&health.Config{
+			Name:     "database",
+			Checker:  check,
+			Interval: time.Duration(3) * time.Second,
+			Fatal:    true,
+		})
+		if err != nil {
+			panic(errors.Wrap(err, "failed to add health checker"))
+		}
+
+		// Register HTTP stat views
+		if err := view.Register(ochttp.DefaultServerViews...); err != nil {
+			panic(errors.Wrap(err, "failed to register HTTP server stat views"))
+		}
 	}
 
 	helloWorldUseCase := &helloworld.UseCase{}
@@ -277,6 +275,10 @@ func main() {
 				upg.Stop()
 			},
 		)
+	}
+
+	if err := healthz.Start(); err != nil {
+		panic(errors.Wrap(err, "failed to start health checker"))
 	}
 
 	err = group.Run()
