@@ -77,7 +77,7 @@ func main() {
 	healthz.Logger = invisionkitlog.New(logger)
 	instrumentRouter.Handle("/healthz", handlers.NewJSONHandlerFunc(healthz, nil))
 
-	// Configure prometheus
+	// Configure Prometheus
 	if config.PrometheusEnabled {
 		level.Debug(logger).Log("msg", "prometheus exporter enabled")
 
@@ -109,17 +109,16 @@ func main() {
 		trace.RegisterExporter(exporter)
 	}
 
-	// Graceful restart
+	// Configure graceful restart
 	upg, _ := tableflip.New(tableflip.Options{})
-	//defer upg.Stop()
 
 	var group run.Group
 
 	// Do an upgrade on SIGHUP
 	go func() {
-		sig := make(chan os.Signal, 1)
-		signal.Notify(sig, syscall.SIGHUP)
-		for range sig {
+		ch := make(chan os.Signal, 1)
+		signal.Notify(ch, syscall.SIGHUP)
+		for range ch {
 			level.Info(logger).Log("msg", "graceful reloading")
 
 			_ = upg.Upgrade()
@@ -184,11 +183,11 @@ func main() {
 		if err != nil {
 			panic(errors.Wrap(err, "failed to add health checker"))
 		}
+	}
 
-		// Register HTTP stat views
-		if err := view.Register(ochttp.DefaultServerViews...); err != nil {
-			panic(errors.Wrap(err, "failed to register HTTP server stat views"))
-		}
+	// Register HTTP stat views
+	if err := view.Register(ochttp.DefaultServerViews...); err != nil {
+		panic(errors.Wrap(err, "failed to register HTTP server stat views"))
 	}
 
 	helloWorldUseCase := &helloworld.UseCase{}
@@ -199,7 +198,6 @@ func main() {
 	)
 
 	router := internal.NewRouter(helloWorldDriver)
-
 
 	// Set up HTTP server
 	{
@@ -238,14 +236,15 @@ func main() {
 		)
 	}
 
+	// Setup exit signal
 	{
-		signalChan := make(chan os.Signal, 1)
+		ch := make(chan os.Signal, 1)
 
 		group.Add(
 			func() error {
-				signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
+				signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 
-				sig := <-signalChan
+				sig := <-ch
 				if sig != nil {
 					level.Info(logger).Log("msg", "captured signal", "signal", sig)
 				}
@@ -253,8 +252,8 @@ func main() {
 				return nil
 			},
 			func(e error) {
-				signal.Stop(signalChan)
-				close(signalChan)
+				signal.Stop(ch)
+				close(ch)
 			},
 		)
 	}
@@ -265,13 +264,14 @@ func main() {
 				// Tell the parent we are ready
 				_ = upg.Ready()
 
+				// Wait for children to be ready
+				// (or application shutdown)
 				<-upg.Exit()
-
-				//level.Info(logger).Log("msg", "upgrading")
 
 				return nil
 			},
 			func(e error) {
+				//level.Info(logger).Log("msg", "upgrading")
 				upg.Stop()
 			},
 		)
