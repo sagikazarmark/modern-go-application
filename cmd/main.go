@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	stdlog "log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -158,7 +157,7 @@ func main() {
 	instrumentLogger := kitlog.With(logger, "server", "instrumentation")
 	instrumentServer := &http.Server{
 		Handler:  instrumentRouter,
-		ErrorLog: stdlog.New(kitlog.NewStdlibAdapter(level.Error(instrumentLogger)), "", 0),
+		ErrorLog: log.NewStandardLogger(level.Error(instrumentLogger)),
 	}
 
 	{
@@ -208,7 +207,7 @@ func main() {
 		Handler: &ochttp.Handler{
 			Handler: router,
 		},
-		ErrorLog: stdlog.New(kitlog.NewStdlibAdapter(level.Error(httpLogger)), "", 0),
+		ErrorLog: log.NewStandardLogger(level.Error(httpLogger)),
 	}
 
 	{
