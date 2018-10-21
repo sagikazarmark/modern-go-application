@@ -154,13 +154,13 @@ func main() {
 	}()
 
 	// Set up instrumentation server
-	instrumentLogger := kitlog.With(logger, "server", "instrumentation")
-	instrumentServer := &http.Server{
-		Handler:  instrumentRouter,
-		ErrorLog: log.NewStandardLogger(level.Error(instrumentLogger)),
-	}
-
 	{
+		logger := kitlog.With(logger, "server", "instrumentation")
+		server := &http.Server{
+			Handler:  instrumentRouter,
+			ErrorLog: log.NewStandardLogger(level.Error(logger)),
+		}
+
 		ln, err := upg.Fds.Listen("tcp", config.InstrumentAddr)
 		if err != nil {
 			panic(err)
@@ -168,22 +168,22 @@ func main() {
 
 		group.Add(
 			func() error {
-				level.Info(instrumentLogger).Log("msg", "starting server", "addr", config.InstrumentAddr)
+				level.Info(logger).Log("msg", "starting server", "addr", config.InstrumentAddr)
 
-				return instrumentServer.Serve(ln)
+				return server.Serve(ln)
 			},
 			func(e error) {
 				ctx, cancel := context.WithTimeout(context.Background(), config.ShutdownTimeout)
 				defer cancel()
 
-				level.Info(instrumentLogger).Log("msg", "shutting server down")
+				level.Info(logger).Log("msg", "shutting server down")
 
-				err := instrumentServer.Shutdown(ctx)
+				err := server.Shutdown(ctx)
 				if err != nil {
 					errorHandler.Handle(err)
 				}
 
-				instrumentServer.Close()
+				server.Close()
 			},
 		)
 	}
@@ -202,15 +202,17 @@ func main() {
 
 	router := internal.NewRouter(helloWorldDriver)
 
-	httpLogger := kitlog.With(logger, "server", "http")
-	httpServer := &http.Server{
-		Handler: &ochttp.Handler{
-			Handler: router,
-		},
-		ErrorLog: log.NewStandardLogger(level.Error(httpLogger)),
-	}
 
+	// Set up HTTP server
 	{
+		logger := kitlog.With(logger, "server", "http")
+		server := &http.Server{
+			Handler: &ochttp.Handler{
+				Handler: router,
+			},
+			ErrorLog: log.NewStandardLogger(level.Error(logger)),
+		}
+
 		ln, err := upg.Fds.Listen("tcp", config.HTTPAddr)
 		if err != nil {
 			panic(err)
@@ -218,22 +220,22 @@ func main() {
 
 		group.Add(
 			func() error {
-				level.Info(httpLogger).Log("msg", "starting server", "addr", config.HTTPAddr)
+				level.Info(logger).Log("msg", "starting server", "addr", config.HTTPAddr)
 
-				return httpServer.Serve(ln)
+				return server.Serve(ln)
 			},
 			func(e error) {
 				ctx, cancel := context.WithTimeout(context.Background(), config.ShutdownTimeout)
 				defer cancel()
 
-				level.Info(httpLogger).Log("msg", "shutting server down")
+				level.Info(logger).Log("msg", "shutting server down")
 
-				err := httpServer.Shutdown(ctx)
+				err := server.Shutdown(ctx)
 				if err != nil {
 					errorHandler.Handle(err)
 				}
 
-				httpServer.Close()
+				server.Close()
 			},
 		)
 	}
