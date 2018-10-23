@@ -133,6 +133,8 @@ func main() {
 			ErrorLog: log.NewStandardLogger(level.Error(logger)),
 		}
 
+		level.Info(logger).Log("msg", "listening on address", "address", config.InstrumentAddr)
+
 		ln, err := upg.Fds.Listen("tcp", config.InstrumentAddr)
 		if err != nil {
 			panic(err)
@@ -140,7 +142,7 @@ func main() {
 
 		group.Add(
 			func() error {
-				level.Info(logger).Log("msg", "starting server", "addr", config.InstrumentAddr)
+				level.Info(logger).Log("msg", "starting server")
 
 				return server.Serve(ln)
 			},
@@ -209,6 +211,8 @@ func main() {
 			ErrorLog: log.NewStandardLogger(level.Error(logger)),
 		}
 
+		level.Info(logger).Log("msg", "listening on address", "address", config.HTTPAddr)
+
 		ln, err := upg.Fds.Listen("tcp", config.HTTPAddr)
 		if err != nil {
 			panic(err)
@@ -216,7 +220,7 @@ func main() {
 
 		group.Add(
 			func() error {
-				level.Info(logger).Log("msg", "starting server", "addr", config.HTTPAddr)
+				level.Info(logger).Log("msg", "starting server")
 
 				return server.Serve(ln)
 			},
