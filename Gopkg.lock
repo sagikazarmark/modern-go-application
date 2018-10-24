@@ -134,15 +134,15 @@
   version = "v0.4.0"
 
 [[projects]]
-  digest = "1:8860216870b288d7cef30dcf17cfa6c160d748d1b6ce3248271211ec30927b12"
+  digest = "1:674892f4e662d23fc988ca9c5d8905f2c311e3ca094a5e66bd4942976191256e"
   name = "github.com/goph/emperror"
   packages = [
     ".",
     "errorlog",
   ]
   pruneopts = "UT"
-  revision = "d328ac744d45a846ad0608dda4a70cea9d90f935"
-  version = "v0.11.0"
+  revision = "9870ade6f413fe7fbddcb3eb8a735822deeef874"
+  version = "v0.12.0"
 
 [[projects]]
   digest = "1:4983917833acf2bd32af940e3914dc5b3fa8bdf3da8e2f11ed05a8ea9926c9e3"
