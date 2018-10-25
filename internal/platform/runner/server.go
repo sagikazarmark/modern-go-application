@@ -16,41 +16,40 @@ type server interface {
 	Close() error
 }
 
-// ServerRunner configures server run funcs.
-type ServerRunner struct {
-	shutdownTimeout time.Duration
+// Server implements server group run functions.
+type Server struct {
+	Server   server
+	Listener net.Listener
 
-	logger       log.Logger
-	errorHandler emperror.Handler
+	ShutdownTimeout time.Duration
+
+	Logger       log.Logger
+	ErrorHandler emperror.Handler
 }
 
-// NewServerRunner returns a new ServerRunner instance.
-func NewServerRunner(shutdownTimeout time.Duration, logger log.Logger, errorHandler emperror.Handler) *ServerRunner {
-	return &ServerRunner{
-		shutdownTimeout: shutdownTimeout,
+// Start starts the server and waits for it to return.
+func (r *Server) Start() error {
+	level.Info(r.Logger).Log("msg", "starting server")
 
-		logger:       logger,
-		errorHandler: errorHandler,
+	return r.Server.Serve(r.Listener)
+}
+
+// Stop tries to shut the server down gracefully first, then forcefully closes it.
+func (r *Server) Stop(e error) {
+	ctx := context.Background()
+	if r.ShutdownTimeout > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(context.Background(), r.ShutdownTimeout)
+
+		defer cancel()
 	}
-}
 
-func (r *ServerRunner) RunFuncs(s server, ln net.Listener, name string) (func() error, func(e error)) {
-	return func() error {
-		level.Info(r.logger).Log("msg", "starting server", "name", name)
+	level.Info(r.Logger).Log("msg", "shutting server down")
 
-		return s.Serve(ln)
-	},
-		func(e error) {
-			ctx, cancel := context.WithTimeout(context.Background(), r.shutdownTimeout)
-			defer cancel()
+	err := r.Server.Shutdown(ctx)
+	if err != nil {
+		r.ErrorHandler.Handle(err)
+	}
 
-			level.Info(r.logger).Log("msg", "shutting server down", "name", name)
-
-			err := s.Shutdown(ctx)
-			if err != nil {
-				r.errorHandler.Handle(emperror.With(err, "name", name))
-			}
-
-			s.Close()
-		}
+	r.Server.Close()
 }
