@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -27,6 +26,7 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/platform/invisionkitlog"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/jaeger"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
+	"github.com/sagikazarmark/modern-go-application/internal/platform/runner"
 	"go.opencensus.io/exporter/prometheus"
 	"go.opencensus.io/plugin/ochttp"
 	"go.opencensus.io/stats/view"
@@ -127,7 +127,8 @@ func main() {
 
 	// Set up instrumentation server
 	{
-		logger := kitlog.With(logger, "server", "instrumentation")
+		name := "instrumentation"
+		logger := kitlog.With(logger, "server", name)
 		server := &http.Server{
 			Handler:  instrumentRouter,
 			ErrorLog: log.NewStandardLogger(level.Error(logger)),
@@ -140,26 +141,15 @@ func main() {
 			panic(err)
 		}
 
-		group.Add(
-			func() error {
-				level.Info(logger).Log("msg", "starting server")
+		r := &runner.Server{
+			Server:          server,
+			Listener:        ln,
+			ShutdownTimeout: config.ShutdownTimeout,
+			Logger:          logger,
+			ErrorHandler:    emperror.HandlerWith(errorHandler, "server", name),
+		}
 
-				return server.Serve(ln)
-			},
-			func(e error) {
-				ctx, cancel := context.WithTimeout(context.Background(), config.ShutdownTimeout)
-				defer cancel()
-
-				level.Info(logger).Log("msg", "shutting server down")
-
-				err := server.Shutdown(ctx)
-				if err != nil {
-					errorHandler.Handle(err)
-				}
-
-				server.Close()
-			},
-		)
+		group.Add(r.Start, r.Stop)
 	}
 
 	// Connect to the database
@@ -203,7 +193,8 @@ func main() {
 
 	// Set up HTTP server
 	{
-		logger := kitlog.With(logger, "server", "http")
+		name := "http"
+		logger := kitlog.With(logger, "server", name)
 		server := &http.Server{
 			Handler: &ochttp.Handler{
 				Handler: router,
@@ -218,26 +209,15 @@ func main() {
 			panic(err)
 		}
 
-		group.Add(
-			func() error {
-				level.Info(logger).Log("msg", "starting server")
+		r := &runner.Server{
+			Server:          server,
+			Listener:        ln,
+			ShutdownTimeout: config.ShutdownTimeout,
+			Logger:          logger,
+			ErrorHandler:    emperror.HandlerWith(errorHandler, "server", name),
+		}
 
-				return server.Serve(ln)
-			},
-			func(e error) {
-				ctx, cancel := context.WithTimeout(context.Background(), config.ShutdownTimeout)
-				defer cancel()
-
-				level.Info(logger).Log("msg", "shutting server down")
-
-				err := server.Shutdown(ctx)
-				if err != nil {
-					errorHandler.Handle(err)
-				}
-
-				server.Close()
-			},
-		)
+		group.Add(r.Start, r.Stop)
 	}
 
 	// Setup exit signal
