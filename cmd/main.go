@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -24,6 +23,7 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/helloworld"
 	"github.com/sagikazarmark/modern-go-application/internal/helloworld/driver/web"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
+	"github.com/sagikazarmark/modern-go-application/internal/platform/runner"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/invisionkitlog"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/jaeger"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
@@ -125,6 +125,8 @@ func main() {
 		}
 	}()
 
+	serverRunner := runner.NewServerRunner(config.ShutdownTimeout, logger, errorHandler)
+
 	// Set up instrumentation server
 	{
 		logger := kitlog.With(logger, "server", "instrumentation")
@@ -140,26 +142,7 @@ func main() {
 			panic(err)
 		}
 
-		group.Add(
-			func() error {
-				level.Info(logger).Log("msg", "starting server")
-
-				return server.Serve(ln)
-			},
-			func(e error) {
-				ctx, cancel := context.WithTimeout(context.Background(), config.ShutdownTimeout)
-				defer cancel()
-
-				level.Info(logger).Log("msg", "shutting server down")
-
-				err := server.Shutdown(ctx)
-				if err != nil {
-					errorHandler.Handle(err)
-				}
-
-				server.Close()
-			},
-		)
+		group.Add(serverRunner.RunFuncs(server, ln, "instrumentation"))
 	}
 
 	// Connect to the database
@@ -218,26 +201,7 @@ func main() {
 			panic(err)
 		}
 
-		group.Add(
-			func() error {
-				level.Info(logger).Log("msg", "starting server")
-
-				return server.Serve(ln)
-			},
-			func(e error) {
-				ctx, cancel := context.WithTimeout(context.Background(), config.ShutdownTimeout)
-				defer cancel()
-
-				level.Info(logger).Log("msg", "shutting server down")
-
-				err := server.Shutdown(ctx)
-				if err != nil {
-					errorHandler.Handle(err)
-				}
-
-				server.Close()
-			},
-		)
+		group.Add(serverRunner.RunFuncs(server, ln, "http"))
 	}
 
 	// Setup exit signal
