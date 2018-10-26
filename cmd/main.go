@@ -255,7 +255,6 @@ func main() {
 				return nil
 			},
 			func(e error) {
-				//level.Info(logger).Log("msg", "upgrading")
 				upg.Stop()
 			},
 		)
