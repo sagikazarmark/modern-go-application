@@ -26,6 +26,7 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/platform/invisionkitlog"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/jaeger"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
+	"github.com/sagikazarmark/modern-go-application/internal/platform/maintenance"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/runner"
 	"go.opencensus.io/exporter/prometheus"
 	"go.opencensus.io/plugin/ochttp"
@@ -70,7 +71,8 @@ func main() {
 		"msg", "starting",
 	)
 
-	instrumentRouter := http.NewServeMux()
+	instrumentRouter := maintenance.NewRouter()
+	instrumentRouter.Handle("/version", maintenance.NewVersionHandler(Version, CommitHash, BuildDate))
 
 	// Configure health checker
 	healthz := health.New()
