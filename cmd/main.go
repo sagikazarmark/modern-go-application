@@ -71,13 +71,13 @@ func main() {
 		"msg", "starting",
 	)
 
-	instrumentRouter := maintenance.NewRouter()
-	instrumentRouter.Handle("/version", maintenance.NewVersionHandler(Version, CommitHash, BuildDate))
+	maintenanceRouter := maintenance.NewRouter()
+	maintenanceRouter.Handle("/version", maintenance.NewVersionHandler(Version, CommitHash, BuildDate))
 
 	// Configure health checker
 	healthz := health.New()
 	healthz.Logger = invisionkitlog.New(logger)
-	instrumentRouter.Handle("/healthz", handlers.NewJSONHandlerFunc(healthz, nil))
+	maintenanceRouter.Handle("/healthz", handlers.NewJSONHandlerFunc(healthz, nil))
 
 	// Configure Prometheus
 	if config.PrometheusEnabled {
@@ -91,7 +91,7 @@ func main() {
 		}
 
 		view.RegisterExporter(exporter)
-		instrumentRouter.Handle("/metrics", exporter)
+		maintenanceRouter.Handle("/metrics", exporter)
 	}
 
 	// Trace everything in development environment
@@ -127,18 +127,18 @@ func main() {
 		}
 	}()
 
-	// Set up instrumentation server
+	// Set up maintenance server
 	{
-		name := "instrumentation"
+		name := "maintenance"
 		logger := kitlog.With(logger, "server", name)
 		server := &http.Server{
-			Handler:  instrumentRouter,
+			Handler:  maintenanceRouter,
 			ErrorLog: log.NewStandardLogger(level.Error(logger)),
 		}
 
-		level.Info(logger).Log("msg", "listening on address", "address", config.InstrumentAddr)
+		level.Info(logger).Log("msg", "listening on address", "address", config.MaintenanceAddr)
 
-		ln, err := upg.Fds.Listen("tcp", config.InstrumentAddr)
+		ln, err := upg.Fds.Listen("tcp", config.MaintenanceAddr)
 		if err != nil {
 			panic(err)
 		}

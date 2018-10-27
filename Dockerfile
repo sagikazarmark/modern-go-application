@@ -20,4 +20,4 @@ COPY --from=builder /tmp/service /service
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 EXPOSE 8000 10000
-CMD ["/service", "--instrument-addr", ":10000", "--http-addr", ":8000"]
+CMD ["/service", "--maintenance-addr", ":10000", "--http-addr", ":8000"]
