@@ -25,6 +25,6 @@ func NewVersionHandler(version string, commitHash string, buildDate string) http
 	}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write(body)
+		_, _ = w.Write(body)
 	})
 }
