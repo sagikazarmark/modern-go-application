@@ -1,6 +1,12 @@
 package main
 
-import "runtime"
+import (
+	"encoding/json"
+	"net/http"
+	"runtime"
+
+	"github.com/pkg/errors"
+)
 
 // Provisioned by ldflags
 var (
@@ -31,4 +37,22 @@ func NewBuildInfo() BuildInfo {
 		Arch:       runtime.GOARCH,
 		Compiler:   runtime.Compiler,
 	}
+}
+
+// Handler returns an HTTP handler for version information.
+func (i BuildInfo) Handler() http.Handler {
+	var body []byte
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if body == nil {
+			var err error
+
+			body, err = json.Marshal(i)
+			if err != nil {
+				panic(errors.Wrap(err, "failed to render version information"))
+			}
+		}
+
+		_, _ = w.Write(body)
+	})
 }
