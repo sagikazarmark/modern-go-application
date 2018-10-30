@@ -22,6 +22,7 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal"
 	"github.com/sagikazarmark/modern-go-application/internal/helloworld"
 	"github.com/sagikazarmark/modern-go-application/internal/helloworld/driver/web"
+	"github.com/sagikazarmark/modern-go-application/internal/platform/buildinfo"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/invisionkitlog"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/jaeger"
@@ -65,15 +66,12 @@ func main() {
 	errorHandler := errorlog.NewHandler(logger)
 	defer emperror.HandleRecover(errorHandler)
 
-	level.Info(logger).Log(
-		"version", Version, "commit_hash", CommitHash, "build_date", BuildDate,
-		"msg", "starting",
-	)
+	buildInfo := buildinfo.New(Version, CommitHash, BuildDate)
 
-	buildInfo := NewBuildInfo()
+	level.Info(logger).Log(buildInfo.Context()...)
 
 	maintenanceRouter := http.NewServeMux()
-	maintenanceRouter.Handle("/version", buildInfo.Handler())
+	maintenanceRouter.Handle("/version", buildinfo.Handler(buildInfo))
 
 	// Configure health checker
 	healthz := health.New()
