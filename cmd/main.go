@@ -71,8 +71,10 @@ func main() {
 		"msg", "starting",
 	)
 
+	buildInfo := NewBuildInfo()
+
 	maintenanceRouter := maintenance.NewRouter()
-	maintenanceRouter.Handle("/version", maintenance.NewVersionHandler(Version, CommitHash, BuildDate))
+	maintenanceRouter.Handle("/version", maintenance.NewVersionHandler(buildInfo))
 
 	// Configure health checker
 	healthz := health.New()
