@@ -32,6 +32,13 @@ type Config struct {
 	// Maintenance HTTP address
 	MaintenanceAddr string
 
+	// Prometheus configuration
+	PrometheusEnabled bool
+
+	// Jaeger configuration
+	JaegerEnabled bool
+	Jaeger        jaeger.Config
+
 	// HTTP address
 	HTTPAddr string
 
@@ -40,13 +47,6 @@ type Config struct {
 
 	// Redis configuration
 	Redis redis.Config
-
-	// Prometheus configuration
-	PrometheusEnabled bool
-
-	// Jaeger configuration
-	JaegerEnabled bool
-	Jaeger        jaeger.Config
 }
 
 // NewConfig returns a Config struct with sane defaults.
@@ -72,12 +72,18 @@ func (c Config) Validate() error {
 		return errors.New("maintenance http server address is required")
 	}
 
-	if c.HTTPAddr == "" {
-		return errors.New("http server address is required")
-	}
-
 	if err := c.Log.Validate(); err != nil {
 		return err
+	}
+
+	if c.JaegerEnabled {
+		if err := c.Jaeger.Validate(); err != nil {
+			return err
+		}
+	}
+
+	if c.HTTPAddr == "" {
+		return errors.New("http server address is required")
 	}
 
 	if err := c.Database.Validate(); err != nil {
@@ -86,12 +92,6 @@ func (c Config) Validate() error {
 
 	if err := c.Redis.Validate(); err != nil {
 		return err
-	}
-
-	if c.JaegerEnabled {
-		if err := c.Jaeger.Validate(); err != nil {
-			return err
-		}
 	}
 
 	return nil
@@ -112,6 +112,16 @@ func (c *Config) Prepare(conf *conf.Configurator) {
 	// Maintenance configuration
 	conf.StringVarF(&c.MaintenanceAddr, "maintenance-addr", c.MaintenanceAddr, "Maintenance HTTP server address")
 
+	// Prometheus configuration
+	conf.BoolVar(&c.PrometheusEnabled, "prometheus-enabled", c.PrometheusEnabled, "Enable Prometheus metrics exporter")
+
+	// Jaeger configuration
+	conf.BoolVar(&c.JaegerEnabled, "jaeger-enabled", c.JaegerEnabled, "Enable Jaeger trace exporter")
+	conf.StringVar(&c.Jaeger.Endpoint, "jaeger-endpoint", c.Jaeger.Endpoint, "Jaeger HTTP Thrift endpoint")
+	conf.StringVar(&c.Jaeger.AgentEndpoint, "jaeger-agent-endpoint", c.Jaeger.AgentEndpoint, "Jaeger Agent endpoint")
+	conf.StringVar(&c.Jaeger.Username, "jaeger-username", c.Jaeger.Username, "Username to be used if basic auth is required") // nolint: lll
+	conf.StringVar(&c.Jaeger.Password, "jaeger-password", c.Jaeger.Password, "Password to be used if basic auth is required") // nolint: lll
+
 	conf.StringVarF(&c.HTTPAddr, "http-addr", c.HTTPAddr, "HTTP server address")
 
 	// Database configuration
@@ -125,15 +135,10 @@ func (c *Config) Prepare(conf *conf.Configurator) {
 	// Redis configuration
 	conf.StringVar(&c.Redis.Host, "redis-host", c.Redis.Host, "Redis host")
 	conf.IntVar(&c.Redis.Port, "redis-port", c.Redis.Port, "Redis port")
-	conf.StringSliceVar(&c.Redis.Password, "redis-password", c.Redis.Password, "Redis password list supports passing multiple passwords making password changes easier") // nolint: lll
-
-	// Prometheus configuration
-	conf.BoolVar(&c.PrometheusEnabled, "prometheus-enabled", c.PrometheusEnabled, "Enable Prometheus metrics exporter")
-
-	// Jaeger configuration
-	conf.BoolVar(&c.JaegerEnabled, "jaeger-enabled", c.JaegerEnabled, "Enable Jaeger trace exporter")
-	conf.StringVar(&c.Jaeger.Endpoint, "jaeger-endpoint", c.Jaeger.Endpoint, "Jaeger HTTP Thrift endpoint")
-	conf.StringVar(&c.Jaeger.AgentEndpoint, "jaeger-agent-endpoint", c.Jaeger.AgentEndpoint, "Jaeger Agent endpoint")
-	conf.StringVar(&c.Jaeger.Username, "jaeger-username", c.Jaeger.Username, "Username to be used if basic auth is required") // nolint: lll
-	conf.StringVar(&c.Jaeger.Password, "jaeger-password", c.Jaeger.Password, "Password to be used if basic auth is required") // nolint: lll
+	conf.StringSliceVar(
+		&c.Redis.Password,
+		"redis-password",
+		c.Redis.Password,
+		"Redis password list supports passing multiple passwords making password changes easier",
+	)
 }
