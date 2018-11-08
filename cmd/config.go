@@ -39,8 +39,8 @@ type Config struct {
 	JaegerEnabled bool
 	Jaeger        jaeger.Config
 
-	// HTTP address
-	HTTPAddr string
+	// App server address
+	Addr string
 
 	// Database connection information
 	Database database.Config
@@ -56,7 +56,7 @@ func NewConfig() Config {
 		ShutdownTimeout: 15 * time.Second,
 		Log:             log.NewConfig(),
 		MaintenanceAddr: ":10000",
-		HTTPAddr:        ":8000",
+		Addr:            ":8000",
 		Database:        database.NewConfig(),
 		Redis:           redis.NewConfig(),
 	}
@@ -82,8 +82,8 @@ func (c Config) Validate() error {
 		}
 	}
 
-	if c.HTTPAddr == "" {
-		return errors.New("http server address is required")
+	if c.Addr == "" {
+		return errors.New("app server address is required")
 	}
 
 	if err := c.Database.Validate(); err != nil {
@@ -122,7 +122,7 @@ func (c *Config) Prepare(conf *conf.Configurator) {
 	conf.StringVar(&c.Jaeger.Username, "jaeger-username", c.Jaeger.Username, "Username to be used if basic auth is required") // nolint: lll
 	conf.StringVar(&c.Jaeger.Password, "jaeger-password", c.Jaeger.Password, "Password to be used if basic auth is required") // nolint: lll
 
-	conf.StringVarF(&c.HTTPAddr, "http-addr", c.HTTPAddr, "HTTP server address")
+	conf.StringVarF(&c.Addr, "addr", c.Addr, "App server address")
 
 	// Database configuration
 	conf.StringVar(&c.Database.Host, "db-host", c.Database.Host, "Database host")

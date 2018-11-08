@@ -192,9 +192,9 @@ func main() {
 
 	router := internal.NewRouter(helloWorldDriver)
 
-	// Set up HTTP server
+	// Set up app server
 	{
-		name := "http"
+		name := "app"
 		logger := kitlog.With(logger, "server", name)
 		server := &http.Server{
 			Handler: &ochttp.Handler{
@@ -203,9 +203,9 @@ func main() {
 			ErrorLog: log.NewStandardLogger(level.Error(logger)),
 		}
 
-		level.Info(logger).Log("msg", "listening on address", "address", config.HTTPAddr)
+		level.Info(logger).Log("msg", "listening on address", "address", config.Addr)
 
-		ln, err := upg.Fds.Listen("tcp", config.HTTPAddr)
+		ln, err := upg.Fds.Listen("tcp", config.Addr)
 		if err != nil {
 			panic(err)
 		}
