@@ -8,15 +8,15 @@ import (
 
 func init() {
 	// Load defaults for info variables
-	if Version == "" {
-		Version = "dev"
+	if version == "" {
+		version = "dev"
 	}
 
-	if CommitHash == "" {
-		CommitHash = "dev"
+	if commitHash == "" {
+		commitHash = "dev"
 	}
 
-	if BuildDate == "" {
-		BuildDate = time.Now().Format(time.RFC3339)
+	if buildDate == "" {
+		buildDate = time.Now().Format(time.RFC3339)
 	}
 }

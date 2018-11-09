@@ -46,7 +46,7 @@ func main() {
 	pflag.Parse()
 
 	if viper.GetBool("version") {
-		fmt.Printf("%s version %s (%s) built on %s\n", FriendlyServiceName, Version, CommitHash, BuildDate)
+		fmt.Printf("%s version %s (%s) built on %s\n", FriendlyServiceName, version, commitHash, buildDate)
 
 		os.Exit(0)
 	}
@@ -85,7 +85,7 @@ func main() {
 	errorHandler := errorlog.NewHandler(logger)
 	defer emperror.HandleRecover(errorHandler)
 
-	buildInfo := buildinfo.New(Version, CommitHash, BuildDate)
+	buildInfo := buildinfo.New(version, commitHash, buildDate)
 
 	level.Info(logger).Log(buildInfo.Context()...)
 
