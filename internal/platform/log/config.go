@@ -23,14 +23,6 @@ type Config struct {
 	Level string
 }
 
-// NewConfig returns a new Config instance with some defaults.
-func NewConfig() Config {
-	return Config{
-		Format: "json",
-		Level:  infoLevel,
-	}
-}
-
 // Validate validates the configuration.
 func (c Config) Validate() error {
 	if c.Format == "" {

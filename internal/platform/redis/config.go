@@ -18,13 +18,6 @@ type Config struct {
 	Password []string
 }
 
-// NewConfig returns a new Config instance with some defaults.
-func NewConfig() Config {
-	return Config{
-		Port: 6379,
-	}
-}
-
 // Validate checks that the configuration is valid.
 func (c Config) Validate() error {
 	if c.Host == "" {

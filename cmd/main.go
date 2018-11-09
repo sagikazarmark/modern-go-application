@@ -14,7 +14,6 @@ import (
 	"github.com/cloudflare/tableflip"
 	kitlog "github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
-	"github.com/goph/conf"
 	"github.com/goph/emperror"
 	"github.com/goph/emperror/errorlog"
 	"github.com/oklog/run"
@@ -27,33 +26,53 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/platform/invisionkitlog"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/jaeger"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
+	"github.com/sagikazarmark/modern-go-application/internal/platform/prometheus"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/runner"
-	"go.opencensus.io/exporter/prometheus"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 	"go.opencensus.io/plugin/ochttp"
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/trace"
 )
 
+func init() {
+	pflag.Bool("version", false, "Show version information")
+	pflag.Bool("dump-config", false, "Dump configuration to the console")
+}
+
 func main() {
-	config := NewConfig()
+	Configure(viper.GetViper(), pflag.CommandLine)
 
-	config.Prepare(conf.Global)
+	pflag.Parse()
 
-	showVersion := conf.BoolF("version", false, "Show version information")
-
-	conf.Parse()
-
-	if *showVersion {
+	if viper.GetBool("version") {
 		fmt.Printf("%s version %s (%s) built on %s\n", FriendlyServiceName, Version, CommitHash, BuildDate)
 
 		os.Exit(0)
 	}
 
-	err := config.Validate()
+	err := viper.ReadInConfig()
+	if _, ok := err.(viper.ConfigFileNotFoundError); err != nil && !ok {
+		panic(errors.Wrap(err, "failed to read configuration"))
+	}
+
+	var config Config
+	err = viper.Unmarshal(&config)
+	if err != nil {
+		panic(errors.Wrap(err, "failed to unmarshal configuration"))
+	}
+
+	err = config.Validate()
 	if err != nil {
 		fmt.Println(err)
 
 		os.Exit(3)
+	}
+
+	if viper.GetBool("dump-config") {
+		fmt.Printf("%+v\n", config)
+
+		os.Exit(0)
 	}
 
 	// Create logger
@@ -70,27 +89,25 @@ func main() {
 
 	level.Info(logger).Log(buildInfo.Context()...)
 
-	maintenanceRouter := http.NewServeMux()
-	maintenanceRouter.Handle("/version", buildinfo.Handler(buildInfo))
+	instrumentationRouter := http.NewServeMux()
+	instrumentationRouter.Handle("/version", buildinfo.Handler(buildInfo))
 
 	// Configure health checker
 	healthz := health.New()
 	healthz.Logger = invisionkitlog.New(logger)
-	maintenanceRouter.Handle("/healthz", handlers.NewJSONHandlerFunc(healthz, nil))
+	instrumentationRouter.Handle("/healthz", handlers.NewJSONHandlerFunc(healthz, nil))
 
 	// Configure Prometheus
-	if config.PrometheusEnabled {
+	if config.Instrumentation.Prometheus.Enabled {
 		level.Debug(logger).Log("msg", "prometheus exporter enabled")
 
-		exporter, err := prometheus.NewExporter(prometheus.Options{
-			OnError: errorHandler.Handle,
-		})
+		exporter, err := prometheus.NewExporter(config.Instrumentation.Prometheus.Config, errorHandler)
 		if err != nil {
-			panic(errors.Wrap(err, "failed to create prometheus exporter"))
+			panic(err)
 		}
 
 		view.RegisterExporter(exporter)
-		maintenanceRouter.Handle("/metrics", exporter)
+		instrumentationRouter.Handle("/metrics", exporter)
 	}
 
 	// Trace everything in development environment
@@ -99,10 +116,10 @@ func main() {
 	}
 
 	// Configure Jaeger
-	if config.JaegerEnabled {
+	if config.Instrumentation.Jaeger.Enabled {
 		level.Debug(logger).Log("msg", "jaeger exporter enabled")
 
-		exporter, err := jaeger.NewExporter(config.Jaeger, ServiceName, errorHandler)
+		exporter, err := jaeger.NewExporter(config.Instrumentation.Jaeger.Config, ServiceName, errorHandler)
 		if err != nil {
 			panic(err)
 		}
@@ -126,18 +143,18 @@ func main() {
 		}
 	}()
 
-	// Set up maintenance server
+	// Set up instrumentation server
 	{
-		name := "maintenance"
+		name := "instrumentation"
 		logger := kitlog.With(logger, "server", name)
 		server := &http.Server{
-			Handler:  maintenanceRouter,
+			Handler:  instrumentationRouter,
 			ErrorLog: log.NewStandardLogger(level.Error(logger)),
 		}
 
-		level.Info(logger).Log("msg", "listening on address", "address", config.MaintenanceAddr)
+		level.Info(logger).Log("msg", "listening on address", "address", config.Instrumentation.Addr)
 
-		ln, err := upg.Fds.Listen("tcp", config.MaintenanceAddr)
+		ln, err := upg.Fds.Listen("tcp", config.Instrumentation.Addr)
 		if err != nil {
 			panic(err)
 		}
@@ -203,9 +220,9 @@ func main() {
 			ErrorLog: log.NewStandardLogger(level.Error(logger)),
 		}
 
-		level.Info(logger).Log("msg", "listening on address", "address", config.Addr)
+		level.Info(logger).Log("msg", "listening on address", "address", config.App.Addr)
 
-		ln, err := upg.Fds.Listen("tcp", config.Addr)
+		ln, err := upg.Fds.Listen("tcp", config.App.Addr)
 		if err != nil {
 			panic(err)
 		}

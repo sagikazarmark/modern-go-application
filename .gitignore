@@ -1,5 +1,7 @@
 /bin/
 /build/
+/config.*
+!config.toml.dist
 /.docker/
 /docker-compose.override.yml
 /.env

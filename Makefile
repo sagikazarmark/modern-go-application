@@ -30,7 +30,7 @@ OPENAPI_GENERATOR_VERSION = 3.3.0
 GOLANG_VERSION = 1.11
 
 .PHONY: up
-up: vendor start .env .env.test ## Set up the development environment
+up: vendor start .env .env.test config.toml ## Set up the development environment
 
 .PHONY: down
 down: clean ## Destroy the development environment
@@ -71,6 +71,9 @@ vendor: bin/dep ## Install dependencies
 
 .env.test:
 	cp .env.dist .env.test
+
+config.toml:
+	cp config.toml.dist config.toml
 
 .PHONY: run
 run: GOTAGS += dev

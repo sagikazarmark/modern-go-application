@@ -8,7 +8,7 @@ import (
 
 func TestConfig_Validate(t *testing.T) {
 	tests := map[string]Config{
-		"either endpoint or agent endpoint must be set": {},
+		"either endpoint or agent endpoint must be configured": {},
 	}
 
 	for name, test := range tests {

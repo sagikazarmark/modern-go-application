@@ -6,9 +6,9 @@ import (
 	"go.opencensus.io/exporter/jaeger"
 )
 
-// NewExporter creates a new, configured jaeger exporter.
+// NewExporter creates a new, configured Jaeger exporter.
 func NewExporter(config Config, serviceName string, errorHandler emperror.Handler) (*jaeger.Exporter, error) {
-	je, err := jaeger.NewExporter(jaeger.Options{
+	exporter, err := jaeger.NewExporter(jaeger.Options{
 		Endpoint:      config.Endpoint,
 		AgentEndpoint: config.AgentEndpoint,
 		Username:      config.Username,
@@ -18,9 +18,6 @@ func NewExporter(config Config, serviceName string, errorHandler emperror.Handle
 			ServiceName: serviceName,
 		},
 	})
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create jaeger exporter")
-	}
 
-	return je, nil
+	return exporter, errors.Wrap(err, "failed to create jaeger exporter")
 }

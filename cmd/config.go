@@ -2,25 +2,26 @@ package main
 
 import (
 	"errors"
+	"fmt"
+	"os"
 	"time"
 
-	"github.com/goph/conf"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/jaeger"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
+	"github.com/sagikazarmark/modern-go-application/internal/platform/prometheus"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/redis"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 )
 
 // Config holds any kind of configuration that comes from the outside world and
 // is necessary for running the application.
 type Config struct {
 	// Meaningful values are recommended (eg. production, development, staging, release/123, etc)
-	//
-	// "development" is treated special: address types will use the loopback interface as default when none is defined.
-	// This is useful when developing locally and listening on all interfaces requires elevated rights.
 	Environment string
 
-	// Turns on some debug functionality: more verbose logs, exposed pprof, expvar and net trace in the debug server.
+	// Turns on some debug functionality (eg. more verbose logs)
 	Debug bool
 
 	// Timeout for graceful shutdown
@@ -29,18 +30,14 @@ type Config struct {
 	// Log configuration
 	Log log.Config
 
-	// Maintenance HTTP address
-	MaintenanceAddr string
+	// Instrumentation configuration
+	Instrumentation InstrumentationConfig
 
-	// Prometheus configuration
-	PrometheusEnabled bool
-
-	// Jaeger configuration
-	JaegerEnabled bool
-	Jaeger        jaeger.Config
-
-	// App server address
-	Addr string
+	// App configuration
+	App struct {
+		// App server address
+		Addr string
+	}
 
 	// Database connection information
 	Database database.Config
@@ -49,40 +46,21 @@ type Config struct {
 	Redis redis.Config
 }
 
-// NewConfig returns a Config struct with sane defaults.
-func NewConfig() Config {
-	return Config{
-		Environment:     "production",
-		ShutdownTimeout: 15 * time.Second,
-		Log:             log.NewConfig(),
-		MaintenanceAddr: ":10000",
-		Addr:            ":8000",
-		Database:        database.NewConfig(),
-		Redis:           redis.NewConfig(),
-	}
-}
-
 // Validate validates the configuration.
 func (c Config) Validate() error {
 	if c.Environment == "" {
 		return errors.New("environment is required")
 	}
 
-	if c.MaintenanceAddr == "" {
-		return errors.New("maintenance http server address is required")
-	}
-
 	if err := c.Log.Validate(); err != nil {
 		return err
 	}
 
-	if c.JaegerEnabled {
-		if err := c.Jaeger.Validate(); err != nil {
-			return err
-		}
+	if err := c.Instrumentation.Validate(); err != nil {
+		return err
 	}
 
-	if c.Addr == "" {
+	if c.App.Addr == "" {
 		return errors.New("app server address is required")
 	}
 
@@ -97,48 +75,83 @@ func (c Config) Validate() error {
 	return nil
 }
 
-// Prepare prepares the configuration to be populated from various sources
-// (determined by the console nature of the application).
-func (c *Config) Prepare(conf *conf.Configurator) {
-	// General configuration
-	conf.StringVar(&c.Environment, "environment", c.Environment, "Application environment")
-	conf.BoolVar(&c.Debug, "debug", c.Debug, "Turns on debug functionality")
-	conf.DurationVarF(&c.ShutdownTimeout, "shutdown-timeout", c.ShutdownTimeout, "Timeout for graceful shutdown")
-
-	// Log configuration
-	conf.StringVar(&c.Log.Format, "log-format", c.Log.Format, "Output log format (json or logfmt)")
-	conf.StringVar(&c.Log.Level, "log-level", c.Log.Level, "Minimum log level that should appear on the output")
-
-	// Maintenance configuration
-	conf.StringVarF(&c.MaintenanceAddr, "maintenance-addr", c.MaintenanceAddr, "Maintenance HTTP server address")
+type InstrumentationConfig struct {
+	// Instrumentation HTTP server address
+	Addr string
 
 	// Prometheus configuration
-	conf.BoolVar(&c.PrometheusEnabled, "prometheus-enabled", c.PrometheusEnabled, "Enable Prometheus metrics exporter")
+	Prometheus struct {
+		Enabled           bool
+		prometheus.Config `mapstructure:",squash"`
+	}
 
 	// Jaeger configuration
-	conf.BoolVar(&c.JaegerEnabled, "jaeger-enabled", c.JaegerEnabled, "Enable Jaeger trace exporter")
-	conf.StringVar(&c.Jaeger.Endpoint, "jaeger-endpoint", c.Jaeger.Endpoint, "Jaeger HTTP Thrift endpoint")
-	conf.StringVar(&c.Jaeger.AgentEndpoint, "jaeger-agent-endpoint", c.Jaeger.AgentEndpoint, "Jaeger Agent endpoint")
-	conf.StringVar(&c.Jaeger.Username, "jaeger-username", c.Jaeger.Username, "Username to be used if basic auth is required") // nolint: lll
-	conf.StringVar(&c.Jaeger.Password, "jaeger-password", c.Jaeger.Password, "Password to be used if basic auth is required") // nolint: lll
+	Jaeger struct {
+		Enabled       bool
+		jaeger.Config `mapstructure:",squash"`
+	}
+}
 
-	conf.StringVarF(&c.Addr, "addr", c.Addr, "App server address")
+// Validate validates the configuration.
+func (c InstrumentationConfig) Validate() error {
+	if c.Addr == "" {
+		return errors.New("instrumentation http server address is required")
+	}
+
+	if c.Prometheus.Enabled {
+		if err := c.Prometheus.Validate(); err != nil {
+			return err
+		}
+	}
+
+	if c.Jaeger.Enabled {
+		if err := c.Jaeger.Validate(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// Configure configures some defaults in the Viper instance.
+func Configure(v *viper.Viper, p *pflag.FlagSet) {
+	v.AllowEmptyEnv(true)
+	v.AddConfigPath(".")
+	p.Init(FriendlyServiceName, pflag.ExitOnError)
+	pflag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage of %s:\n", FriendlyServiceName)
+		pflag.PrintDefaults()
+	}
+	v.BindPFlags(p) // nolint:errcheck
+
+	// Global configuration
+	v.SetDefault("environment", "production")
+	v.SetDefault("debug", false)
+	v.SetDefault("shutdownTimeout", 15*time.Second)
+
+	// Log configuration
+	v.SetDefault("log.format", "json")
+	v.SetDefault("log.level", "info")
+
+	// Instrumentation configuration
+	p.String("instrumentation.addr", ":10000", "Instrumentation HTTP server address")
+	v.SetDefault("instrumentation.addr", ":10000")
+
+	v.SetDefault("instrumentation.prometheus.enabled", false)
+	v.SetDefault("instrumentation.jaeger.enabled", false)
+	v.SetDefault("instrumentation.jaeger.endpoint", "http://localhost:14268")
+	v.SetDefault("instrumentation.jaeger.agentEndpoint", "localhost:6831")
+
+	// App configuration
+	p.String("app.addr", ":8000", "App HTTP server address")
+	v.SetDefault("app.addr", ":8000")
 
 	// Database configuration
-	conf.StringVar(&c.Database.Host, "db-host", c.Database.Host, "Database host")
-	conf.IntVar(&c.Database.Port, "db-port", c.Database.Port, "Database port")
-	conf.StringVar(&c.Database.User, "db-user", c.Database.User, "Database user")
-	conf.StringVar(&c.Database.Pass, "db-pass", c.Database.Pass, "Database password")
-	conf.StringVar(&c.Database.Name, "db-name", c.Database.Name, "Database name")
-	conf.QueryStringVar(&c.Database.Params, "db-params", c.Database.Params, "Database params")
+	v.SetDefault("database.port", 3306)
+	v.SetDefault("database.params", map[string]string{
+		"charset": "utf8mb4",
+	})
 
 	// Redis configuration
-	conf.StringVar(&c.Redis.Host, "redis-host", c.Redis.Host, "Redis host")
-	conf.IntVar(&c.Redis.Port, "redis-port", c.Redis.Port, "Redis port")
-	conf.StringSliceVar(
-		&c.Redis.Password,
-		"redis-password",
-		c.Redis.Password,
-		"Redis password list supports passing multiple passwords making password changes easier",
-	)
+	v.SetDefault("redis.port", 6379)
 }
