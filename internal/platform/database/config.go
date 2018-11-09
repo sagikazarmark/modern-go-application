@@ -66,13 +66,3 @@ func (c Config) DSN() string {
 		params,
 	)
 }
-
-// NewConfig returns a new Config instance with some defaults.
-func NewConfig() Config {
-	return Config{
-		Port: 3306,
-		Params: map[string]string{
-			"charset": "utf8mb4",
-		},
-	}
-}

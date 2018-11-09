@@ -18,4 +18,4 @@ ARG BINARY_NAME
 COPY $BUILD_DIR/$BINARY_NAME /service
 
 EXPOSE 8000 10000 40000
-CMD ["/dlv", "--listen=:40000", "--headless=true", "--api-version=2", "--log", "exec", "--", "/service", "--maintenance-addr", ":10000", "--http-addr", ":8000"]
+CMD ["/dlv", "--listen=:40000", "--headless=true", "--api-version=2", "--log", "exec", "--", "/service", "--instrumentation.addr", ":10000", "--app.addr", ":8000"]

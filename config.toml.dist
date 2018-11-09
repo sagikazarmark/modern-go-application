@@ -1,0 +1,36 @@
+environment = "production"
+debug = false
+shutdownTimeout = "15s"
+
+[log]
+format = "json"
+level = "info"
+
+[instrumentation]
+addr = ":10000"
+
+[instrumentation.prometheus]
+enabled = false
+
+[instrumentation.jaeger]
+enabled = false
+endpoint = "http://localhost:14268"
+agentEndpoint = "localhost:6831"
+# username = ""
+# password = ""
+
+[app]
+addr = ":8000"
+
+[database]
+host = "localhost"
+port = 3306
+user = "root"
+pass = "root"
+name = "database"
+# params = {}
+
+[redis]
+host = "127.0.0.1"
+port = 6379
+password = []

@@ -8,7 +8,7 @@ type Config struct {
 	// For example, http://localhost:14268.
 	Endpoint string
 
-	// AgentEndpoint instructs exporter to send spans to jaeger-agent at this address.
+	// AgentEndpoint instructs exporter to send spans to Jaeger agent at this address.
 	// For example, localhost:6831.
 	AgentEndpoint string
 
@@ -24,7 +24,7 @@ type Config struct {
 // Validate checks that the configuration is valid.
 func (c Config) Validate() error {
 	if c.Endpoint == "" && c.AgentEndpoint == "" {
-		return errors.New("either endpoint or agent endpoint must be set")
+		return errors.New("either endpoint or agent endpoint must be configured")
 	}
 
 	return nil

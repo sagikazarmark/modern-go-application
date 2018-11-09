@@ -1,51 +1,34 @@
 package main
 
 import (
-	"bytes"
+	"os"
 	"testing"
-	"time"
 
-	"github.com/goph/conf"
-	"github.com/stretchr/testify/assert"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
 
 //nolint:deadcode
-func TestConfig_Validate(t *testing.T) {
-	tests := map[string]Config{
-		"environment is required": {
-			ShutdownTimeout: 15 * time.Second,
-		},
-	}
+func TestConfigure(t *testing.T) {
+	var config Config
 
-	for name, test := range tests {
-		t.Run(name, func(t *testing.T) {
-			err := test.Validate()
+	v := viper.New()
+	p := pflag.NewFlagSet("test", pflag.ContinueOnError)
 
-			assert.EqualError(t, err, name)
-		})
-	}
-}
+	Configure(v, p)
 
-//nolint:deadcode
-func TestConfig_Prepare(t *testing.T) {
-	config := NewConfig()
+	file, err := os.Open("../config.toml.dist")
+	require.NoError(t, err)
 
-	var buf bytes.Buffer
+	v.SetConfigType("toml")
 
-	configurator := conf.NewConfigurator("app", conf.ContinueOnError)
-	configurator.SetOutput(&buf)
+	err = v.ReadConfig(file)
+	require.NoError(t, err)
 
-	config.Prepare(configurator)
+	err = v.Unmarshal(&config)
+	require.NoError(t, err)
 
-	environment := map[string]string{
-		"ENVIRONMENT": "staging",
-		"DEBUG":       "true",
-		"LOG_FORMAT":  "logfmt",
-	}
-
-	args := []string{"--shutdown-timeout", "5s"}
-
-	err := configurator.Parse(args, environment)
+	err = config.Validate()
 	require.NoError(t, err)
 }

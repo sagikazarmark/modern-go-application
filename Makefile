@@ -30,7 +30,7 @@ OPENAPI_GENERATOR_VERSION = 3.3.0
 GOLANG_VERSION = 1.11
 
 .PHONY: up
-up: vendor start .env .env.test ## Set up the development environment
+up: vendor start config.toml ## Set up the development environment
 
 .PHONY: down
 down: clean ## Destroy the development environment
@@ -66,20 +66,17 @@ bin/dep-${DEP_VERSION}:
 vendor: bin/dep ## Install dependencies
 	bin/dep ensure -v -vendor-only
 
-.env:
-	cp .env.dist .env
-
-.env.test:
-	cp .env.dist .env.test
+config.toml:
+	cp config.toml.dist config.toml
 
 .PHONY: run
 run: GOTAGS += dev
-run: build .env ## Build and execute a binary
+run: build ## Build and execute a binary
 	${BUILD_DIR}/${GENERATED_BINARY_NAME} ${ARGS}
 
 .PHONY: debug
 debug: GOTAGS += dev
-debug: build-debug bin/dlv .env ## Build and execute a binary with remote debugging enabled
+debug: build-debug bin/dlv ## Build and execute a binary with remote debugging enabled
 	bin/dlv --listen=127.0.0.1:40000 --headless=true --api-version=2 --log exec -- ${BUILD_DIR}/${GENERATED_BINARY_NAME} ${ARGS}
 
 bin/dlv:
