@@ -7,41 +7,17 @@
   version = "0.7.0"
 
 [[constraint]]
-  name = "github.com/go-sql-driver/mysql"
-  version = "1.4.0"
-
-[[constraint]]
-  name = "github.com/spf13/viper"
-  branch = "master"
-  #version = "1.2.1"
+  name = "github.com/pkg/errors"
+  version = "0.8.0"
 
 [[constraint]]
   name = "github.com/goph/emperror"
   version = "0.12.0"
 
 [[constraint]]
-  name = "github.com/gorilla/mux"
-  version = "1.6.2"
-
-[[constraint]]
-  name = "github.com/pkg/errors"
-  version = "0.8.0"
-
-[[constraint]]
-  name = "github.com/stretchr/testify"
-  version = "1.2.2"
-
-[[constraint]]
+  name = "github.com/spf13/viper"
   branch = "master"
-  name = "github.com/opencensus-integrations/ocsql"
-
-[[constraint]]
-  name = "go.opencensus.io"
-  version = "0.17.0"
-
-[[constraint]]
-  name = "github.com/gomodule/redigo"
-  version = "2.0.0"
+  #version = "1.2.1"
 
 [[constraint]]
   name = "github.com/InVisionApp/go-health"
@@ -54,3 +30,27 @@
 [[constraint]]
   name = "github.com/oklog/run"
   version = "1.0.0"
+
+[[constraint]]
+  name = "go.opencensus.io"
+  version = "0.17.0"
+
+[[constraint]]
+  name = "github.com/stretchr/testify"
+  version = "1.2.2"
+
+[[constraint]]
+  name = "github.com/gorilla/mux"
+  version = "1.6.2"
+
+[[constraint]]
+  name = "github.com/go-sql-driver/mysql"
+  version = "1.4.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/opencensus-integrations/ocsql"
+
+[[constraint]]
+  name = "github.com/gomodule/redigo"
+  version = "2.0.0"
