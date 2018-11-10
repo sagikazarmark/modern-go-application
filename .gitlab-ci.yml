@@ -40,7 +40,9 @@ lint:
 .build: &build_definition
     stage: build
     script:
-        - make build-release build-debug VERSION=${CI_COMMIT_REF_NAME} COMMIT_HASH=${CI_COMMIT_SHA} BUILD_DATE=$(date +%FT%T%z)
+        - export CI_BUILD_DATE=$(date +%FT%T%z)
+        - make build-release VERSION=${CI_COMMIT_REF_NAME} COMMIT_HASH=${CI_COMMIT_SHA} BUILD_DATE=${CI_BUILD_DATE}
+        - make build-debug VERSION=${CI_COMMIT_REF_NAME} COMMIT_HASH=${CI_COMMIT_SHA} BUILD_DATE=${CI_BUILD_DATE}
 
 snapshot:
     <<: *build_definition
