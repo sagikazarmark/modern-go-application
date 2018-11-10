@@ -21,6 +21,7 @@ rep "s|name=\"project\"|name=\"${project}\"|" .idea/runConfigurations/Acceptance
 rep "s|name=\"project\"|name=\"${project}\"|" .idea/runConfigurations/Integration.xml
 
 rep "s|${boilerplatePackage}|${package}|" .circleci/config.yml
+rep "s|${boilerplatePackage}|${package}|" .gitlab-ci.yml
 rep "s|${boilerplatePackage}|${package}|" cmd/config.go
 rep "s|${boilerplatePackage}|${package}|" cmd/main.go
 rep "s|${boilerplatePackage}|${package}|" CHANGELOG.md
