@@ -57,3 +57,32 @@ release:
     artifacts:
         paths:
             - build/
+
+.docker: &docker_definition
+    stage: build
+    before_script:
+        - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+    script:
+        - docker build --build-arg BUILD_DIR=build --build-arg BINARY_NAME=$(make var-BINARY_NAME) -t registry.${PROJECT_NAME}:${CI_COMMIT_REF_NAME} -f Dockerfile.local .
+        - docker build --build-arg BUILD_DIR=build --build-arg BINARY_NAME=$(make var-BINARY_NAME)-debug -t registry.${PROJECT_NAME}:${CI_COMMIT_REF_NAME}-debug -f Dockerfile.debug .
+        - docker push registry.${PROJECT_NAME}:${CI_COMMIT_REF_NAME}
+        - docker push registry.${PROJECT_NAME}:${CI_COMMIT_REF_NAME}-debug
+
+docker:snapshot:
+    <<: *docker_definition
+    dependencies:
+        - snapshot
+    only:
+        - master
+
+docker:release:
+    <<: *docker_definition
+    dependencies:
+        - release
+    only:
+        - tags
+    script:
+        - docker tag registry.${PROJECT_NAME}:${CI_COMMIT_REF_NAME} registry.${PROJECT_NAME}:latest
+        - docker tag registry.${PROJECT_NAME}:${CI_COMMIT_REF_NAME}-debug registry.${PROJECT_NAME}:latest-debug
+        - docker push registry.${PROJECT_NAME}:latest
+        - docker push registry.${PROJECT_NAME}:latest-debug
