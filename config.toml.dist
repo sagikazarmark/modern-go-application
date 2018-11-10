@@ -28,7 +28,7 @@ port = 3306
 user = "root"
 pass = "root"
 name = "database"
-# params = {}
+params = { charset = "utf8mb4" }
 
 [redis]
 host = "127.0.0.1"
