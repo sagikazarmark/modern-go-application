@@ -61,6 +61,7 @@ release:
 
 .docker: &docker_definition
     stage: packaging
+    image: docker
     before_script:
         - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
     script:
