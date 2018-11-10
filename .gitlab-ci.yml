@@ -1,6 +1,7 @@
 image: golang:1.11
 
 variables:
+    NAMESPACE: sagikazarmark/modern-go-application
     PROJECT_NAME: github.com/sagikazarmark/modern-go-application
 
 stages:
@@ -74,10 +75,10 @@ release:
         - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
         - apk add --update --no-cache ca-certificates make
     script:
-        - docker build --build-arg BUILD_DIR=build --build-arg BINARY_NAME=$(make var-BINARY_NAME) -t registry.${PROJECT_NAME}:${CI_COMMIT_REF_NAME} -f Dockerfile.local .
-        - docker build --build-arg BUILD_DIR=build --build-arg BINARY_NAME=$(make var-BINARY_NAME)-debug -t registry.${PROJECT_NAME}:${CI_COMMIT_REF_NAME}-debug -f Dockerfile.debug .
-        - docker push registry.${PROJECT_NAME}:${CI_COMMIT_REF_NAME}
-        - docker push registry.${PROJECT_NAME}:${CI_COMMIT_REF_NAME}-debug
+        - docker build --build-arg BUILD_DIR=build --build-arg BINARY_NAME=$(make var-BINARY_NAME) -t registry.gitlab.com/${NAMESPACE}:${CI_COMMIT_REF_NAME} -f Dockerfile.local .
+        - docker build --build-arg BUILD_DIR=build --build-arg BINARY_NAME=$(make var-BINARY_NAME)-debug -t registry.gitlab.com/${NAMESPACE}:${CI_COMMIT_REF_NAME}-debug -f Dockerfile.debug .
+        - docker push registry.gitlab.com/${NAMESPACE}:${CI_COMMIT_REF_NAME}
+        - docker push registry.gitlab.com/${NAMESPACE}:${CI_COMMIT_REF_NAME}-debug
 
 docker:snapshot:
     <<: *docker_definition
@@ -93,7 +94,7 @@ docker:release:
     only:
         - tags
     script:
-        - docker tag registry.${PROJECT_NAME}:${CI_COMMIT_REF_NAME} registry.${PROJECT_NAME}:latest
-        - docker tag registry.${PROJECT_NAME}:${CI_COMMIT_REF_NAME}-debug registry.${PROJECT_NAME}:latest-debug
-        - docker push registry.${PROJECT_NAME}:latest
-        - docker push registry.${PROJECT_NAME}:latest-debug
+        - docker tag registry.gitlab.com/${NAMESPACE}:${CI_COMMIT_REF_NAME} registry.gitlab.com/${NAMESPACE}:latest
+        - docker tag registry.gitlab.com/${NAMESPACE}:${CI_COMMIT_REF_NAME}-debug registry.gitlab.com/${NAMESPACE}:latest-debug
+        - docker push registry.gitlab.com/${NAMESPACE}:latest
+        - docker push registry.gitlab.com/${NAMESPACE}:latest-debug
