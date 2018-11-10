@@ -1,8 +1,8 @@
 image: golang:1.11
 
 variables:
-    NAMESPACE: sagikazarmark/modern-go-application
     PROJECT_NAME: github.com/sagikazarmark/modern-go-application
+    DOCKER_IMAGE: registry.gitlab.com/${CI_PROJECT_PATH}
 
 stages:
     - dependencies
@@ -75,10 +75,10 @@ release:
         - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
         - apk add --update --no-cache ca-certificates make
     script:
-        - docker build --build-arg BUILD_DIR=build --build-arg BINARY_NAME=$(make var-BINARY_NAME) -t registry.gitlab.com/${NAMESPACE}:${CI_COMMIT_REF_NAME} -f Dockerfile.local .
-        - docker build --build-arg BUILD_DIR=build --build-arg BINARY_NAME=$(make var-BINARY_NAME)-debug -t registry.gitlab.com/${NAMESPACE}:${CI_COMMIT_REF_NAME}-debug -f Dockerfile.debug .
-        - docker push registry.gitlab.com/${NAMESPACE}:${CI_COMMIT_REF_NAME}
-        - docker push registry.gitlab.com/${NAMESPACE}:${CI_COMMIT_REF_NAME}-debug
+        - docker build --build-arg BUILD_DIR=build --build-arg BINARY_NAME=$(make var-BINARY_NAME) -t ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME} -f Dockerfile.local .
+        - docker build --build-arg BUILD_DIR=build --build-arg BINARY_NAME=$(make var-BINARY_NAME)-debug -t ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug -f Dockerfile.debug .
+        - docker push ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}
+        - docker push ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug
 
 docker:snapshot:
     <<: *docker_definition
@@ -94,7 +94,7 @@ docker:release:
     only:
         - tags
     script:
-        - docker tag registry.gitlab.com/${NAMESPACE}:${CI_COMMIT_REF_NAME} registry.gitlab.com/${NAMESPACE}:latest
-        - docker tag registry.gitlab.com/${NAMESPACE}:${CI_COMMIT_REF_NAME}-debug registry.gitlab.com/${NAMESPACE}:latest-debug
-        - docker push registry.gitlab.com/${NAMESPACE}:latest
-        - docker push registry.gitlab.com/${NAMESPACE}:latest-debug
+        - docker tag ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME} ${DOCKER_IMAGE}:latest
+        - docker tag ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug ${DOCKER_IMAGE}:latest-debug
+        - docker push ${DOCKER_IMAGE}:latest
+        - docker push ${DOCKER_IMAGE}:latest-debug
