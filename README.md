@@ -1,5 +1,7 @@
 # Modern Go Application
 
+[![Gitlab](https://img.shields.io/badge/gitlab-sagikazarmark%2Fmodern--go--application-orange.svg?logo=gitlab&longCache=true&style=flat-square)](https://gitlab.com/sagikazarmark/modern-go-application)
+
 This repository has multiple purposes:
 
 - It serves as a boilerplate for new projects
