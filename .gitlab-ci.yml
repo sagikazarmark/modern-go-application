@@ -1,0 +1,59 @@
+image: golang:1.11
+
+variables:
+    PROJECT_NAME: github.com/sagikazarmark/modern-go-application
+
+stages:
+    - dependencies
+    - test
+    - build
+
+before_script:
+    # Create a symbolic link under $GOPATH
+    - cd $GOPATH/src
+    - mkdir -p $(dirname $PROJECT_NAME)
+    - ln -s $CI_PROJECT_DIR $PROJECT_NAME
+    - cd $PROJECT_NAME
+    - pwd
+
+cache:
+    key: vendor
+    paths:
+        - vendor/
+
+dependencies:
+    stage: dependencies
+    script:
+        - make vendor
+
+test:
+    stage: test
+    script:
+        - make test
+
+lint:
+    stage: test
+    script:
+        - make lint
+
+.build: &build_definition
+    stage: build
+    script:
+        - make build-release build-debug VERSION=${CI_COMMIT_REF_NAME} COMMIT_HASH=${CI_COMMIT_SHA} BUILD_DATE=$(date)
+
+snapshot:
+    <<: *build_definition
+    only:
+        - master
+    artifacts:
+        paths:
+            - build/
+        expire_in: 2 days
+
+release:
+    <<: *build_definition
+    only:
+        - tags
+    artifacts:
+        paths:
+            - build/
