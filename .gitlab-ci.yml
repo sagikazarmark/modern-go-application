@@ -61,9 +61,16 @@ release:
 
 .docker: &docker_definition
     stage: packaging
-    image: docker
+    image: docker:stable
+    variables:
+        DOCKER_HOST: tcp://docker:2375/
+        DOCKER_DRIVER: overlay2
+    services:
+        - docker:dind
     before_script:
+        - docker info
         - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+        - apk add --update --no-cache ca-certificates make
     script:
         - docker build --build-arg BUILD_DIR=build --build-arg BINARY_NAME=$(make var-BINARY_NAME) -t registry.${PROJECT_NAME}:${CI_COMMIT_REF_NAME} -f Dockerfile.local .
         - docker build --build-arg BUILD_DIR=build --build-arg BINARY_NAME=$(make var-BINARY_NAME)-debug -t registry.${PROJECT_NAME}:${CI_COMMIT_REF_NAME}-debug -f Dockerfile.debug .
