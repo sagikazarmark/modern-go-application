@@ -7,6 +7,7 @@ stages:
     - dependencies
     - test
     - build
+    - packaging
 
 before_script:
     # Create a symbolic link under $GOPATH
@@ -59,7 +60,7 @@ release:
             - build/
 
 .docker: &docker_definition
-    stage: build
+    stage: packaging
     before_script:
         - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
     script:
