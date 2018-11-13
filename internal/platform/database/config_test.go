@@ -35,6 +35,8 @@ func TestConfig_Validate(t *testing.T) {
 	}
 
 	for name, test := range tests {
+		name, test := name, test
+
 		t.Run(name, func(t *testing.T) {
 			err := test.Validate()
 

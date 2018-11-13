@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type testModel struct {
@@ -22,7 +23,8 @@ func TestJsonView_Render(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	view.Render(&buf, model)
+	err := view.Render(&buf, model)
+	require.NoError(t, err)
 
 	assert.Equal(t, `{"Foo":"foo","bar":"bar"}`+"\n", buf.String())
 }

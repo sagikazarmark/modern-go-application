@@ -40,14 +40,14 @@ func NewLogger(config Config) log.Logger {
 	case infoLevel, "": // Info is the default level
 		levelOption = level.AllowInfo()
 
-	default: // Info is the default level
-		levelOption = level.AllowInfo()
-
 	case warnLevel, warningLevel:
 		levelOption = level.AllowWarn()
 
 	case errorLevel:
 		levelOption = level.AllowError()
+
+	default: // Info is the default level
+		levelOption = level.AllowInfo()
 	}
 
 	logger = level.NewFilter(logger, levelOption)

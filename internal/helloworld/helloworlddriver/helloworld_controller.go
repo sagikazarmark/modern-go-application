@@ -16,6 +16,7 @@ type helloWorldController struct {
 	errorHandler emperror.Handler
 }
 
+// nolint: golint
 func NewHelloWorldController(
 	helloWorld helloworld.HelloWorld,
 	sayHello helloworld.SayHello,

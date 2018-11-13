@@ -35,6 +35,7 @@ import (
 	"go.opencensus.io/trace"
 )
 
+// nolint: gochecknoinits
 func init() {
 	pflag.Bool("version", false, "Show version information")
 	pflag.Bool("dump-config", false, "Dump configuration to the console")
