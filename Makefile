@@ -18,6 +18,7 @@ export GOOS = $(shell go env GOOS)
 ifeq (${VERBOSE}, 1)
 	GOARGS += -v
 endif
+export GO111MODULE=on
 
 # Docker variables
 DOCKER_TAG ?= ${VERSION}
@@ -95,7 +96,7 @@ endif
 
 	@$(eval GENERATED_BINARY_NAME = ${BINARY_NAME})
 	@$(if $(strip ${BINARY_NAME_SUFFIX}),$(eval GENERATED_BINARY_NAME = ${BINARY_NAME}-$(subst $(eval) ,-,$(strip ${BINARY_NAME_SUFFIX}))),)
-	go build ${GOARGS} -o ${BUILD_DIR}/${GENERATED_BINARY_NAME} ${BUILD_PACKAGE}
+	go build ${GOARGS} -mod=readonly -o ${BUILD_DIR}/${GENERATED_BINARY_NAME} ${BUILD_PACKAGE}
 
 .PHONY: build-release
 build-release: LDFLAGS += -w
@@ -128,7 +129,7 @@ check: test lint ## Run tests and linters
 test: GOTAGS ?= unit integration acceptance
 test: GOARGS += -tags "${GOTAGS}"
 test: ## Run all tests
-	go test ${GOARGS} ./...
+	go test ${GOARGS} -mod=readonly ./...
 
 .PHONY: test-%
 test-%: ## Run a specific test suite
