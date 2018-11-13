@@ -46,6 +46,11 @@ jobs:
                         VERBOSE: 1
 
             -
+                run:
+                    name: Run linter
+                    command: make lint
+
+            -
                 save_cache:
                     name: Save build dependencies
                     key: build-deps-v1-{{ .Branch }}-{{ checksum "Makefile" }}
