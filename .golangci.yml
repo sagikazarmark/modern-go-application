@@ -13,6 +13,5 @@ linters-settings:
 
 issues:
     exclude:
-        #- "Error return value of `\\(.*/github.com/go-kit/kit/log.Logger\\).Log` is not checked"
-        - "Error return value of `\\(github.com/go-kit/kit/log.Logger\\).Log` is not checked"
+        - "Error return value of `\\((.*/)?github.com/go-kit/kit/log.Logger\\).Log` is not checked"
         - G104
