@@ -1,4 +1,4 @@
-package helloworld
+package greeting
 
 import (
 	"context"

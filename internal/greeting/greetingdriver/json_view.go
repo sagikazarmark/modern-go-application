@@ -1,4 +1,4 @@
-package helloworlddriver
+package greetingdriver
 
 import (
 	"encoding/json"
