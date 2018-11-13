@@ -18,16 +18,6 @@ before_script:
     - cd $PROJECT_NAME
     - pwd
 
-cache:
-    key: vendor
-    paths:
-        - vendor/
-
-dependencies:
-    stage: dependencies
-    script:
-        - make vendor
-
 test:
     stage: test
     script:

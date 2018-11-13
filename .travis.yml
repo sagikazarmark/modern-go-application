@@ -20,7 +20,6 @@ matrix:
         - go: tip
 
 before_script:
-    - make vendor
     - export VERSION=${TRAVIS_TAG:-$TRAVIS_BRANCH}
     - export $(make varexport-DOCKER_IMAGE)
 
