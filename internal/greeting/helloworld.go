@@ -14,7 +14,7 @@ type HelloWorld interface {
 }
 
 // HelloWorldOutput is the output channel for saying hello to the world.
-type HelloWorldOutput interface { // nolint: golint
+type HelloWorldOutput interface {
 	// Say outputs hello.
 	Say(ctx context.Context, hello Hello)
 }

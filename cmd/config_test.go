@@ -9,7 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-//nolint:deadcode
 func TestConfigure(t *testing.T) {
 	var config Config
 
