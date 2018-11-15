@@ -1,4 +1,4 @@
-package helloworlddriver
+package greetingdriver
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 
 	"github.com/goph/emperror"
 	"github.com/pkg/errors"
-	"github.com/sagikazarmark/modern-go-application/internal/helloworld"
+	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -42,7 +42,7 @@ func TestHelloWorldWebOutput_Say(t *testing.T) {
 	contentType := "application/json"
 	output := newHelloWorldWebOutput(responseWriter, view, contentType, emperror.NewNopHandler())
 
-	output.Say(context.Background(), helloworld.Hello{Message: "Hello, World!"})
+	output.Say(context.Background(), greeting.Hello{Message: "Hello, World!"})
 
 	response := responseWriter.Result()
 	defer response.Body.Close()
@@ -64,7 +64,7 @@ func TestHelloWorldWebOutput_Say_RenderError(t *testing.T) {
 	contentType := "application/json"
 	output := newHelloWorldWebOutput(responseWriter, view, contentType, emperror.NewNopHandler())
 
-	output.Say(context.Background(), helloworld.Hello{Message: "Hello, World!"})
+	output.Say(context.Background(), greeting.Hello{Message: "Hello, World!"})
 
 	response := responseWriter.Result()
 	defer response.Body.Close()

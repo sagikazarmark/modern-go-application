@@ -19,8 +19,8 @@ import (
 	"github.com/oklog/run"
 	"github.com/pkg/errors"
 	"github.com/sagikazarmark/modern-go-application/internal"
-	"github.com/sagikazarmark/modern-go-application/internal/helloworld"
-	"github.com/sagikazarmark/modern-go-application/internal/helloworld/helloworlddriver"
+	"github.com/sagikazarmark/modern-go-application/internal/greeting"
+	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingdriver"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/buildinfo"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/invisionkitlog"
@@ -201,9 +201,9 @@ func main() {
 		panic(errors.Wrap(err, "failed to register HTTP server stat views"))
 	}
 
-	helloWorld := helloworld.NewHelloWorld(logger)
-	sayHello := helloworld.NewSayHello(logger)
-	helloWorldController := helloworlddriver.NewHelloWorldController(helloWorld, sayHello, errorHandler)
+	helloWorld := greeting.NewHelloWorld(logger)
+	sayHello := greeting.NewSayHello(logger)
+	helloWorldController := greetingdriver.NewHelloWorldController(helloWorld, sayHello, errorHandler)
 
 	router := internal.NewRouter(helloWorldController)
 

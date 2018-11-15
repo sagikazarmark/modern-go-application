@@ -1,4 +1,4 @@
-package helloworlddriver
+package greetingdriver
 
 import (
 	"bytes"
@@ -8,7 +8,7 @@ import (
 
 	"github.com/goph/emperror"
 	"github.com/sagikazarmark/modern-go-application/.gen/openapi/go"
-	"github.com/sagikazarmark/modern-go-application/internal/helloworld"
+	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 )
 
 type helloWorldView interface {
@@ -37,7 +37,7 @@ func newHelloWorldWebOutput(
 	}
 }
 
-func (o *helloWorldWebOutput) Say(ctx context.Context, hello helloworld.Hello) {
+func (o *helloWorldWebOutput) Say(ctx context.Context, hello greeting.Hello) {
 	response := api.Hello{
 		Message: hello.Message,
 	}

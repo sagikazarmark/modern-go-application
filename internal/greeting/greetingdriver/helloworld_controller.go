@@ -1,4 +1,4 @@
-package helloworlddriver
+package greetingdriver
 
 import (
 	"encoding/json"
@@ -6,20 +6,20 @@ import (
 
 	"github.com/goph/emperror"
 	"github.com/sagikazarmark/modern-go-application/.gen/openapi/go"
-	"github.com/sagikazarmark/modern-go-application/internal/helloworld"
+	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 )
 
 type helloWorldController struct {
-	helloWorld helloworld.HelloWorld
-	sayHello   helloworld.SayHello
+	helloWorld greeting.HelloWorld
+	sayHello   greeting.SayHello
 
 	errorHandler emperror.Handler
 }
 
 // nolint: golint
 func NewHelloWorldController(
-	helloWorld helloworld.HelloWorld,
-	sayHello helloworld.SayHello,
+	helloWorld greeting.HelloWorld,
+	sayHello greeting.SayHello,
 	errorHandler emperror.Handler,
 ) *helloWorldController {
 	return &helloWorldController{
@@ -48,7 +48,7 @@ func (c *helloWorldController) SayHello(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	sayHelloTo := helloworld.SayHelloTo{
+	sayHelloTo := greeting.SayHelloTo{
 		Who: request.Who,
 	}
 
