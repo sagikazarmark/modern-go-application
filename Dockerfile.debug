@@ -1,4 +1,6 @@
-FROM golang:1.11-alpine AS builder
+ARG GO_VERSION=1.11
+
+FROM golang:${GO_VERSION}-alpine AS builder
 
 RUN apk add --update --no-cache ca-certificates git
 
@@ -15,7 +17,7 @@ COPY --from=builder /go/bin/dlv /
 ARG BUILD_DIR
 ARG BINARY_NAME
 
-COPY $BUILD_DIR/$BINARY_NAME /service
+COPY $BUILD_DIR/$BINARY_NAME /app
 
 EXPOSE 8000 10000 40000
-CMD ["/dlv", "--listen=:40000", "--headless=true", "--api-version=2", "--log", "exec", "--", "/service", "--instrumentation.addr", ":10000", "--app.addr", ":8000"]
+CMD ["/dlv", "--listen=:40000", "--headless=true", "--api-version=2", "--log", "exec", "--", "/app", "--instrumentation.addr", ":10000", "--app.addr", ":8000"]

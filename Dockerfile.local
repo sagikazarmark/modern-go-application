@@ -10,7 +10,7 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 ARG BUILD_DIR
 ARG BINARY_NAME
 
-COPY $BUILD_DIR/$BINARY_NAME /service
+COPY $BUILD_DIR/$BINARY_NAME /app
 
 EXPOSE 8000 10000
-CMD ["/service", "--instrumentation.addr", ":10000", "--app.addr", ":8000"]
+CMD ["/app", "--instrumentation.addr", ":10000", "--app.addr", ":8000"]

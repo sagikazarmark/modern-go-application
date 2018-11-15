@@ -1,4 +1,6 @@
-FROM golang:1.11-alpine AS builder
+ARG GO_VERSION=1.11
+
+FROM golang:${GO_VERSION}-alpine AS builder
 
 RUN apk add --update --no-cache ca-certificates make git curl mercurial
 
@@ -11,13 +13,16 @@ COPY Gopkg.* Makefile /go/src/${PACKAGE}/
 RUN make vendor
 
 COPY . /go/src/${PACKAGE}
-RUN BUILD_DIR=/tmp BINARY_NAME=service make build-release
+RUN BUILD_DIR= BINARY_NAME=app make build-release
 
 
 FROM alpine:3.7
 
-COPY --from=builder /tmp/service /service
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
+COPY --from=builder /app /app
+
+USER nobody:nobody
+
 EXPOSE 8000 10000
-CMD ["/service", "--instrumentation.addr", ":10000", "--app.addr", ":8000"]
+CMD ["/app", "--instrumentation.addr", ":10000", "--app.addr", ":8000"]
