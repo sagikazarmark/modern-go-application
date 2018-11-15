@@ -203,7 +203,7 @@ func main() {
 
 	helloWorld := greeting.NewHelloWorld(logger)
 	sayHello := greeting.NewSayHello(logger)
-	helloWorldController := greetingdriver.NewHelloWorldController(helloWorld, sayHello, errorHandler)
+	helloWorldController := greetingdriver.NewGreetingController(helloWorld, sayHello, errorHandler)
 
 	router := internal.NewRouter(helloWorldController)
 

@@ -8,12 +8,6 @@ import (
 	"github.com/go-kit/kit/log/level"
 )
 
-// SayHello says hello to someone.
-type SayHello interface {
-	// SayHello says hello to someone.
-	SayHello(ctx context.Context, to SayHelloTo, output SayHelloOutput)
-}
-
 // SayHelloTo contains who to say hello to.
 type SayHelloTo struct {
 	Who string
@@ -30,19 +24,20 @@ type Hello struct {
 	Message string
 }
 
-type sayHello struct {
+// SayHello says hello to someone.
+type SayHello struct {
 	logger log.Logger
 }
 
 // NewSayHello returns a new SayHello instance.
-func NewSayHello(logger log.Logger) SayHello {
-	return &sayHello{
+func NewSayHello(logger log.Logger) *SayHello {
+	return &SayHello{
 		logger: logger,
 	}
 }
 
 // SayHello says hello to someone.
-func (sh *sayHello) SayHello(ctx context.Context, to SayHelloTo, output SayHelloOutput) {
+func (sh *SayHello) SayHello(ctx context.Context, to SayHelloTo, output SayHelloOutput) {
 	level.Info(sh.logger).Log("msg", fmt.Sprintf("Hello, %s!", to.Who))
 
 	hello := Hello{fmt.Sprintf("Hello, %s!", to.Who)}

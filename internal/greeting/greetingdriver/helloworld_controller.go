@@ -1,6 +1,7 @@
 package greetingdriver
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 
@@ -9,33 +10,46 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 )
 
-type helloWorldController struct {
-	helloWorld greeting.HelloWorld
-	sayHello   greeting.SayHello
+type helloWorld interface {
+	// HelloWorld says hello to the world.
+	HelloWorld(ctx context.Context, output greeting.HelloWorldOutput)
+}
+
+type sayHello interface {
+	// SayHello says hello to someone.
+	SayHello(ctx context.Context, to greeting.SayHelloTo, output greeting.SayHelloOutput)
+}
+
+// GreetingController collects the greeting use cases and exposes them as HTTP handlers.
+type GreetingController struct {
+	helloWorld helloWorld
+	sayHello   sayHello
 
 	errorHandler emperror.Handler
 }
 
-// nolint: golint
-func NewHelloWorldController(
-	helloWorld greeting.HelloWorld,
-	sayHello greeting.SayHello,
+// NewGreetingController returns a new GreetingController instance.
+func NewGreetingController(
+	helloWorld helloWorld,
+	sayHello sayHello,
 	errorHandler emperror.Handler,
-) *helloWorldController {
-	return &helloWorldController{
+) *GreetingController {
+	return &GreetingController{
 		helloWorld:   helloWorld,
 		sayHello:     sayHello,
 		errorHandler: errorHandler,
 	}
 }
 
-func (c *helloWorldController) HelloWorld(w http.ResponseWriter, r *http.Request) {
+// HelloWorld says hello to the world.
+func (c *GreetingController) HelloWorld(w http.ResponseWriter, r *http.Request) {
 	output := newHelloWorldWebOutput(w, &jsonView{}, "application/json; charset=UTF-8", c.errorHandler)
 
 	c.helloWorld.HelloWorld(r.Context(), output)
 }
 
-func (c *helloWorldController) SayHello(w http.ResponseWriter, r *http.Request) {
+// SayHello says hello to someone.
+func (c *GreetingController) SayHello(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 
 	var request api.HelloRequest
