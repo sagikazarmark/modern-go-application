@@ -21,7 +21,7 @@ It tries to include many things related to application development:
 
 Some of the features:
 
-- graceful reload (using [github.com/cloudflare/tableflip](https://github.com/cloudflare/tableflip)) and shutdown
+- graceful restart (using [github.com/cloudflare/tableflip](https://github.com/cloudflare/tableflip)) and shutdown
 - support for multiple server/daemon instances (using [github.com/oklog/run](https://github.com/oklog/run))
 - metrics and tracing using [Prometheus](https://prometheus.io/) and [Jaeger](https://www.jaegertracing.io/) (via [OpenCensus](https://opencensus.io/))
 - logging (using [github.com/go-kit/kit](https://github.com/go-kit/kit))
