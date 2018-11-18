@@ -3,9 +3,6 @@ package greeting
 import (
 	"context"
 	"fmt"
-
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
 )
 
 // SayHelloTo contains who to say hello to.
@@ -26,11 +23,11 @@ type Hello struct {
 
 // SayHello says hello to someone.
 type SayHello struct {
-	logger log.Logger
+	logger Logger
 }
 
 // NewSayHello returns a new SayHello instance.
-func NewSayHello(logger log.Logger) *SayHello {
+func NewSayHello(logger Logger) *SayHello {
 	return &SayHello{
 		logger: logger,
 	}
@@ -38,7 +35,7 @@ func NewSayHello(logger log.Logger) *SayHello {
 
 // SayHello says hello to someone.
 func (sh *SayHello) SayHello(ctx context.Context, to SayHelloTo, output SayHelloOutput) {
-	level.Info(sh.logger).Log("msg", fmt.Sprintf("Hello, %s!", to.Who))
+	sh.logger.Infof("Hello, %s!", to.Who)
 
 	hello := Hello{fmt.Sprintf("Hello, %s!", to.Who)}
 

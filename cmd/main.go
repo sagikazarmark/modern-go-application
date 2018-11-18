@@ -20,6 +20,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sagikazarmark/modern-go-application/internal"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
+	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingadapter"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingdriver"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/buildinfo"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
@@ -201,8 +202,8 @@ func main() {
 		panic(errors.Wrap(err, "failed to register HTTP server stat views"))
 	}
 
-	helloWorld := greeting.NewHelloWorld(logger)
-	sayHello := greeting.NewSayHello(logger)
+	helloWorld := greeting.NewHelloWorld(greetingadapter.NewLogger(logger))
+	sayHello := greeting.NewSayHello(greetingadapter.NewLogger(logger))
 	helloWorldController := greetingdriver.NewGreetingController(helloWorld, sayHello, errorHandler)
 
 	router := internal.NewRouter(helloWorldController)

@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/go-kit/kit/log"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,7 +16,7 @@ func (o *sayHelloOutputStub) Say(ctx context.Context, hello Hello) {
 }
 
 func TestSayHello_SayHello(t *testing.T) {
-	sayHello := NewSayHello(log.NewNopLogger())
+	sayHello := NewSayHello(NewNopLogger())
 
 	to := SayHelloTo{"me"}
 	output := &sayHelloOutputStub{}
