@@ -202,8 +202,8 @@ func main() {
 		panic(errors.Wrap(err, "failed to register HTTP server stat views"))
 	}
 
-	helloWorld := greeting.NewHelloWorld(greetingadapter.NewLogger(logger))
-	sayHello := greeting.NewSayHello(greetingadapter.NewLogger(logger))
+	helloWorld := greeting.NewHelloWorld(greetingadapter.NewLogger(invisionkitlog.New(logger)))
+	sayHello := greeting.NewSayHello(greetingadapter.NewLogger(invisionkitlog.New(logger)))
 	helloWorldController := greetingdriver.NewGreetingController(helloWorld, sayHello, errorHandler)
 
 	router := internal.NewRouter(helloWorldController)

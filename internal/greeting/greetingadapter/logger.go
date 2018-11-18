@@ -1,10 +1,7 @@
 package greetingadapter
 
 import (
-	"fmt"
-
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
+	"github.com/InVisionApp/go-logger"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 )
 
@@ -21,33 +18,26 @@ func NewLogger(logger log.Logger) *Logger {
 }
 
 func (l *Logger) Debugf(msg string, args ...interface{}) {
-	_ = level.Debug(l.logger).Log("msg", fmt.Sprintf(msg, args...))
+	l.logger.Debugf(msg, args...)
 }
 
 func (l *Logger) Infof(msg string, args ...interface{}) {
-	_ = level.Info(l.logger).Log("msg", fmt.Sprintf(msg, args...))
+	l.logger.Infof(msg, args...)
 }
 
 func (l *Logger) Warnf(msg string, args ...interface{}) {
-	_ = level.Warn(l.logger).Log("msg", fmt.Sprintf(msg, args...))
+	l.logger.Warnf(msg, args...)
 }
 
 func (l *Logger) Errorf(msg string, args ...interface{}) {
-	_ = level.Error(l.logger).Log("msg", fmt.Sprintf(msg, args...))
+	l.logger.Errorf(msg, args...)
 }
 
 func (l *Logger) WithFields(fields map[string]interface{}) greeting.Logger {
-	keyvals := make([]interface{}, len(fields)*2)
-	i := 0
+	return &Logger{logger: l.logger.WithFields(fields)}
+}
 
-	for key, value := range fields {
-		keyvals[i] = key
-		keyvals[i+1] = value
-
-		i += 2
-	}
-
-	return &Logger{
-		logger: log.With(l.logger, keyvals...),
-	}
+// NewNopLogger returns a logger that doesn't do anything.
+func NewNopLogger() *Logger {
+	return NewLogger(log.NewNoop())
 }

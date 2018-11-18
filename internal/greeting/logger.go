@@ -17,22 +17,3 @@ type Logger interface {
 	// WithFields annotates a logger with some context.
 	WithFields(fields map[string]interface{}) Logger
 }
-
-type nopLogger struct{}
-
-func (*nopLogger) Debugf(msg string, args ...interface{}) {}
-
-func (*nopLogger) Infof(msg string, args ...interface{}) {}
-
-func (*nopLogger) Warnf(msg string, args ...interface{}) {}
-
-func (*nopLogger) Errorf(msg string, args ...interface{}) {}
-
-func (l *nopLogger) WithFields(fields map[string]interface{}) Logger {
-	return l
-}
-
-// NewNopLogger returns a logger that doesn't do anything.
-func NewNopLogger() Logger {
-	return &nopLogger{}
-}

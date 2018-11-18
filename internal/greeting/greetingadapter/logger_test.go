@@ -1,22 +1,15 @@
 package greetingadapter
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
+	"github.com/InVisionApp/go-logger/shims/testlog"
 	"github.com/go-kit/kit/log/level"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 	"github.com/stretchr/testify/assert"
 )
-
-type loggerStub struct {
-	keyvals []interface{}
-}
-
-func (l *loggerStub) Log(keyvals ...interface{}) error {
-	l.keyvals = keyvals
-
-	return nil
-}
 
 func TestLogger_Levels(t *testing.T) {
 	tests := map[string]struct {
@@ -45,22 +38,21 @@ func TestLogger_Levels(t *testing.T) {
 		name, test := name, test
 
 		t.Run(name, func(t *testing.T) {
-			kitlogger := &loggerStub{}
-			logger := NewLogger(kitlogger)
+			testlogger := testlog.New()
+			logger := NewLogger(testlogger)
 
 			test.logFunc(logger, "message: %s", name)
 
-			expected := []interface{}{"level", test.level, "msg", "message: " + name}
-
-			assert.Equal(t, expected, kitlogger.keyvals)
+			assert.Equal(t, 1, testlogger.CallCount())
+			assert.Equal(t, fmt.Sprintf("[%s] %s \n", strings.ToUpper(name), "message: "+name), string(testlogger.Bytes()))
 		})
 	}
 }
 
 func TestLogger_WithFields(t *testing.T) {
-	kitlogger := &loggerStub{}
+	testlogger := testlog.New()
 
-	var logger greeting.Logger = NewLogger(kitlogger)
+	var logger greeting.Logger = NewLogger(testlogger)
 
 	logger = logger.WithFields(map[string]interface{}{
 		"key1": "value1",
@@ -69,19 +61,10 @@ func TestLogger_WithFields(t *testing.T) {
 
 	logger.Debugf("message")
 
-	// Testing expected keys as a map to avoid problems with the unordered nature of maps
-	expected := map[string]interface{}{
-		"level": level.DebugValue(),
-		"key1":  "value1",
-		"key2":  "value2",
-		"msg":   "message",
-	}
+	assert.Equal(t, 1, testlogger.CallCount())
 
-	actual := make(map[string]interface{}, len(kitlogger.keyvals)/2)
-
-	for i := 0; i < len(kitlogger.keyvals); i += 2 {
-		actual[kitlogger.keyvals[i].(string)] = kitlogger.keyvals[i+1]
-	}
-
-	assert.Equal(t, expected, actual)
+	line := string(testlogger.Bytes())
+	assert.Contains(t, line, "[DEBUG] message")
+	assert.Contains(t, line, "key1=value1")
+	assert.Contains(t, line, "key2=value2")
 }
