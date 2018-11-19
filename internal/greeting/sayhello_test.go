@@ -1,10 +1,11 @@
-package greeting
+package greeting_test
 
 import (
 	"context"
 	"testing"
 
-	"github.com/go-kit/kit/log"
+	. "github.com/sagikazarmark/modern-go-application/internal/greeting"
+	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingadapter"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,9 +18,9 @@ func (o *sayHelloOutputStub) Say(ctx context.Context, hello Hello) {
 }
 
 func TestSayHello_SayHello(t *testing.T) {
-	sayHello := NewSayHello(log.NewNopLogger())
+	sayHello := NewSayHello(greetingadapter.NewNopLogger())
 
-	to := SayHelloTo{"me"}
+	to := SayHelloTo{Who: "me"}
 	output := &sayHelloOutputStub{}
 
 	sayHello.SayHello(context.Background(), to, output)

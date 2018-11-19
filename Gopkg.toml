@@ -3,6 +3,10 @@
   unused-packages = true
 
 [[constraint]]
+  name = "github.com/InVisionApp/go-logging"
+  version = "1.0.1"
+
+[[constraint]]
   name = "github.com/go-kit/kit"
   version = "0.8.0"
 

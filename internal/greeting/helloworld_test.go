@@ -1,10 +1,11 @@
-package greeting
+package greeting_test
 
 import (
 	"context"
 	"testing"
 
-	"github.com/go-kit/kit/log"
+	. "github.com/sagikazarmark/modern-go-application/internal/greeting"
+	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingadapter"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,7 +18,7 @@ func (o *helloWorldOutputStub) Say(ctx context.Context, hello Hello) {
 }
 
 func TestHelloWorld_HelloWorld(t *testing.T) {
-	helloWorld := NewHelloWorld(log.NewNopLogger())
+	helloWorld := NewHelloWorld(greetingadapter.NewNopLogger())
 
 	output := &helloWorldOutputStub{}
 
