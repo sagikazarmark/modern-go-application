@@ -29,6 +29,12 @@ Some of the features:
 - configuration (using [github.com/spf13/viper](https://github.com/spf13/viper))
 
 
+## Inspiration
+
+See [INSPIRATION.md](INSPIRATION.md) for links to articles, projects, code examples that somehow inspired
+me while working on this project.
+
+
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE) for more information.
