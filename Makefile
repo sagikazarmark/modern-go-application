@@ -9,7 +9,7 @@ OPENAPI_DESCRIPTOR = swagger.yaml
 # Build variables
 BUILD_DIR ?= build
 BUILD_PACKAGE = ${PACKAGE}/cmd
-VERSION ?= $(shell git rev-parse --abbrev-ref HEAD)
+VERSION ?= $(shell git symbolic-ref -q --short HEAD || git describe --tags --exact-match)
 COMMIT_HASH ?= $(shell git rev-parse --short HEAD 2>/dev/null)
 BUILD_DATE ?= $(shell date +%FT%T%z)
 LDFLAGS += -X main.version=${VERSION} -X main.commitHash=${COMMIT_HASH} -X main.buildDate=${BUILD_DATE}
@@ -28,6 +28,10 @@ GOLANGCI_VERSION = 1.12.2
 OPENAPI_GENERATOR_VERSION = 3.3.0
 
 GOLANG_VERSION = 1.11
+
+# Add the ability to override some variables
+# Use with care
+-include override.mk
 
 .PHONY: up
 up: vendor start config.toml ## Set up the development environment
