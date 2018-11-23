@@ -41,12 +41,12 @@ jobs:
             -
                 run:
                     name: Run tests
-                    command: make test
+                    command: TEST_PKGS=$(echo `go list ./... | circleci tests split`) TEST_REPORT_NAME=results_${CIRCLE_NODE_INDEX}.xml make test
 
             -
                 run:
                     name: Run integration tests
-                    command: make test-integration
+                    command: TEST_PKGS=$(echo `go list ./... | circleci tests split`) TEST_REPORT_NAME=results_${CIRCLE_NODE_INDEX}.xml make test-integration
 
             -
                 run:
