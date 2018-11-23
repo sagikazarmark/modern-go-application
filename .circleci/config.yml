@@ -47,6 +47,13 @@ jobs:
 
             -
                 run:
+                    name: Run integration tests
+                    command: make test-integration
+                    environment:
+                        VERBOSE: 1
+
+            -
+                run:
                     name: Run linter
                     command: make lint
 

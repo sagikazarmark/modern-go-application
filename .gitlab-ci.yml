@@ -33,6 +33,11 @@ test:
     script:
         - make test
 
+test-integration:
+    stage: test
+    script:
+        - make test-integration
+
 lint:
     stage: test
     script:

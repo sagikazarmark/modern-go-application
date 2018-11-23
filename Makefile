@@ -126,17 +126,20 @@ docker-debug: build-debug ## Build a Docker image with remote debugging capabili
 	docker build --build-arg BUILD_DIR=${BUILD_DIR} --build-arg BINARY_NAME=${GENERATED_BINARY_NAME} -t ${DOCKER_IMAGE}:${DOCKER_TAG}-debug -f Dockerfile.debug .
 
 .PHONY: check
-check: test lint ## Run tests and linters
+check: test-all lint ## Run tests and linters
 
 .PHONY: test
-test: GOTAGS ?= unit integration acceptance
 test: GOARGS += -tags "${GOTAGS}"
-test: ## Run all tests
+test: ## Run tests
 	go test ${GOARGS} ./...
 
-.PHONY: test-%
-test-%: ## Run a specific test suite
-	@${MAKE} VERBOSE=0 GOTAGS=$* test
+.PHONY: test-all
+test-all: ## Run all tests
+	@${MAKE} VERBOSE=0 GOARGS="${GOARGS} -run .\*" test
+
+.PHONY: test-integration
+test-integration: ## Run integration tests
+	@${MAKE} VERBOSE=0 GOARGS="${GOARGS} -run ^TestIntegration\$$\$$" test
 
 bin/golangci-lint: bin/golangci-lint-${GOLANGCI_VERSION}
 	@ln -sf golangci-lint-${GOLANGCI_VERSION} bin/golangci-lint

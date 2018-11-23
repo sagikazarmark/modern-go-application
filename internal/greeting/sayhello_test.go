@@ -25,5 +25,5 @@ func TestSayHello_SayHello(t *testing.T) {
 
 	sayHello.SayHello(context.Background(), to, output)
 
-	assert.Equal(t, Hello{"Hello, me!"}, output.hello)
+	assert.Equal(t, Hello{Message: "Hello, me!"}, output.hello)
 }

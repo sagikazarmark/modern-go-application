@@ -24,5 +24,5 @@ func TestHelloWorld_HelloWorld(t *testing.T) {
 
 	helloWorld.HelloWorld(context.Background(), output)
 
-	assert.Equal(t, Hello{"Hello, World!"}, output.hello)
+	assert.Equal(t, Hello{Message: "Hello, World!"}, output.hello)
 }
