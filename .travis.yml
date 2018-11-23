@@ -23,7 +23,7 @@ before_script:
     - export $(make varexport-DOCKER_IMAGE)
 
 script:
-    - VERBOSE=1 make test test-integration lint
+    - make test test-integration lint
     - if [[ $TRAVIS_TAG = "$VERSION" ]]; then export DOCKER_LATEST=1; fi
     - make docker
     - make docker-debug
