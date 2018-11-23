@@ -42,15 +42,11 @@ jobs:
                 run:
                     name: Run tests
                     command: make test
-                    environment:
-                        VERBOSE: 1
 
             -
                 run:
                     name: Run integration tests
                     command: make test-integration
-                    environment:
-                        VERBOSE: 1
 
             -
                 run:
@@ -63,3 +59,7 @@ jobs:
                     key: build-deps-v1-{{ .Branch }}-{{ checksum "Makefile" }}
                     paths:
                         - bin/
+
+            -
+                store_test_results:
+                    path: build/test_results/
