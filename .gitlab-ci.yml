@@ -32,11 +32,17 @@ test:
     stage: test
     script:
         - make test
+    artifacts:
+        reports:
+            junit: build/test_results/gotest/results.xml
 
 test-integration:
     stage: test
     script:
         - make test-integration
+    artifacts:
+        reports:
+            junit: build/test_results/integration/results.xml
 
 lint:
     stage: test

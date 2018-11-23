@@ -90,7 +90,6 @@ bin/dlv:
 	GOBIN=${PWD}/bin go get -u github.com/derekparker/delve/cmd/dlv
 
 .PHONY: build
-build: GOARGS += -tags "${GOTAGS}" -ldflags "${LDFLAGS}"
 build: ## Build a binary
 ifeq (${VERBOSE}, 1)
 	go env
@@ -101,7 +100,7 @@ endif
 
 	@$(eval GENERATED_BINARY_NAME = ${BINARY_NAME})
 	@$(if $(strip ${BINARY_NAME_SUFFIX}),$(eval GENERATED_BINARY_NAME = ${BINARY_NAME}-$(subst $(eval) ,-,$(strip ${BINARY_NAME_SUFFIX}))),)
-	go build ${GOARGS} -o ${BUILD_DIR}/${GENERATED_BINARY_NAME} ${BUILD_PACKAGE}
+	go build ${GOARGS} -tags "${GOTAGS}" -ldflags "${LDFLAGS}" -o ${BUILD_DIR}/${GENERATED_BINARY_NAME} ${BUILD_PACKAGE}
 
 .PHONY: build-release
 build-release: LDFLAGS += -w
@@ -130,18 +129,26 @@ docker-debug: build-debug ## Build a Docker image with remote debugging capabili
 .PHONY: check
 check: test-all lint ## Run tests and linters
 
+bin/go-junit-report:
+	@mkdir -p bin
+	GOBIN=${PWD}/bin/ go get -u github.com/jstemmer/go-junit-report
+
 .PHONY: test
-test: GOARGS += -tags "${GOTAGS}"
-test: ## Run tests
-	go test ${GOARGS} ./...
+test: TEST_REPORT ?= gotest
+test: TEST_REPORT_NAME ?= results.xml
+test: SHELL = /bin/bash
+test: bin/go-junit-report ## Run tests
+	@mkdir -p ${BUILD_DIR}/test_results/${TEST_REPORT}
+	@set -o pipefail
+	go test -v $(filter-out -v,${GOARGS}) ./... | tee >(bin/go-junit-report > ${BUILD_DIR}/test_results/${TEST_REPORT}/${TEST_REPORT_NAME})
 
 .PHONY: test-all
 test-all: ## Run all tests
-	@${MAKE} GOARGS="${GOARGS} -run .\*" test
+	@${MAKE} GOARGS="${GOARGS} -run .\*" TEST_REPORT=all test
 
 .PHONY: test-integration
 test-integration: ## Run integration tests
-	@${MAKE} GOARGS="${GOARGS} -run ^TestIntegration\$$\$$" test
+	@${MAKE} GOARGS="${GOARGS} -run ^TestIntegration\$$\$$" TEST_REPORT=integration test
 
 bin/golangci-lint: bin/golangci-lint-${GOLANGCI_VERSION}
 	@ln -sf golangci-lint-${GOLANGCI_VERSION} bin/golangci-lint
