@@ -11,25 +11,25 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 )
 
-type helloWorldView interface {
+type greetingView interface {
 	Render(output io.Writer, model interface{}) error
 }
 
-type helloWorldWebOutput struct {
+type greetingWebOutput struct {
 	responseWriter http.ResponseWriter
-	view           helloWorldView
+	view           greetingView
 	contentType    string
 
 	errorHandler emperror.Handler
 }
 
-func newHelloWorldWebOutput(
+func newGreetingWebOutput(
 	responseWriter http.ResponseWriter,
-	view helloWorldView,
+	view greetingView,
 	contentType string,
 	errorHandler emperror.Handler,
-) *helloWorldWebOutput {
-	return &helloWorldWebOutput{
+) *greetingWebOutput {
+	return &greetingWebOutput{
 		responseWriter: responseWriter,
 		view:           view,
 		contentType:    contentType,
@@ -37,7 +37,7 @@ func newHelloWorldWebOutput(
 	}
 }
 
-func (o *helloWorldWebOutput) Say(ctx context.Context, hello greeting.Hello) {
+func (o *greetingWebOutput) Say(ctx context.Context, hello greeting.Hello) {
 	response := api.Hello{
 		Message: hello.Message,
 	}

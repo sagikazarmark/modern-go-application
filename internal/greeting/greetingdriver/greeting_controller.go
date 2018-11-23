@@ -43,7 +43,7 @@ func NewGreetingController(
 
 // HelloWorld says hello to the world.
 func (c *GreetingController) HelloWorld(w http.ResponseWriter, r *http.Request) {
-	output := newHelloWorldWebOutput(w, &jsonView{}, "application/json; charset=UTF-8", c.errorHandler)
+	output := newGreetingWebOutput(w, &jsonView{}, "application/json; charset=UTF-8", c.errorHandler)
 
 	c.helloWorld.HelloWorld(r.Context(), output)
 }
@@ -66,7 +66,7 @@ func (c *GreetingController) SayHello(w http.ResponseWriter, r *http.Request) {
 		Who: request.Who,
 	}
 
-	output := newHelloWorldWebOutput(w, &jsonView{}, "application/json; charset=UTF-8", c.errorHandler)
+	output := newGreetingWebOutput(w, &jsonView{}, "application/json; charset=UTF-8", c.errorHandler)
 
 	c.sayHello.SayHello(r.Context(), sayHelloTo, output)
 }
