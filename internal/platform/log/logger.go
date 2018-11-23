@@ -1,4 +1,4 @@
-// Package logger configures a new logger for an application.
+// Package log configures a new logger for an application.
 package log
 
 import (

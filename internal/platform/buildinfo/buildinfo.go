@@ -28,6 +28,7 @@ func New(version string, commitHash string, buildDate string) BuildInfo {
 	}
 }
 
+// Context returns the build information in a log context format.
 func (bi BuildInfo) Context() []interface{} {
 	return []interface{}{
 		"version", bi.Version,

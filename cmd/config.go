@@ -75,6 +75,7 @@ func (c Config) Validate() error {
 	return nil
 }
 
+// InstrumentationConfig represents the instrumentation related configuration.
 type InstrumentationConfig struct {
 	// Instrumentation HTTP server address
 	Addr string
