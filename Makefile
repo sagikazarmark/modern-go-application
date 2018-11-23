@@ -16,7 +16,9 @@ LDFLAGS += -X main.version=${VERSION} -X main.commitHash=${COMMIT_HASH} -X main.
 export CGO_ENABLED ?= 0
 export GOOS = $(shell go env GOOS)
 ifeq (${VERBOSE}, 1)
+ifeq ($(filter -v,${GOARGS}),)
 	GOARGS += -v
+endif
 endif
 
 # Docker variables
@@ -135,11 +137,11 @@ test: ## Run tests
 
 .PHONY: test-all
 test-all: ## Run all tests
-	@${MAKE} VERBOSE=0 GOARGS="${GOARGS} -run .\*" test
+	@${MAKE} GOARGS="${GOARGS} -run .\*" test
 
 .PHONY: test-integration
 test-integration: ## Run integration tests
-	@${MAKE} VERBOSE=0 GOARGS="${GOARGS} -run ^TestIntegration\$$\$$" test
+	@${MAKE} GOARGS="${GOARGS} -run ^TestIntegration\$$\$$" test
 
 bin/golangci-lint: bin/golangci-lint-${GOLANGCI_VERSION}
 	@ln -sf golangci-lint-${GOLANGCI_VERSION} bin/golangci-lint
