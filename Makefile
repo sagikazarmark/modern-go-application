@@ -136,7 +136,7 @@ bin/go-junit-report:
 TEST_PKGS ?= ./...
 TEST_REPORT_NAME ?= results.xml
 .PHONY: test
-test: TEST_REPORT ?= go
+test: TEST_REPORT ?= main
 test: SHELL = /bin/bash
 test: bin/go-junit-report ## Run tests
 	@mkdir -p ${BUILD_DIR}/test_results/${TEST_REPORT}
