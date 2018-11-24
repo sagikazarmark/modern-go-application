@@ -1,5 +1,7 @@
 language: go
 
+dist: xenial
+
 services:
     - docker
 
