@@ -1,8 +1,7 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Integration" type="GoTestRunConfiguration" factoryName="Go Test">
+  <configuration default="false" name="Tests" type="GoTestRunConfiguration" factoryName="Go Test">
     <module name="project" />
     <working_directory value="$PROJECT_DIR$/" />
-    <go_parameters value="-tags &quot;integration&quot;" />
     <framework value="gotest" />
     <kind value="DIRECTORY" />
     <directory value="$PROJECT_DIR$/" />

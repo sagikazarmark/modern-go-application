@@ -14,7 +14,7 @@
         },
         {
             "taskName": "test",
-            "command": "make test VERBOSE=1",
+            "command": "make test",
             "type": "shell",
             "group": {
                 "kind": "test",
@@ -22,20 +22,17 @@
             }
         },
         {
-            "taskName": "test unit",
-            "command": "make test-unit VERBOSE=1",
+            "taskName": "test all",
+            "command": "make test-all",
             "type": "shell",
-            "group": "test"
+            "group": {
+                "kind": "test",
+                "isDefault": false
+            }
         },
         {
             "taskName": "test integration",
-            "command": "make test-integration VERBOSE=1",
-            "type": "shell",
-            "group": "test"
-        },
-        {
-            "taskName": "test acceptance",
-            "command": "make test-acceptance VERBOSE=1",
+            "command": "make test-integration",
             "type": "shell",
             "group": "test"
         }
