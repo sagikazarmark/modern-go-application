@@ -141,8 +141,7 @@ test: SHELL = /bin/bash
 test: bin/go-junit-report ## Run tests
 	@mkdir -p ${BUILD_DIR}/test_results/${TEST_REPORT}
 	@set -o pipefail
-	go test -v $(filter-out -v,${GOARGS}) ${TEST_PKGS} 2>&1 | tee >(bin/go-junit-report > ${BUILD_DIR}/test_results/${TEST_REPORT}/${TEST_REPORT_NAME})
-	wait
+	go test -v $(filter-out -v,${GOARGS}) ${TEST_PKGS} 2>&1 | tee /dev/tty | bin/go-junit-report > ${BUILD_DIR}/test_results/${TEST_REPORT}/${TEST_REPORT_NAME}
 
 .PHONY: test-all
 test-all: ## Run all tests
