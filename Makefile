@@ -14,6 +14,7 @@ COMMIT_HASH ?= $(shell git rev-parse --short HEAD 2>/dev/null)
 BUILD_DATE ?= $(shell date +%FT%T%z)
 LDFLAGS += -X main.version=${VERSION} -X main.commitHash=${COMMIT_HASH} -X main.buildDate=${BUILD_DATE}
 export CGO_ENABLED ?= 0
+OS := $(shell uname)
 export GOOS = $(shell go env GOOS)
 ifeq (${VERBOSE}, 1)
 ifeq ($(filter -v,${GOARGS}),)
@@ -28,6 +29,7 @@ DOCKER_TAG ?= ${VERSION}
 DEP_VERSION = 0.5.0
 GOLANGCI_VERSION = 1.12.2
 OPENAPI_GENERATOR_VERSION = 3.3.0
+GOTESTSUM_VERSION = 0.3.2
 
 GOLANG_VERSION = 1.11
 
@@ -129,19 +131,25 @@ docker-debug: build-debug ## Build a Docker image with remote debugging capabili
 .PHONY: check
 check: test-all lint ## Run tests and linters
 
-bin/go-junit-report:
+bin/gotestsum: bin/gotestsum-${GOTESTSUM_VERSION}
+	@ln -sf gotestsum-${GOTESTSUM_VERSION} bin/gotestsum
+bin/gotestsum-${GOTESTSUM_VERSION}:
 	@mkdir -p bin
-	GOBIN=${PWD}/bin/ go get -u github.com/jstemmer/go-junit-report
+ifeq (${OS}, Darwin)
+	curl -L https://github.com/gotestyourself/gotestsum/releases/download/v${GOTESTSUM_VERSION}/gotestsum_${GOTESTSUM_VERSION}_darwin_amd64.tar.gz | tar -zOxf - gotestsum > ./bin/gotestsum-${GOTESTSUM_VERSION} && chmod +x ./bin/gotestsum-${GOTESTSUM_VERSION}
+endif
+ifeq (${OS}, Linux)
+	curl -L https://github.com/gotestyourself/gotestsum/releases/download/v${GOTESTSUM_VERSION}/gotestsum_${GOTESTSUM_VERSION}_linux_amd64.tar.gz | tar -zOxf - gotestsum > ./bin/gotestsum-${GOTESTSUM_VERSION} && chmod +x ./bin/gotestsum-${GOTESTSUM_VERSION}
+endif
 
 TEST_PKGS ?= ./...
 TEST_REPORT_NAME ?= results.xml
 .PHONY: test
 test: TEST_REPORT ?= main
 test: SHELL = /bin/bash
-test: bin/go-junit-report ## Run tests
+test: bin/gotestsum ## Run tests
 	@mkdir -p ${BUILD_DIR}/test_results/${TEST_REPORT}
-	@set -o pipefail
-	go test -v $(filter-out -v,${GOARGS}) ${TEST_PKGS} 2>&1 | tee /dev/tty | bin/go-junit-report > ${BUILD_DIR}/test_results/${TEST_REPORT}/${TEST_REPORT_NAME}
+	bin/gotestsum --no-summary=skipped --junitfile ${BUILD_DIR}/test_results/${TEST_REPORT}/${TEST_REPORT_NAME} -- $(filter-out -v,${GOARGS})  $(if ${TEST_PKGS},${TEST_PKGS},./...)
 
 .PHONY: test-all
 test-all: ## Run all tests
