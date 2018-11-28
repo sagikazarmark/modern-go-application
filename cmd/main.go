@@ -165,7 +165,7 @@ func main() {
 			Server:          server,
 			Listener:        ln,
 			ShutdownTimeout: config.ShutdownTimeout,
-			Logger:          logger,
+			Logger:          invisionkitlog.New(logger),
 			ErrorHandler:    emperror.HandlerWith(errorHandler, "server", name),
 		}
 
@@ -230,7 +230,7 @@ func main() {
 			Server:          server,
 			Listener:        ln,
 			ShutdownTimeout: config.ShutdownTimeout,
-			Logger:          logger,
+			Logger:          invisionkitlog.New(logger),
 			ErrorHandler:    emperror.HandlerWith(errorHandler, "server", name),
 		}
 

@@ -5,8 +5,6 @@ import (
 	"net"
 	"time"
 
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
 	"github.com/goph/emperror"
 )
 
@@ -16,6 +14,12 @@ type server interface {
 	Close() error
 }
 
+// logger is the fundamental interface for all log operations.
+type logger interface {
+	// Infof logs an info event and optionally formats the message.
+	Infof(msg string, args ...interface{})
+}
+
 // Server implements server group run functions.
 type Server struct {
 	Server   server
@@ -23,13 +27,13 @@ type Server struct {
 
 	ShutdownTimeout time.Duration
 
-	Logger       log.Logger
+	Logger       logger
 	ErrorHandler emperror.Handler
 }
 
 // Start starts the server and waits for it to return.
 func (r *Server) Start() error {
-	level.Info(r.Logger).Log("msg", "starting server")
+	r.Logger.Infof("starting server")
 
 	return r.Server.Serve(r.Listener)
 }
@@ -44,7 +48,7 @@ func (r *Server) Stop(e error) {
 		defer cancel()
 	}
 
-	level.Info(r.Logger).Log("msg", "shutting server down")
+	r.Logger.Infof("shutting server down")
 
 	err := r.Server.Shutdown(ctx)
 	if err != nil {
