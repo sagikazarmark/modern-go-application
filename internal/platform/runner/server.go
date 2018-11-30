@@ -4,8 +4,6 @@ import (
 	"context"
 	"net"
 	"time"
-
-	"github.com/goph/emperror"
 )
 
 type server interface {
@@ -20,6 +18,12 @@ type logger interface {
 	Infof(msg string, args ...interface{})
 }
 
+// errorHandler is responsible for handling an error.
+type errorHandler interface {
+	// Handle takes care of unhandled errors.
+	Handle(err error)
+}
+
 // Server implements server group run functions.
 type Server struct {
 	Server   server
@@ -28,7 +32,7 @@ type Server struct {
 	ShutdownTimeout time.Duration
 
 	Logger       logger
-	ErrorHandler emperror.Handler
+	ErrorHandler errorHandler
 }
 
 // Start starts the server and waits for it to return.
