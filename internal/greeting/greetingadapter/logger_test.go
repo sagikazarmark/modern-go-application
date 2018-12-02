@@ -13,23 +13,23 @@ import (
 
 func TestLogger_Levels(t *testing.T) {
 	tests := map[string]struct {
-		logFunc func(logger *Logger, msg string, args ...interface{})
+		logFunc func(logger *Logger, msg ...interface{})
 		level   level.Value
 	}{
 		"debug": {
-			logFunc: (*Logger).Debugf,
+			logFunc: (*Logger).Debug,
 			level:   level.DebugValue(),
 		},
 		"info": {
-			logFunc: (*Logger).Infof,
+			logFunc: (*Logger).Info,
 			level:   level.InfoValue(),
 		},
 		"warn": {
-			logFunc: (*Logger).Warnf,
+			logFunc: (*Logger).Warn,
 			level:   level.WarnValue(),
 		},
 		"error": {
-			logFunc: (*Logger).Errorf,
+			logFunc: (*Logger).Error,
 			level:   level.ErrorValue(),
 		},
 	}
@@ -41,10 +41,10 @@ func TestLogger_Levels(t *testing.T) {
 			testlogger := testlog.New()
 			logger := NewLogger(testlogger)
 
-			test.logFunc(logger, "message: %s", name)
+			test.logFunc(logger, fmt.Sprintf("message: %s", name))
 
 			assert.Equal(t, 1, testlogger.CallCount())
-			assert.Equal(t, fmt.Sprintf("[%s] %s \n", strings.ToUpper(name), "message: "+name), string(testlogger.Bytes()))
+			assert.Equal(t, fmt.Sprintf("[%s] [%s] \n", strings.ToUpper(name), "message: "+name), string(testlogger.Bytes()))
 		})
 	}
 }
@@ -59,12 +59,12 @@ func TestLogger_WithFields(t *testing.T) {
 		"key2": "value2",
 	})
 
-	logger.Debugf("message")
+	logger.Debug("message")
 
 	assert.Equal(t, 1, testlogger.CallCount())
 
 	line := string(testlogger.Bytes())
-	assert.Contains(t, line, "[DEBUG] message")
+	assert.Contains(t, line, "[DEBUG] [message]")
 	assert.Contains(t, line, "key1=value1")
 	assert.Contains(t, line, "key2=value2")
 }

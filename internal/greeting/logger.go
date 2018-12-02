@@ -2,17 +2,17 @@ package greeting
 
 // Logger is the fundamental interface for all log operations.
 type Logger interface {
-	// Debugf logs a debug event and optionally formats the message.
-	Debugf(msg string, args ...interface{})
+	// Debug logs a debug event.
+	Debug(msg ...interface{})
 
-	// Infof logs an info event and optionally formats the message.
-	Infof(msg string, args ...interface{})
+	// Info logs an info event.
+	Info(msg ...interface{})
 
-	// Warnf logs a warning event and optionally formats the message.
-	Warnf(msg string, args ...interface{})
+	// Warn logs a warning event.
+	Warn(msg ...interface{})
 
-	// Errorf logs an error event and optionally formats the message.
-	Errorf(msg string, args ...interface{})
+	// Error logs an error event.
+	Error(msg ...interface{})
 
 	// WithFields annotates a logger with some context.
 	WithFields(fields map[string]interface{}) Logger

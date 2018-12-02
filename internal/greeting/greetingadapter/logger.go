@@ -17,24 +17,24 @@ func NewLogger(logger log.Logger) *Logger {
 	}
 }
 
-// Debugf logs a debug event and optionally formats the message.
-func (l *Logger) Debugf(msg string, args ...interface{}) {
-	l.logger.Debugf(msg, args...)
+// Debug logs a debug event.
+func (l *Logger) Debug(msg ...interface{}) {
+	l.logger.Debug(msg)
 }
 
-// Infof logs an info event and optionally formats the message.
-func (l *Logger) Infof(msg string, args ...interface{}) {
-	l.logger.Infof(msg, args...)
+// Info logs an info event.
+func (l *Logger) Info(msg ...interface{}) {
+	l.logger.Info(msg)
 }
 
-// Warnf logs a warning event and optionally formats the message.
-func (l *Logger) Warnf(msg string, args ...interface{}) {
-	l.logger.Warnf(msg, args...)
+// Warn logs a warning event.
+func (l *Logger) Warn(msg ...interface{}) {
+	l.logger.Warn(msg)
 }
 
-// Errorf logs an error event and optionally formats the message.
-func (l *Logger) Errorf(msg string, args ...interface{}) {
-	l.logger.Errorf(msg, args...)
+// Error logs an error event.
+func (l *Logger) Error(msg ...interface{}) {
+	l.logger.Error(msg)
 }
 
 // WithFields annotates a logger with some context.

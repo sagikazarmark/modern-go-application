@@ -24,7 +24,7 @@ func NewHelloWorld(logger Logger) *HelloWorld {
 
 // HelloWorld outputs Hello World.
 func (hw *HelloWorld) HelloWorld(ctx context.Context, output HelloWorldOutput) {
-	hw.logger.Infof("Hello, World!")
+	hw.logger.Info("Hello, World!")
 
 	hello := Hello{"Hello, World!"}
 
