@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	stdlog "log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,8 +13,6 @@ import (
 	"github.com/InVisionApp/go-health/checkers"
 	"github.com/InVisionApp/go-health/handlers"
 	"github.com/cloudflare/tableflip"
-	kitlog "github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
 	"github.com/goph/emperror"
 	"github.com/goph/emperror/errorlog"
 	"github.com/oklog/run"
@@ -24,7 +23,6 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingdriver"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/buildinfo"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
-	"github.com/sagikazarmark/modern-go-application/internal/platform/invisionkitlog"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/jaeger"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/prometheus"
@@ -81,27 +79,27 @@ func main() {
 	logger := log.NewLogger(config.Log)
 
 	// Provide some basic context to all log lines
-	logger = kitlog.With(logger, "environment", config.Environment, "service", ServiceName)
+	logger = logger.WithFields(log.Fields{"environment": config.Environment, "service": ServiceName})
 
 	// Configure error handler
-	errorHandler := errorlog.NewHandler(logger)
+	errorHandler := errorlog.NewHandler(errorlog.NewInvisionLogger(logger))
 	defer emperror.HandleRecover(errorHandler)
 
 	buildInfo := buildinfo.New(version, commitHash, buildDate)
 
-	level.Info(logger).Log(buildInfo.Context()...)
+	logger.WithFields(log.Fields(buildInfo.Fields())).Info("starting application")
 
 	instrumentationRouter := http.NewServeMux()
 	instrumentationRouter.Handle("/version", buildinfo.Handler(buildInfo))
 
 	// Configure health checker
 	healthz := health.New()
-	healthz.Logger = invisionkitlog.New(logger)
+	healthz.Logger = logger
 	instrumentationRouter.Handle("/healthz", handlers.NewJSONHandlerFunc(healthz, nil))
 
 	// Configure Prometheus
 	if config.Instrumentation.Prometheus.Enabled {
-		level.Debug(logger).Log("msg", "prometheus exporter enabled")
+		logger.Info("prometheus exporter enabled")
 
 		exporter, err := prometheus.NewExporter(config.Instrumentation.Prometheus.Config, errorHandler)
 		if err != nil {
@@ -119,7 +117,7 @@ func main() {
 
 	// Configure Jaeger
 	if config.Instrumentation.Jaeger.Enabled {
-		level.Debug(logger).Log("msg", "jaeger exporter enabled")
+		logger.Info("jaeger exporter enabled")
 
 		exporter, err := jaeger.NewExporter(config.Instrumentation.Jaeger.Config, ServiceName, errorHandler)
 		if err != nil {
@@ -139,7 +137,7 @@ func main() {
 		ch := make(chan os.Signal, 1)
 		signal.Notify(ch, syscall.SIGHUP)
 		for range ch {
-			level.Info(logger).Log("msg", "graceful reloading")
+			logger.Info("graceful reloading")
 
 			_ = upg.Upgrade()
 		}
@@ -148,13 +146,13 @@ func main() {
 	// Set up instrumentation server
 	{
 		name := "instrumentation"
-		logger := kitlog.With(logger, "server", name)
+		logger := logger.WithFields(log.Fields{"server": name})
 		server := &http.Server{
 			Handler:  instrumentationRouter,
-			ErrorLog: log.NewStandardLogger(level.Error(logger)),
+			ErrorLog: stdlog.New(log.NewWriter(logger, log.ErrorLevel), "", 0),
 		}
 
-		level.Info(logger).Log("msg", "listening on address", "address", config.Instrumentation.Addr)
+		logger.WithFields(log.Fields{"address": config.Instrumentation.Addr}).Info("listening on address")
 
 		ln, err := upg.Fds.Listen("tcp", config.Instrumentation.Addr)
 		if err != nil {
@@ -165,7 +163,7 @@ func main() {
 			Server:          server,
 			Listener:        ln,
 			ShutdownTimeout: config.ShutdownTimeout,
-			Logger:          invisionkitlog.New(logger),
+			Logger:          logger,
 			ErrorHandler:    emperror.HandlerWith(errorHandler, "server", name),
 		}
 
@@ -173,7 +171,7 @@ func main() {
 	}
 
 	// Connect to the database
-	level.Debug(logger).Log("msg", "connecting to database")
+	logger.Info("connecting to database")
 	db, err := database.NewConnection(config.Database)
 	if err != nil {
 		panic(err)
@@ -202,8 +200,8 @@ func main() {
 		panic(errors.Wrap(err, "failed to register HTTP server stat views"))
 	}
 
-	helloWorld := greeting.NewHelloWorld(greetingadapter.NewLogger(invisionkitlog.New(logger)))
-	sayHello := greeting.NewSayHello(greetingadapter.NewLogger(invisionkitlog.New(logger)))
+	helloWorld := greeting.NewHelloWorld(greetingadapter.NewLogger(logger))
+	sayHello := greeting.NewSayHello(greetingadapter.NewLogger(logger))
 	helloWorldController := greetingdriver.NewGreetingController(helloWorld, sayHello, errorHandler)
 
 	router := internal.NewRouter(helloWorldController)
@@ -211,15 +209,15 @@ func main() {
 	// Set up app server
 	{
 		name := "app"
-		logger := kitlog.With(logger, "server", name)
+		logger := logger.WithFields(log.Fields{"server": name})
 		server := &http.Server{
 			Handler: &ochttp.Handler{
 				Handler: router,
 			},
-			ErrorLog: log.NewStandardLogger(level.Error(logger)),
+			ErrorLog: stdlog.New(log.NewWriter(logger, log.ErrorLevel), "", 0),
 		}
 
-		level.Info(logger).Log("msg", "listening on address", "address", config.App.Addr)
+		logger.WithFields(log.Fields{"address": config.App.Addr}).Info("listening on address")
 
 		ln, err := upg.Fds.Listen("tcp", config.App.Addr)
 		if err != nil {
@@ -230,7 +228,7 @@ func main() {
 			Server:          server,
 			Listener:        ln,
 			ShutdownTimeout: config.ShutdownTimeout,
-			Logger:          invisionkitlog.New(logger),
+			Logger:          logger,
 			ErrorHandler:    emperror.HandlerWith(errorHandler, "server", name),
 		}
 
@@ -247,7 +245,7 @@ func main() {
 
 				sig := <-ch
 				if sig != nil {
-					level.Info(logger).Log("msg", "captured signal", "signal", sig)
+					logger.WithFields(log.Fields{"signal": sig}).Info("captured signal")
 				}
 
 				return nil

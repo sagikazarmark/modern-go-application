@@ -3,54 +3,36 @@ package log
 
 import (
 	"os"
-	"strings"
 
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
+	"github.com/InVisionApp/go-logger"
+	logrusShim "github.com/InVisionApp/go-logger/shims/logrus"
+	"github.com/sirupsen/logrus"
 )
+
+// Fields is an alias to log.Fields for easier usage.
+type Fields = log.Fields
 
 // NewLogger creates a new logger.
 func NewLogger(config Config) log.Logger {
-	var logger log.Logger
+	logger := logrus.New()
 
-	w := log.NewSyncWriter(os.Stdout)
+	logger.SetOutput(os.Stdout)
+	logger.SetFormatter(&logrus.TextFormatter{
+		DisableColors:             config.NoColor,
+		EnvironmentOverrideColors: true,
+	})
 
 	switch config.Format {
 	case "logfmt":
-		logger = log.NewLogfmtLogger(w)
+		// Already the default
 
 	case "json":
-		logger = log.NewJSONLogger(w)
-
-	default: // Fall back to JSON logger
-		logger = log.NewJSONLogger(w)
-
-		level.Warn(logger).Log("msg", "unsupported log format", "format", config.Format)
+		logger.SetFormatter(&logrus.JSONFormatter{})
 	}
 
-	// Fallback to Info level
-	logger = level.NewInjector(logger, level.InfoValue())
-
-	// Set log level
-	var levelOption level.Option
-	switch strings.ToLower(config.Level) {
-	case debugLevel:
-		levelOption = level.AllowDebug()
-
-	case infoLevel, "": // Info is the default level
-		levelOption = level.AllowInfo()
-
-	case warnLevel, warningLevel:
-		levelOption = level.AllowWarn()
-
-	case errorLevel:
-		levelOption = level.AllowError()
-
-	default: // Info is the default level
-		levelOption = level.AllowInfo()
+	if level, err := logrus.ParseLevel(config.Level); err == nil {
+		logrus.SetLevel(level)
 	}
 
-	logger = level.NewFilter(logger, levelOption)
-
-	return logger
+	return logrusShim.New(logger)
 }

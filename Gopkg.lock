@@ -23,10 +23,11 @@
   version = "v1.1.6"
 
 [[projects]]
-  digest = "1:090c416c3e71bba13e082cec0dc8747eed5c0d04a01258205f7da016bc82f99c"
+  digest = "1:9e22422a1aeadb09c4709d39c09b723482a24fe3d241f7f20177c87ee38f5c1d"
   name = "github.com/InVisionApp/go-logger"
   packages = [
     ".",
+    "shims/logrus",
     "shims/testlog",
   ]
   pruneopts = "UT"
@@ -96,25 +97,6 @@
   revision = "eeefdecb41b842af6dc652aaea4026e8403e62df"
 
 [[projects]]
-  digest = "1:ce058ca1b1787a997e578c4344f9650becb5086a3512332cbedffca9950d77a1"
-  name = "github.com/go-kit/kit"
-  packages = [
-    "log",
-    "log/level",
-  ]
-  pruneopts = "UT"
-  revision = "12210fb6ace19e0496167bb3e667dcd91fa9f69b"
-  version = "v0.8.0"
-
-[[projects]]
-  digest = "1:31a18dae27a29aa074515e43a443abfd2ba6deb6d69309d8d7ce789c45f34659"
-  name = "github.com/go-logfmt/logfmt"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "390ab7935ee28ec6b286364bba9b4dd6410cb3d5"
-  version = "v0.3.0"
-
-[[projects]]
   digest = "1:64a5a67c69b70c2420e607a8545d674a23778ed9c3e80607bfd17b77c6c87f6a"
   name = "github.com/go-ole/go-ole"
   packages = [
@@ -170,15 +152,16 @@
   version = "v2.0.0"
 
 [[projects]]
-  digest = "1:674892f4e662d23fc988ca9c5d8905f2c311e3ca094a5e66bd4942976191256e"
+  digest = "1:b9a54ce77e5cc71918a16704c7e9e8b2c902c000f56db49dadef1a30f042df06"
   name = "github.com/goph/emperror"
   packages = [
     ".",
     "errorlog",
+    "internal/keyvals",
   ]
   pruneopts = "UT"
-  revision = "9870ade6f413fe7fbddcb3eb8a735822deeef874"
-  version = "v0.12.0"
+  revision = "c29c0e57342ffbda135b0151be21f44392717413"
+  version = "v0.13.0"
 
 [[projects]]
   digest = "1:c79fb010be38a59d657c48c6ba1d003a8aa651fa56b579d959d74573b7dff8e1"
@@ -216,12 +199,12 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:a64e323dc06b73892e5bb5d040ced475c4645d456038333883f58934abbf6f72"
-  name = "github.com/kr/logfmt"
+  digest = "1:0a69a1c0db3591fcefb47f115b224592c8dfa4368b7ba9fae509d5e16cdc95c8"
+  name = "github.com/konsorten/go-windows-terminal-sequences"
   packages = ["."]
   pruneopts = "UT"
-  revision = "b84e30acd515aadc4b783ad4ff83aff3299bdfe0"
+  revision = "5c8c8bd35d3832f5d134ae1e1e375b69a4d25242"
+  version = "v1.0.1"
 
 [[projects]]
   digest = "1:c568d7727aa262c32bdf8a3f7db83614f7af0ed661474b24588de635c20024c7"
@@ -344,6 +327,14 @@
   version = "v2.18.10"
 
 [[projects]]
+  digest = "1:69b1cc331fca23d702bd72f860c6a647afd0aa9fcbc1d0659b1365e26546dd70"
+  name = "github.com/sirupsen/logrus"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "bcd833dfe83d3cebad139e4a29ed79cb2318bf95"
+  version = "v1.2.0"
+
+[[projects]]
   digest = "1:6a4a11ba764a56d2758899ec6f3848d24698d48442ebce85ee7a3f63284526cd"
   name = "github.com/spf13/afero"
   packages = [
@@ -424,6 +415,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:38f553aff0273ad6f367cb0a0f8b6eecbaef8dc6cb8b50e57b6a81c1d5b1e332"
+  name = "golang.org/x/crypto"
+  packages = ["ssh/terminal"]
+  pruneopts = "UT"
+  revision = "505ab145d0a99da450461ae2c1a9f6cd10d1f447"
+
+[[projects]]
+  branch = "master"
   digest = "1:5e4d81c50cffcb124b899e4f3eabec3930c73532f0096c27f94476728ba03028"
   name = "golang.org/x/sync"
   packages = ["semaphore"]
@@ -488,10 +487,9 @@
     "github.com/InVisionApp/go-health/checkers",
     "github.com/InVisionApp/go-health/handlers",
     "github.com/InVisionApp/go-logger",
+    "github.com/InVisionApp/go-logger/shims/logrus",
     "github.com/InVisionApp/go-logger/shims/testlog",
     "github.com/cloudflare/tableflip",
-    "github.com/go-kit/kit/log",
-    "github.com/go-kit/kit/log/level",
     "github.com/go-sql-driver/mysql",
     "github.com/gomodule/redigo/redis",
     "github.com/goph/emperror",
@@ -500,6 +498,7 @@
     "github.com/oklog/run",
     "github.com/opencensus-integrations/ocsql",
     "github.com/pkg/errors",
+    "github.com/sirupsen/logrus",
     "github.com/spf13/pflag",
     "github.com/spf13/viper",
     "github.com/stretchr/testify/assert",

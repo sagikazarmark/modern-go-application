@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/InVisionApp/go-logger/shims/testlog"
-	"github.com/go-kit/kit/log/level"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 	"github.com/stretchr/testify/assert"
 )
@@ -14,23 +13,18 @@ import (
 func TestLogger_Levels(t *testing.T) {
 	tests := map[string]struct {
 		logFunc func(logger *Logger, msg ...interface{})
-		level   level.Value
 	}{
 		"debug": {
 			logFunc: (*Logger).Debug,
-			level:   level.DebugValue(),
 		},
 		"info": {
 			logFunc: (*Logger).Info,
-			level:   level.InfoValue(),
 		},
 		"warn": {
 			logFunc: (*Logger).Warn,
-			level:   level.WarnValue(),
 		},
 		"error": {
 			logFunc: (*Logger).Error,
-			level:   level.ErrorValue(),
 		},
 	}
 

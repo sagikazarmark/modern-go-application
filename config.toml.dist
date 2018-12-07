@@ -5,6 +5,7 @@ shutdownTimeout = "15s"
 [log]
 format = "json"
 level = "info"
+noColor = false
 
 [instrumentation]
 addr = ":10000"

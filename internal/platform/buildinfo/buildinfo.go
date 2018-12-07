@@ -28,15 +28,15 @@ func New(version string, commitHash string, buildDate string) BuildInfo {
 	}
 }
 
-// Context returns the build information in a log context format.
-func (bi BuildInfo) Context() []interface{} {
-	return []interface{}{
-		"version", bi.Version,
-		"commit_hash", bi.CommitHash,
-		"build_date", bi.BuildDate,
-		"go_version", bi.GoVersion,
-		"os", bi.Os,
-		"arch", bi.Arch,
-		"compiler", bi.Compiler,
+// Fields returns the build information in a log context format.
+func (bi BuildInfo) Fields() map[string]interface{} {
+	return map[string]interface{}{
+		"version":     bi.Version,
+		"commit_hash": bi.CommitHash,
+		"build_date":  bi.BuildDate,
+		"go_version":  bi.GoVersion,
+		"os":          bi.Os,
+		"arch":        bi.Arch,
+		"compiler":    bi.Compiler,
 	}
 }
