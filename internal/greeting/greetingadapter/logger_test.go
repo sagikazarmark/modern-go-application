@@ -38,7 +38,7 @@ func TestLogger_Levels(t *testing.T) {
 			test.logFunc(logger, fmt.Sprintf("message: %s", name))
 
 			assert.Equal(t, 1, testlogger.CallCount())
-			assert.Equal(t, fmt.Sprintf("[%s] [%s] \n", strings.ToUpper(name), "message: "+name), string(testlogger.Bytes()))
+			assert.Equal(t, fmt.Sprintf("[%s] %s \n", strings.ToUpper(name), "message: "+name), string(testlogger.Bytes()))
 		})
 	}
 }
@@ -58,7 +58,7 @@ func TestLogger_WithFields(t *testing.T) {
 	assert.Equal(t, 1, testlogger.CallCount())
 
 	line := string(testlogger.Bytes())
-	assert.Contains(t, line, "[DEBUG] [message]")
+	assert.Contains(t, line, "[DEBUG] message")
 	assert.Contains(t, line, "key1=value1")
 	assert.Contains(t, line, "key2=value2")
 }

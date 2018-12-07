@@ -19,22 +19,22 @@ func NewLogger(logger log.Logger) *Logger {
 
 // Debug logs a debug event.
 func (l *Logger) Debug(msg ...interface{}) {
-	l.logger.Debug(msg)
+	l.logger.Debug(msg...)
 }
 
 // Info logs an info event.
 func (l *Logger) Info(msg ...interface{}) {
-	l.logger.Info(msg)
+	l.logger.Info(msg...)
 }
 
 // Warn logs a warning event.
 func (l *Logger) Warn(msg ...interface{}) {
-	l.logger.Warn(msg)
+	l.logger.Warn(msg...)
 }
 
 // Error logs an error event.
 func (l *Logger) Error(msg ...interface{}) {
-	l.logger.Error(msg)
+	l.logger.Error(msg...)
 }
 
 // WithFields annotates a logger with some context.
