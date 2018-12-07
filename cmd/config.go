@@ -52,10 +52,6 @@ func (c Config) Validate() error {
 		return errors.New("environment is required")
 	}
 
-	if err := c.Log.Validate(); err != nil {
-		return err
-	}
-
 	if err := c.Instrumentation.Validate(); err != nil {
 		return err
 	}
@@ -133,6 +129,7 @@ func Configure(v *viper.Viper, p *pflag.FlagSet) {
 	// Log configuration
 	v.SetDefault("log.format", "json")
 	v.SetDefault("log.level", "info")
+	v.SetDefault("log.noColor", false)
 
 	// Instrumentation configuration
 	p.String("instrumentation.addr", ":10000", "Instrumentation HTTP server address")

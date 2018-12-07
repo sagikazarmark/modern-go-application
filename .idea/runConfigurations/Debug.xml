@@ -6,6 +6,7 @@
     <go_parameters value="-gcflags &quot;all=-N -l&quot; -tags 'dev'" />
     <envs>
       <env name="CGO_ENABLED" value="0" />
+      <env name="CLICOLOR_FORCE" value="1" />
     </envs>
     <kind value="DIRECTORY" />
     <filePath value="$PROJECT_DIR$/" />
