@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	stdlog "log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -11,10 +10,8 @@ import (
 
 	"github.com/InVisionApp/go-health"
 	"github.com/InVisionApp/go-health/checkers"
-	"github.com/InVisionApp/go-health/handlers"
 	"github.com/cloudflare/tableflip"
 	"github.com/goph/emperror"
-	"github.com/goph/emperror/errorlog"
 	"github.com/oklog/run"
 	"github.com/pkg/errors"
 	"github.com/sagikazarmark/modern-go-application/internal"
@@ -23,6 +20,8 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingdriver"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/buildinfo"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
+	"github.com/sagikazarmark/modern-go-application/internal/platform/errorhandler"
+	"github.com/sagikazarmark/modern-go-application/internal/platform/healthcheck"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/jaeger"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/prometheus"
@@ -82,7 +81,7 @@ func main() {
 	logger = logger.WithFields(log.Fields{"environment": config.Environment, "service": ServiceName})
 
 	// Configure error handler
-	errorHandler := errorlog.NewHandler(errorlog.NewInvisionLogger(logger))
+	errorHandler := errorhandler.New(logger)
 	defer emperror.HandleRecover(errorHandler)
 
 	buildInfo := buildinfo.New(version, commitHash, buildDate)
@@ -93,9 +92,8 @@ func main() {
 	instrumentationRouter.Handle("/version", buildinfo.Handler(buildInfo))
 
 	// Configure health checker
-	healthz := health.New()
-	healthz.Logger = logger
-	instrumentationRouter.Handle("/healthz", handlers.NewJSONHandlerFunc(healthz, nil))
+	healthChecker := healthcheck.New(logger)
+	instrumentationRouter.Handle("/healthz", healthcheck.NewHTTPHandler(healthChecker))
 
 	// Configure Prometheus
 	if config.Instrumentation.Prometheus.Enabled {
@@ -149,7 +147,7 @@ func main() {
 		logger := logger.WithFields(log.Fields{"server": name})
 		server := &http.Server{
 			Handler:  instrumentationRouter,
-			ErrorLog: stdlog.New(log.NewWriter(logger, log.ErrorLevel), "", 0),
+			ErrorLog: log.NewStandardErrorLogger(logger),
 		}
 
 		logger.WithFields(log.Fields{"address": config.Instrumentation.Addr}).Info("listening on address")
@@ -184,7 +182,7 @@ func main() {
 		if err != nil {
 			panic(errors.Wrap(err, "failed to create db health checker"))
 		}
-		err = healthz.AddCheck(&health.Config{
+		err = healthChecker.AddCheck(&health.Config{
 			Name:     "database",
 			Checker:  check,
 			Interval: time.Duration(3) * time.Second,
@@ -214,7 +212,7 @@ func main() {
 			Handler: &ochttp.Handler{
 				Handler: router,
 			},
-			ErrorLog: stdlog.New(log.NewWriter(logger, log.ErrorLevel), "", 0),
+			ErrorLog: log.NewStandardErrorLogger(logger),
 		}
 
 		logger.WithFields(log.Fields{"address": config.App.Addr}).Info("listening on address")
@@ -275,7 +273,7 @@ func main() {
 		)
 	}
 
-	if err := healthz.Start(); err != nil {
+	if err := healthChecker.Start(); err != nil {
 		panic(errors.Wrap(err, "failed to start health checker"))
 	}
 

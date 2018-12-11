@@ -23,13 +23,9 @@
   version = "v1.1.6"
 
 [[projects]]
-  digest = "1:9e22422a1aeadb09c4709d39c09b723482a24fe3d241f7f20177c87ee38f5c1d"
+  digest = "1:137a441b9903a0179439f1c497406765c3d3758a0f1e2922174dc61ae3c21fe6"
   name = "github.com/InVisionApp/go-logger"
-  packages = [
-    ".",
-    "shims/logrus",
-    "shims/testlog",
-  ]
+  packages = ["."]
   pruneopts = "UT"
   revision = "c377c6c3f6a48a6366517e86f77bafea18454ff1"
   version = "v1.0.1"
@@ -152,16 +148,24 @@
   version = "v2.0.0"
 
 [[projects]]
-  digest = "1:b9a54ce77e5cc71918a16704c7e9e8b2c902c000f56db49dadef1a30f042df06"
+  digest = "1:4e0e5d786c35c402574cda1906195d9fbd76a35d2c921eb10199741faf4f0256"
   name = "github.com/goph/emperror"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "b1b4a9b847ebc56299eb729faa942b89e9d8a562"
+  version = "v0.14.0"
+
+[[projects]]
+  digest = "1:b9373fc0296bde65e63d74639adf958b5418d9d29117cd51b92c140d9d78eb6f"
+  name = "github.com/goph/logur"
   packages = [
     ".",
-    "errorlog",
-    "internal/keyvals",
+    "adapters/logrusadapter",
+    "integrations/invisionlog",
   ]
   pruneopts = "UT"
-  revision = "c29c0e57342ffbda135b0151be21f44392717413"
-  version = "v0.13.0"
+  revision = "f537a5edf9eab58f4a842de1f354e1e2c33336f1"
+  version = "v0.3.0"
 
 [[projects]]
   digest = "1:c79fb010be38a59d657c48c6ba1d003a8aa651fa56b579d959d74573b7dff8e1"
@@ -487,13 +491,13 @@
     "github.com/InVisionApp/go-health/checkers",
     "github.com/InVisionApp/go-health/handlers",
     "github.com/InVisionApp/go-logger",
-    "github.com/InVisionApp/go-logger/shims/logrus",
-    "github.com/InVisionApp/go-logger/shims/testlog",
     "github.com/cloudflare/tableflip",
     "github.com/go-sql-driver/mysql",
     "github.com/gomodule/redigo/redis",
     "github.com/goph/emperror",
-    "github.com/goph/emperror/errorlog",
+    "github.com/goph/logur",
+    "github.com/goph/logur/adapters/logrusadapter",
+    "github.com/goph/logur/integrations/invisionlog",
     "github.com/gorilla/mux",
     "github.com/oklog/run",
     "github.com/opencensus-integrations/ocsql",
