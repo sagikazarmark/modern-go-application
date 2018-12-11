@@ -4,16 +4,16 @@ package log
 import (
 	"os"
 
-	"github.com/InVisionApp/go-logger"
-	logrusShim "github.com/InVisionApp/go-logger/shims/logrus"
+	"github.com/goph/logur"
+	"github.com/goph/logur/adapters/logrusadapter"
 	"github.com/sirupsen/logrus"
 )
 
 // Fields is an alias to log.Fields for easier usage.
-type Fields = log.Fields
+type Fields = logur.Fields
 
 // NewLogger creates a new logger.
-func NewLogger(config Config) log.Logger {
+func NewLogger(config Config) logur.Logger {
 	logger := logrus.New()
 
 	logger.SetOutput(os.Stdout)
@@ -34,5 +34,5 @@ func NewLogger(config Config) log.Logger {
 		logrus.SetLevel(level)
 	}
 
-	return logrusShim.New(logger)
+	return logrusadapter.New(logger)
 }

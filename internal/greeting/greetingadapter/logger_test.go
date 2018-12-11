@@ -2,10 +2,9 @@ package greetingadapter
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
-	"github.com/InVisionApp/go-logger/shims/testlog"
+	"github.com/goph/logur"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 	"github.com/stretchr/testify/assert"
 )
@@ -14,6 +13,9 @@ func TestLogger_Levels(t *testing.T) {
 	tests := map[string]struct {
 		logFunc func(logger *Logger, msg ...interface{})
 	}{
+		"trace": {
+			logFunc: (*Logger).Trace,
+		},
 		"debug": {
 			logFunc: (*Logger).Debug,
 		},
@@ -32,33 +34,40 @@ func TestLogger_Levels(t *testing.T) {
 		name, test := name, test
 
 		t.Run(name, func(t *testing.T) {
-			testlogger := testlog.New()
-			logger := NewLogger(testlogger)
+			testLogger := logur.NewTestLogger()
+			logger := NewLogger(testLogger)
 
 			test.logFunc(logger, fmt.Sprintf("message: %s", name))
 
-			assert.Equal(t, 1, testlogger.CallCount())
-			assert.Equal(t, fmt.Sprintf("[%s] %s \n", strings.ToUpper(name), "message: "+name), string(testlogger.Bytes()))
+			assert.Equal(t, 1, testLogger.Count())
+			assert.Equal(t, name, testLogger.LastEvent().Level.String())
+			assert.Equal(t, "message: "+name, testLogger.LastEvent().Line)
 		})
 	}
 }
 
 func TestLogger_WithFields(t *testing.T) {
-	testlogger := testlog.New()
+	testLogger := logur.NewTestLogger()
 
-	var logger greeting.Logger = NewLogger(testlogger)
+	var logger greeting.Logger = NewLogger(testLogger)
 
-	logger = logger.WithFields(map[string]interface{}{
+	fields := map[string]interface{}{
 		"key1": "value1",
 		"key2": "value2",
-	})
+	}
+
+	logger = logger.WithFields(fields)
 
 	logger.Debug("message")
 
-	assert.Equal(t, 1, testlogger.CallCount())
+	assert.Equal(t, 1, testLogger.Count())
 
-	line := string(testlogger.Bytes())
-	assert.Contains(t, line, "[DEBUG] message")
-	assert.Contains(t, line, "key1=value1")
-	assert.Contains(t, line, "key2=value2")
+	lastEvent := testLogger.LastEvent()
+	assert.Equal(t, "debug", lastEvent.Level.String())
+	assert.Equal(t, "message", lastEvent.Line)
+	assert.Equal(t, 2, len(lastEvent.Fields))
+
+	for key, value := range lastEvent.Fields {
+		assert.Equal(t, fields[key], value)
+	}
 }

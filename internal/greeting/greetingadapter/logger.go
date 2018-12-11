@@ -1,20 +1,25 @@
 package greetingadapter
 
 import (
-	"github.com/InVisionApp/go-logger"
+	"github.com/goph/logur"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 )
 
-// Logger wraps a go-kit logger and exposes it under a custom interface.
+// Logger wraps a logur logger and exposes it under a custom interface.
 type Logger struct {
-	logger log.Logger
+	logger logur.Logger
 }
 
 // NewLogger returns a new Logger instance.
-func NewLogger(logger log.Logger) *Logger {
+func NewLogger(logger logur.Logger) *Logger {
 	return &Logger{
 		logger: logger,
 	}
+}
+
+// Trace logs a trace event.
+func (l *Logger) Trace(msg ...interface{}) {
+	l.logger.Trace(msg...)
 }
 
 // Debug logs a debug event.
@@ -44,5 +49,5 @@ func (l *Logger) WithFields(fields map[string]interface{}) greeting.Logger {
 
 // NewNopLogger returns a logger that doesn't do anything.
 func NewNopLogger() *Logger {
-	return NewLogger(log.NewNoop())
+	return NewLogger(logur.NewNoop())
 }

@@ -1,0 +1,23 @@
+package healthcheck
+
+import (
+	"net/http"
+
+	"github.com/InVisionApp/go-health"
+	"github.com/InVisionApp/go-health/handlers"
+	"github.com/goph/logur"
+	"github.com/goph/logur/integrations/invisionlog"
+)
+
+// New returns a new health checker instance.
+func New(logger logur.Logger) *health.Health {
+	healthChecker := health.New()
+	healthChecker.Logger = invisionlog.New(logger)
+
+	return healthChecker
+}
+
+// NewHTTPHandler returns a new HTTP handler for a health checker.
+func NewHTTPHandler(healthChecker health.IHealth) http.Handler {
+	return handlers.NewJSONHandlerFunc(healthChecker, nil)
+}
