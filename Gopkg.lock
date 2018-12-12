@@ -11,7 +11,7 @@
   source = "github.com/apache/thrift"
 
 [[projects]]
-  digest = "1:86ec00a3cb3f06b5cd50bbaef52a23a49f0de3a11cf4e38a3595a5ae1eeb467f"
+  digest = "1:0d8c8cb97a7174cdd2cb6bb47be538a7cf6e382fee64735fc9af10fb41687d39"
   name = "github.com/InVisionApp/go-health"
   packages = [
     ".",
@@ -19,8 +19,8 @@
     "handlers",
   ]
   pruneopts = "UT"
-  revision = "d8238da0ac5d661c9e16d0da37cfd6a1b743dadc"
-  version = "v1.1.6"
+  revision = "06e1878ab5a8acf6e841861c6cbfcc4d3036add0"
+  version = "v2.1.0"
 
 [[projects]]
   digest = "1:137a441b9903a0179439f1c497406765c3d3758a0f1e2922174dc61ae3c21fe6"
@@ -31,28 +31,12 @@
   version = "v1.0.1"
 
 [[projects]]
-  digest = "1:e92f5581902c345eb4ceffdcd4a854fb8f73cf436d47d837d1ec98ef1fe0a214"
-  name = "github.com/StackExchange/wmi"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "5d049714c4a64225c3c79a7cf7d02f7fb5b96338"
-  version = "1.0.0"
-
-[[projects]]
   branch = "master"
   digest = "1:d6afaeed1502aa28e80a4ed0981d570ad91b2579193404256ce672ed0a609e0d"
   name = "github.com/beorn7/perks"
   packages = ["quantile"]
   pruneopts = "UT"
   revision = "3a771d992973f24aa725d07868b467d1ddfceafb"
-
-[[projects]]
-  branch = "master"
-  digest = "1:f98385a9b77f6cacae716a59c04e6ac374d101466d4369c4e8cc706a39c4bb2e"
-  name = "github.com/bradfitz/gomemcache"
-  packages = ["memcache"]
-  pruneopts = "UT"
-  revision = "bc664df9673713a0ccf26e3b55a673ec7301088b"
 
 [[projects]]
   branch = "master"
@@ -77,48 +61,6 @@
   pruneopts = "UT"
   revision = "c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9"
   version = "v1.4.7"
-
-[[projects]]
-  branch = "master"
-  digest = "1:78102ee4d536347316bc42e818340cc50902e45dbd7fdd524c5a1fc0cb07b588"
-  name = "github.com/globalsign/mgo"
-  packages = [
-    ".",
-    "bson",
-    "internal/json",
-    "internal/sasl",
-    "internal/scram",
-  ]
-  pruneopts = "UT"
-  revision = "eeefdecb41b842af6dc652aaea4026e8403e62df"
-
-[[projects]]
-  digest = "1:64a5a67c69b70c2420e607a8545d674a23778ed9c3e80607bfd17b77c6c87f6a"
-  name = "github.com/go-ole/go-ole"
-  packages = [
-    ".",
-    "oleutil",
-  ]
-  pruneopts = "UT"
-  revision = "a41e3c4b706f6ae8dfbff342b06e40fa4d2d0506"
-  version = "v1.2.1"
-
-[[projects]]
-  digest = "1:34a9a60fade37f8009ed4a19e02924198aba3eabfcc120ee5c6002b7de17212d"
-  name = "github.com/go-redis/redis"
-  packages = [
-    ".",
-    "internal",
-    "internal/consistenthash",
-    "internal/hashtag",
-    "internal/pool",
-    "internal/proto",
-    "internal/singleflight",
-    "internal/util",
-  ]
-  pruneopts = "UT"
-  revision = "b3d9bf10f6666b2ee5100a6f3f84f4caf3b4e37d"
-  version = "v6.14.2"
 
 [[projects]]
   digest = "1:ec6f9bf5e274c833c911923c9193867f3f18788c461f76f05f62bb1510e0ae65"
@@ -318,17 +260,6 @@
   ]
   pruneopts = "UT"
   revision = "1dc9a6cbc91aacc3e8b2d63db4d2e957a5394ac4"
-
-[[projects]]
-  digest = "1:1da23288f1f61234b09c9640b12f155c74538a6ed7ebb8cbfb9ee3731a771c12"
-  name = "github.com/shirou/gopsutil"
-  packages = [
-    "disk",
-    "internal/common",
-  ]
-  pruneopts = "UT"
-  revision = "0f70a4a06f7a1039305ec9b3ba9c2800f8929fba"
-  version = "v2.18.11"
 
 [[projects]]
   digest = "1:69b1cc331fca23d702bd72f860c6a647afd0aa9fcbc1d0659b1365e26546dd70"
