@@ -116,10 +116,10 @@ func Configure(v *viper.Viper, p *pflag.FlagSet) {
 	v.AddConfigPath(".")
 	p.Init(FriendlyServiceName, pflag.ExitOnError)
 	pflag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage of %s:\n", FriendlyServiceName)
+		_, _ = fmt.Fprintf(os.Stderr, "Usage of %s:\n", FriendlyServiceName)
 		pflag.PrintDefaults()
 	}
-	v.BindPFlags(p) // nolint:errcheck
+	_ = v.BindPFlags(p)
 
 	// Global configuration
 	v.SetDefault("environment", "production")
