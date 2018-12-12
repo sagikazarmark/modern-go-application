@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
@@ -122,6 +123,7 @@ func Configure(v *viper.Viper, p *pflag.FlagSet) {
 	_ = v.BindPFlags(p)
 
 	v.SetEnvPrefix("app")
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 	v.AutomaticEnv()
 
 	// Global configuration
