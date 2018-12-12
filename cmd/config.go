@@ -121,15 +121,21 @@ func Configure(v *viper.Viper, p *pflag.FlagSet) {
 	}
 	_ = v.BindPFlags(p)
 
+	v.SetEnvPrefix("app")
+	v.AutomaticEnv()
+
 	// Global configuration
 	v.SetDefault("environment", "production")
 	v.SetDefault("debug", false)
 	v.SetDefault("shutdownTimeout", 15*time.Second)
+	if _, ok := os.LookupEnv("NO_COLOR"); ok {
+		v.SetDefault("no_color", true)
+	}
 
 	// Log configuration
 	v.SetDefault("log.format", "json")
 	v.SetDefault("log.level", "info")
-	v.SetDefault("log.noColor", false)
+	v.RegisterAlias("log.noColor", "no_color")
 
 	// Instrumentation configuration
 	p.String("instrumentation.addr", ":10000", "Instrumentation HTTP server address")
