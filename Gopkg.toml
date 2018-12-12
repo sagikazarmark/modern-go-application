@@ -8,7 +8,7 @@
 
 [[constraint]]
   name = "github.com/goph/logur"
-  version = "0.3.0"
+  version = "0.4.0"
 
 [[constraint]]
   name = "github.com/pkg/errors"
@@ -18,7 +18,7 @@
   name = "github.com/goph/emperror"
   version = "0.14.0"
 
-[[constraint]]
+[[override]]
   name = "github.com/InVisionApp/go-logger"
   version = "1.0.1"
 

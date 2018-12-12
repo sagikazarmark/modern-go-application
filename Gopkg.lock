@@ -156,7 +156,7 @@
   version = "v0.14.0"
 
 [[projects]]
-  digest = "1:b9373fc0296bde65e63d74639adf958b5418d9d29117cd51b92c140d9d78eb6f"
+  digest = "1:0ff9b83fbc556810c3708659fcb9d0396dfdb51b4766e422441dcfd9a518a94a"
   name = "github.com/goph/logur"
   packages = [
     ".",
@@ -164,8 +164,8 @@
     "integrations/invisionlog",
   ]
   pruneopts = "UT"
-  revision = "f537a5edf9eab58f4a842de1f354e1e2c33336f1"
-  version = "v0.3.0"
+  revision = "09a182ca5b79711aba7dc27a6b477e84ce261e05"
+  version = "v0.4.0"
 
 [[projects]]
   digest = "1:c79fb010be38a59d657c48c6ba1d003a8aa651fa56b579d959d74573b7dff8e1"
@@ -490,7 +490,6 @@
     "github.com/InVisionApp/go-health",
     "github.com/InVisionApp/go-health/checkers",
     "github.com/InVisionApp/go-health/handlers",
-    "github.com/InVisionApp/go-logger",
     "github.com/cloudflare/tableflip",
     "github.com/go-sql-driver/mysql",
     "github.com/gomodule/redigo/redis",
