@@ -27,12 +27,12 @@ It tries to include many things related to application development:
 
 Some of the features:
 
-- graceful restart (using [github.com/cloudflare/tableflip](https://github.com/cloudflare/tableflip)) and shutdown
-- support for multiple server/daemon instances (using [github.com/oklog/run](https://github.com/oklog/run))
+- graceful restart (using [cloudflare/tableflip](https://github.com/cloudflare/tableflip)) and shutdown
+- support for multiple server/daemon instances (using [oklog/run](https://github.com/oklog/run))
 - metrics and tracing using [Prometheus](https://prometheus.io/) and [Jaeger](https://www.jaegertracing.io/) (via [OpenCensus](https://opencensus.io/))
-- logging (using [github.com/go-kit/kit](https://github.com/go-kit/kit))
-- health checks (using [github.com/InVisionApp/go-health](https://github.com/InVisionApp/go-health))
-- configuration (using [github.com/spf13/viper](https://github.com/spf13/viper))
+- logging (using [goph/logur](https://github.com/goph/logur) and [sirupsen/logrus](https://github.com/goph/logur))
+- health checks (using [InVisionApp/go-health](https://github.com/InVisionApp/go-health))
+- configuration (using [spf13/viper](https://github.com/spf13/viper))
 
 
 ## Inspiration
