@@ -31,7 +31,7 @@ func NewLogger(config Config) logur.Logger {
 	}
 
 	if level, err := logrus.ParseLevel(config.Level); err == nil {
-		logrus.SetLevel(level)
+		logger.SetLevel(level)
 	}
 
 	return logrusadapter.New(logger)
