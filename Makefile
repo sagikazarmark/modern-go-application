@@ -16,7 +16,6 @@ COMMIT_HASH ?= $(shell git rev-parse --short HEAD 2>/dev/null)
 BUILD_DATE ?= $(shell date +%FT%T%z)
 LDFLAGS += -X main.version=${VERSION} -X main.commitHash=${COMMIT_HASH} -X main.buildDate=${BUILD_DATE}
 export CGO_ENABLED ?= 0
-export GOOS = $(shell go env GOOS)
 ifeq (${VERBOSE}, 1)
 ifeq ($(filter -v,${GOARGS}),)
 	GOARGS += -v
@@ -43,16 +42,16 @@ GOLANG_VERSION = 1.11
 up: vendor start config.toml ## Set up the development environment
 
 .PHONY: down
-down: clean ## Destroy the development environment
+down: clear ## Destroy the development environment
 	docker-compose down
 	rm -rf .docker/
 
 .PHONY: reset
 reset: down up ## Reset the development environment
 
-.PHONY: clean
-clean: ## Clean the working area and the project
-	rm -rf bin/ ${BUILD_DIR}/ vendor/
+.PHONY: clear
+clear: ## Clear the working area and the project
+	rm -rf bin/ vendor/
 
 docker-compose.override.yml:
 	cp docker-compose.override.yml.dist docker-compose.override.yml
@@ -84,14 +83,18 @@ run: GOTAGS += dev
 run: build ## Build and execute a binary
 	${BUILD_DIR}/${GENERATED_BINARY_NAME} ${ARGS}
 
+bin/dlv:
+	@mkdir -p bin
+	GOBIN=${PWD}/bin go get -u github.com/derekparker/delve/cmd/dlv
+
 .PHONY: debug
 debug: GOTAGS += dev
 debug: build-debug bin/dlv ## Build and execute a binary with remote debugging enabled
 	bin/dlv --listen=127.0.0.1:40000 --headless=true --api-version=2 --log exec -- ${BUILD_DIR}/${GENERATED_BINARY_NAME} ${ARGS}
 
-bin/dlv:
-	@mkdir -p bin
-	GOBIN=${PWD}/bin go get -u github.com/derekparker/delve/cmd/dlv
+.PHONY: clean
+clean: ## Clean builds
+	rm -rf ${BUILD_DIR}/
 
 .PHONY: build
 build: ## Build a binary
