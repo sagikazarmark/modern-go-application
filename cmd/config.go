@@ -96,12 +96,6 @@ func (c InstrumentationConfig) Validate() error {
 		return errors.New("instrumentation http server address is required")
 	}
 
-	if c.Prometheus.Enabled {
-		if err := c.Prometheus.Validate(); err != nil {
-			return err
-		}
-	}
-
 	if c.Jaeger.Enabled {
 		if err := c.Jaeger.Validate(); err != nil {
 			return err

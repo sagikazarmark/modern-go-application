@@ -4,8 +4,3 @@ package prometheus
 type Config struct {
 	Namespace string
 }
-
-// Validate checks that the configuration is valid.
-func (c Config) Validate() error {
-	return nil
-}
