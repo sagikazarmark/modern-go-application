@@ -15,8 +15,3 @@ func NewExporter(config Config, errorHandler emperror.Handler) (*prometheus.Expo
 
 	return exporter, errors.Wrap(err, "failed to create prometheus exporter")
 }
-
-// Validate checks that the configuration is valid.
-func (c Config) Validate() error {
-	return nil
-}
