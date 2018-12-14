@@ -21,14 +21,28 @@ type Hello struct {
 	Message string
 }
 
+// SayHelloEvents is the dispatcher for say hello events.
+type SayHelloEvents interface {
+	// SaidHelloTo dispatches a SaidHelloTo event.
+	SaidHelloTo(ctx context.Context, event SaidHelloTo)
+}
+
+// SaidHelloTo indicates an event of saying hello to someone.
+type SaidHelloTo struct {
+	Message string
+	Who     string
+}
+
 // SayHello says hello to someone.
 type SayHello struct {
+	events SayHelloEvents
 	logger Logger
 }
 
 // NewSayHello returns a new SayHello instance.
-func NewSayHello(logger Logger) *SayHello {
+func NewSayHello(events SayHelloEvents, logger Logger) *SayHello {
 	return &SayHello{
+		events: events,
 		logger: logger,
 	}
 }
@@ -40,4 +54,6 @@ func (sh *SayHello) SayHello(ctx context.Context, to SayHelloTo, output SayHello
 	hello := Hello{fmt.Sprintf("Hello, %s!", to.Who)}
 
 	output.Say(ctx, hello)
+
+	sh.events.SaidHelloTo(ctx, SaidHelloTo{Message: hello.Message, Who: to.Who})
 }

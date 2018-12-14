@@ -16,7 +16,9 @@ import (
 )
 
 func testHelloWorld(t *testing.T) {
-	helloWorld := greeting.NewHelloWorld(greetingadapter.NewNopLogger())
+	events := &helloWorldEventsStub{}
+
+	helloWorld := greeting.NewHelloWorld(events, greetingadapter.NewNopLogger())
 	controller := greetingdriver.NewGreetingController(helloWorld, nil, emperror.NewNopHandler())
 
 	server := httptest.NewServer(http.HandlerFunc(controller.HelloWorld))
