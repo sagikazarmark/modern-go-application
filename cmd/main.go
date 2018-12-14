@@ -15,9 +15,6 @@ import (
 	"github.com/oklog/run"
 	"github.com/pkg/errors"
 	"github.com/sagikazarmark/modern-go-application/internal"
-	"github.com/sagikazarmark/modern-go-application/internal/greeting"
-	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingadapter"
-	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingdriver"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/buildinfo"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/errorhandler"
@@ -198,11 +195,7 @@ func main() {
 		panic(errors.Wrap(err, "failed to register HTTP server stat views"))
 	}
 
-	helloWorld := greeting.NewHelloWorld(greetingadapter.NewLogger(logger))
-	sayHello := greeting.NewSayHello(greetingadapter.NewLogger(logger))
-	helloWorldController := greetingdriver.NewGreetingController(helloWorld, sayHello, errorHandler)
-
-	router := internal.NewRouter(helloWorldController)
+	app := internal.NewApp(logger, errorHandler)
 
 	// Set up app server
 	{
@@ -210,7 +203,7 @@ func main() {
 		logger := logger.WithFields(log.Fields{"server": name})
 		server := &http.Server{
 			Handler: &ochttp.Handler{
-				Handler: router,
+				Handler: app,
 			},
 			ErrorLog: log.NewStandardErrorLogger(logger),
 		}
