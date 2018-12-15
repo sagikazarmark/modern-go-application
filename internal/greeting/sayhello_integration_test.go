@@ -19,7 +19,7 @@ import (
 func testSayHello(t *testing.T) {
 	events := &sayHelloEventsStub{}
 
-	sayHello := greeting.NewSayHello(events, greetingadapter.NewNopLogger())
+	sayHello := greeting.NewSayHello(events, greetingadapter.NewNopLogger(), emperror.NewNopHandler())
 	controller := greetingdriver.NewGreetingController(nil, sayHello, emperror.NewNopHandler())
 
 	server := httptest.NewServer(http.HandlerFunc(controller.SayHello))

@@ -3,6 +3,8 @@ package greeting
 import (
 	"context"
 	"fmt"
+
+	"github.com/pkg/errors"
 )
 
 // SayHelloTo contains who to say hello to.
@@ -24,10 +26,10 @@ type Hello struct {
 // SayHelloEvents is the dispatcher for say hello events.
 type SayHelloEvents interface {
 	// SaidHelloTo dispatches a SaidHelloTo event.
-	SaidHelloTo(ctx context.Context, event SaidHelloTo)
+	SaidHelloTo(ctx context.Context, event SaidHelloTo) error
 }
 
-// SaidHelloTo indicates an event of saying hello to someone.
+// SaidHelloTo indicates that hello was said to someone.
 type SaidHelloTo struct {
 	Message string
 	Who     string
@@ -35,15 +37,17 @@ type SaidHelloTo struct {
 
 // SayHello says hello to someone.
 type SayHello struct {
-	events SayHelloEvents
-	logger Logger
+	events       SayHelloEvents
+	logger       Logger
+	errorHandler ErrorHandler
 }
 
 // NewSayHello returns a new SayHello instance.
-func NewSayHello(events SayHelloEvents, logger Logger) *SayHello {
+func NewSayHello(events SayHelloEvents, logger Logger, errorHandler ErrorHandler) *SayHello {
 	return &SayHello{
-		events: events,
-		logger: logger,
+		events:       events,
+		logger:       logger,
+		errorHandler: errorHandler,
 	}
 }
 
@@ -55,5 +59,8 @@ func (sh *SayHello) SayHello(ctx context.Context, to SayHelloTo, output SayHello
 
 	output.Say(ctx, hello)
 
-	sh.events.SaidHelloTo(ctx, SaidHelloTo{Message: hello.Message, Who: to.Who})
+	err := sh.events.SaidHelloTo(ctx, SaidHelloTo{Message: hello.Message, Who: to.Who})
+	if err != nil {
+		sh.errorHandler.Handle(errors.WithMessage(err, "failed to dispatch event"))
+	}
 }

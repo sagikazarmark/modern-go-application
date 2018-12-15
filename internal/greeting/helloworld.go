@@ -2,6 +2,8 @@ package greeting
 
 import (
 	"context"
+
+	"github.com/pkg/errors"
 )
 
 // HelloWorldOutput is the output channel for saying hello to the world.
@@ -13,25 +15,27 @@ type HelloWorldOutput interface {
 // HelloWorldEvents is the dispatcher for hello world events.
 type HelloWorldEvents interface {
 	// SaidHello dispatches a SaidHello event.
-	SaidHello(ctx context.Context, event SaidHello)
+	SaidHello(ctx context.Context, event SaidHello) error
 }
 
-// SaidHello indicates an event of saying hello.
+// SaidHello indicates that hello was said.
 type SaidHello struct {
 	Message string
 }
 
 // HelloWorld outputs Hello World.
 type HelloWorld struct {
-	events HelloWorldEvents
-	logger Logger
+	events       HelloWorldEvents
+	logger       Logger
+	errorHandler ErrorHandler
 }
 
 // NewHelloWorld returns a new HelloWorld instance.
-func NewHelloWorld(events HelloWorldEvents, logger Logger) *HelloWorld {
+func NewHelloWorld(events HelloWorldEvents, logger Logger, errorHandler ErrorHandler) *HelloWorld {
 	return &HelloWorld{
-		events: events,
-		logger: logger,
+		events:       events,
+		logger:       logger,
+		errorHandler: errorHandler,
 	}
 }
 
@@ -45,5 +49,8 @@ func (hw *HelloWorld) HelloWorld(ctx context.Context, output HelloWorldOutput) {
 
 	saidHello := SaidHello{Message: hello.Message}
 
-	hw.events.SaidHello(ctx, saidHello)
+	err := hw.events.SaidHello(ctx, saidHello)
+	if err != nil {
+		hw.errorHandler.Handle(errors.WithMessage(err, "failed to dispatch event"))
+	}
 }

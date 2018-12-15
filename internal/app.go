@@ -3,6 +3,7 @@ package internal
 import (
 	"net/http"
 
+	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/goph/emperror"
 	"github.com/goph/logur"
 	"github.com/gorilla/mux"
@@ -12,9 +13,9 @@ import (
 )
 
 // NewApp returns a new HTTP application.
-func NewApp(logger logur.Logger, errorHandler emperror.Handler) http.Handler {
-	helloWorld := greeting.NewHelloWorld(greetingadapter.NewLogger(logger))
-	sayHello := greeting.NewSayHello(greetingadapter.NewLogger(logger))
+func NewApp(logger logur.Logger, publisher message.Publisher, errorHandler emperror.Handler) http.Handler {
+	helloWorld := greeting.NewHelloWorld(greetingadapter.NewHelloWorldEvents(publisher), greetingadapter.NewLogger(logger), errorHandler)
+	sayHello := greeting.NewSayHello(greetingadapter.NewSayHelloEvents(publisher), greetingadapter.NewLogger(logger), errorHandler)
 	helloWorldController := greetingdriver.NewGreetingController(helloWorld, sayHello, errorHandler)
 
 	router := mux.NewRouter()
