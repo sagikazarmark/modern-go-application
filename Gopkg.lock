@@ -31,6 +31,20 @@
   version = "v1.0.1"
 
 [[projects]]
+  digest = "1:e78f46d1e4c3ed13bdd3e72f34237d16099c5fabe9be4c6f98dacb9b6d644c25"
+  name = "github.com/ThreeDotsLabs/watermill"
+  packages = [
+    ".",
+    "internal/sync",
+    "message",
+    "message/infrastructure/gochannel",
+    "message/router/middleware",
+  ]
+  pruneopts = "UT"
+  revision = "5006275f588003aee04b9c45971db2fd6761d008"
+  version = "v0.1.2"
+
+[[projects]]
   branch = "master"
   digest = "1:d6afaeed1502aa28e80a4ed0981d570ad91b2579193404256ce672ed0a609e0d"
   name = "github.com/beorn7/perks"
@@ -98,16 +112,17 @@
   version = "v0.14.0"
 
 [[projects]]
-  digest = "1:0ff9b83fbc556810c3708659fcb9d0396dfdb51b4766e422441dcfd9a518a94a"
+  digest = "1:6bf305cbbfafa210e85f990b040df752262497772d57e978dc27c9cfc66f4d00"
   name = "github.com/goph/logur"
   packages = [
     ".",
     "adapters/logrusadapter",
     "integrations/invisionlog",
+    "integrations/watermilllog",
   ]
   pruneopts = "UT"
-  revision = "09a182ca5b79711aba7dc27a6b477e84ce261e05"
-  version = "v0.4.0"
+  revision = "111a952ccfacab0a90b9e4496da21d9f15187769"
+  version = "v0.5.0"
 
 [[projects]]
   digest = "1:c79fb010be38a59d657c48c6ba1d003a8aa651fa56b579d959d74573b7dff8e1"
@@ -260,6 +275,22 @@
   ]
   pruneopts = "UT"
   revision = "1dc9a6cbc91aacc3e8b2d63db4d2e957a5394ac4"
+
+[[projects]]
+  branch = "master"
+  digest = "1:d38f81081a389f1466ec98192cf9115a82158854d6f01e1c23e2e7554b97db71"
+  name = "github.com/rcrowley/go-metrics"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "3113b8401b8a98917cde58f8bbd42a1b1c03b1fd"
+
+[[projects]]
+  digest = "1:274f67cb6fed9588ea2521ecdac05a6d62a8c51c074c1fccc6a49a40ba80e925"
+  name = "github.com/satori/go.uuid"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
+  version = "v1.2.0"
 
 [[projects]]
   digest = "1:69b1cc331fca23d702bd72f860c6a647afd0aa9fcbc1d0659b1365e26546dd70"
@@ -422,6 +453,9 @@
     "github.com/InVisionApp/go-health",
     "github.com/InVisionApp/go-health/checkers",
     "github.com/InVisionApp/go-health/handlers",
+    "github.com/ThreeDotsLabs/watermill/message",
+    "github.com/ThreeDotsLabs/watermill/message/infrastructure/gochannel",
+    "github.com/ThreeDotsLabs/watermill/message/router/middleware",
     "github.com/cloudflare/tableflip",
     "github.com/go-sql-driver/mysql",
     "github.com/gomodule/redigo/redis",
@@ -429,10 +463,12 @@
     "github.com/goph/logur",
     "github.com/goph/logur/adapters/logrusadapter",
     "github.com/goph/logur/integrations/invisionlog",
+    "github.com/goph/logur/integrations/watermilllog",
     "github.com/gorilla/mux",
     "github.com/oklog/run",
     "github.com/opencensus-integrations/ocsql",
     "github.com/pkg/errors",
+    "github.com/satori/go.uuid",
     "github.com/sirupsen/logrus",
     "github.com/spf13/pflag",
     "github.com/spf13/viper",

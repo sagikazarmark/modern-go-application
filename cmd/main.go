@@ -23,6 +23,7 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/prometheus"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/runner"
+	"github.com/sagikazarmark/modern-go-application/internal/platform/watermill"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.opencensus.io/plugin/ochttp"
@@ -190,12 +191,30 @@ func main() {
 		}
 	}
 
+	pubsub := watermill.NewPubSub(logger)
+	defer pubsub.Close()
+	{
+		h, err := watermill.NewRouter(config.Watermill.RouterConfig, logger)
+		if err != nil {
+			panic(err)
+		}
+
+		err = internal.RegisterEventHandlers(h, pubsub, logger)
+		if err != nil {
+			panic(err)
+		}
+
+		r := &runner.RunCloserRunner{RunCloser: h}
+
+		group.Add(r.Start, r.Stop)
+	}
+
 	// Register HTTP stat views
 	if err := view.Register(ochttp.DefaultServerViews...); err != nil {
 		panic(errors.Wrap(err, "failed to register HTTP server stat views"))
 	}
 
-	app := internal.NewApp(logger, errorHandler)
+	app := internal.NewApp(logger, pubsub, errorHandler)
 
 	// Set up app server
 	{

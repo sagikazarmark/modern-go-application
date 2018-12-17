@@ -47,7 +47,7 @@ func (hw *HelloWorld) HelloWorld(ctx context.Context, output HelloWorldOutput) {
 
 	output.Say(ctx, hello)
 
-	saidHello := SaidHello{Message: hello.Message}
+	saidHello := SaidHello(hello)
 
 	err := hw.events.SaidHello(ctx, saidHello)
 	if err != nil {
