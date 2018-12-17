@@ -12,6 +12,7 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/prometheus"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/redis"
+	"github.com/sagikazarmark/modern-go-application/internal/platform/watermill"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
@@ -45,6 +46,11 @@ type Config struct {
 
 	// Redis configuration
 	Redis redis.Config
+
+	// Watermill configuration
+	Watermill struct {
+		RouterConfig watermill.RouterConfig
+	}
 }
 
 // Validate validates the configuration.
@@ -154,4 +160,7 @@ func Configure(v *viper.Viper, p *pflag.FlagSet) {
 
 	// Redis configuration
 	v.SetDefault("redis.port", 6379)
+
+	// Watermill configuration
+	v.RegisterAlias("watermill.routerConfig.closeTimeout", "shutdownTimeout")
 }

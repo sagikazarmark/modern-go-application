@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/goph/emperror"
 	. "github.com/sagikazarmark/modern-go-application/internal/greeting"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingadapter"
 	"github.com/stretchr/testify/assert"
@@ -17,8 +18,20 @@ func (o *sayHelloOutputStub) Say(ctx context.Context, hello Hello) {
 	o.hello = hello
 }
 
+type sayHelloEventsStub struct {
+	saidHelloTo SaidHelloTo
+}
+
+func (e *sayHelloEventsStub) SaidHelloTo(ctx context.Context, event SaidHelloTo) error {
+	e.saidHelloTo = event
+
+	return nil
+}
+
 func TestSayHello_SayHello(t *testing.T) {
-	sayHello := NewSayHello(greetingadapter.NewNopLogger())
+	events := &sayHelloEventsStub{}
+
+	sayHello := NewSayHello(events, greetingadapter.NewNopLogger(), emperror.NewNopHandler())
 
 	to := SayHelloTo{Who: "me"}
 	output := &sayHelloOutputStub{}
@@ -26,4 +39,5 @@ func TestSayHello_SayHello(t *testing.T) {
 	sayHello.SayHello(context.Background(), to, output)
 
 	assert.Equal(t, Hello{Message: "Hello, me!"}, output.hello)
+	assert.Equal(t, SaidHelloTo{Message: "Hello, me!", Who: to.Who}, events.saidHelloTo)
 }
