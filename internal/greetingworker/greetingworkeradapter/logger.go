@@ -18,13 +18,13 @@ func NewLogger(logger logur.Logger) *Logger {
 }
 
 // Info logs an info event.
-func (l *Logger) Info(msg ...interface{}) {
-	l.logger.Info(msg...)
+func (l *Logger) Info(msg string, fields map[string]interface{}) {
+	l.logger.Info(msg, fields)
 }
 
 // WithFields annotates a logger with some context.
 func (l *Logger) WithFields(fields map[string]interface{}) greetingworker.Logger {
-	return &Logger{logger: l.logger.WithFields(fields)}
+	return &Logger{logger: logur.WithFields(l.logger, fields)}
 }
 
 // NewNopLogger returns a logger that doesn't do anything.

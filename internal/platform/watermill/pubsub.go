@@ -13,7 +13,7 @@ import (
 func NewPubSub(logger logur.Logger) message.PubSub {
 	return gochannel.NewGoChannel(
 		10,
-		watermilllog.New(logger.WithFields(logur.Fields{"component": "watermill"})),
+		watermilllog.New(logur.WithFields(logger, map[string]interface{}{"component": "watermill"})),
 		3*time.Second,
 	)
 }

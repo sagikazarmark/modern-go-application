@@ -15,7 +15,7 @@ type server interface {
 // logger is the fundamental interface for all log operations.
 type logger interface {
 	// Info logs an info event.
-	Info(msg ...interface{})
+	Info(msg string, fields map[string]interface{})
 }
 
 // errorHandler is responsible for handling an error.
@@ -37,7 +37,7 @@ type Server struct {
 
 // Start starts the server and waits for it to return.
 func (r *Server) Start() error {
-	r.Logger.Info("starting server")
+	r.Logger.Info("starting server", nil)
 
 	return r.Server.Serve(r.Listener)
 }
@@ -52,7 +52,7 @@ func (r *Server) Stop(e error) {
 		defer cancel()
 	}
 
-	r.Logger.Info("shutting server down")
+	r.Logger.Info("shutting server down", nil)
 
 	err := r.Server.Shutdown(ctx)
 	if err != nil {

@@ -18,7 +18,7 @@ func NewHelloWorldEventLogger(logger Logger) *HelloWorldEventLogger {
 
 // SaidHello logs a SaidHello event.
 func (e *HelloWorldEventLogger) SaidHello(ctx context.Context, event SaidHello) error {
-	e.logger.WithFields(LogFields{"message": event.Message}).Info("said hello")
+	e.logger.Info("said hello", map[string]interface{}{"message": event.Message})
 
 	return nil
 }

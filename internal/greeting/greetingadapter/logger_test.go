@@ -11,7 +11,7 @@ import (
 
 func TestLogger_Levels(t *testing.T) {
 	tests := map[string]struct {
-		logFunc func(logger *Logger, msg ...interface{})
+		logFunc func(logger *Logger, msg string, fields map[string]interface{})
 	}{
 		"trace": {
 			logFunc: (*Logger).Trace,
@@ -37,7 +37,7 @@ func TestLogger_Levels(t *testing.T) {
 			testLogger := logur.NewTestLogger()
 			logger := NewLogger(testLogger)
 
-			test.logFunc(logger, fmt.Sprintf("message: %s", name))
+			test.logFunc(logger, fmt.Sprintf("message: %s", name), nil)
 
 			assert.Equal(t, 1, testLogger.Count())
 			assert.Equal(t, name, testLogger.LastEvent().Level.String())
@@ -58,7 +58,7 @@ func TestLogger_WithFields(t *testing.T) {
 
 	logger = logger.WithFields(fields)
 
-	logger.Debug("message")
+	logger.Debug("message", nil)
 
 	assert.Equal(t, 1, testLogger.Count())
 

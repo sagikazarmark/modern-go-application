@@ -41,7 +41,7 @@ func NewHelloWorld(events HelloWorldEvents, logger Logger, errorHandler ErrorHan
 
 // HelloWorld outputs Hello World.
 func (hw *HelloWorld) HelloWorld(ctx context.Context, output HelloWorldOutput) {
-	hw.logger.Info("Hello, World!")
+	hw.logger.Info("Hello, World!", nil)
 
 	hello := Hello{"Hello, World!"}
 

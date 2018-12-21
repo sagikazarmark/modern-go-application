@@ -53,7 +53,7 @@ func NewSayHello(events SayHelloEvents, logger Logger, errorHandler ErrorHandler
 
 // SayHello says hello to someone.
 func (sh *SayHello) SayHello(ctx context.Context, to SayHelloTo, output SayHelloOutput) {
-	sh.logger.WithFields(map[string]interface{}{"who": to.Who}).Info("Said hello!")
+	sh.logger.Info("Said hello!", map[string]interface{}{"who": to.Who})
 
 	hello := Hello{fmt.Sprintf("Hello, %s!", to.Who)}
 

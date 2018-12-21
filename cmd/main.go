@@ -76,7 +76,7 @@ func main() {
 	logger := log.NewLogger(config.Log)
 
 	// Provide some basic context to all log lines
-	logger = logger.WithFields(log.Fields{"environment": config.Environment, "service": ServiceName})
+	logger = log.WithFields(logger, map[string]interface{}{"environment": config.Environment, "service": ServiceName})
 
 	// Configure error handler
 	errorHandler := errorhandler.New(logger)
@@ -84,7 +84,7 @@ func main() {
 
 	buildInfo := buildinfo.New(version, commitHash, buildDate)
 
-	logger.WithFields(log.Fields(buildInfo.Fields())).Info("starting application")
+	logger.Info("starting application", buildInfo.Fields())
 
 	instrumentationRouter := http.NewServeMux()
 	instrumentationRouter.Handle("/version", buildinfo.Handler(buildInfo))
@@ -95,7 +95,7 @@ func main() {
 
 	// Configure Prometheus
 	if config.Instrumentation.Prometheus.Enabled {
-		logger.Info("prometheus exporter enabled")
+		logger.Info("prometheus exporter enabled", nil)
 
 		exporter, err := prometheus.NewExporter(config.Instrumentation.Prometheus.Config, errorHandler)
 		if err != nil {
@@ -113,7 +113,7 @@ func main() {
 
 	// Configure Jaeger
 	if config.Instrumentation.Jaeger.Enabled {
-		logger.Info("jaeger exporter enabled")
+		logger.Info("jaeger exporter enabled", nil)
 
 		exporter, err := jaeger.NewExporter(config.Instrumentation.Jaeger.Config, ServiceName, errorHandler)
 		if err != nil {
@@ -133,7 +133,7 @@ func main() {
 		ch := make(chan os.Signal, 1)
 		signal.Notify(ch, syscall.SIGHUP)
 		for range ch {
-			logger.Info("graceful reloading")
+			logger.Info("graceful reloading", nil)
 
 			_ = upg.Upgrade()
 		}
@@ -142,13 +142,13 @@ func main() {
 	// Set up instrumentation server
 	{
 		name := "instrumentation"
-		logger := logger.WithFields(log.Fields{"server": name})
+		logger := log.WithFields(logger, map[string]interface{}{"server": name})
 		server := &http.Server{
 			Handler:  instrumentationRouter,
 			ErrorLog: log.NewStandardErrorLogger(logger),
 		}
 
-		logger.WithFields(log.Fields{"address": config.Instrumentation.Addr}).Info("listening on address")
+		logger.Info("listening on address", map[string]interface{}{"address": config.Instrumentation.Addr})
 
 		ln, err := upg.Fds.Listen("tcp", config.Instrumentation.Addr)
 		if err != nil {
@@ -167,7 +167,7 @@ func main() {
 	}
 
 	// Connect to the database
-	logger.Info("connecting to database")
+	logger.Info("connecting to database", nil)
 	db, err := database.NewConnection(config.Database)
 	if err != nil {
 		panic(err)
@@ -219,7 +219,7 @@ func main() {
 	// Set up app server
 	{
 		name := "app"
-		logger := logger.WithFields(log.Fields{"server": name})
+		logger := log.WithFields(logger, map[string]interface{}{"server": name})
 		server := &http.Server{
 			Handler: &ochttp.Handler{
 				Handler: app,
@@ -227,7 +227,7 @@ func main() {
 			ErrorLog: log.NewStandardErrorLogger(logger),
 		}
 
-		logger.WithFields(log.Fields{"address": config.App.Addr}).Info("listening on address")
+		logger.Info("listening on address", map[string]interface{}{"address": config.App.Addr})
 
 		ln, err := upg.Fds.Listen("tcp", config.App.Addr)
 		if err != nil {
@@ -255,7 +255,7 @@ func main() {
 
 				sig := <-ch
 				if sig != nil {
-					logger.WithFields(log.Fields{"signal": sig}).Info("captured signal")
+					logger.Info("captured signal", map[string]interface{}{"signal": sig})
 				}
 
 				return nil

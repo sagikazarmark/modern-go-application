@@ -9,9 +9,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Fields is an alias to log.Fields for easier usage.
-type Fields = logur.Fields
-
 // NewLogger creates a new logger.
 func NewLogger(config Config) logur.Logger {
 	logger := logrus.New()
@@ -35,4 +32,9 @@ func NewLogger(config Config) logur.Logger {
 	}
 
 	return logrusadapter.New(logger)
+}
+
+// WithFields returns a new contextual logger instance with context added to it.
+func WithFields(logger logur.Logger, fields map[string]interface{}) logur.Logger {
+	return logur.WithFields(logger, fields)
 }

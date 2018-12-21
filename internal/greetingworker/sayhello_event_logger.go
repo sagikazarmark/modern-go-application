@@ -18,7 +18,7 @@ func NewSayHelloEventLogger(logger Logger) *SayHelloEventLogger {
 
 // SaidHelloTo logs a SaidHelloTo event.
 func (e *SayHelloEventLogger) SaidHelloTo(ctx context.Context, event SaidHelloTo) error {
-	e.logger.WithFields(LogFields{"message": event.Message, "who": event.Who}).Info("said hello to someone")
+	e.logger.Info("said hello to someone", map[string]interface{}{"message": event.Message, "who": event.Who})
 
 	return nil
 }

@@ -112,7 +112,7 @@
   version = "v0.14.0"
 
 [[projects]]
-  digest = "1:6bf305cbbfafa210e85f990b040df752262497772d57e978dc27c9cfc66f4d00"
+  digest = "1:5065bdf20af58ade8a465bbe29bb67276ef0601af87b2776963103ec82707111"
   name = "github.com/goph/logur"
   packages = [
     ".",
@@ -121,8 +121,8 @@
     "integrations/watermilllog",
   ]
   pruneopts = "UT"
-  revision = "111a952ccfacab0a90b9e4496da21d9f15187769"
-  version = "v0.5.0"
+  revision = "63416d3003d7e6cc9c841519c2622fb7d385c786"
+  version = "v0.6.0"
 
 [[projects]]
   digest = "1:c79fb010be38a59d657c48c6ba1d003a8aa651fa56b579d959d74573b7dff8e1"
