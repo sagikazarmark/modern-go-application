@@ -112,17 +112,18 @@
   version = "v0.14.0"
 
 [[projects]]
-  digest = "1:5065bdf20af58ade8a465bbe29bb67276ef0601af87b2776963103ec82707111"
+  digest = "1:d189979e1864df97ecbb6844827df0721ead0e0ba55d41e0af01d351f8f9e1dc"
   name = "github.com/goph/logur"
   packages = [
     ".",
     "adapters/logrusadapter",
     "integrations/invisionlog",
     "integrations/watermilllog",
+    "testing",
   ]
   pruneopts = "UT"
-  revision = "63416d3003d7e6cc9c841519c2622fb7d385c786"
-  version = "v0.6.0"
+  revision = "1f1f495524a80897016fa9d45692d5dbe0c63aae"
+  version = "v0.7.0"
 
 [[projects]]
   digest = "1:c79fb010be38a59d657c48c6ba1d003a8aa651fa56b579d959d74573b7dff8e1"
@@ -464,6 +465,7 @@
     "github.com/goph/logur/adapters/logrusadapter",
     "github.com/goph/logur/integrations/invisionlog",
     "github.com/goph/logur/integrations/watermilllog",
+    "github.com/goph/logur/testing",
     "github.com/gorilla/mux",
     "github.com/oklog/run",
     "github.com/opencensus-integrations/ocsql",

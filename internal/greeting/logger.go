@@ -2,6 +2,9 @@ package greeting
 
 // Logger is the fundamental interface for all log operations.
 type Logger interface {
+	// Trace logs a debug event.
+	Trace(msg string, fields map[string]interface{})
+
 	// Debug logs a debug event.
 	Debug(msg string, fields map[string]interface{})
 

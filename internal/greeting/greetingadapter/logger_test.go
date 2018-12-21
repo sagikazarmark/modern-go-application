@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/goph/logur"
+	"github.com/goph/logur/testing"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestLogger_Levels(t *testing.T) {
@@ -39,9 +39,14 @@ func TestLogger_Levels(t *testing.T) {
 
 			test.logFunc(logger, fmt.Sprintf("message: %s", name), nil)
 
-			assert.Equal(t, 1, testLogger.Count())
-			assert.Equal(t, name, testLogger.LastEvent().Level.String())
-			assert.Equal(t, "message: "+name, testLogger.LastEvent().Line)
+			level, _ := logur.ParseLevel(name)
+
+			event := logur.LogEvent{
+				Level: level,
+				Line:  "message: " + name,
+			}
+
+			logtesting.AssertLogEvents(t, event, *(testLogger.LastEvent()))
 		})
 	}
 }
@@ -60,14 +65,11 @@ func TestLogger_WithFields(t *testing.T) {
 
 	logger.Debug("message", nil)
 
-	assert.Equal(t, 1, testLogger.Count())
-
-	lastEvent := testLogger.LastEvent()
-	assert.Equal(t, "debug", lastEvent.Level.String())
-	assert.Equal(t, "message", lastEvent.Line)
-	assert.Equal(t, 2, len(lastEvent.Fields))
-
-	for key, value := range lastEvent.Fields {
-		assert.Equal(t, fields[key], value)
+	event := logur.LogEvent{
+		Level:  logur.Debug,
+		Line:   "message",
+		Fields: fields,
 	}
+
+	logtesting.AssertLogEvents(t, event, *(testLogger.LastEvent()))
 }

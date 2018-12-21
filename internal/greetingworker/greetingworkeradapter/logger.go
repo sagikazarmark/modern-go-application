@@ -17,6 +17,11 @@ func NewLogger(logger logur.Logger) *Logger {
 	}
 }
 
+// Debug logs an info event.
+func (l *Logger) Debug(msg string, fields map[string]interface{}) {
+	l.logger.Debug(msg, fields)
+}
+
 // Info logs an info event.
 func (l *Logger) Info(msg string, fields map[string]interface{}) {
 	l.logger.Info(msg, fields)
@@ -29,5 +34,5 @@ func (l *Logger) WithFields(fields map[string]interface{}) greetingworker.Logger
 
 // NewNopLogger returns a logger that doesn't do anything.
 func NewNopLogger() *Logger {
-	return NewLogger(logur.NewNoop())
+	return NewLogger(logur.NewNoopLogger())
 }

@@ -49,5 +49,5 @@ func (l *Logger) WithFields(fields map[string]interface{}) greeting.Logger {
 
 // NewNopLogger returns a logger that doesn't do anything.
 func NewNopLogger() *Logger {
-	return NewLogger(logur.NewNoop())
+	return NewLogger(logur.NewNoopLogger())
 }
