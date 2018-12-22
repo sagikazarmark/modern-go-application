@@ -23,7 +23,7 @@ type Config struct {
 	// Meaningful values are recommended (eg. production, development, staging, release/123, etc)
 	Environment string
 
-	// Turns on some debug functionality (eg. more verbose logs)
+	// Turns on some debug functionality
 	Debug bool
 
 	// Timeout for graceful shutdown

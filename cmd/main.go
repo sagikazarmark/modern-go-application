@@ -106,8 +106,8 @@ func main() {
 		instrumentationRouter.Handle("/metrics", exporter)
 	}
 
-	// Trace everything in development environment
-	if config.Environment == "development" {
+	// Trace everything in development environment or when debugging is enabled
+	if config.Environment == "development" || config.Debug {
 		trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
 	}
 
