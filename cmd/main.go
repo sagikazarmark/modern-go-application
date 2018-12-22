@@ -49,15 +49,11 @@ func main() {
 	}
 
 	err := viper.ReadInConfig()
-	if _, ok := err.(viper.ConfigFileNotFoundError); err != nil && !ok {
-		panic(errors.Wrap(err, "failed to read configuration"))
-	}
+	emperror.Panic(errors.Wrap(err, "failed to read configuration"))
 
 	var config Config
 	err = viper.Unmarshal(&config)
-	if err != nil {
-		panic(errors.Wrap(err, "failed to unmarshal configuration"))
-	}
+	emperror.Panic(errors.Wrap(err, "failed to unmarshal configuration"))
 
 	err = config.Validate()
 	if err != nil {
@@ -98,9 +94,7 @@ func main() {
 		logger.Info("prometheus exporter enabled", nil)
 
 		exporter, err := prometheus.NewExporter(config.Instrumentation.Prometheus.Config, errorHandler)
-		if err != nil {
-			panic(err)
-		}
+		emperror.Panic(err)
 
 		view.RegisterExporter(exporter)
 		instrumentationRouter.Handle("/metrics", exporter)
@@ -116,9 +110,7 @@ func main() {
 		logger.Info("jaeger exporter enabled", nil)
 
 		exporter, err := jaeger.NewExporter(config.Instrumentation.Jaeger.Config, errorHandler)
-		if err != nil {
-			panic(err)
-		}
+		emperror.Panic(err)
 
 		trace.RegisterExporter(exporter)
 	}
@@ -151,9 +143,7 @@ func main() {
 		logger.Info("listening on address", map[string]interface{}{"address": config.Instrumentation.Addr})
 
 		ln, err := upg.Fds.Listen("tcp", config.Instrumentation.Addr)
-		if err != nil {
-			panic(err)
-		}
+		emperror.Panic(err)
 
 		r := &runner.Server{
 			Server:          server,
@@ -169,40 +159,31 @@ func main() {
 	// Connect to the database
 	logger.Info("connecting to database", nil)
 	db, err := database.NewConnection(config.Database)
-	if err != nil {
-		panic(err)
-	}
+	emperror.Panic(err)
 	defer db.Close()
 
 	// Register database health check
 	{
 		check, err := checkers.NewSQL(&checkers.SQLConfig{Pinger: db})
-		if err != nil {
-			panic(errors.Wrap(err, "failed to create db health checker"))
-		}
+		emperror.Panic(errors.Wrap(err, "failed to create db health checker"))
+
 		err = healthChecker.AddCheck(&health.Config{
 			Name:     "database",
 			Checker:  check,
 			Interval: time.Duration(3) * time.Second,
 			Fatal:    true,
 		})
-		if err != nil {
-			panic(errors.Wrap(err, "failed to add health checker"))
-		}
+		emperror.Panic(errors.Wrap(err, "failed to add health checker"))
 	}
 
 	pubsub := watermill.NewPubSub(logger)
 	defer pubsub.Close()
 	{
 		h, err := watermill.NewRouter(config.Watermill.RouterConfig, logger)
-		if err != nil {
-			panic(err)
-		}
+		emperror.Panic(err)
 
 		err = internal.RegisterEventHandlers(h, pubsub, logger)
-		if err != nil {
-			panic(err)
-		}
+		emperror.Panic(err)
 
 		r := &runner.RunCloserRunner{RunCloser: h}
 
@@ -210,9 +191,8 @@ func main() {
 	}
 
 	// Register HTTP stat views
-	if err := view.Register(ochttp.DefaultServerViews...); err != nil {
-		panic(errors.Wrap(err, "failed to register HTTP server stat views"))
-	}
+	err = view.Register(ochttp.DefaultServerViews...)
+	emperror.Panic(errors.Wrap(err, "failed to register HTTP server stat views"))
 
 	app := internal.NewApp(logger, pubsub, errorHandler)
 
@@ -230,9 +210,7 @@ func main() {
 		logger.Info("listening on address", map[string]interface{}{"address": config.App.Addr})
 
 		ln, err := upg.Fds.Listen("tcp", config.App.Addr)
-		if err != nil {
-			panic(err)
-		}
+		emperror.Panic(err)
 
 		r := &runner.Server{
 			Server:          server,
@@ -285,12 +263,9 @@ func main() {
 		)
 	}
 
-	if err := healthChecker.Start(); err != nil {
-		panic(errors.Wrap(err, "failed to start health checker"))
-	}
+	err = healthChecker.Start()
+	emperror.Panic(errors.Wrap(err, "failed to start health checker"))
 
 	err = group.Run()
-	if err != nil {
-		errorHandler.Handle(err)
-	}
+	emperror.HandleIfErr(errorHandler, err)
 }
