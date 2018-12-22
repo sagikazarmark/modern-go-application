@@ -32,9 +32,6 @@ func NewConnection(config Config) (*sql.DB, error) {
 	config.Params["rejectReadOnly"] = "true"
 
 	db, err := sql.Open(driverName, config.DSN())
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
 
-	return db, nil
+	return db, errors.WithStack(err)
 }
