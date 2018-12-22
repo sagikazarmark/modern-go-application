@@ -19,6 +19,9 @@ type Config struct {
 	// Password to be used if basic auth is required.
 	// Optional.
 	Password string
+
+	// ServiceName is the name of the process.
+	ServiceName string
 }
 
 // Validate checks that the configuration is valid.

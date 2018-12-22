@@ -115,7 +115,7 @@ func main() {
 	if config.Instrumentation.Jaeger.Enabled {
 		logger.Info("jaeger exporter enabled", nil)
 
-		exporter, err := jaeger.NewExporter(config.Instrumentation.Jaeger.Config, ServiceName, errorHandler)
+		exporter, err := jaeger.NewExporter(config.Instrumentation.Jaeger.Config, errorHandler)
 		if err != nil {
 			panic(err)
 		}

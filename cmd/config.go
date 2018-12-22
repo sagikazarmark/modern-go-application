@@ -126,6 +126,9 @@ func Configure(v *viper.Viper, p *pflag.FlagSet) {
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 	v.AutomaticEnv()
 
+	// Application constants
+	v.Set("serviceName", ServiceName)
+
 	// Global configuration
 	v.SetDefault("environment", "production")
 	v.SetDefault("debug", false)
@@ -147,6 +150,7 @@ func Configure(v *viper.Viper, p *pflag.FlagSet) {
 	v.SetDefault("instrumentation.jaeger.enabled", false)
 	v.SetDefault("instrumentation.jaeger.endpoint", "http://localhost:14268")
 	v.SetDefault("instrumentation.jaeger.agentEndpoint", "localhost:6831")
+	v.RegisterAlias("instrumentation.jaeger.serviceName", "serviceName")
 
 	// App configuration
 	p.String("app.addr", ":8000", "App HTTP server address")

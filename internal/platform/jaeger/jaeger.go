@@ -7,7 +7,7 @@ import (
 )
 
 // NewExporter creates a new, configured Jaeger exporter.
-func NewExporter(config Config, serviceName string, errorHandler emperror.Handler) (*jaeger.Exporter, error) {
+func NewExporter(config Config, errorHandler emperror.Handler) (*jaeger.Exporter, error) {
 	exporter, err := jaeger.NewExporter(jaeger.Options{
 		Endpoint:      config.Endpoint,
 		AgentEndpoint: config.AgentEndpoint,
@@ -19,7 +19,7 @@ func NewExporter(config Config, serviceName string, errorHandler emperror.Handle
 			"exporter", "jaeger",
 		).Handle,
 		Process: jaeger.Process{
-			ServiceName: serviceName,
+			ServiceName: config.ServiceName,
 		},
 	})
 
