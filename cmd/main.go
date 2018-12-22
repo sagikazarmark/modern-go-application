@@ -191,7 +191,14 @@ func main() {
 	}
 
 	// Register HTTP stat views
-	err = view.Register(ochttp.DefaultServerViews...)
+	err = view.Register(
+		ochttp.ServerRequestCountView,
+		ochttp.ServerRequestBytesView,
+		ochttp.ServerResponseBytesView,
+		ochttp.ServerLatencyView,
+		ochttp.ServerRequestCountByMethod,
+		ochttp.ServerResponseCountByStatusCode,
+	)
 	emperror.Panic(errors.Wrap(err, "failed to register HTTP server stat views"))
 
 	app := internal.NewApp(logger, pubsub, errorHandler)
