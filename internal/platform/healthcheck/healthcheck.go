@@ -17,7 +17,7 @@ func New(logger logur.Logger) *health.Health {
 	return healthChecker
 }
 
-// NewHTTPHandler returns a new HTTP handler for a health checker.
-func NewHTTPHandler(healthChecker health.IHealth) http.Handler {
+// Handler returns a new HTTP handler for a health checker.
+func Handler(healthChecker health.IHealth) http.Handler {
 	return handlers.NewJSONHandlerFunc(healthChecker, nil)
 }

@@ -91,7 +91,7 @@ func main() {
 
 	// Configure health checker
 	healthChecker := healthcheck.New(logger)
-	instrumentationRouter.Handle("/healthz", healthcheck.NewHTTPHandler(healthChecker))
+	instrumentationRouter.Handle("/healthz", healthcheck.Handler(healthChecker))
 
 	// Configure Prometheus
 	if config.Instrumentation.Prometheus.Enabled {
