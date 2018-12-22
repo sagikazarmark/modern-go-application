@@ -12,7 +12,7 @@ import (
 // New returns a new health checker instance.
 func New(logger logur.Logger) *health.Health {
 	healthChecker := health.New()
-	healthChecker.Logger = invisionlog.New(logger)
+	healthChecker.Logger = invisionlog.New(logur.WithFields(logger, map[string]interface{}{"component": "healthcheck"}))
 
 	return healthChecker
 }
