@@ -10,7 +10,7 @@ import (
 func NewExporter(config Config, errorHandler emperror.Handler) (*prometheus.Exporter, error) {
 	exporter, err := prometheus.NewExporter(prometheus.Options{
 		Namespace: config.Namespace,
-		OnError:   errorHandler.Handle,
+		OnError:   emperror.HandlerWith(errorHandler, "component", "metrics", "exporter", "prometheus").Handle,
 	})
 
 	return exporter, errors.Wrap(err, "failed to create prometheus exporter")
