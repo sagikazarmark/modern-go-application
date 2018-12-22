@@ -13,7 +13,11 @@ func NewExporter(config Config, serviceName string, errorHandler emperror.Handle
 		AgentEndpoint: config.AgentEndpoint,
 		Username:      config.Username,
 		Password:      config.Password,
-		OnError:       emperror.HandlerWith(errorHandler, "component", "tracing", "exporter", "jaeger").Handle,
+		OnError: emperror.HandlerWith(
+			errorHandler,
+			"component", "opencensus",
+			"exporter", "jaeger",
+		).Handle,
 		Process: jaeger.Process{
 			ServiceName: serviceName,
 		},
