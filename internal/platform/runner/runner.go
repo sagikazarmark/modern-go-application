@@ -21,5 +21,5 @@ func (r *RunCloserRunner) Start() error {
 
 // Stop stops the RunCloser.
 func (r *RunCloserRunner) Stop(e error) {
-	r.RunCloser.Close()
+	_ = r.RunCloser.Close()
 }
