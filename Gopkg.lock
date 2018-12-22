@@ -104,15 +104,15 @@
   version = "v2.0.0"
 
 [[projects]]
-  digest = "1:4e0e5d786c35c402574cda1906195d9fbd76a35d2c921eb10199741faf4f0256"
+  digest = "1:e624fd54253a444a9ce2ad36b9e1ae3571d20ca983c13cdfecc526ff9054168f"
   name = "github.com/goph/emperror"
   packages = ["."]
   pruneopts = "UT"
-  revision = "b1b4a9b847ebc56299eb729faa942b89e9d8a562"
-  version = "v0.14.0"
+  revision = "55a78a152574bd0d9312cd9c7060a491bebf25c5"
+  version = "v0.15.0"
 
 [[projects]]
-  digest = "1:d189979e1864df97ecbb6844827df0721ead0e0ba55d41e0af01d351f8f9e1dc"
+  digest = "1:ad502c95f28651f5caf5e0997a83fa35d391223b2ea0b14f92f56589af1648fb"
   name = "github.com/goph/logur"
   packages = [
     ".",
@@ -122,8 +122,8 @@
     "testing",
   ]
   pruneopts = "UT"
-  revision = "1f1f495524a80897016fa9d45692d5dbe0c63aae"
-  version = "v0.7.0"
+  revision = "224dcf066e0c567fd793583887b46acb5e095f36"
+  version = "v0.7.1"
 
 [[projects]]
   digest = "1:c79fb010be38a59d657c48c6ba1d003a8aa651fa56b579d959d74573b7dff8e1"
