@@ -6,7 +6,6 @@ import (
 
 	"github.com/goph/logur"
 	"github.com/goph/logur/testing"
-	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 )
 
 func TestLogger_Levels(t *testing.T) {
@@ -54,14 +53,12 @@ func TestLogger_Levels(t *testing.T) {
 func TestLogger_WithFields(t *testing.T) {
 	testLogger := logur.NewTestLogger()
 
-	var logger greeting.Logger = NewLogger(testLogger)
-
 	fields := map[string]interface{}{
 		"key1": "value1",
 		"key2": "value2",
 	}
 
-	logger = logger.WithFields(fields)
+	logger := NewLogger(testLogger).WithFields(fields)
 
 	logger.Debug("message", nil)
 
