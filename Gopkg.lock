@@ -3,11 +3,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b39cf81d5f440b9c0757a25058432d33af867e5201109bf53621356d9dab4b73"
+  digest = "1:625aa508ff5132a315723a90a39a2ff4de0afa54994652bb62fad8f423791126"
   name = "git.apache.org/thrift.git"
   packages = ["lib/go/thrift"]
   pruneopts = "UT"
-  revision = "2b7365c54f823013cc6a4760798051b22743c103"
+  revision = "a139082755369611ed243376ec3c4161452369fc"
   source = "github.com/apache/thrift"
 
 [[projects]]
@@ -31,7 +31,7 @@
   version = "v1.0.1"
 
 [[projects]]
-  digest = "1:e78f46d1e4c3ed13bdd3e72f34237d16099c5fabe9be4c6f98dacb9b6d644c25"
+  digest = "1:8e84179ef5cf1d256c70b92326fa2109a2d6b61676853c22a867ee7066fe5280"
   name = "github.com/ThreeDotsLabs/watermill"
   packages = [
     ".",
@@ -41,8 +41,8 @@
     "message/router/middleware",
   ]
   pruneopts = "UT"
-  revision = "5006275f588003aee04b9c45971db2fd6761d008"
-  version = "v0.1.2"
+  revision = "b161620b1cc721c3e9beb0811c8f5f51dcf06e01"
+  version = "v0.2.1"
 
 [[projects]]
   branch = "master"
@@ -104,15 +104,15 @@
   version = "v2.0.0"
 
 [[projects]]
-  digest = "1:e624fd54253a444a9ce2ad36b9e1ae3571d20ca983c13cdfecc526ff9054168f"
+  digest = "1:205c73bd5808318c9804e1dae07508064fab82c11fb4b2833f0358338b7b4fab"
   name = "github.com/goph/emperror"
   packages = ["."]
   pruneopts = "UT"
-  revision = "55a78a152574bd0d9312cd9c7060a491bebf25c5"
-  version = "v0.15.0"
+  revision = "4cdd86c173cfed1f47be88bd88327140f81bcede"
+  version = "v0.16.0"
 
 [[projects]]
-  digest = "1:ad502c95f28651f5caf5e0997a83fa35d391223b2ea0b14f92f56589af1648fb"
+  digest = "1:0f0df04ba1a33bf32f3236181487aadf2a7c77662fa59abfb875b312bde5258e"
   name = "github.com/goph/logur"
   packages = [
     ".",
@@ -122,8 +122,8 @@
     "testing",
   ]
   pruneopts = "UT"
-  revision = "224dcf066e0c567fd793583887b46acb5e095f36"
-  version = "v0.7.1"
+  revision = "25e7290ebd201441faaa61f5ce43d00679a3ae13"
+  version = "v0.8.0"
 
 [[projects]]
   digest = "1:c79fb010be38a59d657c48c6ba1d003a8aa651fa56b579d959d74573b7dff8e1"
@@ -254,7 +254,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:db712fde5d12d6cdbdf14b777f0c230f4ff5ab0be8e35b239fc319953ed577a4"
+  digest = "1:33c81bf709f084827a560e14415b1d7001a6d1d6fa4bec2cc2e60b84ecbc0e0a"
   name = "github.com/prometheus/common"
   packages = [
     "expfmt",
@@ -262,7 +262,7 @@
     "model",
   ]
   pruneopts = "UT"
-  revision = "4724e9255275ce38f7179b2478abeae4e28c904f"
+  revision = "67670fe90761d7ff18ec1d640135e53b9198328f"
 
 [[projects]]
   branch = "master"
@@ -302,15 +302,15 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:6a4a11ba764a56d2758899ec6f3848d24698d48442ebce85ee7a3f63284526cd"
+  digest = "1:d707dbc1330c0ed177d4642d6ae102d5e2c847ebd0eb84562d0dc4f024531cfc"
   name = "github.com/spf13/afero"
   packages = [
     ".",
     "mem",
   ]
   pruneopts = "UT"
-  revision = "d40851caa0d747393da1ffb28f7f9d8b4eeffebd"
-  version = "v1.1.2"
+  revision = "a5d6946387efe7d64d09dcba68cdd523dc1273a3"
+  version = "v1.2.0"
 
 [[projects]]
   digest = "1:08d65904057412fc0270fc4812a1c90c594186819243160dc779a402d4b6d0bc"
@@ -391,22 +391,22 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:5e4d81c50cffcb124b899e4f3eabec3930c73532f0096c27f94476728ba03028"
+  digest = "1:75515eedc0dc2cb0b40372008b616fa2841d831c63eedd403285ff286c593295"
   name = "golang.org/x/sync"
   packages = ["semaphore"]
   pruneopts = "UT"
-  revision = "42b317875d0fa942474b76e1b46a6060d720ae6e"
+  revision = "37e7f081c4d4c64e13b10787722085407fe5d15f"
 
 [[projects]]
   branch = "master"
-  digest = "1:c73348dab344986c67ff12db47eee08aa2ec1f6bf431dcd73514c6dd8c502a57"
+  digest = "1:10405139b45e3a97a3842c93984710e30466eb933545f219ad3f5e45246973b4"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "7da8ea5c81829e397bdf930c5d8ba4b703616f33"
+  revision = "9a3f9b0469bbc6b8802087ae5c0af9f61502de01"
 
 [[projects]]
   digest = "1:8029e9743749d4be5bc9f7d42ea1659471767860f0cdc34d37c3111bd308a295"
@@ -429,15 +429,15 @@
   name = "google.golang.org/api"
   packages = ["support/bundler"]
   pruneopts = "UT"
-  revision = "40e757e92c52ce056bea83c8050054d41443ade8"
+  revision = "f26a60c56f148a32e87f3f4591c8ebf834b5561f"
 
 [[projects]]
   digest = "1:c25289f43ac4a68d88b02245742347c94f1e108c534dda442188015ff80669b3"
   name = "google.golang.org/appengine"
   packages = ["cloudsql"]
   pruneopts = "UT"
-  revision = "4a4468ece617fc8205e99368fa2200e9d1fad421"
-  version = "v1.3.0"
+  revision = "e9657d882bb81064595ca3b56cbe2546bbabf7b1"
+  version = "v1.4.0"
 
 [[projects]]
   digest = "1:4d2e5a73dc1500038e504a8d78b986630e3626dc027bc030ba5c75da257cdb96"

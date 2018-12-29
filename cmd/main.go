@@ -274,5 +274,5 @@ func main() {
 	emperror.Panic(errors.Wrap(err, "failed to start health checker"))
 
 	err = group.Run()
-	emperror.HandleIfErr(errorHandler, err)
+	emperror.Handle(errorHandler, err)
 }

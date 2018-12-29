@@ -31,7 +31,7 @@ func (e *sayHelloEventsStub) SaidHelloTo(ctx context.Context, event SaidHelloTo)
 func TestSayHello_SayHello(t *testing.T) {
 	events := &sayHelloEventsStub{}
 
-	sayHello := NewSayHello(events, greetingadapter.NewNopLogger(), emperror.NewNopHandler())
+	sayHello := NewSayHello(events, greetingadapter.NewNoopLogger(), emperror.NewNoopHandler())
 
 	to := SayHelloTo{Who: "me"}
 	output := &sayHelloOutputStub{}

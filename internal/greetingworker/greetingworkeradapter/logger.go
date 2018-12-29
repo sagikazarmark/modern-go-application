@@ -32,7 +32,7 @@ func (l *Logger) WithFields(fields map[string]interface{}) greetingworker.Logger
 	return &Logger{logger: logur.WithFields(l.logger, fields)}
 }
 
-// NewNopLogger returns a logger that doesn't do anything.
-func NewNopLogger() *Logger {
+// NewNoopLogger returns a logger that discards all received log events.
+func NewNoopLogger() *Logger {
 	return NewLogger(logur.NewNoopLogger())
 }

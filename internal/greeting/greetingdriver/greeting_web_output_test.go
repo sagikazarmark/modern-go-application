@@ -40,7 +40,7 @@ func TestHelloWorldWebOutput_Say(t *testing.T) {
 		output: []byte(body),
 	}
 	contentType := "application/json"
-	output := newGreetingWebOutput(responseWriter, view, contentType, emperror.NewNopHandler())
+	output := newGreetingWebOutput(responseWriter, view, contentType, emperror.NewNoopHandler())
 
 	output.Say(context.Background(), greeting.Hello{Message: "Hello, World!"})
 
@@ -62,7 +62,7 @@ func TestHelloWorldWebOutput_Say_RenderError(t *testing.T) {
 		err: renderError,
 	}
 	contentType := "application/json"
-	output := newGreetingWebOutput(responseWriter, view, contentType, emperror.NewNopHandler())
+	output := newGreetingWebOutput(responseWriter, view, contentType, emperror.NewNoopHandler())
 
 	output.Say(context.Background(), greeting.Hello{Message: "Hello, World!"})
 

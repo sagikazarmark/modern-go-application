@@ -18,8 +18,8 @@ import (
 func testHelloWorld(t *testing.T) {
 	events := &helloWorldEventsStub{}
 
-	helloWorld := greeting.NewHelloWorld(events, greetingadapter.NewNopLogger(), emperror.NewNopHandler())
-	controller := greetingdriver.NewGreetingController(helloWorld, nil, emperror.NewNopHandler())
+	helloWorld := greeting.NewHelloWorld(events, greetingadapter.NewNoopLogger(), emperror.NewNoopHandler())
+	controller := greetingdriver.NewGreetingController(helloWorld, nil, emperror.NewNoopHandler())
 
 	server := httptest.NewServer(http.HandlerFunc(controller.HelloWorld))
 

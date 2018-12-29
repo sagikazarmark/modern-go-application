@@ -31,7 +31,7 @@ func (e *helloWorldEventsStub) SaidHello(ctx context.Context, event SaidHello) e
 func TestHelloWorld_HelloWorld(t *testing.T) {
 	events := &helloWorldEventsStub{}
 
-	helloWorld := NewHelloWorld(events, greetingadapter.NewNopLogger(), emperror.NewNopHandler())
+	helloWorld := NewHelloWorld(events, greetingadapter.NewNoopLogger(), emperror.NewNoopHandler())
 
 	output := &helloWorldOutputStub{}
 
