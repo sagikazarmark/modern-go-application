@@ -137,7 +137,7 @@ func main() {
 		logger := log.WithFields(logger, map[string]interface{}{"server": name})
 		server := &http.Server{
 			Handler:  instrumentationRouter,
-			ErrorLog: log.NewStandardErrorLogger(logger),
+			ErrorLog: log.NewErrorStandardLogger(logger),
 		}
 
 		logger.Info("listening on address", map[string]interface{}{"address": config.Instrumentation.Addr})
@@ -211,7 +211,7 @@ func main() {
 			Handler: &ochttp.Handler{
 				Handler: app,
 			},
-			ErrorLog: log.NewStandardErrorLogger(logger),
+			ErrorLog: log.NewErrorStandardLogger(logger),
 		}
 
 		logger.Info("listening on address", map[string]interface{}{"address": config.App.Addr})

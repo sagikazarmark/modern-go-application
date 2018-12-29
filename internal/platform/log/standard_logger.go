@@ -6,7 +6,7 @@ import (
 	"github.com/goph/logur"
 )
 
-// NewStandardErrorLogger returns a new standard logger logging on error level.
-func NewStandardErrorLogger(logger logur.Logger) *log.Logger {
-	return logur.NewStandardLogger(logger, logur.Error, "", 0)
+// NewErrorStandardLogger returns a new standard logger logging on error level.
+func NewErrorStandardLogger(logger logur.Logger) *log.Logger {
+	return logur.NewErrorStandardLogger(logger, "", 0)
 }
