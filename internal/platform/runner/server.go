@@ -6,33 +6,34 @@ import (
 	"time"
 )
 
-type server interface {
+// Server is the underlying server instance.
+type Server interface {
 	Serve(l net.Listener) error
 	Shutdown(ctx context.Context) error
 	Close() error
 }
 
-// logger is the fundamental interface for all log operations.
-type logger interface {
+// ServerRunnerLogger is the fundamental interface for all log operations.
+type ServerRunnerLogger interface {
 	// Info logs an info event.
 	Info(msg string, fields map[string]interface{})
 }
 
-// errorHandler is responsible for handling an error.
-type errorHandler interface {
+// ServerRunnerErrorHandler is responsible for handling an error.
+type ServerRunnerErrorHandler interface {
 	// Handle takes care of unhandled errors.
 	Handle(err error)
 }
 
 // ServerRunner implements server group run functions.
 type ServerRunner struct {
-	Server   server
+	Server   Server
 	Listener net.Listener
 
 	ShutdownTimeout time.Duration
 
-	Logger       logger
-	ErrorHandler errorHandler
+	Logger       ServerRunnerLogger
+	ErrorHandler ServerRunnerErrorHandler
 }
 
 // Start starts the server and waits for it to return.
