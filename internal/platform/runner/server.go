@@ -24,8 +24,8 @@ type errorHandler interface {
 	Handle(err error)
 }
 
-// Server implements server group run functions.
-type Server struct {
+// ServerRunner implements server group run functions.
+type ServerRunner struct {
 	Server   server
 	Listener net.Listener
 
@@ -36,14 +36,14 @@ type Server struct {
 }
 
 // Start starts the server and waits for it to return.
-func (r *Server) Start() error {
+func (r *ServerRunner) Start() error {
 	r.Logger.Info("starting server", nil)
 
 	return r.Server.Serve(r.Listener)
 }
 
 // Stop tries to shut the server down gracefully first, then forcefully closes it.
-func (r *Server) Stop(e error) {
+func (r *ServerRunner) Stop(e error) {
 	ctx := context.Background()
 	if r.ShutdownTimeout > 0 {
 		var cancel context.CancelFunc

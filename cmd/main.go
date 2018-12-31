@@ -145,7 +145,7 @@ func main() {
 		ln, err := upg.Fds.Listen("tcp", config.Instrumentation.Addr)
 		emperror.Panic(err)
 
-		r := &runner.Server{
+		r := &runner.ServerRunner{
 			Server:          server,
 			Listener:        ln,
 			ShutdownTimeout: config.ShutdownTimeout,
@@ -219,7 +219,7 @@ func main() {
 		ln, err := upg.Fds.Listen("tcp", config.App.Addr)
 		emperror.Panic(err)
 
-		r := &runner.Server{
+		r := &runner.ServerRunner{
 			Server:          server,
 			Listener:        ln,
 			ShutdownTimeout: config.ShutdownTimeout,
