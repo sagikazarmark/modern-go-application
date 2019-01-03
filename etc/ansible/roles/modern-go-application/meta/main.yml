@@ -1,0 +1,8 @@
+---
+galaxy_info:
+    author: sagikazarmark
+    description: Modern Go Application
+    license: MIT
+    min_ansible_version: 2.4
+
+dependencies: []

@@ -1,0 +1,3 @@
+---
+- name: nginxinc.nginx
+  version: 0.10.1

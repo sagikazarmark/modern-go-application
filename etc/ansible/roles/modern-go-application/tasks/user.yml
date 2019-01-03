@@ -1,0 +1,38 @@
+---
+-
+    name: Ensure application user is present
+    user:
+        name: "{{ mga_user_name }}"
+        shell: /bin/bash
+        state: present
+    register: user
+
+-
+    name: Add application user authorized keys
+    authorized_key:
+        user: "{{ user.name }}"
+        key: "{{ item }}"
+        state: present
+    with_items: "{{ mga_authorized_keys }}"
+    no_log: true
+
+-
+    name: Ensure required directories exist
+    file:
+        path: "{{ user.home }}/{{ item }}"
+        state: directory
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: 0700
+    with_items:
+        - bin
+        - log
+        - etc
+        - .config/systemd/user
+
+# Required for user scope systemd
+-
+    name: Make user lingering
+    command: "loginctl enable-linger {{ user.name }}"
+    args:
+        creates: "/var/lib/systemd/linger/{{ user.name }}"
