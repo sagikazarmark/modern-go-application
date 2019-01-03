@@ -44,6 +44,25 @@ test-integration:
         reports:
             junit: build/test_results/integration/results.xml
 
+molecule:
+    stage: test
+    image: geerlingguy/docker-ubuntu1804-ansible:testing
+    variables:
+        DOCKER_HOST: tcp://docker:2375/
+        DOCKER_DRIVER: overlay2
+        DOCKER_VERSION: 18.09.0
+    services:
+        - docker:dind
+    before_script:
+        - apt-get update && apt-get install -y curl
+        - curl -L -o /tmp/docker.tgz https://download.docker.com/linux/static/stable/x86_64/docker-$DOCKER_VERSION.tgz
+        - tar -xz -C /tmp -f /tmp/docker.tgz
+        - mv /tmp/docker/* /usr/bin
+        - pip install docker
+    script:
+        - cd etc/ansible/roles/modern-go-application
+        - molecule test
+
 lint:
     stage: test
     script:
