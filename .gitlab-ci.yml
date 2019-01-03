@@ -34,7 +34,7 @@ test:
         - make test
     artifacts:
         reports:
-            junit: build/test_results/gotest/results.xml
+            junit: build/test_results/main/results.xml
 
 test-integration:
     stage: test
