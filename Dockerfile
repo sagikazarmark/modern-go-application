@@ -22,7 +22,5 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 COPY --from=builder /app /app
 
-USER nobody:nobody
-
 EXPOSE 8000 10000
 CMD ["/app", "--instrumentation.addr", ":10000", "--app.addr", ":8000"]
