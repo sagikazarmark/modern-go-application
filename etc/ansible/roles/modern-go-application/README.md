@@ -1,5 +1,5 @@
-Ansible Role: Modern Go Application
-===================================
+Modern Go Application
+=====================
 
 Prepares a host for running the application.
 Normally this role is part of a bigger playbook executed outside of the application.

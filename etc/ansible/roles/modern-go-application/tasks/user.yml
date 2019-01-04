@@ -49,3 +49,9 @@
         src: user_facts.json
         dest: /etc/ansible/facts.d/mga_user.fact
         mode: 0644
+
+-
+    name: Reload user facts
+    setup:
+        filter: ansible_local
+    when: user.changed

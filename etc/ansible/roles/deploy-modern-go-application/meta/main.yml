@@ -1,9 +1,9 @@
 ---
 galaxy_info:
-    author: sagikazarmark
-    description: Modern Go Application
-    license: MIT
-    min_ansible_version: 2.4
+  author: sagikazarmark
+  description: your description
+  license: MIT
+  min_ansible_version: 2.4
 
 dependencies: []
 # List your role dependencies here, one per line. Be sure to remove the '[]' above,

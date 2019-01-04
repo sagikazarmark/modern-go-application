@@ -1,0 +1,13 @@
+extends: default
+
+rules:
+  braces:
+    max-spaces-inside: 1
+    level: error
+  brackets:
+    max-spaces-inside: 1
+    level: error
+  line-length: disable
+  # NOTE(retr0h): Templates no longer fail this lint rule.
+  #               Uncomment if running old Molecule templates.
+  # truthy: disable

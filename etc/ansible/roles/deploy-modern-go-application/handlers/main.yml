@@ -1,0 +1,11 @@
+---
+-
+    name: restart application
+    systemd:
+        name: "{{ mga_service_name }}"
+        state: restarted
+        scope: user
+    become: true
+    become_user: "{{ user.name }}"
+    environment:
+        XDG_RUNTIME_DIR: "/run/user/{{ user.uid }}"
