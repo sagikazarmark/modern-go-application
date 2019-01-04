@@ -49,7 +49,9 @@ func main() {
 	}
 
 	err := viper.ReadInConfig()
-	emperror.Panic(errors.Wrap(err, "failed to read configuration"))
+	if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+		emperror.Panic(errors.Wrap(err, "failed to read configuration"))
+	}
 
 	var config Config
 	err = viper.Unmarshal(&config)
