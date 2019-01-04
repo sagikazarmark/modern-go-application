@@ -36,3 +36,16 @@
     command: "loginctl enable-linger {{ user.name }}"
     args:
         creates: "/var/lib/systemd/linger/{{ user.name }}"
+
+-
+    name: Ensure custom fact directory exists
+    file:
+        path: /etc/ansible/facts.d
+        state: "directory"
+
+-
+    name: Register user facts
+    template:
+        src: user_facts.json
+        dest: /etc/ansible/facts.d/mga_user.fact
+        mode: 0644
