@@ -2,7 +2,7 @@
 - name: Converge
   hosts: all
   roles:
-    - role: modern-go-application
+    - role: application-setup
   tasks:
     - name: Create a simple application stub
       copy:
