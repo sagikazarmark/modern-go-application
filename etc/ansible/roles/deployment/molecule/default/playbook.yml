@@ -6,4 +6,4 @@
     binary_name: modern-go-application-docker
   roles:
     - role: application-setup
-    - role: deploy-modern-go-application
+    - role: deployment
