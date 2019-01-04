@@ -1,10 +1,10 @@
-Modern Go Application
-=====================
+Application Setup
+=================
 
 Prepares a host for running the application.
 Normally this role is part of a bigger playbook executed outside of the application.
 Alternatively this role can become a whole playbook as running an application might require configuration
-across various hosts.
+across various hosts (eg. setting up database users, firewall rules, etc)   .
 
 Requirements
 ------------
@@ -16,7 +16,7 @@ Example Playbook
 
     - hosts: servers
       roles:
-         - { role: modern-go-application }
+         - { role: application-setup }
 
 License
 -------

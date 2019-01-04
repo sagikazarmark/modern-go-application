@@ -1,0 +1,19 @@
+---
+- name: Prepare
+  hosts: all
+  vars:
+    pip_install_packages:
+      - name: docker
+  roles:
+    - geerlingguy.pip
+    - geerlingguy.docker
+    - application-setup
+  post_tasks:
+    -
+      name: Create valid application configuration
+      template:
+        src: ../../../../../../config.toml.dist
+        dest: "/home/mga/etc/mga.toml"
+        owner: "mga"
+        group: "mga"
+        mode: 0644

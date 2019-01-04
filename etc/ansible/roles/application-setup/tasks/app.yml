@@ -1,0 +1,18 @@
+---
+-
+    name: Create application configuration
+    template:
+        src: config.toml
+        dest: "{{ user.home }}/etc/{{ app_name }}.toml"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: 0600
+
+-
+    name: Create application environment configuration
+    template:
+        src: config.env
+        dest: "{{ user.home }}/etc/{{ app_name }}.env"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: 0600

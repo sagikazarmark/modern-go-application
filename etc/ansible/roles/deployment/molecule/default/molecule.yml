@@ -1,6 +1,7 @@
 ---
 dependency:
   name: galaxy
+  requirements-file: requirements.yml
 driver:
   name: docker
 lint:
@@ -16,6 +17,8 @@ provisioner:
   name: ansible
   lint:
     name: ansible-lint
+  playbooks:
+    prepare: prepare.yml
 scenario:
   name: default
 verifier:

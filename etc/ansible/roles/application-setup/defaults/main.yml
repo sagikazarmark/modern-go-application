@@ -1,12 +1,12 @@
 ---
+# Default application name
+app_name: mga
+
 # Default deployment and application user
-mga_user_name: mga
+app_user_name: mga
 
 # Default SSH authorized keys for the application user
-mga_authorized_keys: []
-
-# Default service name
-mga_service_name: mga
+app_authorized_keys: []
 
 # Default server name for nginx proxy
-mga_server_name: modern-go-application
+app_server_name: modern-go-application.local
