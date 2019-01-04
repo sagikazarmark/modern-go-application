@@ -28,7 +28,7 @@ script:
     - make test
     - make test-integration
     - make lint
-    - if [[ $TRAVIS_TAG = "$VERSION" ]]; then export DOCKER_LATEST=1; fi
+    - if [[ $VERSION = "master" ]]; then export DOCKER_LATEST=1; fi
     - make docker
     - make docker-debug
 
