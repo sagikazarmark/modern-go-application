@@ -15,7 +15,6 @@ platforms:
     privileged: true
 provisioner:
   name: ansible
-  log: true
   lint:
     name: ansible-lint
 scenario:
