@@ -1,0 +1,5 @@
+{
+    "name": "{{ user.name }}",
+    "home": "{{ user.home }}",
+    "uid": "{{ user.uid }}"
+}

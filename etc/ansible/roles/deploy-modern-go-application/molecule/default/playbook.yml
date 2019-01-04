@@ -1,0 +1,9 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    binary_source: ../../../../../../build
+    binary_name: modern-go-application-docker
+  roles:
+    - role: modern-go-application
+    - role: deploy-modern-go-application

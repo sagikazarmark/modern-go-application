@@ -1,0 +1,25 @@
+---
+- name: Converge
+  hosts: all
+  roles:
+    - role: modern-go-application
+  tasks:
+    - name: Create a simple application stub
+      copy:
+        dest: /home/mga/bin/modern-go-application
+        content: |
+          #!/bin/bash
+          python -m SimpleHTTPServer 8080
+        owner: mga
+        group: mga
+        mode: 0700
+
+    - name: Start systemd service
+      systemd:
+        name: mga
+        state: started
+        scope: user
+      become: true
+      become_user: mga
+      environment:
+        XDG_RUNTIME_DIR: /run/user/1000

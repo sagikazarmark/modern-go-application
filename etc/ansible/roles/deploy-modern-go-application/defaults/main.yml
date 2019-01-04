@@ -1,0 +1,6 @@
+---
+# Default service name
+mga_service_name: mga
+
+# Default source binary name
+binary_name: modern-go-application

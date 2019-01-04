@@ -1,0 +1,4 @@
+---
+- import_tasks: user.yml
+- import_tasks: app.yml
+- import_tasks: ingress.yml

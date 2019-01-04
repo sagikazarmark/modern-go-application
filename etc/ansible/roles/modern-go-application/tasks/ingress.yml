@@ -1,0 +1,10 @@
+---
+-
+    name: Configure nginx virtualhost
+    template:
+        src: nginx.conf
+        dest: "/etc/nginx/conf.d/{{ mga_server_name }}.conf"
+        owner: root
+        group: root
+        mode: 0644
+    notify: reload nginx
