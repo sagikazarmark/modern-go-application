@@ -16,6 +16,7 @@ RUN if [ $(command -v apt-get) ]; then apt-get update && apt-get install -y pyth
 {% if 'ubuntu' in item.image or 'debian' in item.image %}
 RUN apt-get update
 RUN apt-get install -y dbus dbus-user-session
+RUN apt-get install -y nginx
 {% endif %}
 
 {% if 'ubuntu1804' in item.image %}

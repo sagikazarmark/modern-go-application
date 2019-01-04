@@ -4,7 +4,6 @@
   become: true
   become_user: root
   roles:
-    - role: nginxinc.nginx
     - role: modern-go-application
   tasks:
     - name: Create a simple application stub
