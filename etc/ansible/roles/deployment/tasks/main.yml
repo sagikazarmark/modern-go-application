@@ -2,7 +2,7 @@
 -
     name: Gather user facts
     set_fact:
-        user: "{{ ansible_local.mga_user }}"
+        user: "{{ ansible_local.app_user }}"
 
 -
     name: Copy application binary

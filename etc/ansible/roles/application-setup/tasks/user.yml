@@ -2,7 +2,7 @@
 -
     name: Ensure application user is present
     user:
-        name: "{{ mga_user_name }}"
+        name: "{{ app_user_name }}"
         shell: /bin/bash
         state: present
     register: user
@@ -13,7 +13,7 @@
         user: "{{ user.name }}"
         key: "{{ item }}"
         state: present
-    with_items: "{{ mga_authorized_keys }}"
+    with_items: "{{ app_authorized_keys }}"
     no_log: true
 
 -
@@ -47,7 +47,7 @@
     name: Register user facts
     template:
         src: user_facts.json
-        dest: /etc/ansible/facts.d/mga_user.fact
+        dest: /etc/ansible/facts.d/app_user.fact
         mode: 0644
 
 -

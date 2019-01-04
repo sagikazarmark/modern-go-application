@@ -6,20 +6,20 @@ testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
     os.environ['MOLECULE_INVENTORY_FILE']).get_hosts('all')
 
 
-def test_mga_user_is_created(host):
+def test_app_user_is_created(host):
     user = host.user("mga")
 
     assert user.shell == "/bin/bash"
 
 
-def test_mga_user_is_lingering(host):
+def test_app_user_is_lingering(host):
     f = host.file("/var/lib/systemd/linger/mga")
 
     assert f.exists
 
 
-def test_mga_user_facts_are_registered(host):
-    f = host.file("/etc/ansible/facts.d/mga_user.fact")
+def test_app_user_facts_are_registered(host):
+    f = host.file("/etc/ansible/facts.d/app_user.fact")
 
     assert f.exists
     assert f.mode == 0o644
@@ -28,7 +28,7 @@ def test_mga_user_facts_are_registered(host):
     assert f.contains('"uid": "1000"')
 
 
-def test_mga_service_unit_is_created(host):
+def test_app_service_unit_is_created(host):
     user = host.user("mga")
     f = host.file(user.home + "/.config/systemd/user/mga.service")
 

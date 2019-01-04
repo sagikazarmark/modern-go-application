@@ -15,7 +15,7 @@ ProtectHome=true
 # EnvironmentFile={{ user.home }}/etc/mga.env
 
 # Start main service
-ExecStart={{ user.home }}/bin/modern-go-application --config {{ user.home }}/etc/{{ mga_service_name }}.toml
+ExecStart={{ user.home }}/bin/modern-go-application --config {{ user.home }}/etc/{{ app_service_name }}.toml
 
 KillSignal=SIGTERM
 
