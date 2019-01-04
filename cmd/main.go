@@ -49,15 +49,28 @@ func main() {
 	}
 
 	err := viper.ReadInConfig()
-	emperror.Panic(errors.Wrap(err, "failed to read configuration"))
+	_, configFileNotFound := err.(viper.ConfigFileNotFoundError)
+	if !configFileNotFound {
+		emperror.Panic(errors.Wrap(err, "failed to read configuration"))
+	}
 
 	var config Config
 	err = viper.Unmarshal(&config)
 	emperror.Panic(errors.Wrap(err, "failed to unmarshal configuration"))
 
+	// Create logger (first thing after configuration loading)
+	logger := log.NewLogger(config.Log)
+
+	// Provide some basic context to all log lines
+	logger = log.WithFields(logger, map[string]interface{}{"environment": config.Environment, "service": ServiceName})
+
+	if configFileNotFound {
+		logger.Warn("configuration file not found", nil)
+	}
+
 	err = config.Validate()
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err.Error(), nil)
 
 		os.Exit(3)
 	}
@@ -67,12 +80,6 @@ func main() {
 
 		os.Exit(0)
 	}
-
-	// Create logger
-	logger := log.NewLogger(config.Log)
-
-	// Provide some basic context to all log lines
-	logger = log.WithFields(logger, map[string]interface{}{"environment": config.Environment, "service": ServiceName})
 
 	// Configure error handler
 	errorHandler := errorhandler.New(logger)
