@@ -151,19 +151,27 @@ func Configure(v *viper.Viper, p *pflag.FlagSet) {
 	v.SetDefault("instrumentation.jaeger.endpoint", "http://localhost:14268")
 	v.SetDefault("instrumentation.jaeger.agentEndpoint", "localhost:6831")
 	v.RegisterAlias("instrumentation.jaeger.serviceName", "serviceName")
+	_ = v.BindEnv("instrumentation.jaeger.username")
+	_ = v.BindEnv("instrumentation.jaeger.password")
 
 	// App configuration
 	p.String("app.addr", ":8000", "App HTTP server address")
 	v.SetDefault("app.addr", ":8000")
 
 	// Database configuration
+	_ = v.BindEnv("database.host")
 	v.SetDefault("database.port", 3306)
+	_ = v.BindEnv("database.user")
+	_ = v.BindEnv("database.pass")
+	_ = v.BindEnv("database.name")
 	v.SetDefault("database.params", map[string]string{
 		"charset": "utf8mb4",
 	})
 
 	// Redis configuration
+	_ = v.BindEnv("redis.host")
 	v.SetDefault("redis.port", 6379)
+	_ = v.BindEnv("redis.password")
 
 	// Watermill configuration
 	v.RegisterAlias("watermill.routerConfig.closeTimeout", "shutdownTimeout")
