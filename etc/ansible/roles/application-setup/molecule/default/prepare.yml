@@ -1,0 +1,8 @@
+---
+- name: Prepare
+  hosts: all
+  tasks:
+    - name: Create dummy docker group
+      group:
+        name: docker
+        state: present

@@ -3,27 +3,16 @@
     name: Create application configuration
     template:
         src: config.toml
-        dest: "{{ user.home }}/etc/{{ app_service_name }}.toml"
+        dest: "{{ user.home }}/etc/{{ app_name }}.toml"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: 0600
 
 -
-    name: Create systemd configuration
+    name: Create application environment configuration
     template:
-        src: modern-go-application.service
-        dest: "{{ user.home }}/.config/systemd/user/{{ app_service_name }}.service"
+        src: config.env
+        dest: "{{ user.home }}/etc/{{ app_name }}.env"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: 0600
-
--
-    name: Enable systemd service
-    systemd:
-        name: "{{ app_service_name }}"
-        enabled: true
-        scope: user
-    become: true
-    become_user: "{{ user.name }}"
-    environment:
-        XDG_RUNTIME_DIR: "/run/user/{{ user.uid }}"

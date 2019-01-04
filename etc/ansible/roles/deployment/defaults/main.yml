@@ -1,6 +1,12 @@
 ---
-# Default service name
-mga_service_name: mga
+# Default application name
+app_name: mga
+
+# Default application image
+app_image: sagikazarmark/modern-go-application
+
+# Default application version
+app_version: latest
 
 # Default source binary name
 binary_name: modern-go-application

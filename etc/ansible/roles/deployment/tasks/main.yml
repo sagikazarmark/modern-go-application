@@ -5,12 +5,18 @@
         user: "{{ ansible_local.app_user }}"
 
 -
-    name: Copy application binary
-    copy:
-        src: "{{ binary_source }}/{{ binary_name }}"
-        dest: "{{ user.home }}/bin/modern-go-application"
-        backup: true
-        owner: "{{ user.name }}"
-        group: "{{ user.name }}"
-        mode: 0700
-    notify: restart application
+    name: Start application
+    become: true
+    become_user: "{{ user.name }}"
+    docker_container:
+        name: "{{ app_name }}"
+        image: "{{ app_image }}:{{ app_version }}"
+        state: started
+        # pull: true
+        # restart: true
+        env_file: "{{ user.home }}/etc/{{ app_name }}.env"
+        ports:
+            - "127.0.0.1:8000:8000"
+            - "127.0.0.1:10000:10000"
+        volumes:
+            - "{{ user.home }}/etc/{{ app_name }}.toml:/config.toml:ro"
