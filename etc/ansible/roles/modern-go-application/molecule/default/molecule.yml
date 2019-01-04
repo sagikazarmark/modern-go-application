@@ -1,7 +1,6 @@
 ---
 dependency:
   name: galaxy
-  requirements_file: requirements.yml
 driver:
   name: docker
 lint:
