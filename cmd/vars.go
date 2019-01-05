@@ -9,4 +9,7 @@ const (
 
 	// FriendlyServiceName is the visible name of the service.
 	FriendlyServiceName = "Boilerplate service"
+
+	// EnvPrefix is prepended to environment variables when processing configuration.
+	EnvPrefix = "app"
 )

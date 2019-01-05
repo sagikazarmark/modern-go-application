@@ -122,7 +122,7 @@ func Configure(v *viper.Viper, p *pflag.FlagSet) {
 	}
 	_ = v.BindPFlags(p)
 
-	v.SetEnvPrefix("app")
+	v.SetEnvPrefix(EnvPrefix)
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 	v.AutomaticEnv()
 
