@@ -26,7 +26,7 @@ addr = ":8000"
 host = "localhost"
 port = 3306
 user = "root"
-pass = "root"
+pass = ""
 name = "database"
 params = { charset = "utf8mb4" }
 
