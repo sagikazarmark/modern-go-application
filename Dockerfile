@@ -16,7 +16,7 @@ COPY . /go/src/${PACKAGE}
 RUN BUILD_DIR= BINARY_NAME=app make build-release
 
 
-FROM alpine:3.7
+FROM alpine:3.8
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 

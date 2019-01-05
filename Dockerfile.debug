@@ -7,7 +7,7 @@ RUN apk add --update --no-cache ca-certificates git
 RUN go get github.com/derekparker/delve/cmd/dlv
 
 
-FROM alpine:3.7
+FROM alpine:3.8
 
 RUN apk add --update --no-cache libc6-compat
 
