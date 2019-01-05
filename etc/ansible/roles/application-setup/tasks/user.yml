@@ -15,7 +15,7 @@
         user: "{{ user.name }}"
         key: "{{ item }}"
         state: present
-    with_items: "{{ app_authorized_keys }}"
+    with_items: "{{ app_user_authorized_keys }}"
     no_log: true
 
 -
@@ -30,29 +30,3 @@
         - etc
 
         - .config/systemd/user
-
-# Required for user scope systemd
--
-    name: Make user lingering
-    command: "loginctl enable-linger {{ user.name }}"
-    args:
-        creates: "/var/lib/systemd/linger/{{ user.name }}"
-
--
-    name: Ensure custom fact directory exists
-    file:
-        path: /etc/ansible/facts.d
-        state: "directory"
-
--
-    name: Register user facts
-    template:
-        src: user_facts.json
-        dest: /etc/ansible/facts.d/app_user.fact
-        mode: 0644
-
--
-    name: Reload user facts
-    setup:
-        filter: ansible_local
-    when: user.changed

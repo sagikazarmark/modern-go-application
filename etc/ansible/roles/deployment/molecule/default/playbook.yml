@@ -7,3 +7,11 @@
   roles:
     # - role: application-setup
     - role: deployment
+  pre_tasks:
+    - name: Create valid application configuration
+      template:
+        src: ../../../../../../config.toml.dist
+        dest: "/home/app/etc/app.toml"
+        owner: "app"
+        group: "app"
+        mode: 0600

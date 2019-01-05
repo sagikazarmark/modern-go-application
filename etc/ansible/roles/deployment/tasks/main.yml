@@ -1,22 +1,16 @@
 ---
 -
-    name: Gather user facts
-    set_fact:
-        user: "{{ ansible_local.app_user }}"
-
--
     name: Start application
     become: true
-    become_user: "{{ user.name }}"
+    become_user: "{{ app_user_name }}"
     docker_container:
         name: "{{ app_name }}"
         image: "{{ app_image }}:{{ app_version }}"
         state: started
-        # pull: true
-        # restart: true
-        env_file: "{{ user.home }}/etc/{{ app_name }}.env"
+        pull: true
+        env_file: "{{ app_config_path }}/etc/{{ app_name }}.env"
         ports:
             - "127.0.0.1:8000:8000"
             - "127.0.0.1:10000:10000"
         volumes:
-            - "{{ user.home }}/etc/{{ app_name }}.toml:/config.toml:ro"
+            - "{{ app_config_path }}/etc/{{ app_name }}.toml:/config.toml:ro"

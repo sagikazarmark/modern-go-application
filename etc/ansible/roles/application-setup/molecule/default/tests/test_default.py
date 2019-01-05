@@ -7,23 +7,13 @@ testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
 
 
 def test_app_user_is_created(host):
-    user = host.user("mga")
+    user = host.user("app")
 
     assert user.shell == "/bin/bash"
     assert "docker" in user.groups
 
 
-def test_app_user_facts_are_registered(host):
-    f = host.file("/etc/ansible/facts.d/app_user.fact")
-
-    assert f.exists
-    assert f.mode == 0o644
-    assert f.contains('"name": "mga"')
-    assert f.contains('"home": "/home/mga"')
-    assert f.contains('"uid": "1000"')
-
-
 def test_nginx_is_configured(host):
-    f = host.file("/etc/nginx/conf.d/modern-go-application.conf")
+    f = host.file("/etc/nginx/conf.d/application.local.conf")
 
     assert f.exists

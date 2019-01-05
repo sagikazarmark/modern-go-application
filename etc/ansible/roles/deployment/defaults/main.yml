@@ -1,12 +1,15 @@
 ---
 # Default application name
-app_name: mga
+app_name: app
+
+# Default deployment and application user
+app_user_name: app
+
+# Default application user home directory
+app_config_path: "/home/{{ app_user_name }}"
 
 # Default application image
 app_image: sagikazarmark/modern-go-application
 
 # Default application version
 app_version: latest
-
-# Default source binary name
-binary_name: modern-go-application
