@@ -4,13 +4,13 @@ OS = $(shell uname)
 
 # Project variables
 PACKAGE = $(shell echo $${PWD\#\#*src/})
+BUILD_PACKAGE ?= ${PACKAGE}/cmd
 BINARY_NAME ?= $(shell basename $$PWD)
 DOCKER_IMAGE = $(shell echo ${PACKAGE} | cut -d '/' -f 2,3)
 OPENAPI_DESCRIPTOR = swagger.yaml
 
 # Build variables
 BUILD_DIR ?= build
-BUILD_PACKAGE = ${PACKAGE}/cmd
 VERSION ?= $(shell git describe --tags --exact-match 2>/dev/null || git symbolic-ref -q --short HEAD)
 COMMIT_HASH ?= $(shell git rev-parse --short HEAD 2>/dev/null)
 BUILD_DATE ?= $(shell date +%FT%T%z)
@@ -82,7 +82,7 @@ config.toml:
 .PHONY: run
 run: GOTAGS += dev
 run: build ## Build and execute a binary
-	${BUILD_DIR}/${GENERATED_BINARY_NAME} ${ARGS}
+	${BUILD_DIR}/${BINARY_NAME} ${ARGS}
 
 bin/dlv:
 	@mkdir -p bin
@@ -91,7 +91,7 @@ bin/dlv:
 .PHONY: debug
 debug: GOTAGS += dev
 debug: build-debug bin/dlv ## Build and execute a binary with remote debugging enabled
-	bin/dlv --listen=127.0.0.1:40000 --headless=true --api-version=2 --log exec -- ${BUILD_DIR}/${GENERATED_BINARY_NAME} ${ARGS}
+	bin/dlv --listen=127.0.0.1:40000 --headless=true --api-version=2 --log exec -- ${BUILD_DIR}/${BINARY_NAME}-debug ${ARGS}
 
 .PHONY: clean
 clean: ## Clean builds
@@ -106,33 +106,28 @@ ifneq (${IGNORE_GOLANG_VERSION_REQ}, 1)
 	@printf "${GOLANG_VERSION}\n$$(go version | awk '{sub(/^go/, "", $$3);print $$3}')" | sort -t '.' -k 1,1 -k 2,2 -k 3,3 -g | head -1 | grep -q -E "^${GOLANG_VERSION}$$" || (printf "Required Go version is ${GOLANG_VERSION}\nInstalled: `go version`" && exit 1)
 endif
 
-	@$(eval GENERATED_BINARY_NAME = ${BINARY_NAME})
-	@$(if $(strip ${BINARY_NAME_SUFFIX}),$(eval GENERATED_BINARY_NAME = ${BINARY_NAME}-$(subst $(eval) ,-,$(strip ${BINARY_NAME_SUFFIX}))),)
-	go build ${GOARGS} -tags "${GOTAGS}" -ldflags "${LDFLAGS}" -o ${BUILD_DIR}/${GENERATED_BINARY_NAME} ${BUILD_PACKAGE}
+	go build ${GOARGS} -tags "${GOTAGS}" -ldflags "${LDFLAGS}" -o ${BUILD_DIR}/${BINARY_NAME} ${BUILD_PACKAGE}
 
 .PHONY: build-release
-build-release: LDFLAGS += -w
-build-release: build ## Build a binary without debug information
+build-release: ## Build a binary without debug information
+	@${MAKE} LDFLAGS="-w ${LDFLAGS}" build
 
 .PHONY: build-debug
-build-debug: GOARGS += -gcflags "all=-N -l"
-build-debug: BINARY_NAME_SUFFIX += debug
-build-debug: build ## Build a binary with remote debugging capabilities
+build-debug: ## Build a binary with remote debugging capabilities
+	@${MAKE} GOARGS="${GOARGS} -gcflags \"all=-N -l\"" BINARY_NAME="${BINARY_NAME}-debug" build
 
 .PHONY: docker
-docker: export GOOS = linux
-docker: BINARY_NAME_SUFFIX += docker
-docker: build-release ## Build a Docker image
-	docker build --build-arg BUILD_DIR=${BUILD_DIR} --build-arg BINARY_NAME=${GENERATED_BINARY_NAME} -t ${DOCKER_IMAGE}:${DOCKER_TAG} -f Dockerfile.local .
+docker: ## Build a Docker image
+	@${MAKE} BINARY_NAME="${BINARY_NAME}-docker" GOOS=linux build-release
+	docker build --build-arg BUILD_DIR=${BUILD_DIR} --build-arg BINARY_NAME=${BINARY_NAME}-docker -t ${DOCKER_IMAGE}:${DOCKER_TAG} -f Dockerfile.local .
 ifeq (${DOCKER_LATEST}, 1)
 	docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
 endif
 
 .PHONY: docker-debug
-docker-debug: export GOOS = linux
-docker-debug: BINARY_NAME_SUFFIX += docker
-docker-debug: build-debug ## Build a Docker image with remote debugging capabilities
-	docker build --build-arg BUILD_DIR=${BUILD_DIR} --build-arg BINARY_NAME=${GENERATED_BINARY_NAME} -t ${DOCKER_IMAGE}:${DOCKER_TAG}-debug -f Dockerfile.debug .
+docker-debug: ## Build a Docker image with remote debugging capabilities
+	@${MAKE} BINARY_NAME="${BINARY_NAME}-docker" GOOS=linux build-debug
+	docker build --build-arg BUILD_DIR=${BUILD_DIR} --build-arg BINARY_NAME=${BINARY_NAME}-docker-debug -t ${DOCKER_IMAGE}:${DOCKER_TAG}-debug -f Dockerfile.debug .
 
 .PHONY: check
 check: test-all lint ## Run tests and linters
