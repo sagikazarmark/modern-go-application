@@ -188,6 +188,7 @@ generate-api: ## Generate server stubs from the OpenAPI descriptor
 
 release-%: TAG_PREFIX = v
 release-%:
+ifneq (${DRY}, 1)
 	@sed -e "s/^## \[Unreleased\]$$/## [Unreleased]\\"$$'\n'"\\"$$'\n'"\\"$$'\n'"## [$*] - $$(date +%Y-%m-%d)/g" CHANGELOG.md > CHANGELOG.md.new
 	@mv CHANGELOG.md.new CHANGELOG.md
 
@@ -198,9 +199,14 @@ ifeq (${TAG}, 1)
 	git add CHANGELOG.md
 	git commit -m 'Prepare release $*'
 	git tag -m 'Release $*' ${TAG_PREFIX}$*
+ifeq (${PUSH}, 1)
+	git push; git push origin ${TAG_PREFIX}$*
+endif
+endif
 endif
 
 	@echo "Version updated to $*!"
+ifneq (${PUSH}, 1)
 	@echo
 	@echo "Review the changes made by this script then execute the following:"
 ifneq (${TAG}, 1)
@@ -211,18 +217,19 @@ ifneq (${TAG}, 1)
 endif
 	@echo
 	@echo "git push; git push origin ${TAG_PREFIX}$*"
+endif
 
 .PHONY: patch
 patch: ## Release a new patch version
-	@${MAKE} release-$(shell git describe --abbrev=0 --tags | sed 's/^v//' | awk -F'[ .]' '{print $$1"."$$2"."$$3+1}')
+	@${MAKE} release-$(shell git describe --abbrev=0 --tags 2> /dev/null || echo "0.0.0" | sed 's/^v//' | awk -F'[ .]' '{print $$1"."$$2"."$$3+1}')
 
 .PHONY: minor
 minor: ## Release a new minor version
-	@${MAKE} release-$(shell git describe --abbrev=0 --tags | sed 's/^v//' | awk -F'[ .]' '{print $$1"."$$2+1".0"}')
+	@${MAKE} release-$(shell git describe --abbrev=0 --tags 2> /dev/null || echo "0.0.0" | sed 's/^v//' | awk -F'[ .]' '{print $$1"."$$2+1".0"}')
 
 .PHONY: major
 major: ## Release a new major version
-	@${MAKE} release-$(shell git describe --abbrev=0 --tags | sed 's/^v//' | awk -F'[ .]' '{print $$1+1".0.0"}')
+	@${MAKE} release-$(shell git describe --abbrev=0 --tags 2> /dev/null || echo "0.0.0" | sed 's/^v//' | awk -F'[ .]' '{print $$1+1".0.0"}')
 
 .PHONY: list
 list: ## List all make targets
