@@ -221,15 +221,15 @@ endif
 
 .PHONY: patch
 patch: ## Release a new patch version
-	@${MAKE} release-$(shell git describe --abbrev=0 --tags 2> /dev/null || echo "0.0.0" | sed 's/^v//' | awk -F'[ .]' '{print $$1"."$$2"."$$3+1}')
+	@${MAKE} release-$(shell (git describe --abbrev=0 --tags 2> /dev/null || echo "0.0.0") | sed 's/^v//' | awk -F'[ .]' '{print $$1"."$$2"."$$3+1}')
 
 .PHONY: minor
 minor: ## Release a new minor version
-	@${MAKE} release-$(shell git describe --abbrev=0 --tags 2> /dev/null || echo "0.0.0" | sed 's/^v//' | awk -F'[ .]' '{print $$1"."$$2+1".0"}')
+	@${MAKE} release-$(shell (git describe --abbrev=0 --tags 2> /dev/null || echo "0.0.0") | sed 's/^v//' | awk -F'[ .]' '{print $$1"."$$2+1".0"}')
 
 .PHONY: major
 major: ## Release a new major version
-	@${MAKE} release-$(shell git describe --abbrev=0 --tags 2> /dev/null || echo "0.0.0" | sed 's/^v//' | awk -F'[ .]' '{print $$1+1".0.0"}')
+	@${MAKE} release-$(shell (git describe --abbrev=0 --tags 2> /dev/null || echo "0.0.0") | sed 's/^v//' | awk -F'[ .]' '{print $$1+1".0.0"}')
 
 .PHONY: list
 list: ## List all make targets
