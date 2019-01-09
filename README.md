@@ -8,6 +8,8 @@
 [![CircleCI (all branches)](https://img.shields.io/circleci/project/github/sagikazarmark/modern-go-application.svg?style=flat-square)](https://circleci.com/gh/sagikazarmark/modern-go-application)
 [![Gitlab](https://img.shields.io/badge/gitlab-sagikazarmark%2Fmodern--go--application-orange.svg?logo=gitlab&longCache=true&style=flat-square)](https://gitlab.com/sagikazarmark/modern-go-application)
 
+**Go application boilerplate and example applying modern practices**
+
 This repository has multiple purposes:
 
 - It serves as a boilerplate for new projects
@@ -33,6 +35,19 @@ Some of the features:
 - logging (using [goph/logur](https://github.com/goph/logur) and [sirupsen/logrus](https://github.com/goph/logur))
 - health checks (using [InVisionApp/go-health](https://github.com/InVisionApp/go-health))
 - configuration (using [spf13/viper](https://github.com/spf13/viper))
+
+
+## Usage
+
+To create a new application from the boilerplate clone this repository (if you haven't done already) and execute the following:
+
+```bash
+cd cmd/init && GO111MODULE=on go run -tags init . && cd -
+? Package name github.com/sagikazarmark/modern-go-application
+? Project name modern-go-application
+? Binary name modern-go-application
+? Remove this init script? Yes
+```
 
 
 ## Inspiration
