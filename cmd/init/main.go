@@ -139,7 +139,7 @@ func updateMakefile(packageName string, binaryName string) {
 	replaceInFile(
 		filepath.Join(relativeBase, "Makefile"),
 		"BINARY_NAME ?= $(shell basename $$PWD)",
-		fmt.Sprintf("BINARY_NAME = %s", binaryName),
+		fmt.Sprintf("BINARY_NAME ?= %s", binaryName),
 	)
 }
 
