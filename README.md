@@ -46,6 +46,8 @@ cd cmd/init && GO111MODULE=on go run -tags init . && cd -
 ? Package name github.com/sagikazarmark/modern-go-application
 ? Project name modern-go-application
 ? Binary name modern-go-application
+? Service name modern-go-application
+? Friendly service name Modern Go Application
 ? Remove this init script? Yes
 ```
 
