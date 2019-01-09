@@ -1,0 +1,212 @@
+{{- if .Values.mysql.enabled }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "spotguide-modern-go-application.fullname" . | trunc 47 | trimSuffix "-" }}-mysql-create-db
+  labels:
+    app.kubernetes.io/name: {{ include "spotguide-modern-go-application.name" . }}
+    helm.sh/chart: {{ include "spotguide-modern-go-application.chart" . }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | replace "+" "_" }}
+    app.kubernetes.io/component: database
+    app.kubernetes.io/part-of: {{ include "spotguide-modern-go-application.name" . }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  backoffLimit: 10
+  template:
+    metadata:
+      name: {{ include "spotguide-modern-go-application.fullname" . | trunc 47 | trimSuffix "-" }}-mysql-create-db
+      labels:
+        app.kubernetes.io/name: {{ include "spotguide-modern-go-application.name" . }}
+        helm.sh/chart: {{ include "spotguide-modern-go-application.chart" . }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/version: {{ .Chart.AppVersion | replace "+" "_" }}
+        app.kubernetes.io/component: database
+        app.kubernetes.io/part-of: {{ include "spotguide-modern-go-application.name" . }}
+    spec:
+      restartPolicy: "OnFailure"
+      containers:
+      - name: mysql-client
+        image: "banzaicloud/mysql-client:0.0.3"
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: VERBOSE
+            value: "true"
+          - name: MYSQL_HOST
+            value: {{ include "spotguide-modern-go-application.mysql.host" . }}
+          - name: MYSQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "spotguide-modern-go-application.mysql.rootSecretName" . }}
+                key: mysql-root-password
+        args:
+          - CREATE DATABASE `{{ required "MySQL database is required" .Values.mysql.database }}`;
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "spotguide-modern-go-application.fullname" . | trunc 45 | trimSuffix "-" }}-mysql-create-user
+  labels:
+    app.kubernetes.io/name: {{ include "spotguide-modern-go-application.name" . }}
+    helm.sh/chart: {{ include "spotguide-modern-go-application.chart" . }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | replace "+" "_" }}
+    app.kubernetes.io/component: database
+    app.kubernetes.io/part-of: {{ include "spotguide-modern-go-application.name" . }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  backoffLimit: 10
+  template:
+    metadata:
+      name: {{ include "spotguide-modern-go-application.fullname" . | trunc 45 | trimSuffix "-" }}-mysql-create-user
+      labels:
+        app.kubernetes.io/name: {{ include "spotguide-modern-go-application.name" . }}
+        helm.sh/chart: {{ include "spotguide-modern-go-application.chart" . }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/version: {{ .Chart.AppVersion | replace "+" "_" }}
+        app.kubernetes.io/component: database
+        app.kubernetes.io/part-of: {{ include "spotguide-modern-go-application.name" . }}
+    spec:
+      restartPolicy: "OnFailure"
+      containers:
+        - name: mysql-client
+          image: "banzaicloud/mysql-client:0.0.3"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: VERBOSE
+              value: "true"
+            - name: MYSQL_HOST
+              value: {{ include "spotguide-modern-go-application.mysql.host" . }}
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "spotguide-modern-go-application.mysql.rootSecretName" . }}
+                  key: mysql-root-password
+            - name: APP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "spotguide-modern-go-application.mysql.userSecretName" . }}
+                  key: mysql-username
+            - name: APP_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "spotguide-modern-go-application.mysql.userSecretName" . }}
+                  key: mysql-password
+          args:
+            - CREATE USER '{{ `{{ .APP_USER }}` }}'@'%' IDENTIFIED BY '{{ `{{.APP_PASS | replace "'" "\\'" }}` }}';
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "spotguide-modern-go-application.fullname" . | trunc 46 | trimSuffix "-" }}-mysql-grant-user
+  labels:
+    app.kubernetes.io/name: {{ include "spotguide-modern-go-application.name" . }}
+    helm.sh/chart: {{ include "spotguide-modern-go-application.chart" . }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | replace "+" "_" }}
+    app.kubernetes.io/component: database
+    app.kubernetes.io/part-of: {{ include "spotguide-modern-go-application.name" . }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "10"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  backoffLimit: 10
+  template:
+    metadata:
+      name: {{ include "spotguide-modern-go-application.fullname" . | trunc 46 | trimSuffix "-" }}-mysql-grant-user
+      labels:
+        app.kubernetes.io/name: {{ include "spotguide-modern-go-application.name" . }}
+        helm.sh/chart: {{ include "spotguide-modern-go-application.chart" . }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/version: {{ .Chart.AppVersion | replace "+" "_" }}
+        app.kubernetes.io/component: database
+        app.kubernetes.io/part-of: {{ include "spotguide-modern-go-application.name" . }}
+    spec:
+      restartPolicy: "OnFailure"
+      containers:
+        - name: mysql-client
+          image: "banzaicloud/mysql-client:0.0.3"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: VERBOSE
+              value: "true"
+            - name: MYSQL_HOST
+              value: {{ include "spotguide-modern-go-application.mysql.host" . }}
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "spotguide-modern-go-application.mysql.rootSecretName" . }}
+                  key: mysql-root-password
+            - name: APP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "spotguide-modern-go-application.mysql.userSecretName" . }}
+                  key: mysql-username
+          args:
+            - GRANT ALL PRIVILEGES ON {{ required "MySQL database is required" .Values.mysql.database }}.* TO '{{ `{{ .APP_USER }}` }}'@'%';
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "spotguide-modern-go-application.fullname" . | trunc 40 | trimSuffix "-" }}-mysql-flush-privileges
+  labels:
+    app.kubernetes.io/name: {{ include "spotguide-modern-go-application.name" . }}
+    helm.sh/chart: {{ include "spotguide-modern-go-application.chart" . }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | replace "+" "_" }}
+    app.kubernetes.io/component: database
+    app.kubernetes.io/part-of: {{ include "spotguide-modern-go-application.name" . }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "15"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  backoffLimit: 10
+  template:
+    metadata:
+      name: {{ include "spotguide-modern-go-application.fullname" . | trunc 40 | trimSuffix "-" }}-mysql-flush-privileges
+      labels:
+        app.kubernetes.io/name: {{ include "spotguide-modern-go-application.name" . }}
+        helm.sh/chart: {{ include "spotguide-modern-go-application.chart" . }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/version: {{ .Chart.AppVersion | replace "+" "_" }}
+        app.kubernetes.io/component: database
+        app.kubernetes.io/part-of: {{ include "spotguide-modern-go-application.name" . }}
+    spec:
+      restartPolicy: "OnFailure"
+      containers:
+        - name: mysql-client
+          image: "banzaicloud/mysql-client:0.0.3"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: VERBOSE
+              value: "true"
+            - name: MYSQL_HOST
+              value: {{ include "spotguide-modern-go-application.mysql.host" . }}
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "spotguide-modern-go-application.mysql.rootSecretName" . }}
+                  key: mysql-root-password
+          args:
+            - FLUSH PRIVILEGES;
+{{- end }}

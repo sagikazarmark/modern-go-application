@@ -1,0 +1,208 @@
+apiVersion: v1
+name: "Modern Go Application"
+description: "Spotguide for Go applications"
+tags: ["Go", "Golang", "application"]
+resources:
+  sumCpu: 2
+  sumMem: 3
+  filters: []
+  sameSize: false
+  onDemandPct: 100
+  minNodes: 1
+  maxNodes: 1
+questions:
+  - type: secret
+    dataType: password
+    name: docker-hub
+    group: Docker Hub credentials
+    required:
+      input: true
+      username: true
+      password: true
+    tags:
+      - app:docker
+    targets:
+      - build_image.secretFrom.DOCKER_USERNAME.name
+      - build_image.secretFrom.DOCKER_PASSWORD.name
+  - type: pipeline
+    dataType: boolean
+    key: mysql-install
+    group: MySQL
+    label: Install MySQL server
+    default: true
+    order: 1
+    targets:
+      - deploy_application.deployment.values.mysql.enabled
+  - type: pipeline
+    dataType: string
+    group: MySQL
+    label: Host
+    required: true
+    minLength: 1
+    order: 2
+    targets:
+      - deploy_application.deployment.values.mysql.host
+    showIf:
+      properties:
+        mysql-install:
+          const: false
+  - type: pipeline
+    dataType: number
+    group: MySQL
+    label: Port
+    required: true
+    default: 3306
+    minLength: 1
+    order: 3
+    targets:
+      - deploy_application.deployment.values.mysql.port
+    showIf:
+      properties:
+        mysql-install:
+          const: false
+  - type: secret
+    dataType: password
+    name: mysql-existing-user-credentials
+    group: MySQL
+    label: User credentials
+    order: 4
+    required:
+      input: true
+      username: true
+      password: true
+    tags:
+      - app:mysql
+    targets:
+      - install_mysql_user_credentials_secret.clusterSecret.sourceSecretName
+    showIf:
+      properties:
+        mysql-install:
+          const: false
+  - type: secret
+    dataType: password
+    name: mysql-user-credentials
+    group: MySQL
+    label: User credentials
+    order: 4
+    required:
+      username: true
+    default:
+      username: app
+    tags:
+      - app:mysql
+    targets:
+      - install_mysql_user_credentials_secret.clusterSecret.sourceSecretName
+    showIf:
+      properties:
+        mysql-install:
+          const: true
+  - type: pipeline
+    dataType: string
+    group: MySQL
+    label: Database name
+    required: true
+    default: app
+    minLength: 1
+    order: 5
+    targets:
+      - deploy_application.deployment.values.mysql.database
+  - type: pipeline
+    dataType: boolean
+    key: mysql-root-password
+    group: MySQL
+    label: Configure MySQL root password
+    default: false
+    order: 6
+    showIf:
+      properties:
+        mysql-install:
+          const: true
+  - type: secret
+    dataType: password
+    name: mysql-root-password
+    label: Root password
+    group: MySQL
+    order: 7
+    required:
+      username: root
+    default:
+      username: root
+    disabled:
+      username: true
+    tags:
+      - app:mysql
+    targets:
+      - install_mysql_root_password_secret.clusterSecret.sourceSecretName
+    showIf:
+      properties:
+        mysql-install:
+          const: true
+        mysql-root-password:
+          const: true
+  - type: pipeline
+    dataType: boolean
+    key: application_resources
+    group: Resources
+    label: Customize application resources
+    default: false
+    order: 1
+  - type: pipeline
+    dataType: string
+    group: Resources
+    label: Memory request
+    description: Minimum amount of memory the application container needs
+    required: true
+    pattern: ^\d+(E|P|T|G|M|K|Ei|Pi|Ti|Gi|Mi|Ki)?$
+    default: 128Mi
+    order: 2
+    targets:
+      - deploy_application.deployment.values.resources.requests.memory
+    showIf:
+      properties:
+        application_resources:
+          const: true
+  - type: pipeline
+    dataType: string
+    group: Resources
+    label: Memory limit
+    description: Maximum amount of memory the application container can use
+    required: true
+    pattern: ^\d+(E|P|T|G|M|K|Ei|Pi|Ti|Gi|Mi|Ki)?$
+    default: 512Mi
+    order: 3
+    targets:
+      - deploy_application.deployment.values.resources.limits.memory
+    showIf:
+      properties:
+        application_resources:
+          const: true
+  - type: pipeline
+    dataType: string
+    group: Resources
+    label: CPU request
+    description: Minimum amount of CPU the application container needs
+    required: true
+    pattern: ^\d+(\.?\d+|m)?$
+    default: 250m
+    order: 4
+    targets:
+      - deploy_application.deployment.values.resources.requests.cpu
+    showIf:
+      properties:
+        application_resources:
+          const: true
+  - type: pipeline
+    dataType: string
+    group: Resources
+    label: CPU limit
+    description: Maximum amount of CPU the application container can use
+    required: true
+    pattern: ^\d+(\.?\d+|m)?$
+    default: 500m
+    order: 5
+    targets:
+      - deploy_application.deployment.values.resources.limits.cpu
+    showIf:
+      properties:
+        application_resources:
+          const: true

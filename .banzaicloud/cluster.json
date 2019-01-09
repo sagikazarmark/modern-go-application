@@ -1,0 +1,22 @@
+{
+    "name": "modern-go-application",
+    "location": "us-central1-f",
+    "cloud": "google",
+    "properties": {
+        "gke": {
+            "master":{
+                "version":"1.11"
+            },
+            "nodeVersion":"1.11",
+            "nodePools": {
+                "pool1": {
+                    "autoscaling": false,
+                    "minCount": 1,
+                    "maxCount": 2,
+                    "count": 1,
+                    "instanceType": "n1-standard-2"
+                }
+            }
+        }
+    }
+}
