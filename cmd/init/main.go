@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/mattn/go-zglob" // nolint: goimports
+	"github.com/mattn/go-zglob"      // nolint: goimports
 	"gopkg.in/AlecAivazis/survey.v1" // nolint: goimports
 )
 
@@ -34,6 +34,24 @@ func main() {
 			Validate: survey.Required,
 		},
 		{
+			Name: "serviceName",
+			Prompt: &survey.Input{
+				Message: "Service name",
+				Default: projectName,
+				Help:    "And identifier like name that will show up in logs and other public places to identify the application",
+			},
+			Validate: survey.Required,
+		},
+		{
+			Name: "friendlyServiceName",
+			Prompt: &survey.Input{
+				Message: "Friendly service name",
+				Default: "",
+				Help:    "A human readable name for the service (eg. Modern Go Application)",
+			},
+			Validate: survey.Required,
+		},
+		{
 			Name: "removeInit",
 			Prompt: &survey.Confirm{
 				Message: "Remove this init script?",
@@ -44,8 +62,10 @@ func main() {
 	}
 
 	answers := struct {
-		BinaryName string
-		RemoveInit bool
+		BinaryName          string
+		ServiceName         string
+		FriendlyServiceName string
+		RemoveInit          bool
 	}{}
 
 	err := survey.Ask(questions, &answers)
@@ -58,6 +78,7 @@ func main() {
 	renameIdeaProjectFile(projectName)
 	updateIdeaRunConfigurations(projectName)
 	renameBinaryFolder(answers.BinaryName)
+	updateVars(answers.BinaryName, answers.ServiceName, answers.FriendlyServiceName)
 	updateMakefile(packageName, answers.BinaryName)
 	updateFiles(packageName)
 	updateSourceFiles(packageName, answers.BinaryName)
@@ -121,6 +142,20 @@ func renameBinaryFolder(binaryName string) {
 
 	err := os.Rename(new, old)
 	fail(err)
+}
+
+func updateVars(binaryName string, serviceName string, friendlyServiceName string) {
+	replaceInFile(
+		filepath.Join(relativeBase, "cmd", binaryName, "vars.go"),
+		"ServiceName = \"mga\"",
+		fmt.Sprintf("ServiceName = \"%s\"", serviceName),
+	)
+
+	replaceInFile(
+		filepath.Join(relativeBase, "cmd", binaryName, "vars.go"),
+		"FriendlyServiceName = \"Modern Go Application\"",
+		fmt.Sprintf("FriendlyServiceName = \"%s\"", friendlyServiceName),
+	)
 }
 
 func updateMakefile(packageName string, binaryName string) {
