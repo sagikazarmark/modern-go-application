@@ -5,10 +5,10 @@ const (
 	//
 	// It identifies the service itself, the actual instance needs to be identified via environment
 	// and other details.
-	ServiceName = "boilerplate.service"
+	ServiceName = "mga"
 
 	// FriendlyServiceName is the visible name of the service.
-	FriendlyServiceName = "Boilerplate service"
+	FriendlyServiceName = "Modern Go Application"
 
 	// EnvPrefix is prepended to environment variables when processing configuration.
 	EnvPrefix = "app"
