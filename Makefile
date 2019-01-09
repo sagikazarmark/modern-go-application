@@ -4,7 +4,7 @@ OS = $(shell uname)
 
 # Project variables
 PACKAGE = $(shell echo $${PWD\#\#*src/})
-BUILD_PACKAGE ?= ${PACKAGE}/cmd
+BUILD_PACKAGE ?= ${PACKAGE}/cmd/$(shell basename $$PWD)
 BINARY_NAME ?= $(shell basename $$PWD)
 DOCKER_IMAGE = $(shell echo ${PACKAGE} | cut -d '/' -f 2,3)
 OPENAPI_DESCRIPTOR = swagger.yaml
