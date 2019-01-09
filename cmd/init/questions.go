@@ -1,3 +1,5 @@
+//+build init
+
 package main
 
 import (
@@ -5,7 +7,7 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"gopkg.in/AlecAivazis/survey.v1"
+	"gopkg.in/AlecAivazis/survey.v1" // nolint: goimports
 )
 
 func mustAskOne(p survey.Prompt, response interface{}, v survey.Validator, opts ...survey.AskOpt) {

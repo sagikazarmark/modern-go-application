@@ -1,3 +1,5 @@
+//+build init
+
 package main
 
 import (
@@ -7,8 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/mattn/go-zglob"
-	"gopkg.in/AlecAivazis/survey.v1"
+	"github.com/mattn/go-zglob" // nolint: goimports
+	"gopkg.in/AlecAivazis/survey.v1" // nolint: goimports
 )
 
 const (
