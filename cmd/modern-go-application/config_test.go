@@ -17,7 +17,7 @@ func TestConfigure(t *testing.T) {
 
 	Configure(v, p)
 
-	file, err := os.Open("../config.toml.dist")
+	file, err := os.Open("../../config.toml.dist")
 	require.NoError(t, err)
 
 	v.SetConfigType("toml")
