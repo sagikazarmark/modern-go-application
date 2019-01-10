@@ -67,5 +67,5 @@
   version = "0.2.1"
 
 [[constraint]]
-  name = "github.com/satori/go.uuid"
-  version = "1.2.0"
+  name = "github.com/gofrs/uuid"
+  version = "3.1.2"

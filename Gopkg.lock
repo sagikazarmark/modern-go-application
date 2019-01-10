@@ -85,6 +85,14 @@
   version = "v1.4.1"
 
 [[projects]]
+  digest = "1:c594a691090b434d55c67f6cc8e326ef5ba49452abc059821bd5d4fd4cdef08c"
+  name = "github.com/gofrs/uuid"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "7077aa61129615a0d7f45c49101cd011ab221c27"
+  version = "v3.1.2"
+
+[[projects]]
   digest = "1:97df918963298c287643883209a2c3f642e6593379f97ab400c2a2e219ab647d"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
@@ -459,6 +467,7 @@
     "github.com/ThreeDotsLabs/watermill/message/router/middleware",
     "github.com/cloudflare/tableflip",
     "github.com/go-sql-driver/mysql",
+    "github.com/gofrs/uuid",
     "github.com/gomodule/redigo/redis",
     "github.com/goph/emperror",
     "github.com/goph/logur",
@@ -470,7 +479,6 @@
     "github.com/oklog/run",
     "github.com/opencensus-integrations/ocsql",
     "github.com/pkg/errors",
-    "github.com/satori/go.uuid",
     "github.com/sirupsen/logrus",
     "github.com/spf13/pflag",
     "github.com/spf13/viper",

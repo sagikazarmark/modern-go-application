@@ -1,3 +1,4 @@
+// nolint: dupl
 package greetingadapter
 
 import (
@@ -6,9 +7,9 @@ import (
 
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
-	"github.com/satori/go.uuid"
 )
 
 const (
@@ -34,10 +35,18 @@ func (e *SayHelloEvents) SaidHelloTo(ctx context.Context, event greeting.SaidHel
 		return errors.Wrap(err, "failed to marshal event payload")
 	}
 
-	msg := message.NewMessage(uuid.NewV4().String(), payload)
+	msgID, err := uuid.NewV4()
+	if err != nil {
+		return errors.Wrap(err, "failed to generate message ID")
+	}
+	msg := message.NewMessage(msgID.String(), payload)
 
 	// TODO: set from context
-	middleware.SetCorrelationID(uuid.NewV4().String(), msg)
+	corrID, err := uuid.NewV4()
+	if err != nil {
+		return errors.Wrap(err, "failed to generate correlation ID")
+	}
+	middleware.SetCorrelationID(corrID.String(), msg)
 
 	err = e.publisher.Publish(saidHelloToTopic, msg)
 	if err != nil {
