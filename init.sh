@@ -46,6 +46,7 @@ replace "s|.idea/project.iml|.idea/${projectName}.iml|g" .idea/modules.xml
 # Run configurations
 replace "s|name=\"project\"|name=\"${projectName}\"|" .idea/runConfigurations/All_tests.xml
 replace "s|name=\"project\"|name=\"${projectName}\"|" .idea/runConfigurations/Debug.xml
+replace "s|value=\"\\\$PROJECT_DIR\\$\/cmd\/\"|value=\"\$PROJECT_DIR\$/cmd/${binaryName}/\"|" .idea/runConfigurations/Debug.xml
 replace "s|name=\"project\"|name=\"${projectName}\"|" .idea/runConfigurations/Integration_tests.xml
 replace "s|name=\"project\"|name=\"${projectName}\"|" .idea/runConfigurations/Tests.xml
 
