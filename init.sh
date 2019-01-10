@@ -41,21 +41,21 @@ removeInit=${removeInit:-n}
 
 # IDE configuration
 mv .idea/project.iml .idea/${projectName}.iml
-replace "s|.idea/project.iml|.idea/${projectName}.iml|g" .idea/modules.xml
+replace 's|.idea/project.iml|.idea/'${projectName}'.iml|g' .idea/modules.xml
 
 # Run configurations
-replace "s|name=\"project\"|name=\"${projectName}\"|" .idea/runConfigurations/All_tests.xml
-replace "s|name=\"project\"|name=\"${projectName}\"|" .idea/runConfigurations/Debug.xml
-replace "s|value=\"\\\$PROJECT_DIR\\$\/cmd\/\"|value=\"\$PROJECT_DIR\$/cmd/${binaryName}/\"|" .idea/runConfigurations/Debug.xml
-replace "s|name=\"project\"|name=\"${projectName}\"|" .idea/runConfigurations/Integration_tests.xml
-replace "s|name=\"project\"|name=\"${projectName}\"|" .idea/runConfigurations/Tests.xml
+replace 's|name="project"|name="'${projectName}'"|' .idea/runConfigurations/All_tests.xml
+replace 's|name="project"|name="'${projectName}'"|' .idea/runConfigurations/Debug.xml
+replace 's|value="\$PROJECT_DIR\$\/cmd\/"|value="$PROJECT_DIR$/cmd/'${binaryName}'/"|' .idea/runConfigurations/Debug.xml
+replace 's|name="project"|name="'${projectName}'"|' .idea/runConfigurations/Integration_tests.xml
+replace 's|name="project"|name="'${projectName}'"|' .idea/runConfigurations/Tests.xml
 
 # Binary name
 mv cmd/${originalBinaryName} cmd/${binaryName}
 
 # Variables
-replace "s|ServiceName = \"mga\"|ServiceName = \"${serviceName}\"|" cmd/${binaryName}/vars.go
-replace "s|FriendlyServiceName = \"Modern Go Application\"|FriendlyServiceName = \"${friendlyServiceName}\"|" cmd/${binaryName}/vars.go
+replace 's|ServiceName = "mga"|ServiceName = "'${serviceName}'"|' cmd/${binaryName}/vars.go
+replace 's|FriendlyServiceName = "Modern Go Application"|FriendlyServiceName = "'"${friendlyServiceName}"'"|' cmd/${binaryName}/vars.go
 
 # Makefile
 replace "s|^PACKAGE = .*|PACKAGE = ${packageName}|" Makefile
