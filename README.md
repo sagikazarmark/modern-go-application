@@ -42,13 +42,14 @@ Some of the features:
 To create a new application from the boilerplate clone this repository (if you haven't done already) and execute the following:
 
 ```bash
-cd cmd/init && GO111MODULE=on go run -tags init . && cd -
-? Package name github.com/sagikazarmark/modern-go-application
-? Project name modern-go-application
-? Binary name modern-go-application
-? Service name modern-go-application
-? Friendly service name Modern Go Application
-? Remove this init script? Yes
+chmod +x init.sh
+./init.sh
+? Package name (github.com/sagikazarmark/modern-go-application-init)
+? Project name (modern-go-application-init)
+? Binary name (modern-go-application-init)
+? Service name (modern-go-application-init)
+? Friendly service name (Modern Go Application Init)
+? Remove init script (y/N) y
 ```
 
 
