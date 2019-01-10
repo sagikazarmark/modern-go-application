@@ -10,7 +10,7 @@ import (
 
 func TestLogger_Levels(t *testing.T) {
 	tests := map[string]struct {
-		logFunc func(logger *Logger, msg string, fields map[string]interface{})
+		logFunc func(logger *Logger, msg string, fields ...map[string]interface{})
 	}{
 		"debug": {
 			logFunc: (*Logger).Debug,

@@ -18,13 +18,13 @@ func NewLogger(logger logur.Logger) *Logger {
 }
 
 // Debug logs an info event.
-func (l *Logger) Debug(msg string, fields map[string]interface{}) {
-	l.logger.Debug(msg, fields)
+func (l *Logger) Debug(msg string, fields ...map[string]interface{}) {
+	l.logger.Debug(msg, fields...)
 }
 
 // Info logs an info event.
-func (l *Logger) Info(msg string, fields map[string]interface{}) {
-	l.logger.Info(msg, fields)
+func (l *Logger) Info(msg string, fields ...map[string]interface{}) {
+	l.logger.Info(msg, fields...)
 }
 
 // WithFields annotates a logger with some context.

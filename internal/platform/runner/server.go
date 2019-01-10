@@ -16,7 +16,7 @@ type Server interface {
 // ServerRunnerLogger is the fundamental interface for all log operations.
 type ServerRunnerLogger interface {
 	// Info logs an info event.
-	Info(msg string, fields map[string]interface{})
+	Info(msg string, fields ...map[string]interface{})
 }
 
 // ServerRunnerErrorHandler is responsible for handling an error.
@@ -53,7 +53,7 @@ func (r *ServerRunner) Stop(e error) {
 		defer cancel()
 	}
 
-	r.Logger.Info("shutting server down", nil)
+	r.Logger.Info("shutting server down")
 
 	err := r.Server.Shutdown(ctx)
 	if err != nil {

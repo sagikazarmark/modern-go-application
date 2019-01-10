@@ -10,7 +10,7 @@ import (
 
 func TestLogger_Levels(t *testing.T) {
 	tests := map[string]struct {
-		logFunc func(logger *Logger, msg string, fields map[string]interface{})
+		logFunc func(logger *Logger, msg string, fields ...map[string]interface{})
 	}{
 		"trace": {
 			logFunc: (*Logger).Trace,
@@ -36,7 +36,7 @@ func TestLogger_Levels(t *testing.T) {
 			testLogger := logur.NewTestLogger()
 			logger := NewLogger(testLogger)
 
-			test.logFunc(logger, fmt.Sprintf("message: %s", name), nil)
+			test.logFunc(logger, fmt.Sprintf("message: %s", name))
 
 			level, _ := logur.ParseLevel(name)
 

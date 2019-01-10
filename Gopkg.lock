@@ -112,7 +112,7 @@
   version = "v0.16.0"
 
 [[projects]]
-  digest = "1:0f0df04ba1a33bf32f3236181487aadf2a7c77662fa59abfb875b312bde5258e"
+  digest = "1:081ec431b3df2fa504467370d60cd771f2fbef9fe6ec4e2a9183a6bea47f03f2"
   name = "github.com/goph/logur"
   packages = [
     ".",
@@ -122,8 +122,8 @@
     "testing",
   ]
   pruneopts = "UT"
-  revision = "25e7290ebd201441faaa61f5ce43d00679a3ae13"
-  version = "v0.8.0"
+  revision = "f26f8cefccfb6837e0d36561467cf67d2d0b65b1"
+  version = "v0.9.0"
 
 [[projects]]
   digest = "1:c79fb010be38a59d657c48c6ba1d003a8aa651fa56b579d959d74573b7dff8e1"
