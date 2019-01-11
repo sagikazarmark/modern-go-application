@@ -85,12 +85,12 @@
   version = "v1.4.1"
 
 [[projects]]
-  digest = "1:c594a691090b434d55c67f6cc8e326ef5ba49452abc059821bd5d4fd4cdef08c"
+  digest = "1:bed9d72d596f94e65fff37f4d6c01398074a6bb1c3f3ceff963516bd01db6ff5"
   name = "github.com/gofrs/uuid"
   packages = ["."]
   pruneopts = "UT"
-  revision = "7077aa61129615a0d7f45c49101cd011ab221c27"
-  version = "v3.1.2"
+  revision = "6b08a5c5172ba18946672b49749cde22873dd7c2"
+  version = "v3.2.0"
 
 [[projects]]
   digest = "1:97df918963298c287643883209a2c3f642e6593379f97ab400c2a2e219ab647d"
