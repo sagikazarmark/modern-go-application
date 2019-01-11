@@ -1,5 +1,5 @@
 // Package netrunner provides a group runner for servers.
-package netrunner
+package runner
 
 import (
 	"context"

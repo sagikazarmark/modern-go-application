@@ -23,7 +23,6 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/prometheus"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/runner"
-	"github.com/sagikazarmark/modern-go-application/internal/platform/runner/netrunner"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/watermill"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -153,7 +152,7 @@ func main() {
 		ln, err := upg.Fds.Listen("tcp", config.Instrumentation.Addr)
 		emperror.Panic(err)
 
-		r := &netrunner.ServerRunner{
+		r := &runner.ServerRunner{
 			Server:          server,
 			Listener:        ln,
 			ShutdownTimeout: config.ShutdownTimeout,
@@ -227,7 +226,7 @@ func main() {
 		ln, err := upg.Fds.Listen("tcp", config.App.Addr)
 		emperror.Panic(err)
 
-		r := &netrunner.ServerRunner{
+		r := &runner.ServerRunner{
 			Server:          server,
 			Listener:        ln,
 			ShutdownTimeout: config.ShutdownTimeout,
