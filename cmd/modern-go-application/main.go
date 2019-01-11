@@ -125,8 +125,6 @@ func main() {
 	// Configure graceful restart
 	upg, _ := tableflip.New(tableflip.Options{})
 
-	var group run.Group
-
 	// Do an upgrade on SIGHUP
 	go func() {
 		ch := make(chan os.Signal, 1)
@@ -137,6 +135,8 @@ func main() {
 			_ = upg.Upgrade()
 		}
 	}()
+
+	var group run.Group
 
 	// Set up instrumentation server
 	{
