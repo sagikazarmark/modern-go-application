@@ -140,12 +140,8 @@ func main() {
 
 	// Set up instrumentation server
 	{
-		name := "instrumentation"
+		const name = "instrumentation"
 		logger := log.WithFields(logger, map[string]interface{}{"server": name})
-		server := &http.Server{
-			Handler:  instrumentationRouter,
-			ErrorLog: log.NewErrorStandardLogger(logger),
-		}
 
 		logger.Info("listening on address", map[string]interface{}{"address": config.Instrumentation.Addr})
 
@@ -153,7 +149,10 @@ func main() {
 		emperror.Panic(err)
 
 		r := &runner.ServerRunner{
-			Server:          server,
+			Server: &http.Server{
+				Handler:  instrumentationRouter,
+				ErrorLog: log.NewErrorStandardLogger(logger),
+			},
 			Listener:        ln,
 			ShutdownTimeout: config.ShutdownTimeout,
 			Logger:          logger,
@@ -192,9 +191,7 @@ func main() {
 		err = internal.RegisterEventHandlers(h, pubsub, logger)
 		emperror.Panic(err)
 
-		r := &runner.RunCloserRunner{RunCloser: h}
-
-		runner.Register(&group, r)
+		runner.Register(&group, runner.NewRunCloserRunner(h))
 	}
 
 	// Register HTTP stat views
@@ -212,14 +209,8 @@ func main() {
 
 	// Set up app server
 	{
-		name := "app"
+		const name = "app"
 		logger := log.WithFields(logger, map[string]interface{}{"server": name})
-		server := &http.Server{
-			Handler: &ochttp.Handler{
-				Handler: app,
-			},
-			ErrorLog: log.NewErrorStandardLogger(logger),
-		}
 
 		logger.Info("listening on address", map[string]interface{}{"address": config.App.Addr})
 
@@ -227,7 +218,12 @@ func main() {
 		emperror.Panic(err)
 
 		r := &runner.ServerRunner{
-			Server:          server,
+			Server: &http.Server{
+				Handler: &ochttp.Handler{
+					Handler: app,
+				},
+				ErrorLog: log.NewErrorStandardLogger(logger),
+			},
 			Listener:        ln,
 			ShutdownTimeout: config.ShutdownTimeout,
 			Logger:          logger,
