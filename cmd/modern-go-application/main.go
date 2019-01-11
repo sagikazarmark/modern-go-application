@@ -160,7 +160,7 @@ func main() {
 			ErrorHandler:    emperror.HandlerWith(errorHandler, "server", name),
 		}
 
-		group.Add(r.Start, r.Stop)
+		runner.Register(&group, r)
 	}
 
 	// Connect to the database
@@ -194,7 +194,7 @@ func main() {
 
 		r := &runner.RunCloserRunner{RunCloser: h}
 
-		group.Add(r.Start, r.Stop)
+		runner.Register(&group, r)
 	}
 
 	// Register HTTP stat views
@@ -234,7 +234,7 @@ func main() {
 			ErrorHandler:    emperror.HandlerWith(errorHandler, "server", name),
 		}
 
-		group.Add(r.Start, r.Stop)
+		runner.Register(&group, r)
 	}
 
 	// Setup exit signal
