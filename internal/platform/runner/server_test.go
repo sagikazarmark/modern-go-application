@@ -52,10 +52,7 @@ func TestServerRunner_Start(t *testing.T) {
 	go func() {
 		defer wg.Done()
 
-		err := runner.Start()
-		if err != nil && err != http.ErrServerClosed {
-			t.Fatal(err)
-		}
+		_ = runner.Start()
 	}()
 
 	resp, err := http.Get("http://" + runner.Listener.Addr().String())
