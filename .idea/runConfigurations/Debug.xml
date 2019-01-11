@@ -10,7 +10,7 @@
     </envs>
     <kind value="DIRECTORY" />
     <filePath value="$PROJECT_DIR$/" />
-    <directory value="$PROJECT_DIR$/cmd/" />
+    <directory value="$PROJECT_DIR$/cmd/modern-go-application/" />
     <output_directory value="$PROJECT_DIR$/build/" />
     <method v="2" />
   </configuration>
