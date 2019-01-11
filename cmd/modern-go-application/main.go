@@ -125,8 +125,6 @@ func main() {
 	// Configure graceful restart
 	upg, _ := tableflip.New(tableflip.Options{})
 
-	var group run.Group
-
 	// Do an upgrade on SIGHUP
 	go func() {
 		ch := make(chan os.Signal, 1)
@@ -138,14 +136,12 @@ func main() {
 		}
 	}()
 
+	var group run.Group
+
 	// Set up instrumentation server
 	{
-		name := "instrumentation"
+		const name = "instrumentation"
 		logger := log.WithFields(logger, map[string]interface{}{"server": name})
-		server := &http.Server{
-			Handler:  instrumentationRouter,
-			ErrorLog: log.NewErrorStandardLogger(logger),
-		}
 
 		logger.Info("listening on address", map[string]interface{}{"address": config.Instrumentation.Addr})
 
@@ -153,14 +149,17 @@ func main() {
 		emperror.Panic(err)
 
 		r := &runner.ServerRunner{
-			Server:          server,
+			Server: &http.Server{
+				Handler:  instrumentationRouter,
+				ErrorLog: log.NewErrorStandardLogger(logger),
+			},
 			Listener:        ln,
 			ShutdownTimeout: config.ShutdownTimeout,
 			Logger:          logger,
 			ErrorHandler:    emperror.HandlerWith(errorHandler, "server", name),
 		}
 
-		group.Add(r.Start, r.Stop)
+		runner.Register(&group, r)
 	}
 
 	// Connect to the database
@@ -192,9 +191,7 @@ func main() {
 		err = internal.RegisterEventHandlers(h, pubsub, logger)
 		emperror.Panic(err)
 
-		r := &runner.RunCloserRunner{RunCloser: h}
-
-		group.Add(r.Start, r.Stop)
+		runner.Register(&group, runner.NewRunCloserRunner(h))
 	}
 
 	// Register HTTP stat views
@@ -212,14 +209,8 @@ func main() {
 
 	// Set up app server
 	{
-		name := "app"
+		const name = "app"
 		logger := log.WithFields(logger, map[string]interface{}{"server": name})
-		server := &http.Server{
-			Handler: &ochttp.Handler{
-				Handler: app,
-			},
-			ErrorLog: log.NewErrorStandardLogger(logger),
-		}
 
 		logger.Info("listening on address", map[string]interface{}{"address": config.App.Addr})
 
@@ -227,14 +218,19 @@ func main() {
 		emperror.Panic(err)
 
 		r := &runner.ServerRunner{
-			Server:          server,
+			Server: &http.Server{
+				Handler: &ochttp.Handler{
+					Handler: app,
+				},
+				ErrorLog: log.NewErrorStandardLogger(logger),
+			},
 			Listener:        ln,
 			ShutdownTimeout: config.ShutdownTimeout,
 			Logger:          logger,
 			ErrorHandler:    emperror.HandlerWith(errorHandler, "server", name),
 		}
 
-		group.Add(r.Start, r.Stop)
+		runner.Register(&group, r)
 	}
 
 	// Setup exit signal

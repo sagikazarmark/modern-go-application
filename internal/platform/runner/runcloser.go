@@ -14,6 +14,13 @@ type RunCloserRunner struct {
 	RunCloser RunCloser
 }
 
+// NewRunCloserRunner returns a new RunCloserRunner.
+func NewRunCloserRunner(runCloser RunCloser) *RunCloserRunner {
+	return &RunCloserRunner{
+		RunCloser: runCloser,
+	}
+}
+
 // Start starts the RunCloser and waits for it to return.
 func (r *RunCloserRunner) Start() error {
 	return r.RunCloser.Run()
