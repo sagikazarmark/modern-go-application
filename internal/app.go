@@ -31,6 +31,11 @@ func NewApp(logger logur.Logger, publisher message.Publisher, errorHandler emper
 
 	router := mux.NewRouter()
 
+	router.Path("/").Methods("GET").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"status": "It works!"}`))
+	})
+
 	router.Path("/hello").Methods("GET").HandlerFunc(helloWorldController.HelloWorld)
 	router.Path("/hello").Methods("POST").HandlerFunc(helloWorldController.SayHello)
 
