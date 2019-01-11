@@ -5,6 +5,8 @@ import (
 	"context"
 	"net"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // Server accepts connections from the network and answers to requests.
@@ -18,18 +20,6 @@ type gracefulServer interface {
 	Shutdown(ctx context.Context) error
 }
 
-// Logger is the fundamental interface for all log operations.
-type Logger interface {
-	// Info logs an info event.
-	Info(msg string, fields ...map[string]interface{})
-}
-
-// ErrorHandler is responsible for handling an error.
-type ErrorHandler interface {
-	// Handle takes care of unhandled errors.
-	Handle(err error)
-}
-
 // ServerRunner implements server group run functions.
 type ServerRunner struct {
 	Server   Server
@@ -41,13 +31,29 @@ type ServerRunner struct {
 	ErrorHandler ErrorHandler
 }
 
+// NewServerRunner returns a new ServerRunner.
+func NewServerRunner(server Server, listener net.Listener) *ServerRunner {
+	return &ServerRunner{
+		Server:   server,
+		Listener: listener,
+	}
+}
+
 // Start starts the server and waits for it to return.
 func (r *ServerRunner) Start() error {
-	r.Logger.Info(
+	if r.Server == nil {
+		return errors.New("server is not configured")
+	}
+
+	if r.Listener == nil {
+		return errors.New("listener is not configured")
+	}
+
+	r.logger().Info(
 		"starting server",
 		map[string]interface{}{
 			"network": r.Listener.Addr().Network(),
-			"address":    r.Listener.Addr().String(),
+			"address": r.Listener.Addr().String(),
 		},
 	)
 
@@ -56,10 +62,10 @@ func (r *ServerRunner) Start() error {
 
 // Stop tries to shut the server down gracefully first (if the server supports it), then forcefully closes it.
 func (r *ServerRunner) Stop(e error) {
-	r.Logger.Info("shutting server down")
+	r.logger().Info("shutting server down")
 
 	if server, ok := r.Server.(gracefulServer); ok {
-		r.Logger.Info("attempting graceful shutdown")
+		r.logger().Info("attempting graceful shutdown")
 
 		ctx := context.Background()
 		if r.ShutdownTimeout > 0 {
@@ -71,10 +77,26 @@ func (r *ServerRunner) Stop(e error) {
 
 		err := server.Shutdown(ctx)
 		if err != nil {
-			r.ErrorHandler.Handle(err)
+			r.errorHandler().Handle(err)
 		}
 	}
 
-	// TODO: add error handling (when the returned error is an unexpected one and not eg. http.ErrServerClosed)
+	// TODO: add error handling
 	r.Server.Close()
+}
+
+func (r *ServerRunner) logger() Logger {
+	if r.Logger == nil {
+		return defaultLogger
+	}
+
+	return r.Logger
+}
+
+func (r *ServerRunner) errorHandler() ErrorHandler {
+	if r.ErrorHandler == nil {
+		return defaultErrorHandler
+	}
+
+	return r.ErrorHandler
 }
