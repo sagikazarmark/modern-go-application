@@ -14,7 +14,7 @@ enabled = false
 
 [instrumentation.jaeger]
 enabled = false
-endpoint = "http://localhost:14268"
+collectorEndpoint = "http://localhost:14268"
 agentEndpoint = "localhost:6831"
 # username = ""
 # password = ""

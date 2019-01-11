@@ -9,10 +9,10 @@ import (
 // NewExporter creates a new, configured Jaeger exporter.
 func NewExporter(config Config, errorHandler emperror.Handler) (*jaeger.Exporter, error) {
 	exporter, err := jaeger.NewExporter(jaeger.Options{
-		Endpoint:      config.Endpoint,
-		AgentEndpoint: config.AgentEndpoint,
-		Username:      config.Username,
-		Password:      config.Password,
+		CollectorEndpoint: config.CollectorEndpoint,
+		AgentEndpoint:     config.AgentEndpoint,
+		Username:          config.Username,
+		Password:          config.Password,
 		OnError: emperror.HandlerWith(
 			errorHandler,
 			"component", "opencensus",
