@@ -128,6 +128,9 @@ endif
 docker-debug: ## Build a Docker image with remote debugging capabilities
 	@${MAKE} BINARY_NAME="${BINARY_NAME}-docker" GOOS=linux build-debug
 	docker build --build-arg BUILD_DIR=${BUILD_DIR} --build-arg BINARY_NAME=${BINARY_NAME}-docker-debug -t ${DOCKER_IMAGE}:${DOCKER_TAG}-debug -f Dockerfile.debug .
+ifeq (${DOCKER_LATEST}, 1)
+	docker tag ${DOCKER_IMAGE}:${DOCKER_TAG}-debug ${DOCKER_IMAGE}:latest-debug
+endif
 
 .PHONY: check
 check: test-all lint ## Run tests and linters
