@@ -11,6 +11,8 @@ function replace() {
 
 originalPackageName="github.com/sagikazarmark/modern-go-application"
 originalBinaryName="modern-go-application"
+originalServiceName="mga"
+originalFriendlyServiceName="Modern Go Application"
 
 defaultPackageName=${PWD##*src/}
 prompt "Package name" ${defaultPackageName}
@@ -55,8 +57,8 @@ replace "s|${originalBinaryName}|${binaryName}|" .vscode/launch.json
 mv cmd/${originalBinaryName} cmd/${binaryName}
 
 # Variables
-replace 's|ServiceName = "mga"|ServiceName = "'${serviceName}'"|' cmd/${binaryName}/vars.go
-replace 's|FriendlyServiceName = "Modern Go Application"|FriendlyServiceName = "'"${friendlyServiceName}"'"|' cmd/${binaryName}/vars.go
+replace "s|${originalServiceName}|${serviceName}|" cmd/${binaryName}/vars.go
+replace "s|${originalFriendlyServiceName}|${friendlyServiceName}|" cmd/${binaryName}/vars.go
 
 # Makefile
 replace "s|^PACKAGE = .*|PACKAGE = ${packageName}|" Makefile
