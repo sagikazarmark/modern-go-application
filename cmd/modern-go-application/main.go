@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -22,7 +23,6 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/platform/jaeger"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/prometheus"
-	"github.com/sagikazarmark/modern-go-application/internal/platform/runner"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/watermill"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -148,18 +148,33 @@ func main() {
 		ln, err := upg.Fds.Listen("tcp", config.Instrumentation.Addr)
 		emperror.Panic(err)
 
-		r := &runner.ServerRunner{
-			Server: &http.Server{
-				Handler:  instrumentationRouter,
-				ErrorLog: log.NewErrorStandardLogger(logger),
-			},
-			Listener:        ln,
-			ShutdownTimeout: config.ShutdownTimeout,
-			Logger:          logger,
-			ErrorHandler:    emperror.HandlerWith(errorHandler, "server", name),
+		server := &http.Server{
+			Handler:  instrumentationRouter,
+			ErrorLog: log.NewErrorStandardLogger(logger),
 		}
 
-		runner.Register(&group, r)
+		group.Add(
+			func() error {
+				logger.Info("starting server")
+
+				return server.Serve(ln)
+			},
+			func(e error) {
+				logger.Info("shutting server down")
+
+				ctx := context.Background()
+				if config.ShutdownTimeout > 0 {
+					var cancel context.CancelFunc
+					ctx, cancel = context.WithTimeout(ctx, config.ShutdownTimeout)
+					defer cancel()
+				}
+
+				err := server.Shutdown(ctx)
+				emperror.Handle(errorHandler, emperror.With(err, "server", name))
+
+				_ = server.Close()
+			},
+		)
 	}
 
 	// Connect to the database
@@ -191,7 +206,7 @@ func main() {
 		err = internal.RegisterEventHandlers(h, pubsub, logger)
 		emperror.Panic(err)
 
-		runner.Register(&group, runner.NewRunCloserRunner(h))
+		group.Add(h.Run, func(e error) { _ = h.Close() })
 	}
 
 	// Register HTTP stat views
@@ -217,20 +232,35 @@ func main() {
 		ln, err := upg.Fds.Listen("tcp", config.App.Addr)
 		emperror.Panic(err)
 
-		r := &runner.ServerRunner{
-			Server: &http.Server{
-				Handler: &ochttp.Handler{
-					Handler: app,
-				},
-				ErrorLog: log.NewErrorStandardLogger(logger),
+		server := &http.Server{
+			Handler: &ochttp.Handler{
+				Handler: app,
 			},
-			Listener:        ln,
-			ShutdownTimeout: config.ShutdownTimeout,
-			Logger:          logger,
-			ErrorHandler:    emperror.HandlerWith(errorHandler, "server", name),
+			ErrorLog: log.NewErrorStandardLogger(logger),
 		}
 
-		runner.Register(&group, r)
+		group.Add(
+			func() error {
+				logger.Info("starting server")
+
+				return server.Serve(ln)
+			},
+			func(e error) {
+				logger.Info("shutting server down")
+
+				ctx := context.Background()
+				if config.ShutdownTimeout > 0 {
+					var cancel context.CancelFunc
+					ctx, cancel = context.WithTimeout(ctx, config.ShutdownTimeout)
+					defer cancel()
+				}
+
+				err := server.Shutdown(ctx)
+				emperror.Handle(errorHandler, emperror.With(err, "server", name))
+
+				_ = server.Close()
+			},
+		)
 	}
 
 	// Setup exit signal
