@@ -49,6 +49,7 @@ replace 's|name="project"|name="'${projectName}'"|' .idea/runConfigurations/Debu
 replace 's|value="\$PROJECT_DIR\$\/cmd\/modern-go-application\/"|value="$PROJECT_DIR$/cmd/'${binaryName}'/"|' .idea/runConfigurations/Debug.xml
 replace 's|name="project"|name="'${projectName}'"|' .idea/runConfigurations/Integration_tests.xml
 replace 's|name="project"|name="'${projectName}'"|' .idea/runConfigurations/Tests.xml
+replace "s|modern-go-application|${binaryName}|" .vscode/launch.json
 
 # Binary name
 mv cmd/${originalBinaryName} cmd/${binaryName}

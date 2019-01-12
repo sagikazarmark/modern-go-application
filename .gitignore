@@ -10,6 +10,7 @@
 
 # IDE integration
 /.vscode/*
+!/.vscode/launch.json
 !/.vscode/tasks.json
 /.idea/*
 !/.idea/copyright/
