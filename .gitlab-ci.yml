@@ -88,7 +88,8 @@ release:
         - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
         - apk add --update --no-cache ca-certificates make
     script:
-        - make docker docker-debug
+        - BINARY_NAME=$(make var-BINARY_NAME) make docker
+        - BINARY_NAME=$(make var-BINARY_NAME)-debug make docker-debug
         - docker push ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}
         - docker push ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug
 
@@ -109,7 +110,8 @@ docker:release:
     only:
         - tags
     script:
-        - make docker docker-debug
+        - BINARY_NAME=$(make var-BINARY_NAME) make docker
+        - BINARY_NAME=$(make var-BINARY_NAME)-debug make docker-debug
         - docker push ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}
         - docker push ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug
         - docker push ${DOCKER_IMAGE}:latest
