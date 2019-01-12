@@ -5,9 +5,34 @@ function prompt() {
 }
 
 function replace() {
-    sed -E -e "$1" $2 > $2.new
-    mv -f $2.new $2
+    if [[ ! -z "${TEST}" ]]; then
+        mkdir -p $(dirname "tmp/inittest/$2")
+        sed -E -e "$1" $2 > tmp/inittest/$2
+    else
+        sed -E -e "$1" $2 > $2.new
+        mv -f $2.new $2
+    fi
 }
+
+function move() {
+    if [[ ! -z "${TEST}" ]]; then
+        mkdir -p $(dirname "tmp/inittest/$2")
+        cp -r "$1" tmp/inittest/$2
+    else
+        mv $@
+    fi
+}
+
+function remove() {
+    if [[ -z "${TEST}" ]]; then
+        rm $@
+    fi
+}
+
+if [[ ! -z "${TEST}" ]]; then
+    mkdir -p tmp/inittest
+    echo "." >> tmp/.gitignore
+fi
 
 originalPackageName="github.com/sagikazarmark/modern-go-application"
 originalBinaryName="modern-go-application"
@@ -42,28 +67,24 @@ read removeInit
 removeInit=${removeInit:-n}
 
 # IDE configuration
-mv .idea/project.iml .idea/${projectName}.iml
+move .idea/project.iml .idea/${projectName}.iml
 replace 's|.idea/project.iml|.idea/'${projectName}'.iml|g' .idea/modules.xml
 
 # Run configurations
 replace 's|name="project"|name="'${projectName}'"|' .idea/runConfigurations/All_tests.xml
-replace 's|name="project"|name="'${projectName}'"|' .idea/runConfigurations/Debug.xml
-replace 's|value="\$PROJECT_DIR\$\/cmd\/'${originalBinaryName}'\/"|value="$PROJECT_DIR$/cmd/'${binaryName}'/"|' .idea/runConfigurations/Debug.xml
+replace 's|name="project"|name="'${projectName}'"|; s|value="\$PROJECT_DIR\$\/cmd\/'${originalBinaryName}'\/"|value="$PROJECT_DIR$/cmd/'${binaryName}'/"|' .idea/runConfigurations/Debug.xml
 replace 's|name="project"|name="'${projectName}'"|' .idea/runConfigurations/Integration_tests.xml
 replace 's|name="project"|name="'${projectName}'"|' .idea/runConfigurations/Tests.xml
 replace "s|${originalBinaryName}|${binaryName}|" .vscode/launch.json
 
-# Binary name
-mv cmd/${originalBinaryName} cmd/${binaryName}
+# Update variables
+replace "s|${originalServiceName}|${serviceName}|; s|${originalFriendlyServiceName}|${friendlyServiceName}|" cmd/${originalBinaryName}/vars.go
 
-# Variables
-replace "s|${originalServiceName}|${serviceName}|" cmd/${binaryName}/vars.go
-replace "s|${originalFriendlyServiceName}|${friendlyServiceName}|" cmd/${binaryName}/vars.go
+# Binary name
+move cmd/${originalBinaryName} cmd/${binaryName}
 
 # Makefile
-replace "s|^PACKAGE = .*|PACKAGE = ${packageName}|" Makefile
-replace "s|^BUILD_PACKAGE \??= .*|BUILD_PACKAGE = \${PACKAGE}/cmd/${binaryName}|" Makefile
-replace "s|^BINARY_NAME \?= .*|BINARY_NAME \?= ${binaryName}|" Makefile
+replace "s|^PACKAGE = .*|PACKAGE = ${packageName}|; s|^BUILD_PACKAGE \??= .*|BUILD_PACKAGE = \${PACKAGE}/cmd/${binaryName}|; s|^BINARY_NAME \?= .*|BINARY_NAME \?= ${binaryName}|" Makefile
 
 # Other project files
 declare -a files=(".circleci/config.yml" ".gitlab-ci.yml" "CHANGELOG.md" "Dockerfile")
@@ -73,10 +94,10 @@ for file in "${files[@]}"; do
     fi
 done
 
-# Example code
+# Update source code
 find cmd/ -type f | while read file; do replace "s|${originalPackageName}|${packageName}|" "$file"; done
 find internal/ -type f | while read file; do replace "s|${originalPackageName}|${packageName}|" "$file"; done
 
 if [[ "${removeInit}" != "n" && "${removeInit}" != "N" ]]; then
-    rm "$0"
+    remove "$0"
 fi
