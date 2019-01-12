@@ -189,10 +189,7 @@ generate-api: ## Generate server stubs from the OpenAPI descriptor
 release-%: TAG_PREFIX = v
 release-%:
 ifneq (${DRY}, 1)
-	@sed -e "s/^## \[Unreleased\]$$/## [Unreleased]\\"$$'\n'"\\"$$'\n'"\\"$$'\n'"## [$*] - $$(date +%Y-%m-%d)/g" CHANGELOG.md > CHANGELOG.md.new
-	@mv CHANGELOG.md.new CHANGELOG.md
-
-	@sed -e "s|^\[Unreleased\]: \(.*\)HEAD$$|[Unreleased]: https://${PACKAGE}/compare/${TAG_PREFIX}$*...HEAD\\"$$'\n'"[$*]: \1${TAG_PREFIX}$*|g" CHANGELOG.md > CHANGELOG.md.new
+	@sed -e "s/^## \[Unreleased\]$$/## [Unreleased]\\"$$'\n'"\\"$$'\n'"\\"$$'\n'"## [$*] - $$(date +%Y-%m-%d)/g; s|^\[Unreleased\]: \(.*\/compare\/\)\(.*\)...HEAD$$|[Unreleased]: \1${TAG_PREFIX}$*...HEAD\\"$$'\n'"[$*]: \1\2...${TAG_PREFIX}$*|g" CHANGELOG.md > CHANGELOG.md.new
 	@mv CHANGELOG.md.new CHANGELOG.md
 
 ifeq (${TAG}, 1)
