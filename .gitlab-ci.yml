@@ -76,9 +76,11 @@ release:
 .docker: &docker_definition
     stage: packaging
     image: docker:stable
-    variables:
+    variables: &docker_definition_variables
         DOCKER_HOST: tcp://docker:2375/
         DOCKER_DRIVER: overlay2
+        DOCKER_PREBUILT: 1
+        DOCKER_TAG: ${CI_COMMIT_REF_NAME}
     services:
         - docker:dind
     before_script:
@@ -86,8 +88,7 @@ release:
         - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
         - apk add --update --no-cache ca-certificates make
     script:
-        - docker build --build-arg BUILD_DIR=build --build-arg BINARY_NAME=$(make var-BINARY_NAME) -t ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME} -f Dockerfile.local .
-        - docker build --build-arg BUILD_DIR=build --build-arg BINARY_NAME=$(make var-BINARY_NAME)-debug -t ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug -f Dockerfile.debug .
+        - make docker docker-debug
         - docker push ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}
         - docker push ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug
 
@@ -100,16 +101,16 @@ docker:snapshot:
 
 docker:release:
     <<: *docker_definition
+    variables:
+        <<: *docker_definition_variables
+        DOCKER_LATEST: 1
     dependencies:
         - release
     only:
         - tags
     script:
-        - docker build --build-arg BUILD_DIR=build --build-arg BINARY_NAME=$(make var-BINARY_NAME) -t ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME} -f Dockerfile.local .
-        - docker build --build-arg BUILD_DIR=build --build-arg BINARY_NAME=$(make var-BINARY_NAME)-debug -t ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug -f Dockerfile.debug .
+        - make docker docker-debug
         - docker push ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}
         - docker push ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug
-        - docker tag ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME} ${DOCKER_IMAGE}:latest
-        - docker tag ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug ${DOCKER_IMAGE}:latest-debug
         - docker push ${DOCKER_IMAGE}:latest
         - docker push ${DOCKER_IMAGE}:latest-debug

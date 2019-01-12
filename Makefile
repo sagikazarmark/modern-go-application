@@ -118,7 +118,9 @@ build-debug: ## Build a binary with remote debugging capabilities
 
 .PHONY: docker
 docker: ## Build a Docker image
+ifneq (${DOCKER_PREBUILT}, 1)
 	@${MAKE} BINARY_NAME="${BINARY_NAME}-docker" GOOS=linux build-release
+endif
 	docker build --build-arg BUILD_DIR=${BUILD_DIR} --build-arg BINARY_NAME=${BINARY_NAME}-docker -t ${DOCKER_IMAGE}:${DOCKER_TAG} -f Dockerfile.local .
 ifeq (${DOCKER_LATEST}, 1)
 	docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
@@ -126,7 +128,9 @@ endif
 
 .PHONY: docker-debug
 docker-debug: ## Build a Docker image with remote debugging capabilities
+ifneq (${DOCKER_PREBUILT}, 1)
 	@${MAKE} BINARY_NAME="${BINARY_NAME}-docker" GOOS=linux build-debug
+endif
 	docker build --build-arg BUILD_DIR=${BUILD_DIR} --build-arg BINARY_NAME=${BINARY_NAME}-docker-debug -t ${DOCKER_IMAGE}:${DOCKER_TAG}-debug -f Dockerfile.debug .
 ifeq (${DOCKER_LATEST}, 1)
 	docker tag ${DOCKER_IMAGE}:${DOCKER_TAG}-debug ${DOCKER_IMAGE}:latest-debug
