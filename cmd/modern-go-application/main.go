@@ -182,6 +182,7 @@ func main() {
 	db, err := database.NewConnection(config.Database)
 	emperror.Panic(err)
 	defer db.Close()
+	database.SetLogger(logger)
 
 	// Register database health check
 	{
