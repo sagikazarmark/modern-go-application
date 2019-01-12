@@ -115,6 +115,7 @@ func (c InstrumentationConfig) Validate() error {
 func Configure(v *viper.Viper, p *pflag.FlagSet) {
 	v.AllowEmptyEnv(true)
 	v.AddConfigPath(".")
+	v.AddConfigPath(fmt.Sprintf("$%s_CONFIG_DIR/", strings.ToUpper(EnvPrefix)))
 	p.Init(FriendlyServiceName, pflag.ExitOnError)
 	pflag.Usage = func() {
 		_, _ = fmt.Fprintf(os.Stderr, "Usage of %s:\n", FriendlyServiceName)
