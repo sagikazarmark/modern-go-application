@@ -36,7 +36,7 @@ class DemoBehavior(TaskSet):
 
     tasks = {
         index: 1,
-        helloWorld: 65,
+        helloWorld: 6,
         sayHello: 6,
         clientErrors: 3,
         serverErrors: 2,
