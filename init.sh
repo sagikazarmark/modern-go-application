@@ -34,6 +34,7 @@ if [[ ! -z "${TEST}" ]]; then
     echo "." >> tmp/.gitignore
 fi
 
+originalProjectName="project"
 originalPackageName="github.com/sagikazarmark/modern-go-application"
 originalBinaryName="modern-go-application"
 originalServiceName="mga"
@@ -67,8 +68,8 @@ read removeInit
 removeInit=${removeInit:-n}
 
 # IDE configuration
-move .idea/project.iml .idea/${projectName}.iml
-replace 's|.idea/project.iml|.idea/'${projectName}'.iml|g' .idea/modules.xml
+move .idea/${originalProjectName}.iml .idea/${projectName}.iml
+replace "s|.idea/${originalProjectName}.iml|.idea/${projectName}.iml|g" .idea/modules.xml
 
 # Run configurations
 replace 's|name="project"|name="'${projectName}'"|' .idea/runConfigurations/All_tests.xml
