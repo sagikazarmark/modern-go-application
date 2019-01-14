@@ -1,9 +1,7 @@
 package internal
 
 import (
-	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/goph/emperror"
@@ -15,6 +13,7 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/greetingworker"
 	"github.com/sagikazarmark/modern-go-application/internal/greetingworker/greetingworkeradapter"
 	"github.com/sagikazarmark/modern-go-application/internal/greetingworker/greetingworkerdriver"
+	"github.com/sagikazarmark/modern-go-application/internal/httpbin"
 )
 
 // NewApp returns a new HTTP application.
@@ -41,22 +40,7 @@ func NewApp(logger logur.Logger, publisher message.Publisher, errorHandler emper
 	router.Path("/hello").Methods("GET").HandlerFunc(helloWorldController.HelloWorld)
 	router.Path("/hello").Methods("POST").HandlerFunc(helloWorldController.SayHello)
 
-	// An example for showing errors
-	router.Path("/errors/{errorCode}").Methods("GET").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-
-		var statusCode = http.StatusNotFound
-		if rawStatusCode, ok := vars["errorCode"]; ok {
-			parsedStatusCode, err := strconv.Atoi(rawStatusCode)
-			if err == nil {
-				statusCode = parsedStatusCode
-			}
-		}
-
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(statusCode)
-		_, _ = w.Write([]byte(fmt.Sprintf(`{"status_code": %d}`, statusCode)))
-	})
+	router.PathPrefix("/httpbin").Handler(http.StripPrefix("/httpbin", httpbin.New()))
 
 	return router
 }

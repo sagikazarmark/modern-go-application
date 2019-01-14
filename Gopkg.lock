@@ -193,6 +193,18 @@
   version = "v1.0.1"
 
 [[projects]]
+  digest = "1:72ceaf507be2be31be560badb3a3eed61e5e4d68f28d9cc5e716b002c77bc8de"
+  name = "github.com/mccutchen/go-httpbin"
+  packages = [
+    "httpbin",
+    "httpbin/assets",
+    "httpbin/digest",
+  ]
+  pruneopts = "UT"
+  revision = "10626018aebee59fe9904ed13b5a53d6736e56de"
+  version = "1.1.1"
+
+[[projects]]
   digest = "1:53bc4cd4914cd7cd52139990d5170d6dc99067ae31c56530621b18b35fc30318"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
@@ -476,6 +488,7 @@
     "github.com/goph/logur/integrations/watermilllog",
     "github.com/goph/logur/testing",
     "github.com/gorilla/mux",
+    "github.com/mccutchen/go-httpbin/httpbin",
     "github.com/oklog/run",
     "github.com/opencensus-integrations/ocsql",
     "github.com/pkg/errors",
