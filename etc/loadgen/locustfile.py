@@ -22,11 +22,13 @@ def sayHello(l):
     l.client.post("/hello", data=json.dumps(payload), headers=headers)
 
 def clientErrors(l):
-    l.client.get("/errors/" + str(random.choice(clientErrorCodes)))
+    l.client.get("/httpbin/status/" + str(random.choice(clientErrorCodes)))
 
 def serverErrors(l):
-    l.client.get("/errors/" + str(random.choice(serverErrorCodes)))
+    l.client.get("/httpbin/status/" + str(random.choice(serverErrorCodes)))
 
+def responseSize(l):
+    l.client.get("/httpbin/bytes/" + str(random.randint(100, 500000)))
 
 class DemoBehavior(TaskSet):
     def on_start(self):
@@ -35,11 +37,12 @@ class DemoBehavior(TaskSet):
         index(self)
 
     tasks = {
-        index: 1,
-        helloWorld: 6,
-        sayHello: 6,
-        clientErrors: 3,
-        serverErrors: 2,
+        index:2,
+        helloWorld: 12,
+        sayHello: 12,
+        clientErrors: 6,
+        serverErrors: 4,
+        responseSize: 2,
     }
 
 
