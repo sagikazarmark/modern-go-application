@@ -71,9 +71,10 @@ func (c Config) Validate() error {
 		return err
 	}
 
-	if err := c.Redis.Validate(); err != nil {
-		return err
-	}
+	// Uncomment to enable redis config validation
+	// if err := c.Redis.Validate(); err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
