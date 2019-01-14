@@ -52,6 +52,17 @@ chmod +x init.sh
 ? Remove init script (y/N) y
 ```
 
+It updates every import path and name in the repository to your project's values.
+**Review** and commit the changes.
+
+
+### Load generation
+
+To test or demonstrate the application it comes with a simple load generation tool.
+You can use it to test the example endpoints and generate some load (for example in order to fill dashboards with data).
+
+Follow the instructions in [etc/loadgen](etc/loadgen).
+
 
 ## Inspiration
 
