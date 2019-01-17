@@ -221,12 +221,12 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:19e97920f37c3ce7b8322e31777ccae274064e06ebe88eedf0e7b61a23bd4f85"
+  digest = "1:f3b2b5fa864b063a4567461b641a536df8434723e123f2947c9967d5c2f05fae"
   name = "github.com/opencensus-integrations/ocsql"
   packages = ["."]
   pruneopts = "UT"
-  revision = "cdb861a9cb5f4c63e8441ea2e424bd538d3d8111"
-  version = "v0.1.2"
+  revision = "eb3ef1dfbbabefaf0a90d6c07ab483cef3d134d3"
+  version = "v0.1.3"
 
 [[projects]]
   digest = "1:95741de3af260a92cc5c7f3f3061e85273f5a81b5db20d4bd68da74bd521675e"
