@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "spotguide-modern-go-application.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "spotguide-modern-go-application.name" . }}
+    helm.sh/chart: {{ include "spotguide-modern-go-application.chart" . }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | replace "+" "_" }}
+    app.kubernetes.io/component: application
+    app.kubernetes.io/part-of: {{ include "spotguide-modern-go-application.name" . }}
+spec:
+  type: {{ .Values.application.service.type }}
+  ports:
+    - port: {{ .Values.application.service.port }}
+      targetPort: app
+      protocol: TCP
+      name: app
+  selector:
+    app.kubernetes.io/name: {{ include "spotguide-modern-go-application.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}

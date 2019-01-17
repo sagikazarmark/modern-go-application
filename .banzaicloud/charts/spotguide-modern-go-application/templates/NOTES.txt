@@ -1,0 +1,36 @@
+Congratulations, your [Modern Go Application](https://github.com/sagikazarmark/modern-go-application) has been deployed to Kubernetes!
+
+{{ if gt (len .Values.application.ingress.hosts) 0 }}
+The application can be accessed on the following URL(s):
+{{ range .Values.application.ingress.hosts }}
+- [{{ . }}](https://{{ . }})
+{{- end }}
+{{- else }}
+The application can be accessed on localhost by using the following command:
+
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "spotguide-modern-go-application.fullname" . }} 8080:{{ .Values.application.service.port }}
+{{- end }}
+
+_It might take a few minutes until it becomes available._
+
+{{- if .Values.banzaicloud.cluster.id }}
+
+Every time you make changes to the [source code](https://github.com/{{ include "repo-user" . }}/{{ include "repo-name" . }})
+and update the `master` branch, the CI/CD pipeline will be triggered to test,
+validate and update the deployment of your application.
+
+- [CI/CD]({{ .Values.banzaicloud.organization.name }}/cicd/{{ include "repo-name" . }})
+- [Cluster]({{ .Values.banzaicloud.organization.name }}/cluster/{{ .Values.banzaicloud.cluster.id }}/details)
+- [Secrets]({{ .Values.banzaicloud.organization.name }}/secret?filter={{ include "repo-tag" . }})
+- [Docker Image](https://cloud.docker.com/repository/docker/{{ include "repo-user" . }}/{{ include "repo-name" . }})
+
+Your application is monitored with Prometheus and Grafana.
+See the connection details on the [cluster details]({{ .Values.banzaicloud.organization.name }}/cluster/{{ .Values.banzaicloud.cluster.id }}/details) page.
+
+{{ if .Release.IsInstall }}
+**Important!**
+
+For the first time, it is recommended to go to the [repository](https://github.com/{{ include "repo-user" . }}/{{ include "repo-name" . }})
+and follow the instructions in the README to properly update the application boilerplate.
+{{- end }}
+{{- end }}

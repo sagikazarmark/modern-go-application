@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "spotguide-modern-go-application.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "spotguide-modern-go-application.name" . }}
+    helm.sh/chart: {{ include "spotguide-modern-go-application.chart" . }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | replace "+" "_" }}
+    app.kubernetes.io/component: application
+    app.kubernetes.io/part-of: {{ include "spotguide-modern-go-application.name" . }}
+spec:
+{{- if .Values.application.autoscaling.enabled }}
+  replicas: {{ .Values.application.autoscaling.minReplicas }}
+{{- else }}
+  replicas: {{ .Values.application.replicaCount }}
+{{- end }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "spotguide-modern-go-application.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: application
+      app.kubernetes.io/part-of: {{ include "spotguide-modern-go-application.name" . }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "spotguide-modern-go-application.name" . }}
+        helm.sh/chart: {{ include "spotguide-modern-go-application.chart" . }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/version: {{ .Chart.AppVersion | replace "+" "_" }}
+        app.kubernetes.io/component: application
+        app.kubernetes.io/part-of: {{ include "spotguide-modern-go-application.name" . }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "10000"
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "spotguide-modern-go-application.fullname" . }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ required "An application image name is required!" .Values.application.image.repository }}:{{ required "An application image tag is required!" .Values.application.image.tag }}"
+          imagePullPolicy: {{ .Values.application.image.pullPolicy }}
+          env:
+            - name: {{ .Values.application.envPrefix }}_DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "spotguide-modern-go-application.mysql.userSecretName" . }}
+                  key: mysql-username
+            - name: {{ .Values.application.envPrefix }}_DATABASE_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "spotguide-modern-go-application.mysql.userSecretName" . }}
+                  key: mysql-password
+          envFrom:
+            - configMapRef:
+                name: {{ include "spotguide-modern-go-application.fullname" . }}-env
+          volumeMounts:
+            - name: config
+              mountPath: /config.yaml
+              subPath: config.yaml
+          ports:
+            - name: app
+              containerPort: 8000
+              protocol: TCP
+            - name: instrumentation
+              containerPort: 10000
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /version
+              port: instrumentation
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: instrumentation
+          resources:
+{{ toYaml .Values.application.resources | indent 12 }}
+    {{- with .Values.application.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.application.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.application.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

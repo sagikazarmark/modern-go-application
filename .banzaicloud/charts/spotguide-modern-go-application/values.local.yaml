@@ -1,0 +1,24 @@
+nameOverride: "modern-go-application"
+
+application:
+  image:
+    repository: sagikazarmark/modern-go-application
+    tag: latest
+    pullPolicy: Always
+  config:
+    instrumentation:
+      prometheus:
+        enabled: true
+
+monitor:
+  enabled: true
+
+ingress:
+  enabled: false
+
+mysql:
+  enabled: true
+  user: app
+  database: app
+  metrics:
+    enabled: true

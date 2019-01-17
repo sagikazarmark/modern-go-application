@@ -1,0 +1,30 @@
+{{- if .Values.application.autoscaling.enabled }}
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "spotguide-modern-go-application.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "spotguide-modern-go-application.name" . }}
+    helm.sh/chart: {{ include "spotguide-modern-go-application.chart" . }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | replace "+" "_" }}
+    app.kubernetes.io/component: application
+    app.kubernetes.io/part-of: {{ include "spotguide-modern-go-application.name" . }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "spotguide-modern-go-application.fullname" . }}
+  minReplicas: {{ .Values.application.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.application.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: {{ .Values.application.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: {{ .Values.application.autoscaling.targetMemoryUtilizationPercentage }}
+{{- end }}
