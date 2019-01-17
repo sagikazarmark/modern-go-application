@@ -52,7 +52,8 @@ questions:
     label: Port
     required: true
     default: 3306
-    minLength: 1
+    min: 1
+    max: 65535
     order: 3
     targets:
       - deploy_application.deployment.values.mysql.port
