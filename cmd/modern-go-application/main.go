@@ -14,6 +14,7 @@ import (
 	"github.com/cloudflare/tableflip"
 	"github.com/goph/emperror"
 	"github.com/oklog/run"
+	"github.com/opencensus-integrations/ocsql"
 	"github.com/pkg/errors"
 	"github.com/sagikazarmark/modern-go-application/internal"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/buildinfo"
@@ -177,12 +178,18 @@ func main() {
 		)
 	}
 
+	// Register SQL stat views
+	ocsql.RegisterAllViews()
+
 	// Connect to the database
 	logger.Info("connecting to database", nil)
 	db, err := database.NewConnection(config.Database)
 	emperror.Panic(err)
 	defer db.Close()
 	database.SetLogger(logger)
+
+	// Record DB stats every 5 seconds until we exit
+	defer ocsql.RecordStats(db, 5*time.Second)()
 
 	// Register database health check
 	{
