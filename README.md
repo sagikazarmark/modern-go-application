@@ -5,17 +5,15 @@
 [![GoDoc](http://img.shields.io/badge/godoc-reference-5272B4.svg?style=flat-square)](https://godoc.org/github.com/sagikazarmark/modern-go-application)
 
 [![Build Status](https://img.shields.io/travis/com/sagikazarmark/modern-go-application.svg?style=flat-square)](https://travis-ci.com/sagikazarmark/modern-go-application)
-[![CircleCI (all branches)](https://img.shields.io/circleci/project/github/sagikazarmark/modern-go-application.svg?style=flat-square)](https://circleci.com/gh/sagikazarmark/modern-go-application)
+[![CircleCI](https://circleci.com/gh/sagikazarmark/modern-go-application.svg?style=svg)](https://circleci.com/gh/sagikazarmark/modern-go-application)
 [![Gitlab](https://img.shields.io/badge/gitlab-sagikazarmark%2Fmodern--go--application-orange.svg?logo=gitlab&longCache=true&style=flat-square)](https://gitlab.com/sagikazarmark/modern-go-application)
 
 **Go application boilerplate and example applying modern practices**
 
-This repository has multiple purposes:
+This repository tries to collect the best practices of application development written in Go language.
+In addition to the language specific details, it also implements language independent practices.
 
-- It serves as a boilerplate for new projects
-- It tries to collect the best practices for various areas of developing a (modern) application
-
-It tries to include many things related to application development:
+Some of the areas Modern Go Application touches:
 
 - architecture
 - package structure
@@ -26,8 +24,10 @@ It tries to include many things related to application development:
 - developer environment/experience
 - instrumentation
 
+To help adopting these practices, this repository also serves as a boilerplate for new applications.
 
-Some of the features:
+
+## Features
 
 - graceful restart (using [cloudflare/tableflip](https://github.com/cloudflare/tableflip)) and shutdown
 - support for multiple server/daemon instances (using [oklog/run](https://github.com/oklog/run))
@@ -35,15 +35,16 @@ Some of the features:
 - logging (using [goph/logur](https://github.com/goph/logur) and [sirupsen/logrus](https://github.com/goph/logur))
 - health checks (using [InVisionApp/go-health](https://github.com/InVisionApp/go-health))
 - configuration (using [spf13/viper](https://github.com/spf13/viper))
+- messaging (using [ThreeDotsLabs/watermill](https://github.com/ThreeDotsLabs/watermill))
+- and many more
 
 
-## Usage
+## First steps
 
 To create a new application from the boilerplate clone this repository (if you haven't done already) and execute the following:
 
 ```bash
-chmod +x init.sh
-./init.sh
+chmod +x init.sh && ./init.sh
 ? Package name (github.com/sagikazarmark/modern-go-application-init)
 ? Project name (modern-go-application-init)
 ? Binary name (modern-go-application-init)
