@@ -1,13 +1,37 @@
 #!/bin/bash
 
+# Destination directory of modifications
+DEST="."
+
+# Original project variables
+originalProjectName="project"
+originalPackageName="github.com/sagikazarmark/modern-go-application"
+originalBinaryName="modern-go-application"
+originalServiceName="mga"
+originalFriendlyServiceName="Modern Go Application"
+
+# Prepare testing
+if [[ ! -z "${TEST}" ]]; then
+    #set -xe
+    DEST="tmp/inittest"
+    mkdir -p ${DEST}
+    echo "." > tmp/.gitignore
+fi
+
 function prompt() {
     echo -n -e "\033[1;32m?\033[0m \033[1m$1\033[0m ($2) "
 }
 
 function replace() {
     if [[ ! -z "${TEST}" ]]; then
-        mkdir -p $(dirname "tmp/inittest/$2")
-        sed -E -e "$1" $2 > tmp/inittest/$2
+        dest=$(echo $2 | sed "s|^${DEST}/||")
+        mkdir -p $(dirname "${DEST}/${dest}")
+        if [[ "$2" == "${DEST}/${dest}" ]]; then
+            sed -E -e "$1" $2 > ${DEST}/${dest}.new
+            mv -f ${DEST}/${dest}.new ${DEST}/${dest}
+        else
+            sed -E -e "$1" $2 > ${DEST}/${dest}
+        fi
     else
         sed -E -e "$1" $2 > $2.new
         mv -f $2.new $2
@@ -16,8 +40,9 @@ function replace() {
 
 function move() {
     if [[ ! -z "${TEST}" ]]; then
-        mkdir -p $(dirname "tmp/inittest/$2")
-        cp -r "$1" tmp/inittest/$2
+        dest=$(echo $2 | sed "s|^${DEST}/||")
+        mkdir -p $(dirname "${DEST}/${dest}")
+        cp -r "$1" ${DEST}/${dest}
     else
         mv $@
     fi
@@ -28,17 +53,6 @@ function remove() {
         rm $@
     fi
 }
-
-if [[ ! -z "${TEST}" ]]; then
-    mkdir -p tmp/inittest
-    echo "." >> tmp/.gitignore
-fi
-
-originalProjectName="project"
-originalPackageName="github.com/sagikazarmark/modern-go-application"
-originalBinaryName="modern-go-application"
-originalServiceName="mga"
-originalFriendlyServiceName="Modern Go Application"
 
 defaultPackageName=${PWD##*src/}
 prompt "Package name" ${defaultPackageName}
@@ -63,6 +77,10 @@ prompt "Friendly service name" "${defaultFriendlyServiceName}"
 read friendlyServiceName
 friendlyServiceName=${friendlyServiceName:-${defaultFriendlyServiceName}}
 
+prompt "Update README" "Y/n"
+read updateReadme
+updateReadme=${updateReadme:-y}
+
 prompt "Remove init script" "y/N"
 read removeInit
 removeInit=${removeInit:-n}
@@ -78,11 +96,13 @@ replace 's|name="project"|name="'${projectName}'"|' .idea/runConfigurations/Inte
 replace 's|name="project"|name="'${projectName}'"|' .idea/runConfigurations/Tests.xml
 replace "s|${originalBinaryName}|${binaryName}|" .vscode/launch.json
 
-# Update variables
-replace "s|${originalServiceName}|${serviceName}|; s|${originalFriendlyServiceName}|${friendlyServiceName}|" cmd/${originalBinaryName}/vars.go
-
-# Binary name
+# Binary changes:
+#   - binary name
+#   - source code
+#   - variables
 move cmd/${originalBinaryName} cmd/${binaryName}
+replace "s|${originalServiceName}|${serviceName}|; s|${originalFriendlyServiceName}|${friendlyServiceName}|" ${DEST}/cmd/${binaryName}/vars.go
+find ${DEST}/cmd -type f | while read file; do replace "s|${originalPackageName}|${packageName}|" "$file"; done
 
 # Makefile
 replace "s|^PACKAGE = .*|PACKAGE = ${packageName}|; s|^BUILD_PACKAGE \??= .*|BUILD_PACKAGE = \${PACKAGE}/cmd/${binaryName}|; s|^BINARY_NAME \?= .*|BINARY_NAME \?= ${binaryName}|" Makefile
@@ -96,8 +116,7 @@ for file in "${files[@]}"; do
 done
 
 # Update source code
-find cmd/ -type f | while read file; do replace "s|${originalPackageName}|${packageName}|" "$file"; done
-find internal/ -type f | while read file; do replace "s|${originalPackageName}|${packageName}|" "$file"; done
+find internal -type f | while read file; do replace "s|${originalPackageName}|${packageName}|" "$file"; done
 
 if [[ "${removeInit}" != "n" && "${removeInit}" != "N" ]]; then
     remove "$0"
@@ -105,3 +124,8 @@ fi
 
 # Spotguide
 replace "/^ *path: src\/.*/d" .banzaicloud/pipeline.yaml
+
+# Update readme
+if [[ "${updateReadme}" == "y" || "${updateReadme}" == "Y" ]]; then
+    echo -e "# FRIENDLY_PROJECT_NAME\n\n**Project description.**" | sed "s/FRIENDLY_PROJECT_NAME/${friendlyServiceName}/" > ${DEST}/README.md
+fi
