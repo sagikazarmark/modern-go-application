@@ -10,9 +10,10 @@ import (
 
 	"github.com/goph/emperror"
 	"github.com/pkg/errors"
-	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 )
 
 type helloWorldViewStub struct {

@@ -9,6 +9,7 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 )
 

@@ -2,6 +2,7 @@ package greetingworkeradapter
 
 import (
 	"github.com/goph/logur"
+
 	"github.com/sagikazarmark/modern-go-application/internal/greetingworker"
 )
 

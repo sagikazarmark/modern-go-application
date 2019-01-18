@@ -5,10 +5,11 @@ import (
 	"testing"
 
 	"github.com/goph/logur"
-	. "github.com/sagikazarmark/modern-go-application/internal/greetingworker"
-	"github.com/sagikazarmark/modern-go-application/internal/greetingworker/greetingworkeradapter"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	. "github.com/sagikazarmark/modern-go-application/internal/greetingworker"
+	"github.com/sagikazarmark/modern-go-application/internal/greetingworker/greetingworkeradapter"
 )
 
 func TestSayHelloEventLogger_SaidHelloTo(t *testing.T) {
