@@ -46,7 +46,7 @@ spec:
                 name: {{ include "spotguide-modern-go-application.mysql.rootSecretName" . }}
                 key: mysql-root-password
         args:
-          - CREATE DATABASE `{{ required "MySQL database is required" .Values.mysql.database }}`;
+          - CREATE DATABASE `{{ required "MySQL database is required!" .Values.mysql.database }}`;
 
 ---
 apiVersion: batch/v1
@@ -159,7 +159,7 @@ spec:
                   name: {{ include "spotguide-modern-go-application.mysql.userSecretName" . }}
                   key: mysql-username
           args:
-            - GRANT ALL PRIVILEGES ON {{ required "MySQL database is required" .Values.mysql.database }}.* TO '{{ `{{ .APP_USER }}` }}'@'%';
+            - GRANT ALL PRIVILEGES ON {{ required "MySQL database is required!" .Values.mysql.database }}.* TO '{{ `{{ .APP_USER }}` }}'@'%';
 
 ---
 apiVersion: batch/v1

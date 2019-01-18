@@ -13,4 +13,4 @@ metadata:
 data:
   {{ .Values.application.envPrefix }}_DATABASE_HOST: {{ include "spotguide-modern-go-application.mysql.host" . | quote }}
   {{ .Values.application.envPrefix }}_DATABASE_PORT: {{ include "spotguide-modern-go-application.mysql.port" . | quote }}
-  {{ .Values.application.envPrefix }}_DATABASE_NAME: {{ required "MySQL database is required" .Values.mysql.database | quote }}
+  {{ .Values.application.envPrefix }}_DATABASE_NAME: {{ required "MySQL database is required!" .Values.mysql.database | quote }}

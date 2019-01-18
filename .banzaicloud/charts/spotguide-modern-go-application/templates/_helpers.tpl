@@ -71,7 +71,7 @@ MySQL host based on whether MySQL is being installed or not.
 {{- if .Values.mysql.enabled -}}
 {{- printf "%s.%s.svc.cluster.local" (include "call-nested" (list . "mysql" "mysql.fullname")) .Release.Namespace -}}
 {{- else -}}
-{{- required "MySQL host is required" .Values.mysql.host -}}
+{{- required "MySQL host is required!" .Values.mysql.host -}}
 {{- end -}}
 {{- end -}}
 
