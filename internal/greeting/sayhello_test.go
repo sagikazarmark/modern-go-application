@@ -5,9 +5,10 @@ import (
 	"testing"
 
 	"github.com/goph/emperror"
+	"github.com/stretchr/testify/assert"
+
 	. "github.com/sagikazarmark/modern-go-application/internal/greeting"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingadapter"
-	"github.com/stretchr/testify/assert"
 )
 
 type sayHelloOutputStub struct {

@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/goph/emperror"
+
 	"github.com/sagikazarmark/modern-go-application/.gen/openapi/go"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 )

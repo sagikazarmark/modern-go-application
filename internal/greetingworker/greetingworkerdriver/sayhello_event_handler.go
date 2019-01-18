@@ -6,6 +6,7 @@ import (
 
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/pkg/errors"
+
 	"github.com/sagikazarmark/modern-go-application/internal/greetingworker"
 )
 

@@ -4,9 +4,10 @@ import (
 	"context"
 	"testing"
 
-	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 )
 
 func TestSayHelloEvents_SaidHelloTo(t *testing.T) {

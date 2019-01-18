@@ -8,12 +8,13 @@ import (
 	"testing"
 
 	"github.com/goph/emperror"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"github.com/sagikazarmark/modern-go-application/.gen/openapi/go"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingadapter"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingdriver"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func testSayHello(t *testing.T) {
