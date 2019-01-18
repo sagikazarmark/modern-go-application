@@ -25,8 +25,9 @@ private spotguide templates. (Don't get confused by the fact that this is a publ
 Here are the steps for launching this spotguide:
 
 1. Fork the repository (or create a copy of it manually)
-2. Create a Github release for the latest stable tag at https://github.com/YOURORG/modern-go-application/releases/new
-3. Go to https://beta.banzaicloud.io/ui/YOURORG/spotguide/create
-4. Click the synchronization icon in the right upper corner
-5. Modern Go Application should appear, use it as any other spotguide in the catalog
-6. *Recommended:* After completing the spotguide flow, visit the generated repository for further instructions.
+2. Add `spotguide` to the list of repository topics
+3. Create a Github release for the latest stable tag at https://github.com/YOURORG/modern-go-application/releases/new
+4. Go to https://beta.banzaicloud.io/ui/YOURORG/spotguide/create
+5. Click the synchronization icon in the right upper corner
+6. Modern Go Application should appear, use it as any other spotguide in the catalog
+7. *Recommended:* After completing the spotguide flow, visit the generated repository for further instructions.
