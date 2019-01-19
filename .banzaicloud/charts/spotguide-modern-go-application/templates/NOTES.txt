@@ -1,4 +1,4 @@
-Congratulations, your [Modern Go Application](https://github.com/sagikazarmark/modern-go-application) has been deployed to Kubernetes!
+Congratulations, your [Modern Go Application](https://github.com/sagikazarmark/modern-go-application) has been deployed!
 
 {{ if gt (len .Values.application.ingress.hosts) 0 }}
 The application can be accessed on the following URL(s):
@@ -30,7 +30,7 @@ See the connection details on the [cluster details]({{ .Values.banzaicloud.organ
 {{ if .Release.IsInstall }}
 **Important!**
 
-For the first time, it is recommended to go to the [repository](https://github.com/{{ include "repo-user" . }}/{{ include "repo-name" . }})
+When you use this spotguide for the first time, it is recommended to go to the [repository](https://github.com/{{ include "repo-user" . }}/{{ include "repo-name" . }}#first-steps)
 and follow the instructions in the README to properly update the application boilerplate.
 {{- end }}
 {{- end }}
