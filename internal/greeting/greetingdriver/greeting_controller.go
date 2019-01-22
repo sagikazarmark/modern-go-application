@@ -11,11 +11,6 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 )
 
-type HelloWorld interface {
-	// HelloWorld says hello to the world.
-	HelloWorld(ctx context.Context, output greeting.HelloWorldOutput)
-}
-
 type SayHello interface {
 	// SayHello says hello to someone.
 	SayHello(ctx context.Context, to greeting.SayHelloTo, output greeting.SayHelloOutput)
@@ -23,30 +18,20 @@ type SayHello interface {
 
 // GreetingController collects the greeting use cases and exposes them as HTTP handlers.
 type GreetingController struct {
-	helloWorld HelloWorld
-	sayHello   SayHello
+	sayHello SayHello
 
 	errorHandler emperror.Handler
 }
 
 // NewGreetingController returns a new GreetingController instance.
 func NewGreetingController(
-	helloWorld HelloWorld,
 	sayHello SayHello,
 	errorHandler emperror.Handler,
 ) *GreetingController {
 	return &GreetingController{
-		helloWorld:   helloWorld,
 		sayHello:     sayHello,
 		errorHandler: errorHandler,
 	}
-}
-
-// HelloWorld says hello to the world.
-func (c *GreetingController) HelloWorld(w http.ResponseWriter, r *http.Request) {
-	output := newGreetingWebOutput(w, &jsonView{}, "application/json; charset=UTF-8", c.errorHandler)
-
-	c.helloWorld.HelloWorld(r.Context(), output)
 }
 
 // SayHello says hello to someone.

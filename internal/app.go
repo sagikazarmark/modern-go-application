@@ -19,17 +19,12 @@ import (
 
 // NewApp returns a new HTTP application.
 func NewApp(logger logur.Logger, publisher message.Publisher, errorHandler emperror.Handler) http.Handler {
-	helloWorld := greeting.NewHelloWorld(
-		greetingadapter.NewHelloWorldEvents(publisher),
-		greetingadapter.NewLogger(logger),
-		errorHandler,
-	)
 	sayHello := greeting.NewSayHello(
 		greetingadapter.NewSayHelloEvents(publisher),
 		greetingadapter.NewLogger(logger),
 		errorHandler,
 	)
-	helloWorldController := greetingdriver.NewGreetingController(helloWorld, sayHello, errorHandler)
+	helloWorldController := greetingdriver.NewGreetingController(sayHello, errorHandler)
 
 	router := mux.NewRouter()
 
@@ -38,7 +33,6 @@ func NewApp(logger logur.Logger, publisher message.Publisher, errorHandler emper
 		_, _ = w.Write([]byte(template))
 	})
 
-	router.Path("/hello").Methods("GET").HandlerFunc(helloWorldController.HelloWorld)
 	router.Path("/hello").Methods("POST").HandlerFunc(helloWorldController.SayHello)
 
 	router.PathPrefix("/httpbin").Handler(http.StripPrefix("/httpbin", httpbin.New()))
@@ -48,25 +42,11 @@ func NewApp(logger logur.Logger, publisher message.Publisher, errorHandler emper
 
 // RegisterEventHandlers registers event handlers in a message router.
 func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber, logger logur.Logger) error {
-	helloWorldHandler := greetingworkerdriver.NewHelloWorldEventHandler(
-		greetingworker.NewHelloWorldEventLogger(greetingworkeradapter.NewLogger(logger)),
-	)
-
-	err := router.AddNoPublisherHandler(
-		"log_said_hello",
-		"said_hello",
-		subscriber,
-		helloWorldHandler.SaidHello,
-	)
-	if err != nil {
-		return err
-	}
-
 	sayHelloHandler := greetingworkerdriver.NewSayHelloEventHandler(
 		greetingworker.NewSayHelloEventLogger(greetingworkeradapter.NewLogger(logger)),
 	)
 
-	err = router.AddNoPublisherHandler(
+	err := router.AddNoPublisherHandler(
 		"log_said_hello_to",
 		"said_hello_to",
 		subscriber,

@@ -13,6 +13,5 @@ func TestIntegration(t *testing.T) {
 
 	t.Parallel()
 
-	t.Run("HelloWorld", testHelloWorld)
 	t.Run("SayHello", testSayHello)
 }
