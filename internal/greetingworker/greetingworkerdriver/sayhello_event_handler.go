@@ -12,7 +12,7 @@ import (
 
 // SayHelloEventSubscriber subscribes to hello world events.
 type SayHelloEventSubscriber interface {
-	// SaidHelloTo handles a SaidHelloTo event.
+	// SaidHello handles a SaidHello event.
 	SaidHelloTo(ctx context.Context, event greetingworker.SaidHelloTo) error
 }
 

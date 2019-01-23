@@ -73,3 +73,7 @@
 [[constraint]]
   name = "github.com/mccutchen/go-httpbin"
   version = "1.1.1"
+
+[[constraint]]
+  name = "github.com/moogar0880/problems"
+  version = "0.1.0"

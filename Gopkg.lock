@@ -213,6 +213,14 @@
   version = "v1.1.2"
 
 [[projects]]
+  digest = "1:984f63d74c1a157e3534ca202a3ff173dea9b9129efbdbebfa6aed50c19ef057"
+  name = "github.com/moogar0880/problems"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "33afcba6336a8edeaa9ceeef7659ed96a85016f2"
+  version = "0.1.0"
+
+[[projects]]
   digest = "1:9ec6cf1df5ad1d55cf41a43b6b1e7e118a91bade4f68ff4303379343e40c0e25"
   name = "github.com/oklog/run"
   packages = ["."]
@@ -489,6 +497,7 @@
     "github.com/goph/logur/testing",
     "github.com/gorilla/mux",
     "github.com/mccutchen/go-httpbin/httpbin",
+    "github.com/moogar0880/problems",
     "github.com/oklog/run",
     "github.com/opencensus-integrations/ocsql",
     "github.com/pkg/errors",

@@ -7,20 +7,7 @@ servers:
 - url: https://api.hello.world/
 - url: http://api.hello.world/
 paths:
-  /hello:
-    get:
-      operationId: helloWorld
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Hello'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Hello'
-          description: successful operation
-      summary: Say hello to the world
+  /greeting/sayHello:
     post:
       operationId: sayHello
       requestBody:
@@ -37,26 +24,26 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Hello'
+                $ref: '#/components/schemas/HelloResponse'
             application/xml:
               schema:
-                $ref: '#/components/schemas/Hello'
+                $ref: '#/components/schemas/HelloResponse'
           description: successful operation
-      summary: Say hello to someone
+      summary: SayHello says hello to someone
 components:
   schemas:
-    Hello:
+    HelloResponse:
       example:
-        message: message
+        reply: reply
       properties:
-        message:
+        reply:
           type: string
       type: object
     HelloRequest:
       example:
-        who: who
+        greeting: greeting
       properties:
-        who:
+        greeting:
           type: string
       type: object
   securitySchemes:

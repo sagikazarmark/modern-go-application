@@ -6,39 +6,32 @@ import (
 
 	"github.com/goph/emperror"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	. "github.com/sagikazarmark/modern-go-application/internal/greeting"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingadapter"
 )
 
-type sayHelloOutputStub struct {
-	hello Hello
-}
-
-func (o *sayHelloOutputStub) Say(ctx context.Context, hello Hello) {
-	o.hello = hello
-}
-
 type sayHelloEventsStub struct {
-	saidHelloTo SaidHelloTo
+	saidHello SaidHello
 }
 
-func (e *sayHelloEventsStub) SaidHelloTo(ctx context.Context, event SaidHelloTo) error {
-	e.saidHelloTo = event
+func (e *sayHelloEventsStub) SaidHello(ctx context.Context, event SaidHello) error {
+	e.saidHello = event
 
 	return nil
 }
 
-func TestSayHello_SayHello(t *testing.T) {
+func TestHelloService_SayHello(t *testing.T) {
 	events := &sayHelloEventsStub{}
 
-	sayHello := NewSayHello(events, greetingadapter.NewNoopLogger(), emperror.NewNoopHandler())
+	sayHello := NewHelloService(events, greetingadapter.NewNoopLogger(), emperror.NewNoopHandler())
 
-	to := SayHelloTo{Who: "me"}
-	output := &sayHelloOutputStub{}
+	req := HelloRequest{Greeting: "welcome"}
 
-	sayHello.SayHello(context.Background(), to, output)
+	resp, err := sayHello.SayHello(context.Background(), req)
 
-	assert.Equal(t, Hello{Message: "Hello, me!"}, output.hello)
-	assert.Equal(t, SaidHelloTo{Message: "Hello, me!", Who: to.Who}, events.saidHelloTo)
+	require.NoError(t, err)
+	assert.Equal(t, &HelloResponse{Reply: "hello"}, resp)
+	assert.Equal(t, SaidHello{Greeting: req.Greeting, Reply: resp.Reply}, events.saidHello)
 }

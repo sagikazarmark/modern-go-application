@@ -15,15 +15,15 @@ func TestSayHelloEvents_SaidHelloTo(t *testing.T) {
 
 	events := NewSayHelloEvents(publisher)
 
-	event := greeting.SaidHelloTo{
-		Message: "Hello, John!",
-		Who:     "John",
+	event := greeting.SaidHello{
+		Greeting: "welcome",
+		Reply:    "hello",
 	}
 
-	err := events.SaidHelloTo(context.Background(), event)
+	err := events.SaidHello(context.Background(), event)
 	require.NoError(t, err)
 
-	assert.Equal(t, saidHelloToTopic, "said_hello_to")
-	assert.Equal(t, saidHelloToTopic, publisher.topic)
-	assert.Equal(t, string(publisher.messages[0].Payload), "{\"Message\":\"Hello, John!\",\"Who\":\"John\"}")
+	assert.Equal(t, saidHelloTopic, "said_hello")
+	assert.Equal(t, saidHelloTopic, publisher.topic)
+	assert.Equal(t, string(publisher.messages[0].Payload), "{\"Greeting\":\"welcome\",\"Reply\":\"hello\"}")
 }

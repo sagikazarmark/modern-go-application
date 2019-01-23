@@ -19,12 +19,12 @@ import (
 
 // NewApp returns a new HTTP application.
 func NewApp(logger logur.Logger, publisher message.Publisher, errorHandler emperror.Handler) http.Handler {
-	sayHello := greeting.NewSayHello(
+	sayHello := greeting.NewHelloService(
 		greetingadapter.NewSayHelloEvents(publisher),
 		greetingadapter.NewLogger(logger),
 		errorHandler,
 	)
-	helloWorldController := greetingdriver.NewGreetingController(sayHello, errorHandler)
+	helloWorldController := greetingdriver.NewHTTPController(sayHello, errorHandler)
 
 	router := mux.NewRouter()
 

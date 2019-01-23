@@ -1,4 +1,4 @@
-package greeting_test
+package greetingdriver
 
 import (
 	"bytes"
@@ -13,15 +13,15 @@ import (
 
 	"github.com/sagikazarmark/modern-go-application/.gen/greeting/go"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
-	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingadapter"
-	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingdriver"
 )
 
-func testSayHello(t *testing.T) {
-	events := &sayHelloEventsStub{}
-
-	sayHello := greeting.NewHelloService(events, greetingadapter.NewNoopLogger(), emperror.NewNoopHandler())
-	controller := greetingdriver.NewHTTPController(sayHello, emperror.NewNoopHandler())
+func TestHTTPController_SayHello(t *testing.T) {
+	service := &helloServiceStub{
+		resp: &greeting.HelloResponse{
+			Reply: "hello",
+		},
+	}
+	controller := NewHTTPController(service, emperror.NewNoopHandler())
 
 	server := httptest.NewServer(http.HandlerFunc(controller.SayHello))
 

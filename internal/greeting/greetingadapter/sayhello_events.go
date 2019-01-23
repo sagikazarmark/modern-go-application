@@ -14,23 +14,23 @@ import (
 )
 
 const (
-	saidHelloToTopic = "said_hello_to"
+	saidHelloTopic = "said_hello"
 )
 
-// SayHelloEvents is the dispatcher for hello world events.
+// HelloEvents is the dispatcher for hello world events.
 type SayHelloEvents struct {
 	publisher message.Publisher
 }
 
-// NewSayHelloEvents returns a new SayHelloEvents instance.
+// NewSayHelloEvents returns a new HelloEvents instance.
 func NewSayHelloEvents(publisher message.Publisher) *SayHelloEvents {
 	return &SayHelloEvents{
 		publisher: publisher,
 	}
 }
 
-// SaidHelloTo dispatches a SaidHelloTo event.
-func (e *SayHelloEvents) SaidHelloTo(ctx context.Context, event greeting.SaidHelloTo) error {
+// SaidHello dispatches a SaidHello event.
+func (e *SayHelloEvents) SaidHello(ctx context.Context, event greeting.SaidHello) error {
 	payload, err := json.Marshal(event)
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal event payload")
@@ -49,7 +49,7 @@ func (e *SayHelloEvents) SaidHelloTo(ctx context.Context, event greeting.SaidHel
 	}
 	middleware.SetCorrelationID(corrID.String(), msg)
 
-	err = e.publisher.Publish(saidHelloToTopic, msg)
+	err = e.publisher.Publish(saidHelloTopic, msg)
 	if err != nil {
 		return errors.WithMessage(err, "failed to publish event")
 	}

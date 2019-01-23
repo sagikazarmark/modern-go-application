@@ -185,13 +185,13 @@ validate-openapi: ## Validate the OpenAPI descriptor
 
 .PHONY: generate-api
 generate-api: ## Generate server stubs from the OpenAPI descriptor
-	rm -rf .gen/openapi
+	rm -rf .gen/greeting
 	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli:v${OPENAPI_GENERATOR_VERSION} generate \
 	--additional-properties packageName=api \
 	--additional-properties withGoCodegenComment=true \
 	-i /local/${OPENAPI_DESCRIPTOR} \
 	-g go-server \
-	-o /local/.gen/openapi
+	-o /local/.gen/greeting
 
 release-%: TAG_PREFIX = v
 release-%:
