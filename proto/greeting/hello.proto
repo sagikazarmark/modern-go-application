@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package mga.greeting;
+
+option go_package = "greetingpb";
+
+// HelloService responds to greetings.
+service HelloService {
+  // SayHello says hello to someone.
+  rpc SayHello(HelloRequest) returns (HelloResponse);
+}
+
+// HelloRequest contains a greeting that the service needs to respond to.
+message HelloRequest {
+  string greeting = 1;
+}
+
+// HelloResponse is the the response to a greeting.
+message HelloResponse {
+  string reply = 1;
+}

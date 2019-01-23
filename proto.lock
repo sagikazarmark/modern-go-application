@@ -1,0 +1,46 @@
+{
+  "definitions": [
+    {
+      "protopath": "proto:/:greeting:/:hello.proto",
+      "def": {
+        "messages": [
+          {
+            "name": "HelloRequest",
+            "fields": [
+              {
+                "id": 1,
+                "name": "greeting",
+                "type": "string"
+              }
+            ]
+          },
+          {
+            "name": "HelloResponse",
+            "fields": [
+              {
+                "id": 1,
+                "name": "reply",
+                "type": "string"
+              }
+            ]
+          }
+        ],
+        "services": [
+          {
+            "name": "HelloService",
+            "rpcs": [
+              {
+                "name": "SayHello",
+                "in_type": "HelloRequest",
+                "out_type": "HelloResponse"
+              }
+            ]
+          }
+        ],
+        "package": {
+          "name": "mga.greeting"
+        }
+      }
+    }
+  ]
+}

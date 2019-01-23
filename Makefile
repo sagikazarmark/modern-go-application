@@ -31,6 +31,9 @@ DEP_VERSION = 0.5.0
 GOTESTSUM_VERSION = 0.3.2
 GOLANGCI_VERSION = 1.12.3
 OPENAPI_GENERATOR_VERSION = 3.3.4
+PROTOTOOL_VERSION = 1.3.0
+PROTOLOCK_VERSION = 0.10.0
+PROTOLOCK_BUILD_DATE = 20190101T225741Z
 
 GOLANG_VERSION = 1.11
 
@@ -196,6 +199,34 @@ generate-api: ## Generate server stubs from the OpenAPI descriptor
 	-i /local/${OPENAPI_DESCRIPTOR} \
 	-g go-server \
 	-o /local/.gen/greeting
+
+bin/protolock: bin/protolock-${PROTOLOCK_VERSION}
+	@ln -sf protolock-${PROTOLOCK_VERSION} bin/protolock
+bin/protolock-${PROTOLOCK_VERSION}:
+	@mkdir -p bin
+ifeq (${OS}, Darwin)
+	curl -L https://github.com/nilslice/protolock/releases/download/v${PROTOLOCK_VERSION}/protolock.${PROTOLOCK_BUILD_DATE}.darwin-amd64.tgz | tar -zOxf - protolock > ./bin/protolock-${PROTOLOCK_VERSION} && chmod +x ./bin/protolock-${PROTOLOCK_VERSION}
+endif
+ifeq (${OS}, Linux)
+	curl -L https://github.com/nilslice/protolock/releases/download/v${PROTOLOCK_VERSION}/protolock.${PROTOLOCK_BUILD_DATE}.linux_amd64.tar.gz | tar -zOxf - protolock > ./bin/protolock-${PROTOLOCK_VERSION} && chmod +x ./bin/protolock-${PROTOLOCK_VERSION}
+endif
+
+proto.lock: bin/protolock
+	bin/protolock init
+
+.PHONY: protolock
+protolock: bin/protolock proto.lock
+	bin/protolock status
+
+bin/prototool: bin/prototool-${PROTOTOOL_VERSION}
+	@ln -sf prototool-${PROTOTOOL_VERSION} bin/prototool
+bin/prototool-${PROTOTOOL_VERSION}:
+	@mkdir -p bin
+	curl -L https://github.com/uber/prototool/releases/download/v${PROTOTOOL_VERSION}/prototool-${OS}-x86_64 > ./bin/prototool-${PROTOTOOL_VERSION} && chmod +x ./bin/prototool-${PROTOTOOL_VERSION}
+
+.PHONY: proto
+proto: bin/prototool protolock
+	bin/prototool all
 
 release-%: TAG_PREFIX = v
 release-%:
