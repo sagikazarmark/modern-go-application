@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	"google.golang.org/grpc"
 
-	"github.com/sagikazarmark/modern-go-application/.gen/proto/greeting"
+	"github.com/sagikazarmark/modern-go-application/.gen/proto/greeting" // nolint: goimports
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingadapter"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingdriver"
