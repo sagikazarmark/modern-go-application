@@ -194,13 +194,13 @@ validate-openapi: ## Validate the OpenAPI descriptor
 
 .PHONY: generate-api
 generate-api: ## Generate server stubs from the OpenAPI descriptor
-	rm -rf .gen/greeting
+	rm -rf .gen/openapi/greeting
 	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli:v${OPENAPI_GENERATOR_VERSION} generate \
 	--additional-properties packageName=api \
 	--additional-properties withGoCodegenComment=true \
 	-i /local/${OPENAPI_DESCRIPTOR} \
 	-g go-server \
-	-o /local/.gen/greeting
+	-o /local/.gen/openapi/greeting
 
 bin/protolock: bin/protolock-${PROTOLOCK_VERSION}
 	@ln -sf protolock-${PROTOLOCK_VERSION} bin/protolock
