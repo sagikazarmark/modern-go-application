@@ -9,7 +9,7 @@
 
 package api
 
-type HelloRequest struct {
+type HelloResponse struct {
 
-	Who string `json:"who,omitempty"`
+	Reply string `json:"reply,omitempty"`
 }

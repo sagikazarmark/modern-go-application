@@ -13,13 +13,7 @@ import (
 	"net/http"
 )
 
-// HelloWorld - Say hello to the world
-func HelloWorld(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-}
-
-// SayHello - Say hello to someone
+// SayHello - SayHello says hello to someone
 func SayHello(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)

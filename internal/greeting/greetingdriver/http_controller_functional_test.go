@@ -1,4 +1,4 @@
-package greeting_test
+package greetingdriver
 
 import (
 	"bytes"
@@ -6,29 +6,38 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
+	"github.com/ThreeDotsLabs/watermill/message/infrastructure/gochannel"
 	"github.com/goph/emperror"
+	"github.com/goph/logur"
+	"github.com/goph/logur/integrations/watermilllog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sagikazarmark/modern-go-application/.gen/openapi/go"
+	"github.com/sagikazarmark/modern-go-application/.gen/openapi/greeting/go" // nolint: goimports
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingadapter"
-	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingdriver"
 )
 
 func testSayHello(t *testing.T) {
-	events := &sayHelloEventsStub{}
-
-	sayHello := greeting.NewSayHello(events, greetingadapter.NewNoopLogger(), emperror.NewNoopHandler())
-	controller := greetingdriver.NewGreetingController(nil, sayHello, emperror.NewNoopHandler())
+	sayHello := greeting.NewHelloService(
+		greetingadapter.NewSayHelloEvents(gochannel.NewGoChannel(
+			10,
+			watermilllog.New(logur.WithFields(logur.NewNoopLogger(), map[string]interface{}{"component": "watermill"})),
+			3*time.Second,
+		)),
+		greetingadapter.NewNoopLogger(),
+		emperror.NewNoopHandler(),
+	)
+	controller := NewHTTPController(sayHello, emperror.NewNoopHandler())
 
 	server := httptest.NewServer(http.HandlerFunc(controller.SayHello))
 
 	var buf bytes.Buffer
 
 	to := api.HelloRequest{
-		Who: "John",
+		Greeting: "welcome",
 	}
 
 	encoder := json.NewEncoder(&buf)
@@ -42,15 +51,15 @@ func testSayHello(t *testing.T) {
 
 	decoder := json.NewDecoder(resp.Body)
 
-	var hello api.Hello
+	var hello api.HelloResponse
 
 	err = decoder.Decode(&hello)
 	require.NoError(t, err)
 
 	assert.Equal(
 		t,
-		api.Hello{
-			Message: "Hello, John!",
+		api.HelloResponse{
+			Reply: "hello",
 		},
 		hello,
 	)

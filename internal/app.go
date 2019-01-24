@@ -2,12 +2,15 @@ package internal
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/goph/emperror"
 	"github.com/goph/logur"
 	"github.com/gorilla/mux"
+	"google.golang.org/grpc"
 
+	"github.com/sagikazarmark/modern-go-application/.gen/proto/greeting" // nolint: goimports
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingadapter"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingdriver"
@@ -19,17 +22,12 @@ import (
 
 // NewApp returns a new HTTP application.
 func NewApp(logger logur.Logger, publisher message.Publisher, errorHandler emperror.Handler) http.Handler {
-	helloWorld := greeting.NewHelloWorld(
-		greetingadapter.NewHelloWorldEvents(publisher),
-		greetingadapter.NewLogger(logger),
-		errorHandler,
-	)
-	sayHello := greeting.NewSayHello(
+	helloService := greeting.NewHelloService(
 		greetingadapter.NewSayHelloEvents(publisher),
 		greetingadapter.NewLogger(logger),
 		errorHandler,
 	)
-	helloWorldController := greetingdriver.NewGreetingController(helloWorld, sayHello, errorHandler)
+	helloWorldController := greetingdriver.NewHTTPController(helloService, errorHandler)
 
 	router := mux.NewRouter()
 
@@ -38,35 +36,33 @@ func NewApp(logger logur.Logger, publisher message.Publisher, errorHandler emper
 		_, _ = w.Write([]byte(template))
 	})
 
-	router.Path("/hello").Methods("GET").HandlerFunc(helloWorldController.HelloWorld)
 	router.Path("/hello").Methods("POST").HandlerFunc(helloWorldController.SayHello)
 
 	router.PathPrefix("/httpbin").Handler(http.StripPrefix("/httpbin", httpbin.New()))
 
-	return router
+	helloWorldGRPCController := greetingdriver.NewGRPCController(helloService, errorHandler)
+
+	grpcServer := grpc.NewServer()
+	greetingpb.RegisterHelloServiceServer(grpcServer, helloWorldGRPCController)
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// This is a partial recreation of gRPC's internal checks:
+		// https://github.com/grpc/grpc-go/blob/7346c871b018d255a1d89b3f814a645cc9c5e356/transport/handler_server.go#L61-L75
+		if r.ProtoMajor == 2 && strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
+			grpcServer.ServeHTTP(w, r)
+		} else {
+			router.ServeHTTP(w, r)
+		}
+	})
 }
 
 // RegisterEventHandlers registers event handlers in a message router.
 func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber, logger logur.Logger) error {
-	helloWorldHandler := greetingworkerdriver.NewHelloWorldEventHandler(
-		greetingworker.NewHelloWorldEventLogger(greetingworkeradapter.NewLogger(logger)),
-	)
-
-	err := router.AddNoPublisherHandler(
-		"log_said_hello",
-		"said_hello",
-		subscriber,
-		helloWorldHandler.SaidHello,
-	)
-	if err != nil {
-		return err
-	}
-
 	sayHelloHandler := greetingworkerdriver.NewSayHelloEventHandler(
 		greetingworker.NewSayHelloEventLogger(greetingworkeradapter.NewLogger(logger)),
 	)
 
-	err = router.AddNoPublisherHandler(
+	err := router.AddNoPublisherHandler(
 		"log_said_hello_to",
 		"said_hello_to",
 		subscriber,

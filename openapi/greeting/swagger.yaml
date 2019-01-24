@@ -16,21 +16,9 @@ securityDefinitions:
         in: "header"
 
 paths:
-    /hello:
-        get:
-            summary: "Say hello to the world"
-            description: ""
-            operationId: "helloWorld"
-            produces:
-                - "application/json"
-                - "application/xml"
-            responses:
-                200:
-                    description: "successful operation"
-                    schema:
-                        $ref: "#/definitions/Hello"
+    /greeting/sayHello:
         post:
-            summary: "Say hello to someone"
+            summary: "SayHello says hello to someone"
             description: ""
             operationId: "sayHello"
             consumes:
@@ -50,17 +38,17 @@ paths:
                 200:
                     description: "successful operation"
                     schema:
-                        $ref: "#/definitions/Hello"
+                        $ref: "#/definitions/HelloResponse"
 
 definitions:
-    Hello:
-        type: "object"
-        properties:
-            message:
-                type: "string"
-
     HelloRequest:
         type: "object"
         properties:
-            who:
+            greeting:
+                type: "string"
+
+    HelloResponse:
+        type: "object"
+        properties:
+            reply:
                 type: "string"

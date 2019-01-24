@@ -56,16 +56,9 @@ var routes = Routes{
 	},
 
 	{
-		"HelloWorld",
-		strings.ToUpper("Get"),
-		"/hello",
-		HelloWorld,
-	},
-
-	{
 		"SayHello",
 		strings.ToUpper("Post"),
-		"/hello",
+		"/greeting/sayHello",
 		SayHello,
 	},
 }

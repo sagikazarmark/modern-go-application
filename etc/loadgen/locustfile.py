@@ -12,9 +12,6 @@ serverErrorCodes = [500, 503]
 def index(l):
     l.client.get("/")
 
-def helloWorld(l):
-    l.client.get("/hello")
-
 def sayHello(l):
     payload = {'who': 'John'}
     headers = {'content-type': 'application/json'}
@@ -38,7 +35,6 @@ class DemoBehavior(TaskSet):
 
     tasks = {
         index:2,
-        helloWorld: 12,
         sayHello: 12,
         clientErrors: 6,
         serverErrors: 4,
