@@ -8,9 +8,9 @@ import (
 	"github.com/goph/emperror"
 	"github.com/goph/logur"
 	"github.com/gorilla/mux"
-	"github.com/sagikazarmark/modern-go-application/.gen/proto/greeting"
 	"google.golang.org/grpc"
 
+	"github.com/sagikazarmark/modern-go-application/.gen/proto/greeting"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingadapter"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingdriver"

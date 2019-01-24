@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/goph/emperror"
+
 	"github.com/sagikazarmark/modern-go-application/.gen/proto/greeting"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 )
