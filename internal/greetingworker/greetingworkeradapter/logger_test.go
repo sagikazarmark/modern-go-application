@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/goph/logur"
-	"github.com/goph/logur/testing"
+	"github.com/goph/logur/testing" // nolint: goimports
 )
 
 func TestLogger_Levels(t *testing.T) {
