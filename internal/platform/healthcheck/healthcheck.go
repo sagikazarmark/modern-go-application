@@ -3,7 +3,7 @@ package healthcheck
 import (
 	"net/http"
 
-	"github.com/InVisionApp/go-health" // nolint: goimports
+	health "github.com/InVisionApp/go-health"
 	"github.com/InVisionApp/go-health/handlers"
 	"github.com/goph/logur"
 	"github.com/goph/logur/integrations/invisionlog"

@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/InVisionApp/go-health" // nolint: goimports
+	health "github.com/InVisionApp/go-health"
 	"github.com/InVisionApp/go-health/checkers"
 	"github.com/cloudflare/tableflip"
 	"github.com/goph/emperror"

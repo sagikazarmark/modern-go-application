@@ -7,7 +7,7 @@ import (
 	"github.com/goph/emperror"
 	"github.com/moogar0880/problems"
 
-	"github.com/sagikazarmark/modern-go-application/.gen/openapi/greeting/go" // nolint: goimports
+	api "github.com/sagikazarmark/modern-go-application/.gen/openapi/greeting/go"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 )
 
