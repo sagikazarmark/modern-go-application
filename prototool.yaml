@@ -18,6 +18,7 @@ generate:
         -
             name: go
             type: go
+            path: bin/protoc-gen-go
             flags: plugins=grpc
             output: ./.gen
 

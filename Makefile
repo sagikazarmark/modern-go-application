@@ -31,9 +31,11 @@ DEP_VERSION = 0.5.0
 GOTESTSUM_VERSION = 0.3.2
 GOLANGCI_VERSION = 1.12.3
 OPENAPI_GENERATOR_VERSION = 3.3.4
-PROTOTOOL_VERSION = 1.3.0
 PROTOLOCK_VERSION = 0.10.0
 PROTOLOCK_BUILD_DATE = 20190101T225741Z
+GOBIN_VERSION = 0.0.4
+PROTOC_GEN_GO_VERSION = 1.2.0
+PROTOTOOL_VERSION = 1.3.0
 
 GOLANG_VERSION = 1.11
 
@@ -208,15 +210,32 @@ ifeq (${OS}, Darwin)
 	curl -L https://github.com/nilslice/protolock/releases/download/v${PROTOLOCK_VERSION}/protolock.${PROTOLOCK_BUILD_DATE}.darwin-amd64.tgz | tar -zOxf - protolock > ./bin/protolock-${PROTOLOCK_VERSION} && chmod +x ./bin/protolock-${PROTOLOCK_VERSION}
 endif
 ifeq (${OS}, Linux)
-	curl -L https://github.com/nilslice/protolock/releases/download/v${PROTOLOCK_VERSION}/protolock.${PROTOLOCK_BUILD_DATE}.linux_amd64.tar.gz | tar -zOxf - protolock > ./bin/protolock-${PROTOLOCK_VERSION} && chmod +x ./bin/protolock-${PROTOLOCK_VERSION}
+	curl -L https://github.com/nilslice/protolock/releases/download/v${PROTOLOCK_VERSION}/protolock.${PROTOLOCK_BUILD_DATE}.linux-amd64.tgz | tar -zOxf - protolock > ./bin/protolock-${PROTOLOCK_VERSION} && chmod +x ./bin/protolock-${PROTOLOCK_VERSION}
 endif
 
 proto.lock: bin/protolock
 	bin/protolock init
 
 .PHONY: protolock
-protolock: bin/protolock proto.lock
+protolock: bin/protolock
 	bin/protolock status
+
+bin/gobin: bin/gobin-${GOBIN_VERSION}
+	@ln -sf gobin-${GOBIN_VERSION} bin/gobin
+bin/gobin-${GOBIN_VERSION}:
+	@mkdir -p bin
+ifeq (${OS}, Darwin)
+	curl -L https://github.com/myitcv/gobin/releases/download/v${GOBIN_VERSION}/darwin-amd64 > ./bin/gobin-${GOBIN_VERSION} && chmod +x ./bin/gobin-${GOBIN_VERSION}
+endif
+ifeq (${OS}, Linux)
+	curl -L https://github.com/myitcv/gobin/releases/download/v${GOBIN_VERSION}/linux-amd64 > ./bin/gobin-${GOBIN_VERSION} && chmod +x ./bin/gobin-${GOBIN_VERSION}
+endif
+
+bin/protoc-gen-go: bin/protoc-gen-go-${PROTOC_GEN_GO_VERSION}
+	@ln -sf protoc-gen-go-${PROTOC_GEN_GO_VERSION} bin/protoc-gen-go
+bin/protoc-gen-go-${PROTOC_GEN_GO_VERSION}: bin/gobin
+	@mkdir -p bin
+	GOBIN=bin/ bin/gobin github.com/golang/protobuf/protoc-gen-go@v1.2.0
 
 bin/prototool: bin/prototool-${PROTOTOOL_VERSION}
 	@ln -sf prototool-${PROTOTOOL_VERSION} bin/prototool
@@ -225,8 +244,8 @@ bin/prototool-${PROTOTOOL_VERSION}:
 	curl -L https://github.com/uber/prototool/releases/download/v${PROTOTOOL_VERSION}/prototool-${OS}-x86_64 > ./bin/prototool-${PROTOTOOL_VERSION} && chmod +x ./bin/prototool-${PROTOTOOL_VERSION}
 
 .PHONY: proto
-proto: bin/prototool protolock
-	bin/prototool all
+proto: bin/prototool bin/protoc-gen-go protolock
+	bin/prototool $(if ${VERBOSE},--debug,) all
 
 release-%: TAG_PREFIX = v
 release-%:
