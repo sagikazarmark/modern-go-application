@@ -12,12 +12,12 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/greetingworker/greetingworkeradapter"
 )
 
-func TestSayHelloEventLogger_SaidHelloTo(t *testing.T) {
+func TestGreeterEventLogger_SaidHelloTo(t *testing.T) {
 	logger := logur.NewTestLogger()
 
-	eventLogger := NewSayHelloEventLogger(greetingworkeradapter.NewLogger(logger))
+	eventLogger := NewGreeterEventLogger(greetingworkeradapter.NewLogger(logger))
 
-	event := SaidHelloTo{
+	event := SaidHello{
 		Message: "Hello, World!",
 		Who:     "John",
 	}

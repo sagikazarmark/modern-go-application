@@ -21,8 +21,8 @@ import (
 )
 
 func testSayHello(t *testing.T) {
-	sayHello := greeting.NewHelloService(
-		greetingadapter.NewSayHelloEvents(gochannel.NewGoChannel(
+	sayHello := greeting.NewGreeter(
+		greetingadapter.NewGreeterEvents(gochannel.NewGoChannel(
 			10,
 			watermilllog.New(logur.WithFields(logur.NewNoopLogger(), map[string]interface{}{"component": "watermill"})),
 			3*time.Second,
@@ -37,7 +37,7 @@ func testSayHello(t *testing.T) {
 	var buf bytes.Buffer
 
 	to := api.HelloRequest{
-		Greeting: "welcome",
+		Name: "John",
 	}
 
 	encoder := json.NewEncoder(&buf)

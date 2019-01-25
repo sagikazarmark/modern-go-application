@@ -10,14 +10,14 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 )
 
-func TestSayHelloEvents_SaidHelloTo(t *testing.T) {
+func TestGreeterEvents_SaidHelloTo(t *testing.T) {
 	publisher := &publisherStub{}
 
-	events := NewSayHelloEvents(publisher)
+	events := NewGreeterEvents(publisher)
 
 	event := greeting.SaidHello{
-		Greeting: "welcome",
-		Reply:    "hello",
+		Name:  "welcome",
+		Reply: "hello",
 	}
 
 	err := events.SaidHello(context.Background(), event)
@@ -25,5 +25,5 @@ func TestSayHelloEvents_SaidHelloTo(t *testing.T) {
 
 	assert.Equal(t, saidHelloTopic, "said_hello")
 	assert.Equal(t, saidHelloTopic, publisher.topic)
-	assert.Equal(t, string(publisher.messages[0].Payload), "{\"Greeting\":\"welcome\",\"Reply\":\"hello\"}")
+	assert.Equal(t, string(publisher.messages[0].Payload), "{\"Name\":\"welcome\",\"Reply\":\"hello\"}")
 }

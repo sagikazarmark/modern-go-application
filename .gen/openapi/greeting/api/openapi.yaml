@@ -41,9 +41,9 @@ components:
       type: object
     HelloRequest:
       example:
-        greeting: greeting
+        name: name
       properties:
-        greeting:
+        name:
           type: string
       type: object
   securitySchemes:

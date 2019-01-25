@@ -16,7 +16,7 @@ import (
 )
 
 func TestHTTPController_SayHello(t *testing.T) {
-	service := &helloServiceStub{
+	service := &greeterStub{
 		resp: &greeting.HelloResponse{
 			Reply: "hello",
 		},
@@ -28,7 +28,7 @@ func TestHTTPController_SayHello(t *testing.T) {
 	var buf bytes.Buffer
 
 	to := api.HelloRequest{
-		Greeting: "welcome",
+		Name: "John",
 	}
 
 	encoder := json.NewEncoder(&buf)

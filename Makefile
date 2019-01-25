@@ -192,8 +192,8 @@ lint: bin/golangci-lint ## Run linter
 validate-openapi: ## Validate the OpenAPI descriptor
 	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli:v${OPENAPI_GENERATOR_VERSION} validate --recommend -i /local/${OPENAPI_DESCRIPTOR}
 
-.PHONY: generate-api
-generate-api: ## Generate server stubs from the OpenAPI descriptor
+.PHONY: generate-openapi
+generate-openapi: ## Generate server stubs from the OpenAPI descriptor
 	rm -rf .gen/openapi/greeting
 	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli:v${OPENAPI_GENERATOR_VERSION} generate \
 	--additional-properties packageName=api \

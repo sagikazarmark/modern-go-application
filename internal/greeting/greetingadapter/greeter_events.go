@@ -17,20 +17,20 @@ const (
 	saidHelloTopic = "said_hello"
 )
 
-// HelloEvents is the dispatcher for hello world events.
-type SayHelloEvents struct {
+// GreeterEvents is the dispatcher for hello world events.
+type GreeterEvents struct {
 	publisher message.Publisher
 }
 
-// NewSayHelloEvents returns a new HelloEvents instance.
-func NewSayHelloEvents(publisher message.Publisher) *SayHelloEvents {
-	return &SayHelloEvents{
+// NewGreeterEvents returns a new GreeterEvents instance.
+func NewGreeterEvents(publisher message.Publisher) *GreeterEvents {
+	return &GreeterEvents{
 		publisher: publisher,
 	}
 }
 
 // SaidHello dispatches a SaidHello event.
-func (e *SayHelloEvents) SaidHello(ctx context.Context, event greeting.SaidHello) error {
+func (e *GreeterEvents) SaidHello(ctx context.Context, event greeting.SaidHello) error {
 	payload, err := json.Marshal(event)
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal event payload")

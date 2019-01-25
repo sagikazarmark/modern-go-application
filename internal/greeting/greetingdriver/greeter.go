@@ -6,8 +6,8 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 )
 
-// HelloService responds to greetings
-type HelloService interface {
+// Greeter responds to greetings
+type Greeter interface {
 	// SayHello says hello to someone.
 	SayHello(ctx context.Context, req greeting.HelloRequest) (*greeting.HelloResponse, error)
 }

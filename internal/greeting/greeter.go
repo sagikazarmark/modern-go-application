@@ -6,28 +6,28 @@ import (
 	"github.com/pkg/errors"
 )
 
-// HelloEvents is the dispatcher for hello events.
-type HelloEvents interface {
+// GreeterEvents is the dispatcher for hello events.
+type GreeterEvents interface {
 	// SaidHello dispatches a SaidHello event.
 	SaidHello(ctx context.Context, event SaidHello) error
 }
 
 // SaidHello indicates that hello was said to someone.
 type SaidHello struct {
-	Greeting string
-	Reply    string
+	Name  string
+	Reply string
 }
 
-// HelloService responds to greetings.
-type HelloService struct {
-	events       HelloEvents
+// Greeter responds to greetings.
+type Greeter struct {
+	events       GreeterEvents
 	logger       Logger
 	errorHandler ErrorHandler
 }
 
-// NewHelloService returns a new HelloService instance.
-func NewHelloService(events HelloEvents, logger Logger, errorHandler ErrorHandler) *HelloService {
-	return &HelloService{
+// NewGreeter returns a new Greeter instance.
+func NewGreeter(events GreeterEvents, logger Logger, errorHandler ErrorHandler) *Greeter {
+	return &Greeter{
 		events:       events,
 		logger:       logger,
 		errorHandler: errorHandler,
@@ -36,7 +36,7 @@ func NewHelloService(events HelloEvents, logger Logger, errorHandler ErrorHandle
 
 // HelloRequest contains a greeting that the service needs to respond to.
 type HelloRequest struct {
-	Greeting string
+	Name string
 }
 
 // HelloResponse is the the response to a greeting.
@@ -45,14 +45,14 @@ type HelloResponse struct {
 }
 
 // SayHello says hello to someone.
-func (sh *HelloService) SayHello(ctx context.Context, req HelloRequest) (*HelloResponse, error) {
-	sh.logger.Info("Hello!", map[string]interface{}{"greeting": req.Greeting})
+func (sh *Greeter) SayHello(ctx context.Context, req HelloRequest) (*HelloResponse, error) {
+	sh.logger.Info("Hello!", map[string]interface{}{"greeting": req.Name})
 
 	resp := &HelloResponse{
 		Reply: "hello",
 	}
 
-	err := sh.events.SaidHello(ctx, SaidHello{Greeting: req.Greeting, Reply: resp.Reply})
+	err := sh.events.SaidHello(ctx, SaidHello{Name: req.Name, Reply: resp.Reply})
 	if err != nil {
 		sh.errorHandler.Handle(errors.WithMessage(err, "failed to dispatch event"))
 	}

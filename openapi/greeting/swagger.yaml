@@ -44,7 +44,7 @@ definitions:
     HelloRequest:
         type: "object"
         properties:
-            greeting:
+            name:
                 type: "string"
 
     HelloResponse:

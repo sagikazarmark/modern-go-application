@@ -11,5 +11,5 @@ package api
 
 type HelloRequest struct {
 
-	Greeting string `json:"greeting,omitempty"`
+	Name string `json:"name,omitempty"`
 }
