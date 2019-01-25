@@ -2,11 +2,20 @@
 /build/
 /config.*
 !config.toml.dist
-/.docker/
 /docker-compose.override.yml
 /.env
 /.env.test
 /vendor/
+
+/var/*
+!/var/docker
+/var/docker/*
+!/var/docker/volumes
+/var/docker/volumes/*
+!/var/docker/volumes/.gitkeep
+!/var/log
+/var/log/*
+!/var/log/.gitkeep
 
 # IDE integration
 /.vscode/*
