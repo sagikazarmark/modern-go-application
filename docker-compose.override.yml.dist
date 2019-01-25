@@ -7,6 +7,18 @@ services:
         volumes:
             - ./.docker/volumes/mysql:/var/lib/mysql
 
+    prometheus:
+        ports:
+            - 9090:9090
+        volumes:
+            - ./.docker/volumes/prometheus:/prometheus
+
+    grafana:
+        ports:
+            - 3000:3000
+        volumes:
+            - ./.docker/volumes/grafana:/var/lib/grafana
+
     jaeger:
         ports:
             - 6831:6831
