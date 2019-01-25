@@ -9,7 +9,7 @@
             "fields": [
               {
                 "id": 1,
-                "name": "greeting",
+                "name": "name",
                 "type": "string"
               }
             ]
@@ -27,7 +27,7 @@
         ],
         "services": [
           {
-            "name": "HelloService",
+            "name": "Greeter",
             "rpcs": [
               {
                 "name": "SayHello",
@@ -39,6 +39,81 @@
         ],
         "package": {
           "name": "mga.greeting"
+        }
+      }
+    },
+    {
+      "protopath": "vendor:/:github.com:/:golang:/:protobuf:/:ptypes:/:any:/:any.proto",
+      "def": {
+        "messages": [
+          {
+            "name": "Any",
+            "fields": [
+              {
+                "id": 1,
+                "name": "type_url",
+                "type": "string"
+              },
+              {
+                "id": 2,
+                "name": "value",
+                "type": "bytes"
+              }
+            ]
+          }
+        ],
+        "package": {
+          "name": "google.protobuf"
+        }
+      }
+    },
+    {
+      "protopath": "vendor:/:github.com:/:golang:/:protobuf:/:ptypes:/:duration:/:duration.proto",
+      "def": {
+        "messages": [
+          {
+            "name": "Duration",
+            "fields": [
+              {
+                "id": 1,
+                "name": "seconds",
+                "type": "int64"
+              },
+              {
+                "id": 2,
+                "name": "nanos",
+                "type": "int32"
+              }
+            ]
+          }
+        ],
+        "package": {
+          "name": "google.protobuf"
+        }
+      }
+    },
+    {
+      "protopath": "vendor:/:github.com:/:golang:/:protobuf:/:ptypes:/:timestamp:/:timestamp.proto",
+      "def": {
+        "messages": [
+          {
+            "name": "Timestamp",
+            "fields": [
+              {
+                "id": 1,
+                "name": "seconds",
+                "type": "int64"
+              },
+              {
+                "id": 2,
+                "name": "nanos",
+                "type": "int32"
+              }
+            ]
+          }
+        ],
+        "package": {
+          "name": "google.protobuf"
         }
       }
     }

@@ -6,12 +6,12 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 )
 
-type helloServiceStub struct {
+type greeterStub struct {
 	resp *greeting.HelloResponse
 	err  error
 }
 
-func (s *helloServiceStub) SayHello(ctx context.Context, req greeting.HelloRequest) (*greeting.HelloResponse, error) {
+func (s *greeterStub) SayHello(ctx context.Context, req greeting.HelloRequest) (*greeting.HelloResponse, error) {
 	if s.err != nil {
 		return nil, s.err
 	}

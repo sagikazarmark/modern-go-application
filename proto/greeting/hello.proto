@@ -4,15 +4,15 @@ package mga.greeting;
 
 option go_package = "greetingpb";
 
-// HelloService responds to greetings.
-service HelloService {
+// Greeter responds to greetings.
+service Greeter {
   // SayHello says hello to someone.
   rpc SayHello(HelloRequest) returns (HelloResponse);
 }
 
 // HelloRequest contains a greeting that the service needs to respond to.
 message HelloRequest {
-  string greeting = 1;
+  string name = 1;
 }
 
 // HelloResponse is the the response to a greeting.

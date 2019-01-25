@@ -13,7 +13,7 @@ def index(l):
     l.client.get("/")
 
 def sayHello(l):
-    payload = {'who': 'John'}
+    payload = {'name': 'John'}
     headers = {'content-type': 'application/json'}
 
     l.client.post("/hello", data=json.dumps(payload), headers=headers)

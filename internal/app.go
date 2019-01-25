@@ -22,12 +22,12 @@ import (
 
 // NewApp returns a new HTTP application.
 func NewApp(logger logur.Logger, publisher message.Publisher, errorHandler emperror.Handler) http.Handler {
-	helloService := greeting.NewHelloService(
-		greetingadapter.NewSayHelloEvents(publisher),
+	greeter := greeting.NewGreeter(
+		greetingadapter.NewGreeterEvents(publisher),
 		greetingadapter.NewLogger(logger),
 		errorHandler,
 	)
-	helloWorldController := greetingdriver.NewHTTPController(helloService, errorHandler)
+	greeterController := greetingdriver.NewHTTPController(greeter, errorHandler)
 
 	router := mux.NewRouter()
 
@@ -36,14 +36,14 @@ func NewApp(logger logur.Logger, publisher message.Publisher, errorHandler emper
 		_, _ = w.Write([]byte(template))
 	})
 
-	router.Path("/hello").Methods("POST").HandlerFunc(helloWorldController.SayHello)
+	router.Path("/hello").Methods("POST").HandlerFunc(greeterController.SayHello)
 
 	router.PathPrefix("/httpbin").Handler(http.StripPrefix("/httpbin", httpbin.New()))
 
-	helloWorldGRPCController := greetingdriver.NewGRPCController(helloService, errorHandler)
+	helloWorldGRPCController := greetingdriver.NewGRPCController(greeter, errorHandler)
 
 	grpcServer := grpc.NewServer()
-	greetingpb.RegisterHelloServiceServer(grpcServer, helloWorldGRPCController)
+	greetingpb.RegisterGreeterServer(grpcServer, helloWorldGRPCController)
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// This is a partial recreation of gRPC's internal checks:
@@ -58,8 +58,8 @@ func NewApp(logger logur.Logger, publisher message.Publisher, errorHandler emper
 
 // RegisterEventHandlers registers event handlers in a message router.
 func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber, logger logur.Logger) error {
-	sayHelloHandler := greetingworkerdriver.NewSayHelloEventHandler(
-		greetingworker.NewSayHelloEventLogger(greetingworkeradapter.NewLogger(logger)),
+	sayHelloHandler := greetingworkerdriver.NewGreeterEventHandler(
+		greetingworker.NewGreeterEventLogger(greetingworkeradapter.NewLogger(logger)),
 	)
 
 	err := router.AddNoPublisherHandler(

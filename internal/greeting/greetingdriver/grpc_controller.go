@@ -11,13 +11,13 @@ import (
 
 // GRPCController collects the greeting use cases and exposes them as HTTP handlers.
 type GRPCController struct {
-	helloService HelloService
+	helloService Greeter
 
 	errorHandler emperror.Handler
 }
 
 // NewGRPCController returns a new GRPCController instance.
-func NewGRPCController(helloService HelloService, errorHandler emperror.Handler) *GRPCController {
+func NewGRPCController(helloService Greeter, errorHandler emperror.Handler) *GRPCController {
 	return &GRPCController{
 		helloService: helloService,
 		errorHandler: errorHandler,
@@ -30,7 +30,7 @@ func (c *GRPCController) SayHello(
 	rpcReq *greetingpb.HelloRequest,
 ) (*greetingpb.HelloResponse, error) {
 	req := greeting.HelloRequest{
-		Greeting: rpcReq.Greeting,
+		Name: rpcReq.GetName(),
 	}
 
 	resp, err := c.helloService.SayHello(ctx, req)
