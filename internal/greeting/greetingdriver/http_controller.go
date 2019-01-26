@@ -14,15 +14,15 @@ import (
 
 // HTTPController collects the greeting use cases and exposes them as HTTP handlers.
 type HTTPController struct {
-	helloService Greeter
+	greeter Greeter
 
 	errorHandler emperror.Handler
 }
 
 // NewHTTPController returns a new HTTPController instance.
-func NewHTTPController(helloService Greeter, errorHandler emperror.Handler) *HTTPController {
+func NewHTTPController(greeter Greeter, errorHandler emperror.Handler) *HTTPController {
 	return &HTTPController{
-		helloService: helloService,
+		greeter:      greeter,
 		errorHandler: errorHandler,
 	}
 }
@@ -41,7 +41,7 @@ func (c *HTTPController) SayHello(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := c.helloService.SayHello(r.Context(), req)
+	resp, err := c.greeter.SayHello(r.Context(), req)
 	if err != nil {
 		err := encodeHTTPErrorWithCode(err, http.StatusBadRequest, w)
 		if err != nil {

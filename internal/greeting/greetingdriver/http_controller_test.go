@@ -16,24 +16,24 @@ import (
 )
 
 func TestHTTPController_SayHello(t *testing.T) {
-	service := &greeterStub{
+	greeter := &greeterStub{
 		resp: &greeting.HelloResponse{
 			Reply: "hello",
 		},
 	}
-	controller := NewHTTPController(service, emperror.NewNoopHandler())
+	controller := NewHTTPController(greeter, emperror.NewNoopHandler())
 
 	server := httptest.NewServer(http.HandlerFunc(controller.SayHello))
 
 	var buf bytes.Buffer
 
-	to := api.HelloRequest{
+	apiReq := api.HelloRequest{
 		Name: "John",
 	}
 
 	encoder := json.NewEncoder(&buf)
 
-	err := encoder.Encode(to)
+	err := encoder.Encode(apiReq)
 	require.NoError(t, err)
 
 	resp, err := http.Post(server.URL, "application/json", &buf)
@@ -42,9 +42,9 @@ func TestHTTPController_SayHello(t *testing.T) {
 
 	decoder := json.NewDecoder(resp.Body)
 
-	var hello api.HelloResponse
+	var apiResp api.HelloResponse
 
-	err = decoder.Decode(&hello)
+	err = decoder.Decode(&apiResp)
 	require.NoError(t, err)
 
 	assert.Equal(
@@ -52,6 +52,6 @@ func TestHTTPController_SayHello(t *testing.T) {
 		api.HelloResponse{
 			Reply: "hello",
 		},
-		hello,
+		apiResp,
 	)
 }
