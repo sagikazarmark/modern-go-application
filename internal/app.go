@@ -60,8 +60,8 @@ func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber
 	)
 
 	err := router.AddNoPublisherHandler(
-		"log_said_hello_to",
-		"said_hello_to",
+		"log_said_hello",
+		"said_hello",
 		subscriber,
 		sayHelloHandler.SaidHelloTo,
 	)
