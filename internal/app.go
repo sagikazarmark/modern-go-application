@@ -28,14 +28,13 @@ func NewApp(logger logur.Logger, publisher message.Publisher, errorHandler emper
 		greetingadapter.NewLogger(logger),
 		errorHandler,
 	)
-	greeterController := greetingdriver.NewHTTPController(greeter, errorHandler)
 
 	router := mux.NewRouter()
 
 	router.Path("/").Methods("GET").Handler(landingdriver.NewHTTPHandler())
-
-	router.Path("/hello").Methods("POST").HandlerFunc(greeterController.SayHello)
-
+	router.PathPrefix("/greeting").Methods("POST").Handler(
+		http.StripPrefix("/greeting", greetingdriver.NewHTTPHandler(greeter, errorHandler)),
+	)
 	router.PathPrefix("/httpbin").Handler(http.StripPrefix("/httpbin", httpbin.New()))
 
 	helloWorldGRPCController := greetingdriver.NewGRPCController(greeter, errorHandler)

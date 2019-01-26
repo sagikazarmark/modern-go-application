@@ -5,12 +5,23 @@ import (
 	"net/http"
 
 	"github.com/goph/emperror"
+	"github.com/gorilla/mux"
 	"github.com/moogar0880/problems"
 	"github.com/pkg/errors"
 
 	api "github.com/sagikazarmark/modern-go-application/.gen/openapi/greeting/go"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 )
+
+// NewHTTPHandler returns a new HTTP handler for the greeter.
+func NewHTTPHandler(greeter Greeter, errorHandler emperror.Handler) http.Handler {
+	router := mux.NewRouter()
+	controller := NewHTTPController(greeter, errorHandler)
+
+	router.Path("/sayHello").Methods("POST").HandlerFunc(controller.SayHello)
+
+	return router
+}
 
 // HTTPController collects the greeting use cases and exposes them as HTTP handlers.
 type HTTPController struct {
