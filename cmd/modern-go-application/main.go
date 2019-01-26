@@ -238,9 +238,9 @@ func main() {
 		logger := log.WithFields(logger, map[string]interface{}{"server": name})
 
 		grpcServer := grpc.NewServer(grpc.StatsHandler(&ocgrpc.ServerHandler{}))
-		appHTTPHandler, grpcHandlers := internal.NewApp(logger, pubsub, errorHandler)
-		appHTTPHandler = &ochttp.Handler{
-			Handler: appHTTPHandler,
+		httpHandler, grpcHandlers := internal.NewApp(logger, pubsub, errorHandler)
+		httpHandler = &ochttp.Handler{
+			Handler: httpHandler,
 		}
 		grpcHandlers(grpcServer)
 
@@ -256,7 +256,7 @@ func main() {
 				if r.ProtoMajor == 2 && strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
 					grpcServer.ServeHTTP(w, r)
 				} else {
-					appHTTPHandler.ServeHTTP(w, r)
+					httpHandler.ServeHTTP(w, r)
 				}
 			}),
 			ErrorLog: log.NewErrorStandardLogger(logger),
