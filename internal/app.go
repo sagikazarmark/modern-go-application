@@ -7,6 +7,7 @@ import (
 	"github.com/goph/emperror"
 	"github.com/goph/logur"
 	"github.com/gorilla/mux"
+	"github.com/mccutchen/go-httpbin/httpbin"
 	"google.golang.org/grpc"
 
 	greetingpb "github.com/sagikazarmark/modern-go-application/.gen/proto/greeting"
@@ -16,7 +17,6 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/greetingworker"
 	"github.com/sagikazarmark/modern-go-application/internal/greetingworker/greetingworkeradapter"
 	"github.com/sagikazarmark/modern-go-application/internal/greetingworker/greetingworkerdriver"
-	"github.com/sagikazarmark/modern-go-application/internal/httpbin"
 	"github.com/sagikazarmark/modern-go-application/internal/landing/landingdriver"
 )
 
@@ -38,7 +38,25 @@ func NewApp(
 	router.PathPrefix("/greeting").Methods("POST").Handler(
 		http.StripPrefix("/greeting", greetingdriver.NewHTTPHandler(greeter, errorHandler)),
 	)
-	router.PathPrefix("/httpbin").Handler(http.StripPrefix("/httpbin", httpbin.New()))
+	router.PathPrefix("/httpbin").Handler(
+		http.StripPrefix(
+			"/httpbin",
+			httpbin.New(
+				httpbin.WithObserver(func(result httpbin.Result) {
+					logger.Info(
+						"httpbin call",
+						map[string]interface{}{
+							"status":      result.Status,
+							"method":      result.Method,
+							"uri":         result.URI,
+							"size_bytes":  result.Size,
+							"duration_ms": result.Duration.Seconds() * 1e3, // https://github.com/golang/go/issues/5491#issuecomment-66079585
+						},
+					)
+				}),
+			).Handler(),
+		),
+	)
 
 	helloWorldGRPCController := greetingdriver.NewGRPCController(greeter, errorHandler)
 
