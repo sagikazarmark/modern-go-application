@@ -2,7 +2,6 @@ package internal
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/goph/emperror"
@@ -21,8 +20,12 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/landing/landingdriver"
 )
 
-// NewApp returns a new HTTP application.
-func NewApp(logger logur.Logger, publisher message.Publisher, errorHandler emperror.Handler) http.Handler {
+// NewApp returns a new HTTP and a new gRPC application.
+func NewApp(
+	logger logur.Logger,
+	publisher message.Publisher,
+	errorHandler emperror.Handler,
+) (http.Handler, func(*grpc.Server)) {
 	greeter := greeting.NewGreeter(
 		greetingadapter.NewGreeterEvents(publisher),
 		greetingadapter.NewLogger(logger),
@@ -39,18 +42,9 @@ func NewApp(logger logur.Logger, publisher message.Publisher, errorHandler emper
 
 	helloWorldGRPCController := greetingdriver.NewGRPCController(greeter, errorHandler)
 
-	grpcServer := grpc.NewServer()
-	greetingpb.RegisterGreeterServer(grpcServer, helloWorldGRPCController)
-
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// This is a partial recreation of gRPC's internal checks:
-		// https://github.com/grpc/grpc-go/blob/7346c871b018d255a1d89b3f814a645cc9c5e356/transport/handler_server.go#L61-L75
-		if r.ProtoMajor == 2 && strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
-			grpcServer.ServeHTTP(w, r)
-		} else {
-			router.ServeHTTP(w, r)
-		}
-	})
+	return router, func(s *grpc.Server) {
+		greetingpb.RegisterGreeterServer(s, helloWorldGRPCController)
+	}
 }
 
 // RegisterEventHandlers registers event handlers in a message router.
