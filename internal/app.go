@@ -18,6 +18,7 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/greetingworker/greetingworkeradapter"
 	"github.com/sagikazarmark/modern-go-application/internal/greetingworker/greetingworkerdriver"
 	"github.com/sagikazarmark/modern-go-application/internal/httpbin"
+	"github.com/sagikazarmark/modern-go-application/internal/landing/landingdriver"
 )
 
 // NewApp returns a new HTTP application.
@@ -31,10 +32,7 @@ func NewApp(logger logur.Logger, publisher message.Publisher, errorHandler emper
 
 	router := mux.NewRouter()
 
-	router.Path("/").Methods("GET").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Content-Type", "text/html")
-		_, _ = w.Write([]byte(template))
-	})
+	router.Path("/").Methods("GET").Handler(landingdriver.NewHTTPHandler())
 
 	router.Path("/hello").Methods("POST").HandlerFunc(greeterController.SayHello)
 

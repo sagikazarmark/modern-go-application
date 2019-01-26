@@ -1,7 +1,7 @@
 // nolint: lll
-package internal
+package landing
 
-const template = `
+const Template = `
 <html lang="en">
 <head>
     <meta charset="UTF-8">
