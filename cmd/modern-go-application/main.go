@@ -232,17 +232,17 @@ func main() {
 	)
 	emperror.Panic(errors.Wrap(err, "failed to register HTTP server stat views"))
 
-	grpcServer := grpc.NewServer(grpc.StatsHandler(&ocgrpc.ServerHandler{}))
-	appHTTPHandler, grpcHandlers := internal.NewApp(logger, pubsub, errorHandler)
-	appHTTPHandler = &ochttp.Handler{
-		Handler: appHTTPHandler,
-	}
-	grpcHandlers(grpcServer)
-
 	// Set up app server
 	{
 		const name = "app"
 		logger := log.WithFields(logger, map[string]interface{}{"server": name})
+
+		grpcServer := grpc.NewServer(grpc.StatsHandler(&ocgrpc.ServerHandler{}))
+		appHTTPHandler, grpcHandlers := internal.NewApp(logger, pubsub, errorHandler)
+		appHTTPHandler = &ochttp.Handler{
+			Handler: appHTTPHandler,
+		}
+		grpcHandlers(grpcServer)
 
 		logger.Info("listening on address", map[string]interface{}{"address": config.App.Addr})
 
