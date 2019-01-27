@@ -7,14 +7,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
+
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/jaeger"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/prometheus"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/redis"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/watermill"
-	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
 )
 
 // Config holds any kind of configuration that comes from the outside world and
