@@ -84,4 +84,4 @@
 
 [[constraint]]
   name = "github.com/mccutchen/go-httpbin"
-  version = "1.1.1"
+  version = "2.1.0"

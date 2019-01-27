@@ -199,7 +199,7 @@
   version = "v1.0.1"
 
 [[projects]]
-  digest = "1:72ceaf507be2be31be560badb3a3eed61e5e4d68f28d9cc5e716b002c77bc8de"
+  digest = "1:5a4a89d8e15fa92a2b9be9a49e854878a0b1d0aa0744bfa85210ff8725b57a47"
   name = "github.com/mccutchen/go-httpbin"
   packages = [
     "httpbin",
@@ -207,8 +207,8 @@
     "httpbin/digest",
   ]
   pruneopts = "UT"
-  revision = "10626018aebee59fe9904ed13b5a53d6736e56de"
-  version = "1.1.1"
+  revision = "c5cb2f4802fac63859778c72989fe88dce35fe35"
+  version = "2.1.0"
 
 [[projects]]
   digest = "1:53bc4cd4914cd7cd52139990d5170d6dc99067ae31c56530621b18b35fc30318"
@@ -390,7 +390,7 @@
   version = "v1.3.0"
 
 [[projects]]
-  digest = "1:4f24b3563c7804fe906e7487e66aafa68db5a8261c9efbda90e337d3abaebc5e"
+  digest = "1:10c43605e58da252a71741724e367aa5c17a496a789f246a67ae5dc0cf869fdb"
   name = "go.opencensus.io"
   packages = [
     ".",
@@ -400,6 +400,7 @@
     "exporter/prometheus",
     "internal",
     "internal/tagencoding",
+    "plugin/ocgrpc",
     "plugin/ochttp",
     "plugin/ochttp/propagation/b3",
     "stats",
@@ -587,6 +588,7 @@
     "github.com/stretchr/testify/require",
     "go.opencensus.io/exporter/jaeger",
     "go.opencensus.io/exporter/prometheus",
+    "go.opencensus.io/plugin/ocgrpc",
     "go.opencensus.io/plugin/ochttp",
     "go.opencensus.io/stats/view",
     "go.opencensus.io/trace",

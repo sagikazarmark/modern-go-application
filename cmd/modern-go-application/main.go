@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -16,6 +17,14 @@ import (
 	"github.com/oklog/run"
 	"github.com/opencensus-integrations/ocsql"
 	"github.com/pkg/errors"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
+	"go.opencensus.io/plugin/ocgrpc"
+	"go.opencensus.io/plugin/ochttp"
+	"go.opencensus.io/stats/view"
+	"go.opencensus.io/trace"
+	"google.golang.org/grpc"
+
 	"github.com/sagikazarmark/modern-go-application/internal"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/buildinfo"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
@@ -25,11 +34,6 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/prometheus"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/watermill"
-	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
-	"go.opencensus.io/plugin/ochttp"
-	"go.opencensus.io/stats/view"
-	"go.opencensus.io/trace"
 )
 
 // nolint: gochecknoinits
@@ -228,12 +232,17 @@ func main() {
 	)
 	emperror.Panic(errors.Wrap(err, "failed to register HTTP server stat views"))
 
-	app := internal.NewApp(logger, pubsub, errorHandler)
-
 	// Set up app server
 	{
 		const name = "app"
 		logger := log.WithFields(logger, map[string]interface{}{"server": name})
+
+		grpcServer := grpc.NewServer(grpc.StatsHandler(&ocgrpc.ServerHandler{}))
+		httpHandler, grpcHandlers := internal.NewApp(logger, pubsub, errorHandler)
+		httpHandler = &ochttp.Handler{
+			Handler: httpHandler,
+		}
+		grpcHandlers(grpcServer)
 
 		logger.Info("listening on address", map[string]interface{}{"address": config.App.Addr})
 
@@ -241,9 +250,15 @@ func main() {
 		emperror.Panic(err)
 
 		server := &http.Server{
-			Handler: &ochttp.Handler{
-				Handler: app,
-			},
+			Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				// This is a partial recreation of gRPC's internal checks:
+				// https://github.com/grpc/grpc-go/blob/7346c871b018d255a1d89b3f814a645cc9c5e356/transport/handler_server.go#L61-L75
+				if r.ProtoMajor == 2 && strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
+					grpcServer.ServeHTTP(w, r)
+				} else {
+					httpHandler.ServeHTTP(w, r)
+				}
+			}),
 			ErrorLog: log.NewErrorStandardLogger(logger),
 		}
 
