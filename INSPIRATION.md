@@ -11,3 +11,7 @@ https://circleci.com/docs/2.0/collect-test-data/
 
 
 https://kvz.io/blog/2013/11/21/bash-best-practices/
+
+https://github.com/basvanbeek/opencensus-gokit-example
+https://medium.com/@rghetia/distributed-tracing-and-monitoring-using-opencensus-fe5f6e9479fb
+https://github.com/census-ecosystem/opencensus-microservices-demo
