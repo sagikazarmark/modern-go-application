@@ -49,7 +49,7 @@ up: vendor start config.toml ## Set up the development environment
 .PHONY: down
 down: clear ## Destroy the development environment
 	docker-compose down
-	rm -rf .docker/
+	rm -rf var/docker/volumes/*
 
 .PHONY: reset
 reset: down up ## Reset the development environment
