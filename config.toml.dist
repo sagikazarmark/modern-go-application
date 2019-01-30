@@ -14,7 +14,7 @@ enabled = false
 
 [instrumentation.jaeger]
 enabled = false
-collectorEndpoint = "http://localhost:14268"
+collectorEndpoint = "http://localhost:14268/api/traces?format=jaeger.thrift"
 agentEndpoint = "localhost:6831"
 # username = ""
 # password = ""
