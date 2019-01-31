@@ -286,24 +286,29 @@ func main() {
 		)
 	}
 
-	// Setup exit signal
+	// Setup signal handler
 	{
-		ch := make(chan os.Signal, 1)
+		var (
+			cancelInterrupt = make(chan struct{})
+			ch              = make(chan os.Signal, 2)
+		)
+		defer close(ch)
 
 		group.Add(
 			func() error {
 				signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 
-				sig := <-ch
-				if sig != nil {
+				select {
+				case sig := <-ch:
 					logger.Info("captured signal", map[string]interface{}{"signal": sig})
+				case <-cancelInterrupt:
 				}
 
 				return nil
 			},
 			func(e error) {
+				close(cancelInterrupt)
 				signal.Stop(ch)
-				close(ch)
 			},
 		)
 	}
