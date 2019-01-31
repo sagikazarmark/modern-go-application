@@ -5,9 +5,6 @@
       <option name="customFlags">
         <array>
           <option value="dev" />
-          <option value="unit" />
-          <option value="integration" />
-          <option value="acceptance" />
         </array>
       </option>
     </buildTags>
