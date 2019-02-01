@@ -151,7 +151,7 @@ func Configure(v *viper.Viper, p *pflag.FlagSet) {
 
 	v.SetDefault("instrumentation.prometheus.enabled", false)
 	v.SetDefault("instrumentation.jaeger.enabled", false)
-	v.SetDefault("instrumentation.jaeger.collectorEndpoint", "http://localhost:14268/api/traces?format=jaeger.thrift")
+	_ = v.BindEnv("instrumentation.jaeger.collectorEndpoint")
 	v.SetDefault("instrumentation.jaeger.agentEndpoint", "localhost:6831")
 	v.RegisterAlias("instrumentation.jaeger.serviceName", "serviceName")
 	_ = v.BindEnv("instrumentation.jaeger.username")
