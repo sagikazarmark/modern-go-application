@@ -5,7 +5,7 @@ import "github.com/pkg/errors"
 // Config holds information necessary for sending trace to Jaeger.
 type Config struct {
 	// CollectorEndpoint is the Jaeger HTTP Thrift endpoint.
-	// For example, http://localhost:14268.
+	// For example, http://localhost:14268/api/traces?format=jaeger.thrift.
 	CollectorEndpoint string
 
 	// AgentEndpoint instructs exporter to send spans to Jaeger agent at this address.
