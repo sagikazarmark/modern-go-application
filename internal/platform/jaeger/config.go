@@ -27,7 +27,7 @@ type Config struct {
 // Validate checks that the configuration is valid.
 func (c Config) Validate() error {
 	if c.CollectorEndpoint == "" && c.AgentEndpoint == "" {
-		return errors.New("either endpoint or agent endpoint must be configured")
+		return errors.New("either collector endpoint or agent endpoint must be configured")
 	}
 
 	return nil
