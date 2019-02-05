@@ -5,6 +5,7 @@
 !*.go
 !build/
 !cmd/
+!go.*
 !Gopkg.*
 !internal/
 !pkg/
