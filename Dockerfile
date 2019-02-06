@@ -2,7 +2,7 @@ ARG GO_VERSION=1.11.5
 
 FROM golang:${GO_VERSION}-alpine AS builder
 
-RUN apk add --update --no-cache ca-certificates make git curl mercurial
+RUN apk add --update --no-cache make git curl mercurial
 
 ARG PACKAGE=github.com/sagikazarmark/modern-go-application
 
@@ -18,7 +18,7 @@ RUN BUILD_DIR= BINARY_NAME=app make build-release
 
 FROM alpine:3.8
 
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+RUN apk add --update --no-cache ca-certificates tzdata
 
 COPY --from=builder /app /app
 
