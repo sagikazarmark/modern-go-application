@@ -69,6 +69,8 @@ func main() {
 	// Provide some basic context to all log lines
 	logger = log.WithFields(logger, map[string]interface{}{"environment": config.Environment, "service": ServiceName})
 
+	log.SetStandardLogger(logger)
+
 	if configFileNotFound {
 		logger.Warn("configuration file not found", nil)
 	}
