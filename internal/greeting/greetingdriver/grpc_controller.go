@@ -5,7 +5,7 @@ import (
 
 	"github.com/goph/emperror"
 
-	greetingpb "github.com/sagikazarmark/modern-go-application/.gen/proto/greeting"
+	greetingpb "github.com/sagikazarmark/modern-go-application/.gen/api/proto/greeting"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 )
 

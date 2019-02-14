@@ -7,7 +7,7 @@ PACKAGE = $(shell echo $${PWD\#\#*src/})
 BUILD_PACKAGE ?= ${PACKAGE}/cmd/$(shell basename $$PWD)
 BINARY_NAME ?= $(shell basename $$PWD)
 DOCKER_IMAGE = $(shell echo ${PACKAGE} | cut -d '/' -f 2,3)
-OPENAPI_DESCRIPTOR = openapi/greeting/swagger.yaml
+OPENAPI_DESCRIPTOR = api/openapi/greeting/swagger.yaml
 
 # Build variables
 BUILD_DIR ?= build
@@ -194,13 +194,13 @@ validate-openapi: ## Validate the OpenAPI descriptor
 
 .PHONY: generate-openapi
 generate-openapi: ## Generate server stubs from the OpenAPI descriptor
-	rm -rf .gen/openapi/greeting
+	rm -rf .gen/api/openapi/greeting
 	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli:v${OPENAPI_GENERATOR_VERSION} generate \
 	--additional-properties packageName=api \
 	--additional-properties withGoCodegenComment=true \
 	-i /local/${OPENAPI_DESCRIPTOR} \
 	-g go-server \
-	-o /local/.gen/openapi/greeting
+	-o /local/.gen/api/openapi/greeting
 
 bin/protolock: bin/protolock-${PROTOLOCK_VERSION}
 	@ln -sf protolock-${PROTOLOCK_VERSION} bin/protolock

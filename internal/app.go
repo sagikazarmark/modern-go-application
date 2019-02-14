@@ -10,7 +10,7 @@ import (
 	"github.com/mccutchen/go-httpbin/httpbin"
 	"google.golang.org/grpc"
 
-	greetingpb "github.com/sagikazarmark/modern-go-application/.gen/proto/greeting"
+	greetingpb "github.com/sagikazarmark/modern-go-application/.gen/api/proto/greeting"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingadapter"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingdriver"
