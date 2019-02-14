@@ -1,7 +1,7 @@
 {
   "definitions": [
     {
-      "protopath": "proto:/:greeting:/:hello.proto",
+      "protopath": "api:/:proto:/:greeting:/:hello.proto",
       "def": {
         "messages": [
           {

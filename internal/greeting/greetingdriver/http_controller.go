@@ -8,8 +8,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/moogar0880/problems"
 	"github.com/pkg/errors"
+	api "github.com/sagikazarmark/modern-go-application/.gen/api/openapi/greeting/go"
 
-	api "github.com/sagikazarmark/modern-go-application/.gen/openapi/greeting/go"
 	"github.com/sagikazarmark/modern-go-application/internal/greeting"
 )
 

@@ -7,7 +7,7 @@ protoc:
 create:
     packages:
         -
-            directory: proto
+            directory: api/proto
             name: modern-go-application
 
 generate:
