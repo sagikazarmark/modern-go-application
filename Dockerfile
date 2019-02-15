@@ -2,17 +2,17 @@ ARG GO_VERSION=1.11.5
 
 FROM golang:${GO_VERSION}-alpine AS builder
 
-RUN apk add --update --no-cache make git curl mercurial
+ENV GOFLAGS="-mod=readonly"
 
-ARG PACKAGE=github.com/sagikazarmark/modern-go-application
+RUN apk add --update --no-cache ca-certificates make git curl mercurial bzr
 
-RUN mkdir -p /go/src/${PACKAGE}
-WORKDIR /go/src/${PACKAGE}
+RUN mkdir -p /build
+WORKDIR /build
 
-COPY Gopkg.* Makefile /go/src/${PACKAGE}/
-RUN make vendor
+COPY go.* /build/
+RUN go mod download
 
-COPY . /go/src/${PACKAGE}
+COPY . /build
 RUN BUILD_DIR= BINARY_NAME=app make build-release
 
 

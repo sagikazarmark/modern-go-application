@@ -3,10 +3,9 @@
 OS = $(shell uname)
 
 # Project variables
-PACKAGE = $(shell echo $${PWD\#\#*src/})
-BUILD_PACKAGE ?= ${PACKAGE}/cmd/$(shell basename $$PWD)
-BINARY_NAME ?= $(shell basename $$PWD)
-DOCKER_IMAGE = $(shell echo ${PACKAGE} | cut -d '/' -f 2,3)
+BUILD_PACKAGE ?= ./cmd/modern-go-application
+BINARY_NAME ?= modern-go-application
+DOCKER_IMAGE = sagikazarmark/modern-go-application
 OPENAPI_DESCRIPTOR = api/openapi/greeting/swagger.yaml
 
 # Build variables
@@ -27,7 +26,6 @@ endif
 DOCKER_TAG ?= ${VERSION}
 
 # Dependency versions
-DEP_VERSION = 0.5.0
 GOTESTSUM_VERSION = 0.3.2
 GOLANGCI_VERSION = 1.12.5
 OPENAPI_GENERATOR_VERSION = 3.3.4
@@ -37,14 +35,14 @@ GOBIN_VERSION = 0.0.4
 PROTOC_GEN_GO_VERSION = 1.2.0
 PROTOTOOL_VERSION = 1.3.0
 
-GOLANG_VERSION = 1.11
+GOLANG_VERSION = 1.11.4
 
 # Add the ability to override some variables
 # Use with care
 -include override.mk
 
 .PHONY: up
-up: vendor start config.toml ## Set up the development environment
+up: start config.toml ## Set up the development environment
 
 .PHONY: down
 down: clear ## Destroy the development environment
@@ -56,7 +54,7 @@ reset: down up ## Reset the development environment
 
 .PHONY: clear
 clear: ## Clear the working area and the project
-	rm -rf bin/ vendor/
+	rm -rf bin/
 
 docker-compose.override.yml:
 	cp docker-compose.override.yml.dist docker-compose.override.yml
@@ -69,17 +67,6 @@ start: docker-compose.override.yml ## Start docker development environment
 .PHONY: stop
 stop: ## Stop docker development environment
 	docker-compose stop
-
-bin/dep: bin/dep-${DEP_VERSION}
-	@ln -sf dep-${DEP_VERSION} bin/dep
-bin/dep-${DEP_VERSION}:
-	@mkdir -p bin
-	curl https://raw.githubusercontent.com/golang/dep/master/install.sh | INSTALL_DIRECTORY=bin DEP_RELEASE_TAG=v${DEP_VERSION} sh
-	@mv bin/dep $@
-
-.PHONY: vendor
-vendor: bin/dep ## Install dependencies
-	bin/dep ensure -v -vendor-only
 
 config.toml:
 	sed 's/production/development/g; s/debug = false/debug = true/g; s/shutdownTimeout = "15s"/shutdownTimeout = "0s"/g; s/format = "json"/format = "logfmt"/g; s/level = "info"/level = "debug"/g; s/addr = ":10000"/addr = "127.0.0.1:10000"/g; s/addr = ":8000"/addr = "127.0.0.1:8000"/g' config.toml.dist > config.toml
