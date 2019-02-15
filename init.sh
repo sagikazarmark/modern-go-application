@@ -108,7 +108,7 @@ find ${DEST}/cmd -type f | while read file; do replace "s|${originalPackageName}
 replace "s|^PACKAGE = .*|PACKAGE = ${packageName}|; s|^BUILD_PACKAGE \??= .*|BUILD_PACKAGE = \${PACKAGE}/cmd/${binaryName}|; s|^BINARY_NAME \?= .*|BINARY_NAME \?= ${binaryName}|" Makefile
 
 # Other project files
-declare -a files=(".circleci/config.yml" ".gitlab-ci.yml" "CHANGELOG.md" "Dockerfile", "prototool.yaml")
+declare -a files=(".circleci/config.yml" ".gitlab-ci.yml" "CHANGELOG.md" "Dockerfile", "prototool.yaml", "go.mod")
 for file in "${files[@]}"; do
     if [[ -f "${file}" ]]; then
         replace "s|${originalPackageName}|${packageName}|" ${file}
