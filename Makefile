@@ -3,10 +3,9 @@
 OS = $(shell uname)
 
 # Project variables
-PACKAGE = $(shell echo $${PWD\#\#*src/})
-BUILD_PACKAGE ?= ${PACKAGE}/cmd/$(shell basename $$PWD)
-BINARY_NAME ?= $(shell basename $$PWD)
-DOCKER_IMAGE = $(shell echo ${PACKAGE} | cut -d '/' -f 2,3)
+BUILD_PACKAGE ?= ./cmd/modern-go-application
+BINARY_NAME ?= modern-go-application
+DOCKER_IMAGE = sagikazarmark/modern-go-application
 OPENAPI_DESCRIPTOR = api/openapi/greeting/swagger.yaml
 
 # Build variables

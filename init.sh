@@ -105,7 +105,7 @@ replace "s|${originalServiceName}|${serviceName}|; s|${originalFriendlyServiceNa
 find ${DEST}/cmd -type f | while read file; do replace "s|${originalPackageName}|${packageName}|" "$file"; done
 
 # Makefile
-replace "s|^PACKAGE = .*|PACKAGE = ${packageName}|; s|^BUILD_PACKAGE \??= .*|BUILD_PACKAGE = \${PACKAGE}/cmd/${binaryName}|; s|^BINARY_NAME \?= .*|BINARY_NAME \?= ${binaryName}|" Makefile
+replace "s|^BUILD_PACKAGE \??= .*|BUILD_PACKAGE = ./cmd/${binaryName}|; s|^BINARY_NAME \?= .*|BINARY_NAME \?= ${binaryName}|; s|^DOCKER_IMAGE = .*|DOCKER_IMAGE = ${packageName#'github.com/'}|" Makefile
 
 # Other project files
 declare -a files=(".circleci/config.yml" ".gitlab-ci.yml" "CHANGELOG.md" "Dockerfile", "prototool.yaml", "go.mod")
