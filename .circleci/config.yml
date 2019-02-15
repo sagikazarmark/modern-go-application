@@ -4,9 +4,9 @@ jobs:
     build:
         docker:
             -
-                image: circleci/golang:1.11.4
-
-        working_directory: /go/src/github.com/sagikazarmark/modern-go-application
+                image: circleci/golang:1.11.5
+                environment:
+                    GOFLAGS: -mod=readonly
 
         steps:
             - checkout
@@ -21,22 +21,22 @@ jobs:
                 restore_cache:
                     name: Restore dependencies
                     keys:
-                        - gopkg-v1-{{ .Branch }}-{{ checksum "Gopkg.lock" }}
-                        - gopkg-v1-{{ .Branch }}
-                        - gopkg-v1-master
-                        - gopkg-v1
+                        - gomod-v1-{{ .Branch }}-{{ checksum "go.sum" }}
+                        - gomod-v1-{{ .Branch }}
+                        - gomod-v1-master
+                        - gomod-v1
 
             -
                 run:
-                    name: Install dependencies
-                    command: make vendor
+                    name: Download Go module cache
+                    command: go mod download
 
             -
                 save_cache:
                     name: Save dependencies
-                    key: gopkg-v1-{{ .Branch }}-{{ checksum "Gopkg.lock" }}
+                    key: gomod-v1-{{ .Branch }}-{{ checksum "go.sum" }}
                     paths:
-                        - vendor/
+                        - /go/pkg/mod
 
             -
                 run:

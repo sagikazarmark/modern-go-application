@@ -3,6 +3,8 @@ image: golang:1.11.5
 variables:
     PROJECT_NAME: github.com/sagikazarmark/modern-go-application
     DOCKER_IMAGE: registry.gitlab.com/${CI_PROJECT_PATH}
+    GOFLAGS: -mod=readonly
+    GOPATH: ${CI_PROJECT_DIR}/vendor/go
 
 stages:
     - dependencies
@@ -10,26 +12,23 @@ stages:
     - build
     - packaging
 
-before_script:
-    # Create a symbolic link under $GOPATH
-    - cd $GOPATH/src
-    - mkdir -p $(dirname $PROJECT_NAME)
-    - ln -s $CI_PROJECT_DIR $PROJECT_NAME
-    - cd $PROJECT_NAME
-    - pwd
-
-cache:
-    key: vendor
+.modcache: &modcache
+    key: modcache
     paths:
-        - vendor/
+        - vendor/go/pkg/mod/
+
 
 dependencies:
     stage: dependencies
-    script: make vendor
+    script: go mod download
+    cache: *modcache
 
 test:
     stage: test
     script: make test
+    cache:
+        <<: *modcache
+        policy: pull
     artifacts:
         reports:
             junit: build/test_results/main/results.xml
@@ -37,6 +36,9 @@ test:
 test-integration:
     stage: test
     script: make test-integration
+    cache:
+        <<: *modcache
+        policy: pull
     artifacts:
         reports:
             junit: build/test_results/integration/results.xml
@@ -44,6 +46,9 @@ test-integration:
 lint:
     stage: test
     script: make lint
+    cache:
+        <<: *modcache
+        policy: pull
 
 .build: &build_definition
     stage: build
@@ -51,6 +56,9 @@ lint:
         - export CI_BUILD_DATE=$(date +%FT%T%z)
         - make build-release VERSION=${CI_COMMIT_REF_NAME} COMMIT_HASH=${CI_COMMIT_SHA} BUILD_DATE=${CI_BUILD_DATE}
         - make build-debug VERSION=${CI_COMMIT_REF_NAME} COMMIT_HASH=${CI_COMMIT_SHA} BUILD_DATE=${CI_BUILD_DATE}
+    cache:
+        <<: *modcache
+        policy: pull
 
 snapshot:
     <<: *build_definition

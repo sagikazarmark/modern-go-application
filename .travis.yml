@@ -14,13 +14,24 @@ branches:
         - master
         - /^v?\d+\.\d+\.\d+(-\S*)?$/
 
+env:
+    global:
+        - GO111MODULE=on
+        - GOFLAGS=-mod=readonly
+
 matrix:
     fast_finish: true
     allow_failures:
         - go: tip
 
+cache:
+    directories:
+        - bin
+        - $HOME/gopath/pkg/mod
+
+install: go mod download
+
 before_script:
-    - make vendor
     - export VERSION=${TRAVIS_TAG:-$TRAVIS_BRANCH}
     - export $(make varexport-DOCKER_IMAGE)
 
