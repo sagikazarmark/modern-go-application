@@ -179,8 +179,8 @@ lint: bin/golangci-lint ## Run linter
 validate-openapi: ## Validate the OpenAPI descriptor
 	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli:v${OPENAPI_GENERATOR_VERSION} validate --recommend -i /local/${OPENAPI_DESCRIPTOR}
 
-.PHONY: generate-openapi
-generate-openapi: ## Generate server stubs from the OpenAPI descriptor
+.PHONY: openapi
+openapi: ## Generate client and server stubs from the OpenAPI definition
 	rm -rf .gen/api/openapi/greeting
 	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli:v${OPENAPI_GENERATOR_VERSION} generate \
 	--additional-properties packageName=api \
@@ -231,7 +231,7 @@ bin/prototool-${PROTOTOOL_VERSION}:
 	curl -L https://github.com/uber/prototool/releases/download/v${PROTOTOOL_VERSION}/prototool-${OS}-x86_64 > ./bin/prototool-${PROTOTOOL_VERSION} && chmod +x ./bin/prototool-${PROTOTOOL_VERSION}
 
 .PHONY: proto
-proto: bin/prototool bin/protoc-gen-go protolock
+proto: bin/prototool bin/protoc-gen-go protolock ## Generate client and server stubs from the protobuf definition
 	bin/prototool $(if ${VERBOSE},--debug,) all
 
 release-%: TAG_PREFIX = v
