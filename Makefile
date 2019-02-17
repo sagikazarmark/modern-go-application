@@ -76,15 +76,6 @@ run: GOTAGS += dev
 run: build ## Build and execute a binary
 	${BUILD_DIR}/${BINARY_NAME} ${ARGS}
 
-bin/dlv:
-	@mkdir -p bin
-	GOBIN=${PWD}/bin go get -u github.com/derekparker/delve/cmd/dlv
-
-.PHONY: debug
-debug: GOTAGS += dev
-debug: build-debug bin/dlv ## Build and execute a binary with remote debugging enabled
-	bin/dlv --listen=127.0.0.1:40000 --headless=true --api-version=2 --log exec -- ${BUILD_DIR}/${BINARY_NAME}-debug ${ARGS}
-
 .PHONY: clean
 clean: ## Clean builds
 	rm -rf ${BUILD_DIR}/
