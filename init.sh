@@ -128,9 +128,6 @@ if [[ "${removeInit}" != "n" && "${removeInit}" != "N" ]]; then
     remove "$0"
 fi
 
-# Spotguide
-replace "/^ *path: src\/.*/d" .banzaicloud/pipeline.yaml
-
 # Update readme
 if [[ "${updateReadme}" == "y" || "${updateReadme}" == "Y" ]]; then
     echo -e "# FRIENDLY_PROJECT_NAME\n\n**Project description.**" | sed "s/FRIENDLY_PROJECT_NAME/${friendlyServiceName}/" > ${DEST}/README.md

@@ -1,6 +1,5 @@
 workspace:
   base: /cicd
-  path: src/github.com/sagikazarmark/modern-go-application
 
 pipeline:
   create_cluster:
@@ -9,9 +8,9 @@ pipeline:
 
   test:
     image: golang:1.11
-    commands: make vendor check
+    commands: make check
     environment:
-      GOPATH: /cicd
+      GOFLAGS: -mod=readonly
 
   build_image:
     image: plugins/docker
