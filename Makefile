@@ -61,7 +61,7 @@ docker-compose.override.yml:
 
 .PHONY: start
 start: docker-compose.override.yml ## Start docker development environment
-	@ if [ docker-compose.override.yml -ot docker-compose.override.yml.dist ]; then diff -u docker-compose.override.yml* || (echo "!!! The distributed docker-compose.override.yml example changed. Please update your file accordingly (or at least touch it). !!!" && false); fi
+	@ if [ docker-compose.override.yml -ot docker-compose.override.yml.dist ]; then diff -u docker-compose.override.yml docker-compose.override.yml.dist || (echo "!!! The distributed docker-compose.override.yml example changed. Please update your file accordingly (or at least touch it). !!!" && false); fi
 	docker-compose up -d
 
 .PHONY: stop
@@ -75,15 +75,6 @@ config.toml:
 run: GOTAGS += dev
 run: build ## Build and execute a binary
 	${BUILD_DIR}/${BINARY_NAME} ${ARGS}
-
-bin/dlv:
-	@mkdir -p bin
-	GOBIN=${PWD}/bin go get -u github.com/derekparker/delve/cmd/dlv
-
-.PHONY: debug
-debug: GOTAGS += dev
-debug: build-debug bin/dlv ## Build and execute a binary with remote debugging enabled
-	bin/dlv --listen=127.0.0.1:40000 --headless=true --api-version=2 --log exec -- ${BUILD_DIR}/${BINARY_NAME}-debug ${ARGS}
 
 .PHONY: clean
 clean: ## Clean builds
@@ -102,18 +93,18 @@ endif
 
 .PHONY: build-release
 build-release: ## Build a binary without debug information
-	@${MAKE} LDFLAGS="-w ${LDFLAGS}" build
+	@${MAKE} LDFLAGS="-w ${LDFLAGS}" BUILD_DIR="${BUILD_DIR}/release" build
 
 .PHONY: build-debug
 build-debug: ## Build a binary with remote debugging capabilities
-	@${MAKE} GOARGS="${GOARGS} -gcflags \"all=-N -l\"" BINARY_NAME="${BINARY_NAME}-debug" build
+	@${MAKE} GOARGS="${GOARGS} -gcflags \"all=-N -l\"" BUILD_DIR="${BUILD_DIR}/debug" build
 
 .PHONY: docker
 docker: ## Build a Docker image
 ifneq (${DOCKER_PREBUILT}, 1)
-	@${MAKE} BINARY_NAME="${BINARY_NAME}-docker" GOOS=linux build-release
+	@${MAKE} BINARY_NAME="${BINARY_NAME}-linux-amd64" GOOS=linux GOARCH=amd64 build-release
 endif
-	docker build --build-arg BUILD_DIR=${BUILD_DIR} --build-arg BINARY_NAME=${BINARY_NAME}-docker -t ${DOCKER_IMAGE}:${DOCKER_TAG} -f Dockerfile.local .
+	docker build --build-arg BUILD_DIR=${BUILD_DIR}/release --build-arg BINARY_NAME=${BINARY_NAME}-linux-amd64 -t ${DOCKER_IMAGE}:${DOCKER_TAG} -f Dockerfile.local .
 ifeq (${DOCKER_LATEST}, 1)
 	docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
 endif
@@ -121,9 +112,9 @@ endif
 .PHONY: docker-debug
 docker-debug: ## Build a Docker image with remote debugging capabilities
 ifneq (${DOCKER_PREBUILT}, 1)
-	@${MAKE} BINARY_NAME="${BINARY_NAME}-docker" GOOS=linux build-debug
+	@${MAKE} BINARY_NAME="${BINARY_NAME}-linux-amd64" GOOS=linux GOARCH=amd64 build-debug
 endif
-	docker build --build-arg BUILD_DIR=${BUILD_DIR} --build-arg BINARY_NAME=${BINARY_NAME}-docker-debug -t ${DOCKER_IMAGE}:${DOCKER_TAG}-debug -f Dockerfile.debug .
+	docker build --build-arg BUILD_DIR=${BUILD_DIR}/debug --build-arg BINARY_NAME=${BINARY_NAME}-linux-amd64 -t ${DOCKER_IMAGE}:${DOCKER_TAG}-debug -f Dockerfile.debug .
 ifeq (${DOCKER_LATEST}, 1)
 	docker tag ${DOCKER_IMAGE}:${DOCKER_TAG}-debug ${DOCKER_IMAGE}:latest-debug
 endif

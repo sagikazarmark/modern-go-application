@@ -11,7 +11,7 @@
     <kind value="DIRECTORY" />
     <filePath value="$PROJECT_DIR$/" />
     <directory value="$PROJECT_DIR$/cmd/modern-go-application/" />
-    <output_directory value="$PROJECT_DIR$/build/" />
+    <output_directory value="$PROJECT_DIR$/build/goland/" />
     <method v="2" />
   </configuration>
 </component>
