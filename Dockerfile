@@ -13,14 +13,14 @@ COPY go.* /build/
 RUN go mod download
 
 COPY . /build
-RUN BUILD_DIR= BINARY_NAME=app make build-release
+RUN BINARY_NAME=app make build-release
 
 
 FROM alpine:3.8
 
 RUN apk add --update --no-cache ca-certificates tzdata
 
-COPY --from=builder /app /app
+COPY --from=builder /build/build/release/app /app
 
 EXPOSE 8000 10000
 CMD ["/app", "--instrumentation.addr", ":10000", "--app.addr", ":8000"]
