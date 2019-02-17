@@ -91,7 +91,7 @@ release:
         - apk add --update --no-cache ca-certificates make
     script:
         - docker build --build-arg BUILD_DIR=build/release --build-arg BINARY_NAME=$(make var-BINARY_NAME) -t ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME} -f Dockerfile.local .
-        - docker build --build-arg BUILD_DIR=build/debug --build-arg BINARY_NAME=$(make var-BINARY_NAME)-debug -t ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug -f Dockerfile.debug .
+        - docker build --build-arg BUILD_DIR=build/debug --build-arg BINARY_NAME=$(make var-BINARY_NAME) -t ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug -f Dockerfile.debug .
         - docker push ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}
         - docker push ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug
 
@@ -110,7 +110,7 @@ docker:release:
         - tags
     script:
         - docker build --build-arg BUILD_DIR=build/release --build-arg BINARY_NAME=$(make var-BINARY_NAME) -t ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME} -f Dockerfile.local .
-        - docker build --build-arg BUILD_DIR=build/release --build-arg BINARY_NAME=$(make var-BINARY_NAME)-debug -t ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug -f Dockerfile.debug .
+        - docker build --build-arg BUILD_DIR=build/release --build-arg BINARY_NAME=$(make var-BINARY_NAME) -t ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug -f Dockerfile.debug .
         - docker push ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}
         - docker push ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug
         - docker tag ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME} ${DOCKER_IMAGE}:latest
