@@ -16,7 +16,7 @@ def sayHello(l):
     payload = {'name': 'John'}
     headers = {'content-type': 'application/json'}
 
-    l.client.post("/hello", data=json.dumps(payload), headers=headers)
+    l.client.post("/greeting/sayHello", data=json.dumps(payload), headers=headers)
 
 def clientErrors(l):
     l.client.get("/httpbin/status/" + str(random.choice(clientErrorCodes)))
