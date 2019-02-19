@@ -5,6 +5,7 @@ require (
 	github.com/InVisionApp/go-health v2.1.0+incompatible
 	github.com/ThreeDotsLabs/watermill v0.2.1
 	github.com/cloudflare/tableflip v0.0.0-20190111135955-d1e14f24db7d
+	github.com/go-kit/kit v0.8.0
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/golang/protobuf v1.2.0
