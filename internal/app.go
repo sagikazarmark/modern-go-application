@@ -36,7 +36,7 @@ func NewApp(
 
 	router.Path("/").Methods("GET").Handler(landingdriver.NewHTTPHandler())
 	router.PathPrefix("/greeting").Methods("POST").Handler(
-		http.StripPrefix("/greeting", greetingdriver.NewHTTPHandler(greeter, errorHandler)),
+		http.StripPrefix("/greeting", greetingdriver.MakeHTTPHandler(greeter, errorHandler)),
 	)
 	router.PathPrefix("/httpbin").Handler(
 		http.StripPrefix(
