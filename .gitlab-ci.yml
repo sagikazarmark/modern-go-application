@@ -1,7 +1,6 @@
 image: golang:1.11.5
 
 variables:
-    PROJECT_NAME: github.com/sagikazarmark/modern-go-application
     DOCKER_IMAGE: registry.gitlab.com/${CI_PROJECT_PATH}
     GOFLAGS: -mod=readonly
     GOPATH: ${CI_PROJECT_DIR}/vendor/go
