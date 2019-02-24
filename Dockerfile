@@ -16,7 +16,7 @@ COPY . /build
 RUN BINARY_NAME=app make build-release
 
 
-FROM alpine:3.8
+FROM alpine:3.9
 
 RUN apk add --update --no-cache ca-certificates tzdata
 
