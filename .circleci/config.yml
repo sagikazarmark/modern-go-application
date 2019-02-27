@@ -19,7 +19,7 @@ jobs:
 
             -
                 restore_cache:
-                    name: Restore dependencies
+                    name: Restore Go module cache
                     keys:
                         - gomod-v1-{{ .Branch }}-{{ checksum "go.sum" }}
                         - gomod-v1-{{ .Branch }}
@@ -33,7 +33,7 @@ jobs:
 
             -
                 save_cache:
-                    name: Save dependencies
+                    name: Save Go module cache
                     key: gomod-v1-{{ .Branch }}-{{ checksum "go.sum" }}
                     paths:
                         - /go/pkg/mod
