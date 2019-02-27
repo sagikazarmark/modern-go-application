@@ -2,19 +2,12 @@ package todo
 
 import (
 	"context"
+	"github.com/goph/idgen"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-type idGeneratorStub struct {
-	id string
-}
-
-func (g *idGeneratorStub) New() (string, error) {
-	return g.id, nil
-}
 
 type todoStore struct {
 	todos map[string]Todo
@@ -31,10 +24,7 @@ func TestTodoList_CreateTodo(t *testing.T) {
 		todos: make(map[string]Todo),
 	}
 
-	todoList := NewTodoList(
-		&idGeneratorStub{"id"},
-		todoStore,
-	)
+	todoList := NewTodoList(idgen.NewConstantGenerator("id"), todoStore)
 
 	req := CreateTodoRequest{
 		Text: "My first todo",

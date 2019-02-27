@@ -7,10 +7,12 @@ require (
 	github.com/cloudflare/tableflip v0.0.0-20190111135955-d1e14f24db7d
 	github.com/go-kit/kit v0.8.0
 	github.com/go-sql-driver/mysql v1.4.1
+	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/golang/protobuf v1.2.0
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/goph/emperror v0.16.0
+	github.com/goph/idgen v0.1.0
 	github.com/goph/logur v0.9.0
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/mux v1.6.2
