@@ -1,6 +1,8 @@
 package todo
 
-import "context"
+import (
+	"context"
+)
 
 // Todo is a note describing a task to be executed.
 type Todo struct {
@@ -33,6 +35,9 @@ type IDGenerator interface {
 type TodoStore interface {
 	// Store stores a todo.
 	Store(todo Todo) error
+
+	// All returns all todos.
+	All(ctx context.Context) ([]Todo, error)
 }
 
 // CreateTodoRequest contains a new todo.
@@ -64,5 +69,22 @@ func (t *TodoList) CreateTodo(ctx context.Context, req CreateTodoRequest) (*Crea
 
 	return &CreateTodoResponse{
 		ID: id,
+	}, nil
+}
+
+// ListTodosResponse contains the list of todos on the list.
+type ListTodosResponse struct {
+	Todos []Todo
+}
+
+// ListTodos returns the list of todos on the list.
+func (t *TodoList) ListTodos(ctx context.Context) (*ListTodosResponse, error) {
+	todos, err := t.todos.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ListTodosResponse{
+		Todos: todos,
 	}, nil
 }

@@ -19,6 +19,19 @@ func (s *todoStore) Store(todo Todo) error {
 	return nil
 }
 
+func (s *todoStore) All(ctx context.Context) ([]Todo, error) {
+	todos := make([]Todo, len(s.todos))
+
+	i := 0
+	for _, todo := range s.todos {
+		todos[i] = todo
+
+		i++
+	}
+
+	return todos, nil
+}
+
 func TestTodoList_CreateTodo(t *testing.T) {
 	todoStore := &todoStore{
 		todos: make(map[string]Todo),
@@ -45,4 +58,31 @@ func TestTodoList_CreateTodo(t *testing.T) {
 	}
 
 	assert.Equal(t, todo, todoStore.todos[todo.ID])
+}
+
+func TestTodoList_ListTodos(t *testing.T) {
+	todoStore := &todoStore{
+		todos: map[string]Todo{
+			"id": {
+				ID:   "id",
+				Text: "Make the listing work",
+			},
+		},
+	}
+
+	todoList := NewTodoList(idgen.NewConstantGenerator("id"), todoStore)
+
+	todos, err := todoList.ListTodos(context.Background())
+	require.NoError(t, err)
+
+	expectedTodos := &ListTodosResponse{
+		Todos: []Todo{
+			{
+				ID:   "id",
+				Text: "Make the listing work",
+			},
+		},
+	}
+
+	assert.Equal(t, expectedTodos, todos)
 }
