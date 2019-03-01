@@ -38,6 +38,9 @@ type TodoStore interface {
 
 	// All returns all todos.
 	All(ctx context.Context) ([]Todo, error)
+
+	// Get returns a single todo by its ID.
+	Get(ctx context.Context, id string) (Todo, error)
 }
 
 // CreateTodoRequest contains a new todo.
@@ -87,4 +90,18 @@ func (t *TodoList) ListTodos(ctx context.Context) (*ListTodosResponse, error) {
 	return &ListTodosResponse{
 		Todos: todos,
 	}, nil
+}
+
+type MarkAsDoneRequest struct {
+	ID string
+}
+
+func (t *TodoList) MarkAsDone(ctx context.Context, req MarkAsDoneRequest) error {
+	todo, _ := t.todos.Get(ctx, req.ID)
+
+	todo.Done = true
+
+	t.todos.Store(todo)
+
+	return nil
 }

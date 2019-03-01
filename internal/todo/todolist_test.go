@@ -32,6 +32,10 @@ func (s *todoStore) All(ctx context.Context) ([]Todo, error) {
 	return todos, nil
 }
 
+func (s *todoStore) Get(ctx context.Context, id string) (Todo, error) {
+	return s.todos[id], nil
+}
+
 func TestTodoList_CreateTodo(t *testing.T) {
 	todoStore := &todoStore{
 		todos: make(map[string]Todo),
@@ -85,4 +89,29 @@ func TestTodoList_ListTodos(t *testing.T) {
 	}
 
 	assert.Equal(t, expectedTodos, todos)
+}
+
+func TestTodoList_MarkAsDone(t *testing.T) {
+	todo := Todo{
+		ID:   "id",
+		Text: "Make the listing work",
+	}
+
+	todoStore := &todoStore{
+		todos: map[string]Todo{
+			"id": todo,
+		},
+	}
+	todoList := NewTodoList(nil, todoStore)
+
+	req := MarkAsDoneRequest{
+		ID: "id",
+	}
+	err := todoList.MarkAsDone(context.Background(), req)
+	require.NoError(t, err)
+
+	expectedTodo := todo
+	expectedTodo.Done = true
+
+	assert.Equal(t, expectedTodo, todoStore.todos["id"])
 }
