@@ -83,10 +83,11 @@ func TestInmemoryTodoStore_GetsATodo(t *testing.T) {
 	assert.Equal(t, store.todos[id], todo)
 }
 
-func TestInmemoryTodoStore_ReturnsANotFoundErrorWhenATodoIsNotFound(t *testing.T) {
+func TestInmemoryTodoStore_CannotReturnANonExistingTodo(t *testing.T) {
 	store := NewInmemoryTodoStore()
 
 	_, err := store.Get(context.Background(), "id")
+	require.Error(t, err)
 
 	require.IsType(t, TodoNotFoundError{}, err)
 
