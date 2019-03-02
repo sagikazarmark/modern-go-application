@@ -35,7 +35,7 @@ GOBIN_VERSION = 0.0.4
 PROTOC_GEN_GO_VERSION = 1.2.0
 PROTOTOOL_VERSION = 1.3.0
 
-GOLANG_VERSION = 1.11.4
+GOLANG_VERSION = 1.12
 
 # Add the ability to override some variables
 # Use with care
