@@ -44,7 +44,7 @@ func TestTodoList_ListTodos(t *testing.T) {
 		ID:   "id",
 		Text: "Make the listing work",
 	}
-	require.NoError(t, todoStore.Store(todo))
+	require.NoError(t, todoStore.Store(context.Background(), todo))
 
 	todoList := NewTodoList(idgen.NewConstantGenerator("id"), todoStore)
 
@@ -67,7 +67,7 @@ func TestTodoList_MarkAsDone(t *testing.T) {
 		ID:   "id",
 		Text: "Do me",
 	}
-	require.NoError(t, todoStore.Store(todo))
+	require.NoError(t, todoStore.Store(context.Background(), todo))
 
 	todoList := NewTodoList(nil, todoStore)
 

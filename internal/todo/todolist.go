@@ -34,7 +34,7 @@ type IDGenerator interface {
 // TodoStore stores the items on the todo list.
 type TodoStore interface {
 	// Store stores a todo.
-	Store(todo Todo) error
+	Store(ctx context.Context, todo Todo) error
 
 	// All returns all todos.
 	All(ctx context.Context) ([]Todo, error)
@@ -80,7 +80,7 @@ func (t *TodoList) CreateTodo(ctx context.Context, req CreateTodoRequest) (*Crea
 		Text: req.Text,
 	}
 
-	err = t.todos.Store(todo)
+	err = t.todos.Store(ctx, todo)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +116,7 @@ func (t *TodoList) MarkAsDone(ctx context.Context, req MarkAsDoneRequest) error 
 
 	todo.Done = true
 
-	t.todos.Store(todo)
+	t.todos.Store(ctx, todo)
 
 	return nil
 }

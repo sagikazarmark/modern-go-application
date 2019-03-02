@@ -18,7 +18,7 @@ func NewInmemoryTodoStore() *InmemoryTodoStore {
 	}
 }
 
-func (s *InmemoryTodoStore) Store(todo Todo) error {
+func (s *InmemoryTodoStore) Store(ctx context.Context, todo Todo) error {
 	s.todos[todo.ID] = todo
 
 	return nil

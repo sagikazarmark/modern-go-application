@@ -15,7 +15,7 @@ func TestInmemoryTodoStore_StoresATodo(t *testing.T) {
 		Text: "Store me!",
 	}
 
-	err := store.Store(todo)
+	err := store.Store(context.Background(), todo)
 	require.NoError(t, err)
 
 	assert.Equal(t, todo, store.todos[todo.ID])
@@ -30,7 +30,7 @@ func TestInmemoryTodoStore_OverwritesAnExistingTodo(t *testing.T) {
 		Done: true,
 	}
 
-	err := store.Store(todo)
+	err := store.Store(context.Background(), todo)
 	require.NoError(t, err)
 
 	todo = Todo{
@@ -38,7 +38,7 @@ func TestInmemoryTodoStore_OverwritesAnExistingTodo(t *testing.T) {
 		Text: "Store me!",
 	}
 
-	err = store.Store(todo)
+	err = store.Store(context.Background(), todo)
 	require.NoError(t, err)
 
 	assert.Equal(t, todo, store.todos[todo.ID])
