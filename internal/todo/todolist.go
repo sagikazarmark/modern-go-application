@@ -43,6 +43,21 @@ type TodoStore interface {
 	Get(ctx context.Context, id string) (Todo, error)
 }
 
+// TodoNotFoundError is returned from the TodoStore if a Todo cannot be found.
+type TodoNotFoundError struct {
+	ID string
+}
+
+// Error implements the error interface.
+func (TodoNotFoundError) Error() string {
+	return "todo not found"
+}
+
+// Context returns context parameters for the error.
+func (e TodoNotFoundError) Context() []interface{} {
+	return []interface{}{"todo_id", e.ID}
+}
+
 // CreateTodoRequest contains a new todo.
 type CreateTodoRequest struct {
 	Text string
