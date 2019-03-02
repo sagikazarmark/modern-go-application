@@ -3,13 +3,14 @@ package todo
 import (
 	"context"
 	"github.com/goph/idgen"
+	"github.com/pkg/errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestTodoList_CreateTodo(t *testing.T) {
+func TestTodoList_CreatesATodo(t *testing.T) {
 	todoStore := NewInmemoryTodoStore()
 	todoList := NewTodoList(idgen.NewConstantGenerator("id"), todoStore)
 
@@ -85,4 +86,24 @@ func TestTodoList_MarkAsDone(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, expectedTodo, actualTodo)
+}
+
+func TestTodoList_CannotMarkANonExistingTodoDone(t *testing.T) {
+	todoStore := NewInmemoryTodoStore()
+
+	todoList := NewTodoList(nil, todoStore)
+
+	req := MarkAsDoneRequest{
+		ID: "id",
+	}
+
+	err := todoList.MarkAsDone(context.Background(), req)
+	require.Error(t, err)
+
+	cause := errors.Cause(err)
+
+	require.IsType(t, TodoNotFoundError{}, cause)
+
+	e := cause.(TodoNotFoundError)
+	assert.Equal(t, "id", e.ID)
 }

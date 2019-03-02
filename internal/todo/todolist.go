@@ -2,6 +2,7 @@ package todo
 
 import (
 	"context"
+	"github.com/pkg/errors"
 )
 
 // Todo is a note describing a task to be executed.
@@ -112,7 +113,10 @@ type MarkAsDoneRequest struct {
 }
 
 func (t *TodoList) MarkAsDone(ctx context.Context, req MarkAsDoneRequest) error {
-	todo, _ := t.todos.Get(ctx, req.ID)
+	todo, err := t.todos.Get(ctx, req.ID)
+	if err != nil {
+		return errors.WithMessage(err, "failed to mark todo as done")
+	}
 
 	todo.Done = true
 
