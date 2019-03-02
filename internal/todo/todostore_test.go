@@ -94,3 +94,56 @@ func TestInmemoryTodoStore_CannotReturnANonExistingTodo(t *testing.T) {
 	e := err.(TodoNotFoundError)
 	assert.Equal(t, "id", e.ID)
 }
+
+func TestReadOnlyTodoStore_IsReadOnly(t *testing.T) {
+	todo := Todo{
+		ID:   "id",
+		Text: "Store me!",
+	}
+
+	store := NewReadOnlyTodoStore(NewInmemoryTodoStore())
+
+	err := store.Store(context.Background(), todo)
+	require.Error(t, err)
+}
+
+func TestReadOnlyTodoStore_ListsAllTodos(t *testing.T) {
+	inmemStore := NewInmemoryTodoStore()
+	store := NewReadOnlyTodoStore(inmemStore)
+
+	inmemStore.todos["id"] = Todo{
+		ID:   "id",
+		Text: "Store me first!",
+		Done: true,
+	}
+
+	inmemStore.todos["id2"] = Todo{
+		ID:   "id2",
+		Text: "Store me second!",
+		Done: true,
+	}
+
+	todos, err := store.All(context.Background())
+	require.NoError(t, err)
+
+	expectedTodos := []Todo{inmemStore.todos["id"], inmemStore.todos["id2"]}
+
+	assert.Equal(t, expectedTodos, todos)
+}
+
+func TestReadOnlyTodoStore_GetsATodo(t *testing.T) {
+	inmemStore := NewInmemoryTodoStore()
+	store := NewReadOnlyTodoStore(inmemStore)
+
+	id := "id"
+
+	inmemStore.todos[id] = Todo{
+		ID:   id,
+		Text: "Store me!",
+	}
+
+	todo, err := store.Get(context.Background(), id)
+	require.NoError(t, err)
+
+	assert.Equal(t, inmemStore.todos[id], todo)
+}
