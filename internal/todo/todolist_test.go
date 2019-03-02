@@ -26,20 +26,25 @@ func TestTodoList_CreateTodo(t *testing.T) {
 
 	assert.Equal(t, expectedResponse, resp)
 
-	todo := Todo{
+	expectedTodo := Todo{
 		ID:   resp.ID,
 		Text: req.Text,
 	}
 
-	assert.Equal(t, todo, todoStore.todos[todo.ID])
+	todo, err := todoStore.Get(context.Background(), resp.ID)
+	require.NoError(t, err)
+
+	assert.Equal(t, expectedTodo, todo)
 }
 
 func TestTodoList_ListTodos(t *testing.T) {
 	todoStore := NewInmemoryTodoStore()
-	todoStore.todos["id"] = Todo{
+
+	todo := Todo{
 		ID:   "id",
 		Text: "Make the listing work",
 	}
+	require.NoError(t, todoStore.Store(todo))
 
 	todoList := NewTodoList(idgen.NewConstantGenerator("id"), todoStore)
 
@@ -48,10 +53,7 @@ func TestTodoList_ListTodos(t *testing.T) {
 
 	expectedTodos := &ListTodosResponse{
 		Todos: []Todo{
-			{
-				ID:   "id",
-				Text: "Make the listing work",
-			},
+			todo,
 		},
 	}
 
@@ -59,24 +61,28 @@ func TestTodoList_ListTodos(t *testing.T) {
 }
 
 func TestTodoList_MarkAsDone(t *testing.T) {
+	todoStore := NewInmemoryTodoStore()
+
 	todo := Todo{
 		ID:   "id",
-		Text: "Make the listing work",
+		Text: "Do me",
 	}
-
-	todoStore := NewInmemoryTodoStore()
-	todoStore.todos["id"] = todo
+	require.NoError(t, todoStore.Store(todo))
 
 	todoList := NewTodoList(nil, todoStore)
 
 	req := MarkAsDoneRequest{
 		ID: "id",
 	}
+
 	err := todoList.MarkAsDone(context.Background(), req)
 	require.NoError(t, err)
 
 	expectedTodo := todo
 	expectedTodo.Done = true
 
-	assert.Equal(t, expectedTodo, todoStore.todos["id"])
+	actualTodo, err := todoStore.Get(context.Background(), todo.ID)
+	require.NoError(t, err)
+
+	assert.Equal(t, expectedTodo, actualTodo)
 }
