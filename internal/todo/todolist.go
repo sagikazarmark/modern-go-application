@@ -120,7 +120,10 @@ func (t *TodoList) MarkAsDone(ctx context.Context, req MarkAsDoneRequest) error 
 
 	todo.Done = true
 
-	t.todos.Store(ctx, todo)
+	err = t.todos.Store(ctx, todo)
+	if err != nil {
+		return errors.WithMessage(err, "failed to mark todo as done")
+	}
 
 	return nil
 }
