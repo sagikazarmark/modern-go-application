@@ -1,4 +1,4 @@
-image: golang:1.11.5
+image: golang:1.12
 
 variables:
     DOCKER_IMAGE: registry.gitlab.com/${CI_PROJECT_PATH}
