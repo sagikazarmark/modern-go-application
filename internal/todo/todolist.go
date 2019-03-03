@@ -16,13 +16,15 @@ type Todo struct {
 type TodoList struct {
 	id    IDGenerator
 	todos TodoStore
+	events TodoEvents
 }
 
 // NewTodoList returns a new TodoList instance.
-func NewTodoList(id IDGenerator, todos TodoStore) *TodoList {
+func NewTodoList(id IDGenerator, todos TodoStore, events TodoEvents) *TodoList {
 	return &TodoList{
 		id:    id,
 		todos: todos,
+		events: events,
 	}
 }
 
@@ -121,6 +123,15 @@ func (t *TodoList) MarkAsDone(ctx context.Context, req MarkAsDoneRequest) error 
 	todo.Done = true
 
 	err = t.todos.Store(ctx, todo)
+	if err != nil {
+		return errors.WithMessage(err, "failed to mark todo as done")
+	}
+
+	event := MarkedAsDone{
+		TodoID: todo.ID,
+	}
+
+	err = t.events.MarkedAsDone(ctx, event)
 	if err != nil {
 		return errors.WithMessage(err, "failed to mark todo as done")
 	}

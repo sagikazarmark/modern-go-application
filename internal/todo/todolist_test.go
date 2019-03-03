@@ -10,9 +10,19 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type todoEventsStub struct {
+	markedAsDone MarkedAsDone
+}
+
+func (s *todoEventsStub) MarkedAsDone(ctx context.Context, event MarkedAsDone) error {
+	s.markedAsDone = event
+
+	return nil
+}
+
 func TestTodoList_CreatesATodo(t *testing.T) {
 	todoStore := NewInmemoryTodoStore()
-	todoList := NewTodoList(idgen.NewConstantGenerator("id"), todoStore)
+	todoList := NewTodoList(idgen.NewConstantGenerator("id"), todoStore, nil)
 
 	req := CreateTodoRequest{
 		Text: "My first todo",
@@ -39,7 +49,7 @@ func TestTodoList_CreatesATodo(t *testing.T) {
 }
 
 func TestTodoList_CannotCreateATodo(t *testing.T) {
-	todoList := NewTodoList(idgen.NewConstantGenerator("id"), NewReadOnlyTodoStore(NewInmemoryTodoStore()))
+	todoList := NewTodoList(idgen.NewConstantGenerator("id"), NewReadOnlyTodoStore(NewInmemoryTodoStore()), nil)
 
 	req := CreateTodoRequest{
 		Text: "My first todo",
@@ -58,7 +68,7 @@ func TestTodoList_ListTodos(t *testing.T) {
 	}
 	require.NoError(t, todoStore.Store(context.Background(), todo))
 
-	todoList := NewTodoList(idgen.NewConstantGenerator("id"), todoStore)
+	todoList := NewTodoList(idgen.NewConstantGenerator("id"), todoStore, nil)
 
 	todos, err := todoList.ListTodos(context.Background())
 	require.NoError(t, err)
@@ -81,7 +91,8 @@ func TestTodoList_MarkAsDone(t *testing.T) {
 	}
 	require.NoError(t, todoStore.Store(context.Background(), todo))
 
-	todoList := NewTodoList(nil, todoStore)
+	events := &todoEventsStub{}
+	todoList := NewTodoList(nil, todoStore, events)
 
 	req := MarkAsDoneRequest{
 		ID: "id",
@@ -97,12 +108,19 @@ func TestTodoList_MarkAsDone(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, expectedTodo, actualTodo)
+
+	expectedEvent := MarkedAsDone{
+		TodoID: "id",
+	}
+
+	assert.Equal(t, expectedEvent, events.markedAsDone)
 }
 
 func TestTodoList_CannotMarkANonExistingTodoDone(t *testing.T) {
 	todoStore := NewInmemoryTodoStore()
 
-	todoList := NewTodoList(nil, todoStore)
+	events := &todoEventsStub{}
+	todoList := NewTodoList(nil, todoStore, events)
 
 	req := MarkAsDoneRequest{
 		ID: "id",
@@ -128,7 +146,7 @@ func TestTodoList_StoringDoneTodoFails(t *testing.T) {
 	}
 	require.NoError(t, inmemTodoStore.Store(context.Background(), todo))
 
-	todoList := NewTodoList(nil, NewReadOnlyTodoStore(inmemTodoStore))
+	todoList := NewTodoList(nil, NewReadOnlyTodoStore(inmemTodoStore), &todoEventsStub{})
 
 	req := MarkAsDoneRequest{
 		ID: "id",
