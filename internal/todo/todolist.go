@@ -14,16 +14,16 @@ type Todo struct {
 
 // TodoList manages a list of todos.
 type TodoList struct {
-	id    IDGenerator
-	todos TodoStore
+	id     IDGenerator
+	todos  TodoStore
 	events TodoEvents
 }
 
 // NewTodoList returns a new TodoList instance.
 func NewTodoList(id IDGenerator, todos TodoStore, events TodoEvents) *TodoList {
 	return &TodoList{
-		id:    id,
-		todos: todos,
+		id:     id,
+		todos:  todos,
 		events: events,
 	}
 }
