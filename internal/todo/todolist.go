@@ -128,7 +128,7 @@ func (t *TodoList) MarkAsDone(ctx context.Context, req MarkAsDoneRequest) error 
 	}
 
 	event := MarkedAsDone{
-		TodoID: todo.ID,
+		ID: todo.ID,
 	}
 
 	err = t.events.MarkedAsDone(ctx, event)

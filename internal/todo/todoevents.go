@@ -10,5 +10,5 @@ type TodoEvents interface {
 
 // MarkedAsDone event is triggered when a todo gets marked as done.
 type MarkedAsDone struct {
-	TodoID string
+	ID string
 }

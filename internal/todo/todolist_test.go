@@ -110,7 +110,7 @@ func TestTodoList_MarkAsDone(t *testing.T) {
 	assert.Equal(t, expectedTodo, actualTodo)
 
 	expectedEvent := MarkedAsDone{
-		TodoID: "id",
+		ID: "id",
 	}
 
 	assert.Equal(t, expectedEvent, events.markedAsDone)
