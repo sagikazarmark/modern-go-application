@@ -19,15 +19,6 @@ type TodoList struct {
 	events TodoEvents
 }
 
-// NewTodoList returns a new TodoList instance.
-func NewTodoList(id IDGenerator, todos TodoStore, events TodoEvents) *TodoList {
-	return &TodoList{
-		id:     id,
-		todos:  todos,
-		events: events,
-	}
-}
-
 // IDGenerator generates a new ID.
 type IDGenerator interface {
 	// New generates a new ID.
@@ -59,6 +50,26 @@ func (TodoNotFoundError) Error() string {
 // Context returns context parameters for the error.
 func (e TodoNotFoundError) Context() []interface{} {
 	return []interface{}{"todo_id", e.ID}
+}
+
+// TodoEvents is the dispatcher for todo events.
+type TodoEvents interface {
+	// MarkedAsDone dispatches a MarkedAsDone event.
+	MarkedAsDone(ctx context.Context, event MarkedAsDone) error
+}
+
+// MarkedAsDone event is triggered when a todo gets marked as done.
+type MarkedAsDone struct {
+	ID string
+}
+
+// NewTodoList returns a new TodoList instance.
+func NewTodoList(id IDGenerator, todos TodoStore, events TodoEvents) *TodoList {
+	return &TodoList{
+		id:     id,
+		todos:  todos,
+		events: events,
+	}
 }
 
 // CreateTodoRequest contains a new todo.
