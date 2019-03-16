@@ -66,11 +66,7 @@ func TestTodoList_ListTodos(t *testing.T) {
 	todos, err := todoList.ListTodos(context.Background())
 	require.NoError(t, err)
 
-	expectedTodos := &ListTodosResponse{
-		Todos: []Todo{
-			todo,
-		},
-	}
+	expectedTodos := []Todo{todo}
 
 	assert.Equal(t, expectedTodos, todos)
 }

@@ -15,7 +15,7 @@ type TodoList interface {
 	CreateTodo(ctx context.Context, text string) (string, error)
 
 	// ListTodos returns the list of todos on the list.
-	ListTodos(ctx context.Context) (*todo.ListTodosResponse, error)
+	ListTodos(ctx context.Context) ([]todo.Todo, error)
 
 	// MarkAsDone marks a todo as done.
 	MarkAsDone(ctx context.Context, req todo.MarkAsDoneRequest) error
@@ -86,17 +86,17 @@ func (r listTodosResponse) Failed() error {
 // MakeListEndpoint returns an endpoint for the matching method of the underlying service.
 func MakeListEndpoint(t TodoList) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		resp, err := t.ListTodos(ctx)
+		todos, err := t.ListTodos(ctx)
 
-		eresp := listTodosResponse{
-			Todos: make([]todoListItem, len(resp.Todos)),
+		resp := listTodosResponse{
+			Todos: make([]todoListItem, len(todos)),
 		}
 
-		for i, t := range resp.Todos {
-			eresp.Todos[i] = todoListItem(t)
+		for i, t := range todos {
+			resp.Todos[i] = todoListItem(t)
 		}
 
-		return eresp, err
+		return resp, err
 	}
 }
 
