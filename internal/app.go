@@ -71,15 +71,12 @@ func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber
 		greetingworker.NewGreeterEventLogger(greetingworkeradapter.NewLogger(logger)),
 	)
 
-	err := router.AddNoPublisherHandler(
+	router.AddNoPublisherHandler(
 		"log_said_hello",
 		"said_hello",
 		subscriber,
 		sayHelloHandler.SaidHelloTo,
 	)
-	if err != nil {
-		return err
-	}
 
 	return nil
 }

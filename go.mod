@@ -12,7 +12,7 @@ require (
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/goph/emperror v0.16.0
 	github.com/goph/idgen v0.1.0
-	github.com/goph/logur v0.9.0
+	github.com/goph/logur v0.11.0
 	github.com/goph/watermillx v0.2.0
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/mux v1.6.2
