@@ -2,6 +2,7 @@ package todo
 
 import (
 	"context"
+
 	"github.com/pkg/errors"
 )
 
@@ -125,6 +126,7 @@ type MarkAsDoneRequest struct {
 	ID string
 }
 
+// MarkAsDone marks a todo as done.
 func (t *TodoList) MarkAsDone(ctx context.Context, req MarkAsDoneRequest) error {
 	todo, err := t.todos.Get(ctx, req.ID)
 	if err != nil {
