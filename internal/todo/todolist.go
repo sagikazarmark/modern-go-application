@@ -103,13 +103,9 @@ func (t *TodoList) ListTodos(ctx context.Context) ([]Todo, error) {
 	return todos, nil
 }
 
-type MarkAsDoneRequest struct {
-	ID string
-}
-
 // MarkAsDone marks a todo as done.
-func (t *TodoList) MarkAsDone(ctx context.Context, req MarkAsDoneRequest) error {
-	todo, err := t.todos.Get(ctx, req.ID)
+func (t *TodoList) MarkAsDone(ctx context.Context, id string) error {
+	todo, err := t.todos.Get(ctx, id)
 	if err != nil {
 		return errors.WithMessage(err, "failed to mark todo as done")
 	}

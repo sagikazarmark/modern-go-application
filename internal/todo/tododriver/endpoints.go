@@ -18,7 +18,7 @@ type TodoList interface {
 	ListTodos(ctx context.Context) ([]todo.Todo, error)
 
 	// MarkAsDone marks a todo as done.
-	MarkAsDone(ctx context.Context, req todo.MarkAsDoneRequest) error
+	MarkAsDone(ctx context.Context, id string) error
 }
 
 // Endpoints collects all of the endpoints that compose a todo list service. It's
@@ -115,13 +115,9 @@ func (r markAsDoneResponse) Failed() error {
 // MakeMarkAsDoneEndpoint returns an endpoint for the matching method of the underlying service.
 func MakeMarkAsDoneEndpoint(t TodoList) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		ereq := request.(markAsDoneRequest)
+		req := request.(markAsDoneRequest)
 
-		req := todo.MarkAsDoneRequest{
-			ID: ereq.ID,
-		}
-
-		err = t.MarkAsDone(ctx, req)
+		err = t.MarkAsDone(ctx, req.ID)
 
 		if _, ok := errors.Cause(err).(todo.TodoNotFoundError); ok {
 			return markAsDoneResponse{

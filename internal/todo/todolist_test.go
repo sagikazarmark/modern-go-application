@@ -74,8 +74,10 @@ func TestTodoList_ListTodos(t *testing.T) {
 func TestTodoList_MarkAsDone(t *testing.T) {
 	todoStore := NewInmemoryTodoStore()
 
+	const id = "id"
+
 	todo := Todo{
-		ID:   "id",
+		ID:   id,
 		Text: "Do me",
 	}
 	require.NoError(t, todoStore.Store(context.Background(), todo))
@@ -83,11 +85,7 @@ func TestTodoList_MarkAsDone(t *testing.T) {
 	events := &todoEventsStub{}
 	todoList := NewTodoList(nil, todoStore, events)
 
-	req := MarkAsDoneRequest{
-		ID: "id",
-	}
-
-	err := todoList.MarkAsDone(context.Background(), req)
+	err := todoList.MarkAsDone(context.Background(), id)
 	require.NoError(t, err)
 
 	expectedTodo := todo
@@ -111,11 +109,9 @@ func TestTodoList_CannotMarkANonExistingTodoDone(t *testing.T) {
 	events := &todoEventsStub{}
 	todoList := NewTodoList(nil, todoStore, events)
 
-	req := MarkAsDoneRequest{
-		ID: "id",
-	}
+	const id = "id"
 
-	err := todoList.MarkAsDone(context.Background(), req)
+	err := todoList.MarkAsDone(context.Background(), id)
 	require.Error(t, err)
 
 	cause := errors.Cause(err)
@@ -123,7 +119,7 @@ func TestTodoList_CannotMarkANonExistingTodoDone(t *testing.T) {
 	require.IsType(t, TodoNotFoundError{}, cause)
 
 	e := cause.(TodoNotFoundError)
-	assert.Equal(t, "id", e.ID)
+	assert.Equal(t, id, e.ID)
 }
 
 func TestTodoList_StoringDoneTodoFails(t *testing.T) {
@@ -137,10 +133,6 @@ func TestTodoList_StoringDoneTodoFails(t *testing.T) {
 
 	todoList := NewTodoList(nil, NewReadOnlyTodoStore(inmemTodoStore), &todoEventsStub{})
 
-	req := MarkAsDoneRequest{
-		ID: "id",
-	}
-
-	err := todoList.MarkAsDone(context.Background(), req)
+	err := todoList.MarkAsDone(context.Background(), "id")
 	require.Error(t, err)
 }
