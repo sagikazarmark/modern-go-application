@@ -12,7 +12,7 @@ import (
 // TodoList manages a list of todos.
 type TodoList interface {
 	// CreateTodo adds a new todo to the todo list.
-	CreateTodo(ctx context.Context, req todo.CreateTodoRequest) (*todo.CreateTodoResponse, error)
+	CreateTodo(ctx context.Context, text string) (string, error)
 
 	// ListTodos returns the list of todos on the list.
 	ListTodos(ctx context.Context) (*todo.ListTodosResponse, error)
@@ -57,16 +57,12 @@ func (r createTodoResponse) Failed() error {
 // MakeCreateEndpoint returns an endpoint for the matching method of the underlying service.
 func MakeCreateEndpoint(t TodoList) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		ereq := request.(createTodoRequest)
+		req := request.(createTodoRequest)
 
-		req := todo.CreateTodoRequest{
-			Text: ereq.Text,
-		}
-
-		resp, err := t.CreateTodo(ctx, req)
+		id, err := t.CreateTodo(ctx, req.Text)
 
 		return createTodoResponse{
-			ID: resp.ID,
+			ID: id,
 		}, err
 	}
 }

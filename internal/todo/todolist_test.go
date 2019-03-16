@@ -2,9 +2,10 @@ package todo
 
 import (
 	"context"
+	"testing"
+
 	"github.com/goph/idgen"
 	"github.com/pkg/errors"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -22,27 +23,23 @@ func (s *todoEventsStub) MarkedAsDone(ctx context.Context, event MarkedAsDone) e
 
 func TestTodoList_CreatesATodo(t *testing.T) {
 	todoStore := NewInmemoryTodoStore()
-	todoList := NewTodoList(idgen.NewConstantGenerator("id"), todoStore, nil)
 
-	req := CreateTodoRequest{
-		Text: "My first todo",
-	}
+	const expectedID = "id"
+	const text = "My first todo"
 
-	resp, err := todoList.CreateTodo(context.Background(), req)
+	todoList := NewTodoList(idgen.NewConstantGenerator(expectedID), todoStore, nil)
+
+	id, err := todoList.CreateTodo(context.Background(), text)
 	require.NoError(t, err)
 
-	expectedResponse := &CreateTodoResponse{
-		ID: "id",
-	}
-
-	assert.Equal(t, expectedResponse, resp)
+	assert.Equal(t, expectedID, id)
 
 	expectedTodo := Todo{
-		ID:   resp.ID,
-		Text: req.Text,
+		ID:   expectedID,
+		Text: text,
 	}
 
-	todo, err := todoStore.Get(context.Background(), resp.ID)
+	todo, err := todoStore.Get(context.Background(), id)
 	require.NoError(t, err)
 
 	assert.Equal(t, expectedTodo, todo)
@@ -51,11 +48,7 @@ func TestTodoList_CreatesATodo(t *testing.T) {
 func TestTodoList_CannotCreateATodo(t *testing.T) {
 	todoList := NewTodoList(idgen.NewConstantGenerator("id"), NewReadOnlyTodoStore(NewInmemoryTodoStore()), nil)
 
-	req := CreateTodoRequest{
-		Text: "My first todo",
-	}
-
-	_, err := todoList.CreateTodo(context.Background(), req)
+	_, err := todoList.CreateTodo(context.Background(), "My first todo")
 	require.Error(t, err)
 }
 

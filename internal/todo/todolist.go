@@ -73,36 +73,24 @@ func NewTodoList(id IDGenerator, todos TodoStore, events TodoEvents) *TodoList {
 	}
 }
 
-// CreateTodoRequest contains a new todo.
-type CreateTodoRequest struct {
-	Text string
-}
-
-// CreateTodoResponse contains the ID of the newly created todo.
-type CreateTodoResponse struct {
-	ID string
-}
-
 // CreateTodo adds a new todo to the todo list.
-func (t *TodoList) CreateTodo(ctx context.Context, req CreateTodoRequest) (*CreateTodoResponse, error) {
+func (t *TodoList) CreateTodo(ctx context.Context, text string) (string, error) {
 	id, err := t.id.New()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	todo := Todo{
 		ID:   id,
-		Text: req.Text,
+		Text: text,
 	}
 
 	err = t.todos.Store(ctx, todo)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return &CreateTodoResponse{
-		ID: id,
-	}, nil
+	return id, nil
 }
 
 // ListTodosResponse contains the list of todos on the list.
