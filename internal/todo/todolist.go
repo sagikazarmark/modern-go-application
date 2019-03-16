@@ -93,7 +93,7 @@ func (t *TodoList) CreateTodo(ctx context.Context, text string) (string, error) 
 	return id, nil
 }
 
-// ListTodos returns the list of todos on the list.
+// ListTodos returns the list of todos.
 func (t *TodoList) ListTodos(ctx context.Context) ([]Todo, error) {
 	todos, err := t.todos.All(ctx)
 	if err != nil {

@@ -14,7 +14,7 @@ type TodoList interface {
 	// CreateTodo adds a new todo to the todo list.
 	CreateTodo(ctx context.Context, text string) (string, error)
 
-	// ListTodos returns the list of todos on the list.
+	// ListTodos returns the list of todos.
 	ListTodos(ctx context.Context) ([]todo.Todo, error)
 
 	// MarkAsDone marks a todo as done.
