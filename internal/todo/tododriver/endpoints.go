@@ -22,16 +22,20 @@ type TodoList interface {
 }
 
 const (
-	notFoundErrorCode int = 1
+	codeNotFound int = 1
 )
 
 type todoError struct {
-	Message string
-	Code    int
+	msg  string
+	code int
 }
 
 func (e *todoError) Error() string {
-	return e.Message
+	return e.msg
+}
+
+func (e *todoError) Code() int {
+	return e.code
 }
 
 // Endpoints collects all of the endpoints that compose a todo list service. It's
@@ -123,8 +127,8 @@ func MakeMarkAsDoneEndpoint(t TodoList) endpoint.Endpoint {
 		if _, ok := errors.Cause(err).(todo.NotFoundError); ok {
 			return markAsDoneResponse{
 				Err: &todoError{
-					Message: "todo not found",
-					Code:    notFoundErrorCode,
+					msg:  "todo not found",
+					code: codeNotFound,
 				},
 			}, nil
 		}

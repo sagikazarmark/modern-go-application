@@ -148,7 +148,7 @@ func encodeMarkAsDoneHTTPResponse(_ context.Context, w http.ResponseWriter, resp
 func errorEncoder(failed error, w http.ResponseWriter) {
 	status := http.StatusInternalServerError
 
-	if e, ok := failed.(*todoError); ok && e.Code == notFoundErrorCode {
+	if e, ok := failed.(*todoError); ok && e.Code() == codeNotFound {
 		status = http.StatusNotFound
 	}
 

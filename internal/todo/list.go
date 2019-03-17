@@ -86,21 +86,13 @@ func (l *List) CreateTodo(ctx context.Context, text string) (string, error) {
 	}
 
 	err = l.store.Store(ctx, todo)
-	if err != nil {
-		return "", err
-	}
 
-	return id, nil
+	return id, err
 }
 
 // ListTodos returns the list of todos.
 func (l *List) ListTodos(ctx context.Context) ([]Todo, error) {
-	todos, err := l.store.All(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return todos, nil
+	return l.store.All(ctx)
 }
 
 // MarkAsDone marks a todo as done.

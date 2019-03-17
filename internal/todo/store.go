@@ -16,7 +16,9 @@ type InmemoryStore struct {
 
 // NewInmemoryStore returns a new inmemory todo store.
 func NewInmemoryStore() *InmemoryStore {
-	return &InmemoryStore{todos: make(map[string]Todo)}
+	return &InmemoryStore{
+		todos: make(map[string]Todo),
+	}
 }
 
 // Store stores a todo.
@@ -32,16 +34,15 @@ func (s *InmemoryStore) All(ctx context.Context) ([]Todo, error) {
 
 	// This makes sure todos are always returned in the same, sorted representation
 	keys := make([]string, len(s.todos))
+	i := 0
 	for k := range s.todos {
-		keys = append(keys, k)
+		keys[i] = k
+		i++
 	}
 	sort.Strings(keys)
 
-	i := 0
-	for _, key := range keys {
+	for i, key := range keys {
 		todos[i] = s.todos[key]
-
-		i++
 	}
 
 	return todos, nil
