@@ -15,7 +15,7 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/todo"
 )
 
-func TestTodoEvents_MarkedAsDone(t *testing.T) {
+func TestEventDispatcher_MarkedAsDone(t *testing.T) {
 	publisher := gochannel.NewGoChannel(gochannel.Config{}, watermill.NopLogger{})
 	const topic = "todo"
 	eventBus := cqrs.NewEventBus(publisher, topic, &cqrs.JSONMarshaler{})
@@ -23,7 +23,7 @@ func TestTodoEvents_MarkedAsDone(t *testing.T) {
 	messages, err := publisher.Subscribe(context.Background(), topic)
 	require.NoError(t, err)
 
-	events := NewTodoEvents(eventBus)
+	events := NewEventDispatcher(eventBus)
 
 	event := todo.MarkedAsDone{
 		ID: "id",

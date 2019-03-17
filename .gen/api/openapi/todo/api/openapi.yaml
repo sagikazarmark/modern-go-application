@@ -54,7 +54,7 @@ paths:
       summary: Add a new TODO to the list
   /todos/{id}/done:
     patch:
-      operationId: markAsDoneTodo
+      operationId: markAsDone
       responses:
         200:
           content:

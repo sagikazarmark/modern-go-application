@@ -70,9 +70,9 @@ var routes = Routes{
 	},
 
 	{
-		"MarkAsDoneTodo",
+		"MarkAsDone",
 		strings.ToUpper("Patch"),
 		"/todos/{id}/done",
-		MarkAsDoneTodo,
+		MarkAsDone,
 	},
 }

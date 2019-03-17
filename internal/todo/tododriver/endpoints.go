@@ -120,7 +120,7 @@ func MakeMarkAsDoneEndpoint(t TodoList) endpoint.Endpoint {
 
 		err = t.MarkAsDone(ctx, req.ID)
 
-		if _, ok := errors.Cause(err).(todo.TodoNotFoundError); ok {
+		if _, ok := errors.Cause(err).(todo.NotFoundError); ok {
 			return markAsDoneResponse{
 				Err: &todoError{
 					Message: "todo not found",

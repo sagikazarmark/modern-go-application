@@ -10,12 +10,12 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/todo"
 )
 
-type markedAsDoneTodoEventHandlerStub struct {
+type markedAsDoneHandlerStub struct {
 	ctx   context.Context
 	event todo.MarkedAsDone
 }
 
-func (s *markedAsDoneTodoEventHandlerStub) MarkedAsDone(ctx context.Context, event todo.MarkedAsDone) error {
+func (s *markedAsDoneHandlerStub) MarkedAsDone(ctx context.Context, event todo.MarkedAsDone) error {
 	s.ctx = ctx
 	s.event = event
 
@@ -23,7 +23,7 @@ func (s *markedAsDoneTodoEventHandlerStub) MarkedAsDone(ctx context.Context, eve
 }
 
 func TestMarkedAsDoneEventHandler_NewEvent(t *testing.T) {
-	handler := NewMarkedAsDoneEventHandler(&markedAsDoneTodoEventHandlerStub{})
+	handler := NewMarkedAsDoneEventHandler(&markedAsDoneHandlerStub{})
 
 	event := handler.NewEvent()
 
@@ -31,7 +31,7 @@ func TestMarkedAsDoneEventHandler_NewEvent(t *testing.T) {
 }
 
 func TestMarkedAsDoneEventHandler_Handle(t *testing.T) {
-	h := &markedAsDoneTodoEventHandlerStub{}
+	h := &markedAsDoneHandlerStub{}
 	handler := NewMarkedAsDoneEventHandler(h)
 
 	ctx := context.Background()

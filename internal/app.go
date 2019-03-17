@@ -41,10 +41,10 @@ func NewApp(
 		errorHandler,
 	)
 
-	todoList := todo.NewTodoList(
+	todoList := todo.NewList(
 		ulidgen.NewGenerator(),
-		todo.NewInmemoryTodoStore(),
-		todoadapter.NewTodoEvents(cqrs.NewEventBus(
+		todo.NewInmemoryStore(),
+		todoadapter.NewEventDispatcher(cqrs.NewEventBus(
 			publisher,
 			todoTopic,
 			watermillx.NewStructNameMarshaler(cqrs.JSONMarshaler{}),

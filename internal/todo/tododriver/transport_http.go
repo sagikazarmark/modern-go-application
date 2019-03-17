@@ -33,23 +33,23 @@ func MakeHTTPHandler(todoList TodoList, errorHandler greeting.ErrorHandler) http
 	})
 
 	r.Methods(http.MethodPost).Path("/").Handler(httptransport.NewServer(
-		kitoc.TraceEndpoint("CreateTodo")(e.Create),
+		kitoc.TraceEndpoint("todo.CreateTodo")(e.Create),
 		decodeCreateTodoHTTPRequest,
 		encodeCreateTodoHTTPResponse,
 		errorEncoder,
 	))
 
 	r.Methods(http.MethodGet).Path("/").Handler(httptransport.NewServer(
-		kitoc.TraceEndpoint("ListTodos")(e.List),
+		kitoc.TraceEndpoint("todo.ListTodos")(e.List),
 		decodeListTodosHTTPRequest,
 		encodeListTodosHTTPResponse,
 		errorEncoder,
 	))
 
 	r.Methods(http.MethodPost).Path("/{id}/done").Handler(httptransport.NewServer(
-		kitoc.TraceEndpoint("MarkTodoAsDone")(e.MarkAsDone),
-		decodeMarkTodoAsDoneHTTPRequest,
-		encodeMarkTodoAsDoneHTTPResponse,
+		kitoc.TraceEndpoint("todo.MarkAsDone")(e.MarkAsDone),
+		decodeMarkAsDoneHTTPRequest,
+		encodeMarkAsDoneHTTPResponse,
 		errorEncoder,
 	))
 
@@ -120,7 +120,7 @@ func encodeListTodosHTTPResponse(_ context.Context, w http.ResponseWriter, respo
 	return errors.Wrap(err, "failed to send response")
 }
 
-func decodeMarkTodoAsDoneHTTPRequest(_ context.Context, r *http.Request) (interface{}, error) {
+func decodeMarkAsDoneHTTPRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	vars := mux.Vars(r)
 
 	id, ok := vars["id"]
@@ -133,7 +133,7 @@ func decodeMarkTodoAsDoneHTTPRequest(_ context.Context, r *http.Request) (interf
 	}, nil
 }
 
-func encodeMarkTodoAsDoneHTTPResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
+func encodeMarkAsDoneHTTPResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
 	if f, ok := response.(endpoint.Failer); ok && f.Failed() != nil {
 		errorEncoder(f.Failed(), w)
 
@@ -148,11 +148,8 @@ func encodeMarkTodoAsDoneHTTPResponse(_ context.Context, w http.ResponseWriter, 
 func errorEncoder(failed error, w http.ResponseWriter) {
 	status := http.StatusInternalServerError
 
-	if e, ok := failed.(*todoError); ok {
-		switch e.Code {
-		case notFoundErrorCode:
-			status = http.StatusNotFound
-		}
+	if e, ok := failed.(*todoError); ok && e.Code == notFoundErrorCode {
+		status = http.StatusNotFound
 	}
 
 	problem := problems.NewDetailedProblem(status, failed.Error())

@@ -10,19 +10,19 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/todo"
 )
 
-// MarkedAsDoneTodoEventHandler handles MarkedAsDone events.
-type MarkedAsDoneTodoEventHandler interface {
+// MarkedAsDoneHandler handles MarkedAsDone events.
+type MarkedAsDoneHandler interface {
 	// MarkedAsDone handles a MarkedAsDone event.
 	MarkedAsDone(ctx context.Context, event todo.MarkedAsDone) error
 }
 
 // MarkedAsDoneEventHandler handles a MarkedAsDone events.
 type MarkedAsDoneEventHandler struct {
-	handler MarkedAsDoneTodoEventHandler
+	handler MarkedAsDoneHandler
 }
 
 // NewMarkedAsDoneEventHandler returns a new MarkedAsDoneEventHandler instance.
-func NewMarkedAsDoneEventHandler(handler MarkedAsDoneTodoEventHandler) *MarkedAsDoneEventHandler {
+func NewMarkedAsDoneEventHandler(handler MarkedAsDoneHandler) *MarkedAsDoneEventHandler {
 	return &MarkedAsDoneEventHandler{
 		handler: handler,
 	}

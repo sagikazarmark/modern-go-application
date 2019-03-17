@@ -17,24 +17,6 @@ securityDefinitions:
 
 paths:
     /todos:
-        get:
-            summary: "List TODOs"
-            description: ""
-            operationId: "listTodos"
-            consumes:
-                - "application/json"
-            produces:
-                - "application/json"
-            responses:
-                201:
-                    description: "created"
-                    schema:
-                        $ref: "#/definitions/TodoList"
-                500:
-                    description: "unexpected error"
-                    schema:
-                        $ref: "#/definitions/GenericError"
-
         post:
             summary: "Add a new TODO to the list"
             description: ""
@@ -64,11 +46,29 @@ paths:
                     schema:
                         $ref: "#/definitions/GenericError"
 
+        get:
+            summary: "List TODOs"
+            description: ""
+            operationId: "listTodos"
+            consumes:
+                - "application/json"
+            produces:
+                - "application/json"
+            responses:
+                201:
+                    description: "created"
+                    schema:
+                        $ref: "#/definitions/TodoList"
+                500:
+                    description: "unexpected error"
+                    schema:
+                        $ref: "#/definitions/GenericError"
+
     /todos/{id}/done:
         patch:
             summary: "Mark a TODO as done"
             description: ""
-            operationId: "markAsDoneTodo"
+            operationId: "markAsDone"
             consumes:
                 - "application/json"
             produces:

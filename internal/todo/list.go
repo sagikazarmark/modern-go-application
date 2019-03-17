@@ -6,18 +6,18 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Todo is a note describing a task to be executed.
+// Todo is a note describing a task to be done.
 type Todo struct {
 	ID   string
 	Text string
 	Done bool
 }
 
-// TodoList manages a list of todos.
-type TodoList struct {
+// List manages a list of todos.
+type List struct {
 	idgenerator IDGenerator
-	todos       TodoStore
-	events      TodoEvents
+	store       Store
+	events      Events
 }
 
 // IDGenerator generates a new ID.
@@ -26,8 +26,8 @@ type IDGenerator interface {
 	Generate() (string, error)
 }
 
-// TodoStore stores the items on the todo list.
-type TodoStore interface {
+// Store stores todos.
+type Store interface {
 	// Store stores a todo.
 	Store(ctx context.Context, todo Todo) error
 
@@ -38,23 +38,23 @@ type TodoStore interface {
 	Get(ctx context.Context, id string) (Todo, error)
 }
 
-// TodoNotFoundError is returned from the TodoStore if a Todo cannot be found.
-type TodoNotFoundError struct {
+// NotFoundError is returned if a todo cannot be found.
+type NotFoundError struct {
 	ID string
 }
 
 // Error implements the error interface.
-func (TodoNotFoundError) Error() string {
+func (NotFoundError) Error() string {
 	return "todo not found"
 }
 
 // Context returns context parameters for the error.
-func (e TodoNotFoundError) Context() []interface{} {
+func (e NotFoundError) Context() []interface{} {
 	return []interface{}{"todo_id", e.ID}
 }
 
-// TodoEvents is the dispatcher for todo events.
-type TodoEvents interface {
+// Events dispatches todo events.
+type Events interface {
 	// MarkedAsDone dispatches a MarkedAsDone event.
 	MarkedAsDone(ctx context.Context, event MarkedAsDone) error
 }
@@ -64,18 +64,18 @@ type MarkedAsDone struct {
 	ID string
 }
 
-// NewTodoList returns a new TodoList instance.
-func NewTodoList(id IDGenerator, todos TodoStore, events TodoEvents) *TodoList {
-	return &TodoList{
+// NewList returns a new todo list.
+func NewList(id IDGenerator, todos Store, events Events) *List {
+	return &List{
 		idgenerator: id,
-		todos:       todos,
+		store:       todos,
 		events:      events,
 	}
 }
 
-// CreateTodo adds a new todo to the todo list.
-func (t *TodoList) CreateTodo(ctx context.Context, text string) (string, error) {
-	id, err := t.idgenerator.Generate()
+// CreateTodo adds a new todo to the list.
+func (l *List) CreateTodo(ctx context.Context, text string) (string, error) {
+	id, err := l.idgenerator.Generate()
 	if err != nil {
 		return "", err
 	}
@@ -85,7 +85,7 @@ func (t *TodoList) CreateTodo(ctx context.Context, text string) (string, error) 
 		Text: text,
 	}
 
-	err = t.todos.Store(ctx, todo)
+	err = l.store.Store(ctx, todo)
 	if err != nil {
 		return "", err
 	}
@@ -94,8 +94,8 @@ func (t *TodoList) CreateTodo(ctx context.Context, text string) (string, error) 
 }
 
 // ListTodos returns the list of todos.
-func (t *TodoList) ListTodos(ctx context.Context) ([]Todo, error) {
-	todos, err := t.todos.All(ctx)
+func (l *List) ListTodos(ctx context.Context) ([]Todo, error) {
+	todos, err := l.store.All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -104,15 +104,15 @@ func (t *TodoList) ListTodos(ctx context.Context) ([]Todo, error) {
 }
 
 // MarkAsDone marks a todo as done.
-func (t *TodoList) MarkAsDone(ctx context.Context, id string) error {
-	todo, err := t.todos.Get(ctx, id)
+func (l *List) MarkAsDone(ctx context.Context, id string) error {
+	todo, err := l.store.Get(ctx, id)
 	if err != nil {
 		return errors.WithMessage(err, "failed to mark todo as done")
 	}
 
 	todo.Done = true
 
-	err = t.todos.Store(ctx, todo)
+	err = l.store.Store(ctx, todo)
 	if err != nil {
 		return errors.WithMessage(err, "failed to mark todo as done")
 	}
@@ -121,7 +121,7 @@ func (t *TodoList) MarkAsDone(ctx context.Context, id string) error {
 		ID: todo.ID,
 	}
 
-	err = t.events.MarkedAsDone(ctx, event)
+	err = l.events.MarkedAsDone(ctx, event)
 	if err != nil {
 		return errors.WithMessage(err, "failed to mark todo as done")
 	}

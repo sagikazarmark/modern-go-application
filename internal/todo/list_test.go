@@ -6,7 +6,6 @@ import (
 
 	"github.com/goph/idgen"
 	"github.com/pkg/errors"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -21,13 +20,13 @@ func (s *todoEventsStub) MarkedAsDone(ctx context.Context, event MarkedAsDone) e
 	return nil
 }
 
-func TestTodoList_CreatesATodo(t *testing.T) {
-	todoStore := NewInmemoryTodoStore()
+func TestList_CreatesATodo(t *testing.T) {
+	todoStore := NewInmemoryStore()
 
 	const expectedID = "id"
 	const text = "My first todo"
 
-	todoList := NewTodoList(idgen.NewConstantGenerator(expectedID), todoStore, nil)
+	todoList := NewList(idgen.NewConstantGenerator(expectedID), todoStore, nil)
 
 	id, err := todoList.CreateTodo(context.Background(), text)
 	require.NoError(t, err)
@@ -45,15 +44,15 @@ func TestTodoList_CreatesATodo(t *testing.T) {
 	assert.Equal(t, expectedTodo, todo)
 }
 
-func TestTodoList_CannotCreateATodo(t *testing.T) {
-	todoList := NewTodoList(idgen.NewConstantGenerator("id"), NewReadOnlyTodoStore(NewInmemoryTodoStore()), nil)
+func TestList_CannotCreateATodo(t *testing.T) {
+	todoList := NewList(idgen.NewConstantGenerator("id"), NewReadOnlyStore(NewInmemoryStore()), nil)
 
 	_, err := todoList.CreateTodo(context.Background(), "My first todo")
 	require.Error(t, err)
 }
 
-func TestTodoList_ListTodos(t *testing.T) {
-	todoStore := NewInmemoryTodoStore()
+func TestList_ListTodos(t *testing.T) {
+	todoStore := NewInmemoryStore()
 
 	todo := Todo{
 		ID:   "id",
@@ -61,7 +60,7 @@ func TestTodoList_ListTodos(t *testing.T) {
 	}
 	require.NoError(t, todoStore.Store(context.Background(), todo))
 
-	todoList := NewTodoList(idgen.NewConstantGenerator("id"), todoStore, nil)
+	todoList := NewList(idgen.NewConstantGenerator("id"), todoStore, nil)
 
 	todos, err := todoList.ListTodos(context.Background())
 	require.NoError(t, err)
@@ -71,8 +70,8 @@ func TestTodoList_ListTodos(t *testing.T) {
 	assert.Equal(t, expectedTodos, todos)
 }
 
-func TestTodoList_MarkAsDone(t *testing.T) {
-	todoStore := NewInmemoryTodoStore()
+func TestList_MarkAsDone(t *testing.T) {
+	todoStore := NewInmemoryStore()
 
 	const id = "id"
 
@@ -83,7 +82,7 @@ func TestTodoList_MarkAsDone(t *testing.T) {
 	require.NoError(t, todoStore.Store(context.Background(), todo))
 
 	events := &todoEventsStub{}
-	todoList := NewTodoList(nil, todoStore, events)
+	todoList := NewList(nil, todoStore, events)
 
 	err := todoList.MarkAsDone(context.Background(), id)
 	require.NoError(t, err)
@@ -103,11 +102,11 @@ func TestTodoList_MarkAsDone(t *testing.T) {
 	assert.Equal(t, expectedEvent, events.markedAsDone)
 }
 
-func TestTodoList_CannotMarkANonExistingTodoDone(t *testing.T) {
-	todoStore := NewInmemoryTodoStore()
+func TestList_CannotMarkANonExistingTodoDone(t *testing.T) {
+	todoStore := NewInmemoryStore()
 
 	events := &todoEventsStub{}
-	todoList := NewTodoList(nil, todoStore, events)
+	todoList := NewList(nil, todoStore, events)
 
 	const id = "id"
 
@@ -116,14 +115,14 @@ func TestTodoList_CannotMarkANonExistingTodoDone(t *testing.T) {
 
 	cause := errors.Cause(err)
 
-	require.IsType(t, TodoNotFoundError{}, cause)
+	require.IsType(t, NotFoundError{}, cause)
 
-	e := cause.(TodoNotFoundError)
+	e := cause.(NotFoundError)
 	assert.Equal(t, id, e.ID)
 }
 
-func TestTodoList_StoringDoneTodoFails(t *testing.T) {
-	inmemTodoStore := NewInmemoryTodoStore()
+func TestList_StoringDoneTodoFails(t *testing.T) {
+	inmemTodoStore := NewInmemoryStore()
 
 	todo := Todo{
 		ID:   "id",
@@ -131,7 +130,7 @@ func TestTodoList_StoringDoneTodoFails(t *testing.T) {
 	}
 	require.NoError(t, inmemTodoStore.Store(context.Background(), todo))
 
-	todoList := NewTodoList(nil, NewReadOnlyTodoStore(inmemTodoStore), &todoEventsStub{})
+	todoList := NewList(nil, NewReadOnlyStore(inmemTodoStore), &todoEventsStub{})
 
 	err := todoList.MarkAsDone(context.Background(), "id")
 	require.Error(t, err)

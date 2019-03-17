@@ -25,8 +25,8 @@ func ListTodos(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// MarkAsDoneTodo - Mark a TODO as done
-func MarkAsDoneTodo(w http.ResponseWriter, r *http.Request) {
+// MarkAsDone - Mark a TODO as done
+func MarkAsDone(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 }

@@ -28,8 +28,8 @@ func TestLogEventHandler_MarkedAsDone(t *testing.T) {
 		Level: logur.Info,
 		Line:  "todo marked as done",
 		Fields: map[string]interface{}{
-			"event": "MarkedAsDone",
-			"id":    "1234",
+			"event":   "MarkedAsDone",
+			"todo_id": "1234",
 		},
 	}
 
