@@ -3,9 +3,13 @@ package internal
 import (
 	"net/http"
 
+	"github.com/ThreeDotsLabs/watermill/components/cqrs"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/goph/emperror"
+	"github.com/goph/idgen/ulidgen"
 	"github.com/goph/logur"
+	"github.com/goph/logur/integrations/watermilllog"
+	"github.com/goph/watermillx"
 	"github.com/gorilla/mux"
 	"github.com/mccutchen/go-httpbin/httpbin"
 	"google.golang.org/grpc"
@@ -18,7 +22,12 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/greetingworker/greetingworkeradapter"
 	"github.com/sagikazarmark/modern-go-application/internal/greetingworker/greetingworkerdriver"
 	"github.com/sagikazarmark/modern-go-application/internal/landing/landingdriver"
+	"github.com/sagikazarmark/modern-go-application/internal/todo"
+	"github.com/sagikazarmark/modern-go-application/internal/todo/todoadapter"
+	"github.com/sagikazarmark/modern-go-application/internal/todo/tododriver"
 )
+
+const todoTopic = "todo"
 
 // NewApp returns a new HTTP and a new gRPC application.
 func NewApp(
@@ -32,11 +41,24 @@ func NewApp(
 		errorHandler,
 	)
 
+	todoList := todo.NewTodoList(
+		ulidgen.NewGenerator(),
+		todo.NewInmemoryTodoStore(),
+		todoadapter.NewTodoEvents(cqrs.NewEventBus(
+			publisher,
+			todoTopic,
+			watermillx.NewStructNameMarshaler(cqrs.JSONMarshaler{}),
+		)),
+	)
+
 	router := mux.NewRouter()
 
 	router.Path("/").Methods("GET").Handler(landingdriver.NewHTTPHandler())
 	router.PathPrefix("/greeting").Methods("POST").Handler(
 		http.StripPrefix("/greeting", greetingdriver.MakeHTTPHandler(greeter, errorHandler)),
+	)
+	router.PathPrefix("/todos").Handler(
+		http.StripPrefix("/todos", tododriver.MakeHTTPHandler(todoList, errorHandler)),
 	)
 	router.PathPrefix("/httpbin").Handler(
 		http.StripPrefix(
@@ -77,6 +99,21 @@ func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber
 		subscriber,
 		sayHelloHandler.SaidHelloTo,
 	)
+
+	todoEventProcessor := cqrs.NewEventProcessor(
+		[]cqrs.EventHandler{
+			tododriver.NewMarkedAsDoneEventHandler(todo.NewLogEventHandler(todoadapter.NewLogger(logger))),
+		},
+		todoTopic,
+		subscriber,
+		watermillx.NewStructNameMarshaler(cqrs.JSONMarshaler{}),
+		watermilllog.New(logur.WithFields(logger, map[string]interface{}{"component": "watermill"})),
+	)
+
+	err := todoEventProcessor.AddHandlersToRouter(router)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
