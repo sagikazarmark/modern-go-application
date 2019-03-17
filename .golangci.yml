@@ -7,9 +7,6 @@ linters:
     disable:
         - maligned
 
-        # TODO: fix this
-        - dupl
-
 linters-settings:
     golint:
         min-confidence: 0.1

@@ -14,13 +14,6 @@ import (
 	"github.com/mccutchen/go-httpbin/httpbin"
 	"google.golang.org/grpc"
 
-	greetingpb "github.com/sagikazarmark/modern-go-application/.gen/api/proto/greeting"
-	"github.com/sagikazarmark/modern-go-application/internal/greeting"
-	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingadapter"
-	"github.com/sagikazarmark/modern-go-application/internal/greeting/greetingdriver"
-	"github.com/sagikazarmark/modern-go-application/internal/greetingworker"
-	"github.com/sagikazarmark/modern-go-application/internal/greetingworker/greetingworkeradapter"
-	"github.com/sagikazarmark/modern-go-application/internal/greetingworker/greetingworkerdriver"
 	"github.com/sagikazarmark/modern-go-application/internal/landing/landingdriver"
 	"github.com/sagikazarmark/modern-go-application/internal/todo"
 	"github.com/sagikazarmark/modern-go-application/internal/todo/todoadapter"
@@ -35,12 +28,6 @@ func NewApp(
 	publisher message.Publisher,
 	errorHandler emperror.Handler,
 ) (http.Handler, func(*grpc.Server)) {
-	greeter := greeting.NewGreeter(
-		greetingadapter.NewGreeterEvents(publisher),
-		greetingadapter.NewLogger(logger),
-		errorHandler,
-	)
-
 	todoList := todo.NewList(
 		ulidgen.NewGenerator(),
 		todo.NewInmemoryStore(),
@@ -54,9 +41,6 @@ func NewApp(
 	router := mux.NewRouter()
 
 	router.Path("/").Methods("GET").Handler(landingdriver.NewHTTPHandler())
-	router.PathPrefix("/greeting").Methods("POST").Handler(
-		http.StripPrefix("/greeting", greetingdriver.MakeHTTPHandler(greeter, errorHandler)),
-	)
 	router.PathPrefix("/todos").Handler(
 		http.StripPrefix("/todos", tododriver.MakeHTTPHandler(todoList, errorHandler)),
 	)
@@ -80,26 +64,11 @@ func NewApp(
 		),
 	)
 
-	helloWorldGRPCController := greetingdriver.NewGRPCController(greeter, errorHandler)
-
-	return router, func(s *grpc.Server) {
-		greetingpb.RegisterGreeterServer(s, helloWorldGRPCController)
-	}
+	return router, func(s *grpc.Server) {}
 }
 
 // RegisterEventHandlers registers event handlers in a message router.
 func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber, logger logur.Logger) error {
-	sayHelloHandler := greetingworkerdriver.NewGreeterEventHandler(
-		greetingworker.NewGreeterEventLogger(greetingworkeradapter.NewLogger(logger)),
-	)
-
-	router.AddNoPublisherHandler(
-		"log_said_hello",
-		"said_hello",
-		subscriber,
-		sayHelloHandler.SaidHelloTo,
-	)
-
 	todoEventProcessor := cqrs.NewEventProcessor(
 		[]cqrs.EventHandler{
 			tododriver.NewMarkedAsDoneEventHandler(todo.NewLogEventHandler(todoadapter.NewLogger(logger))),

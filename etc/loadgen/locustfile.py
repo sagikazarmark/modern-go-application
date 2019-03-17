@@ -12,12 +12,6 @@ serverErrorCodes = [500, 503]
 def index(l):
     l.client.get("/")
 
-def sayHello(l):
-    payload = {'name': 'John'}
-    headers = {'content-type': 'application/json'}
-
-    l.client.post("/greeting/sayHello", data=json.dumps(payload), headers=headers)
-
 def clientErrors(l):
     l.client.get("/httpbin/status/" + str(random.choice(clientErrorCodes)))
 
@@ -34,8 +28,7 @@ class DemoBehavior(TaskSet):
         index(self)
 
     tasks = {
-        index:2,
-        sayHello: 12,
+        index: 3,
         clientErrors: 6,
         serverErrors: 4,
         responseSize: 2,
