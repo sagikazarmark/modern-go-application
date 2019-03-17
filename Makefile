@@ -6,7 +6,7 @@ OS = $(shell uname)
 BUILD_PACKAGE ?= ./cmd/modern-go-application
 BINARY_NAME ?= modern-go-application
 DOCKER_IMAGE = sagikazarmark/modern-go-application
-OPENAPI_DESCRIPTOR = api/openapi/greeting/swagger.yaml
+OPENAPI_DESCRIPTOR_DIR = api/openapi
 
 # Build variables
 BUILD_DIR ?= build
@@ -168,17 +168,21 @@ lint: bin/golangci-lint ## Run linter
 
 .PHONY: validate-openapi
 validate-openapi: ## Validate the OpenAPI descriptor
-	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli:v${OPENAPI_GENERATOR_VERSION} validate --recommend -i /local/${OPENAPI_DESCRIPTOR}
+	for api in `ls ${OPENAPI_DESCRIPTOR_DIR}`; do \
+	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli:v${OPENAPI_GENERATOR_VERSION} validate --recommend -i /local/${OPENAPI_DESCRIPTOR_DIR}/$$api/swagger.yaml; \
+	done
 
 .PHONY: openapi
 openapi: ## Generate client and server stubs from the OpenAPI definition
-	rm -rf .gen/api/openapi/greeting
+	rm -rf .gen/${OPENAPI_DESCRIPTOR_DIR}
+	for api in `ls ${OPENAPI_DESCRIPTOR_DIR}`; do \
 	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli:v${OPENAPI_GENERATOR_VERSION} generate \
 	--additional-properties packageName=api \
 	--additional-properties withGoCodegenComment=true \
-	-i /local/${OPENAPI_DESCRIPTOR} \
+	-i /local/${OPENAPI_DESCRIPTOR_DIR}/$$api/swagger.yaml \
 	-g go-server \
-	-o /local/.gen/api/openapi/greeting
+	-o /local/.gen/${OPENAPI_DESCRIPTOR_DIR}/$$api; \
+	done
 
 bin/protolock: bin/protolock-${PROTOLOCK_VERSION}
 	@ln -sf protolock-${PROTOLOCK_VERSION} bin/protolock
