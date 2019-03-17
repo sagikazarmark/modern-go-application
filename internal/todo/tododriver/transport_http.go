@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/go-kit/kit/endpoint"
 	kitoc "github.com/go-kit/kit/tracing/opencensus"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/goph/emperror"
@@ -132,8 +133,31 @@ func decodeMarkTodoAsDoneHTTPRequest(_ context.Context, r *http.Request) (interf
 	}, nil
 }
 
-func encodeMarkTodoAsDoneHTTPResponse(_ context.Context, w http.ResponseWriter, _ interface{}) error {
+func encodeMarkTodoAsDoneHTTPResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
+	if f, ok := response.(endpoint.Failer); ok && f.Failed() != nil {
+		errorEncoder(f.Failed(), w)
+
+		return nil
+	}
+
 	w.WriteHeader(http.StatusOK)
 
 	return nil
+}
+
+func errorEncoder(failed error, w http.ResponseWriter) {
+	status := http.StatusInternalServerError
+
+	if e, ok := failed.(*todoError); ok {
+		switch e.Code {
+		case notFoundErrorCode:
+			status = http.StatusNotFound
+		}
+	}
+
+	problem := problems.NewDetailedProblem(status, failed.Error())
+
+	w.Header().Set("Content-Type", problems.ProblemMediaType)
+	w.WriteHeader(status)
+	_ = json.NewEncoder(w).Encode(problem)
 }

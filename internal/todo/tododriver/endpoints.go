@@ -21,6 +21,19 @@ type TodoList interface {
 	MarkAsDone(ctx context.Context, id string) error
 }
 
+const (
+	notFoundErrorCode int = 1
+)
+
+type todoError struct {
+	Message string
+	Code    int
+}
+
+func (e *todoError) Error() string {
+	return e.Message
+}
+
 // Endpoints collects all of the endpoints that compose a todo list service. It's
 // meant to be used as a helper struct, to collect all of the endpoints into a
 // single parameter.
@@ -46,12 +59,6 @@ type createTodoRequest struct {
 
 type createTodoResponse struct {
 	ID string
-
-	Err error
-}
-
-func (r createTodoResponse) Failed() error {
-	return r.Err
 }
 
 // MakeCreateEndpoint returns an endpoint for the matching method of the underlying service.
@@ -75,12 +82,6 @@ type todoListItem struct {
 
 type listTodosResponse struct {
 	Todos []todoListItem
-
-	Err error
-}
-
-func (r listTodosResponse) Failed() error {
-	return r.Err
 }
 
 // MakeListEndpoint returns an endpoint for the matching method of the underlying service.
@@ -121,7 +122,10 @@ func MakeMarkAsDoneEndpoint(t TodoList) endpoint.Endpoint {
 
 		if _, ok := errors.Cause(err).(todo.TodoNotFoundError); ok {
 			return markAsDoneResponse{
-				Err: err,
+				Err: &todoError{
+					Message: "todo not found",
+					Code:    notFoundErrorCode,
+				},
 			}, nil
 		}
 
