@@ -14,11 +14,11 @@ import (
 	"github.com/pkg/errors"
 
 	api "github.com/sagikazarmark/modern-go-application/.gen/api/openapi/todo/go"
-	"github.com/sagikazarmark/modern-go-application/internal/greeting"
+	"github.com/sagikazarmark/modern-go-application/internal/todo"
 )
 
 // MakeHTTPHandler mounts all of the service endpoints into an http.Handler.
-func MakeHTTPHandler(todoList TodoList, errorHandler greeting.ErrorHandler) http.Handler {
+func MakeHTTPHandler(todoList TodoList, errorHandler todo.ErrorHandler) http.Handler {
 	r := mux.NewRouter()
 	e := MakeEndpoints(todoList)
 

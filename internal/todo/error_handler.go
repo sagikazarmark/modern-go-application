@@ -1,4 +1,4 @@
-package greeting
+package todo
 
 // ErrorHandler handles an error.
 type ErrorHandler interface {
