@@ -15,15 +15,15 @@ type Todo struct {
 
 // TodoList manages a list of todos.
 type TodoList struct {
-	id     IDGenerator
-	todos  TodoStore
-	events TodoEvents
+	idgenerator IDGenerator
+	todos       TodoStore
+	events      TodoEvents
 }
 
 // IDGenerator generates a new ID.
 type IDGenerator interface {
-	// New generates a new ID.
-	New() (string, error)
+	// Generate generates a new ID.
+	Generate() (string, error)
 }
 
 // TodoStore stores the items on the todo list.
@@ -67,15 +67,15 @@ type MarkedAsDone struct {
 // NewTodoList returns a new TodoList instance.
 func NewTodoList(id IDGenerator, todos TodoStore, events TodoEvents) *TodoList {
 	return &TodoList{
-		id:     id,
-		todos:  todos,
-		events: events,
+		idgenerator: id,
+		todos:       todos,
+		events:      events,
 	}
 }
 
 // CreateTodo adds a new todo to the todo list.
 func (t *TodoList) CreateTodo(ctx context.Context, text string) (string, error) {
-	id, err := t.id.New()
+	id, err := t.idgenerator.Generate()
 	if err != nil {
 		return "", err
 	}
