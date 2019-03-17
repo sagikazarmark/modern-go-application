@@ -1,0 +1,153 @@
+openapi: 3.0.1
+info:
+  description: Manage TODOs
+  title: Todo API
+  version: 1.0.0
+servers:
+- url: https://todo.api/
+- url: http://todo.api/
+paths:
+  /todos:
+    get:
+      operationId: listTodos
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoList'
+          description: created
+        500:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+          description: unexpected error
+      summary: List TODOs
+    post:
+      operationId: createTodo
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTodoRequest'
+        required: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateTodoResponse'
+          description: successful operation
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+          description: invalid request
+        500:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+          description: unexpected error
+      summary: Add a new TODO to the list
+  /todos/{id}/done:
+    patch:
+      operationId: markAsDone
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateTodoResponse'
+          description: successful operation
+        404:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+          description: not found
+        500:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+          description: unexpected error
+      summary: Mark a TODO as done
+components:
+  schemas:
+    Todo:
+      example:
+        id: id
+        text: text
+        done: true
+      properties:
+        id:
+          type: string
+        text:
+          type: string
+        done:
+          type: boolean
+      required:
+      - done
+      - id
+      - text
+      type: object
+    GenericError:
+      example:
+        type: about:blank
+        title: Not Found
+        status: 404
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+      required:
+      - type
+      type: object
+    CreateTodoResponse:
+      example:
+        id: id
+      properties:
+        id:
+          type: string
+      required:
+      - id
+      type: object
+    CreateTodoRequest:
+      example:
+        text: text
+      properties:
+        text:
+          type: string
+      required:
+      - text
+      type: object
+    TodoList:
+      example:
+        todos:
+        - id: id
+          text: text
+          done: true
+        - id: id
+          text: text
+          done: true
+      properties:
+        todos:
+          items:
+            $ref: '#/components/schemas/Todo'
+          type: array
+      type: object
+  securitySchemes:
+    api_key:
+      in: header
+      name: api_key
+      type: apiKey

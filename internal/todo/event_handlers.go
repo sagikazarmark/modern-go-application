@@ -1,0 +1,26 @@
+package todo
+
+import (
+	"context"
+)
+
+// LogEventHandler handles todo events and logs them.
+type LogEventHandler struct {
+	logger Logger
+}
+
+// NewLogEventHandler returns a new LogEventHandler instance.
+func NewLogEventHandler(logger Logger) *LogEventHandler {
+	return &LogEventHandler{
+		logger: logger,
+	}
+}
+
+func (h *LogEventHandler) MarkedAsDone(ctx context.Context, event MarkedAsDone) error {
+	h.logger.Info("todo marked as done", map[string]interface{}{
+		"event":   "MarkedAsDone",
+		"todo_id": event.ID,
+	})
+
+	return nil
+}

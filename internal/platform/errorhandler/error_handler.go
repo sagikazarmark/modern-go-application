@@ -6,6 +6,6 @@ import (
 )
 
 // New returns a new error handler.
-func New(logger logur.Logger) emperror.Handler {
+func New(logger logur.ErrorLogger) emperror.Handler {
 	return logur.NewErrorHandler(logger)
 }

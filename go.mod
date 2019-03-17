@@ -1,19 +1,22 @@
 module github.com/sagikazarmark/modern-go-application
 
 require (
-	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/InVisionApp/go-health v2.1.0+incompatible
-	github.com/ThreeDotsLabs/watermill v0.2.1
+	github.com/ThreeDotsLabs/watermill v0.3.0
 	github.com/cloudflare/tableflip v0.0.0-20190111135955-d1e14f24db7d
 	github.com/go-kit/kit v0.8.0
 	github.com/go-sql-driver/mysql v1.4.1
+	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/gofrs/uuid v3.2.0+incompatible
-	github.com/golang/protobuf v1.2.0
+	github.com/golang/protobuf v1.2.1-0.20190205222052-c823c79ea157
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/goph/emperror v0.16.0
-	github.com/goph/logur v0.9.0
+	github.com/goph/idgen v0.3.0
+	github.com/goph/logur v0.11.0
+	github.com/goph/watermillx v0.2.0
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/mux v1.6.2
+	github.com/jonboulle/clockwork v0.1.0 // indirect
 	github.com/mccutchen/go-httpbin v0.0.0-20190116014521-c5cb2f4802fa
 	github.com/moogar0880/problems v0.0.0-20160529214634-33afcba6336a
 	github.com/oklog/run v1.0.0
@@ -25,7 +28,9 @@ require (
 	github.com/spf13/pflag v1.0.3
 	github.com/spf13/viper v1.3.1
 	github.com/stretchr/testify v1.3.0
-	go.opencensus.io v0.18.0
-	golang.org/x/net v0.0.0-20181106065722-10aee1819953
-	google.golang.org/grpc v1.18.0
+	go.opencensus.io v0.19.0
+	golang.org/x/net v0.0.0-20190206173232-65e2d4e15006
+	google.golang.org/grpc v1.19.0
 )
+
+replace github.com/ThreeDotsLabs/watermill v0.3.0 => github.com/ThreeDotsLabs/watermill v0.2.2-0.20190314231218-4a425811ce2e

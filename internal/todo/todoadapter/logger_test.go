@@ -1,4 +1,4 @@
-package greetingadapter
+package todoadapter
 
 import (
 	"fmt"

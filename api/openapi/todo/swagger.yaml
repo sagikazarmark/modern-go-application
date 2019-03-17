@@ -1,0 +1,147 @@
+swagger: "2.0"
+info:
+    title: "Todo API"
+    description: "Manage TODOs"
+    version: "1.0.0"
+host: "todo.api"
+basePath: "/"
+schemes:
+    - "https"
+    - "http"
+
+securityDefinitions:
+    api_key:
+        type: "apiKey"
+        name: "api_key"
+        in: "header"
+
+paths:
+    /todos:
+        post:
+            summary: "Add a new TODO to the list"
+            description: ""
+            operationId: "createTodo"
+            consumes:
+                - "application/json"
+            produces:
+                - "application/json"
+            parameters:
+                -
+                    name: "body"
+                    in: "body"
+                    required: true
+                    schema:
+                        $ref: "#/definitions/CreateTodoRequest"
+            responses:
+                200:
+                    description: "successful operation"
+                    schema:
+                        $ref: "#/definitions/CreateTodoResponse"
+                400:
+                    description: "invalid request"
+                    schema:
+                        $ref: "#/definitions/GenericError"
+                500:
+                    description: "unexpected error"
+                    schema:
+                        $ref: "#/definitions/GenericError"
+
+        get:
+            summary: "List TODOs"
+            description: ""
+            operationId: "listTodos"
+            consumes:
+                - "application/json"
+            produces:
+                - "application/json"
+            responses:
+                201:
+                    description: "created"
+                    schema:
+                        $ref: "#/definitions/TodoList"
+                500:
+                    description: "unexpected error"
+                    schema:
+                        $ref: "#/definitions/GenericError"
+
+    /todos/{id}/done:
+        patch:
+            summary: "Mark a TODO as done"
+            description: ""
+            operationId: "markAsDone"
+            consumes:
+                - "application/json"
+            produces:
+                - "application/json"
+            responses:
+                200:
+                    description: "successful operation"
+                    schema:
+                        $ref: "#/definitions/CreateTodoResponse"
+                404:
+                    description: "not found"
+                    schema:
+                        $ref: "#/definitions/GenericError"
+                500:
+                    description: "unexpected error"
+                    schema:
+                        $ref: "#/definitions/GenericError"
+
+definitions:
+    Todo:
+        type: "object"
+        properties:
+            id:
+                type: "string"
+            text:
+                type: "string"
+            done:
+                type: "boolean"
+        required:
+            - id
+            - text
+            - done
+
+    TodoList:
+        type: "object"
+        properties:
+            todos:
+                type: "array"
+                items:
+                    $ref: '#/definitions/Todo'
+
+    CreateTodoRequest:
+        type: "object"
+        properties:
+            text:
+                type: "string"
+        required:
+            - text
+
+    CreateTodoResponse:
+        type: "object"
+        properties:
+            id:
+                type: "string"
+        required:
+            - id
+
+    GenericError:
+        type: "object"
+        properties:
+            type:
+                type: "string"
+            title:
+                type: "string"
+            status:
+                type: "integer"
+            detail:
+                type: "string"
+            instance:
+                type: "string"
+        required:
+            - type
+        example:
+            type: "about:blank"
+            title: "Not Found"
+            status: 404
