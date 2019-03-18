@@ -92,16 +92,10 @@ github.com/googleapis/gax-go v2.0.0+incompatible/go.mod h1:SFVmujtThgffbyetf+mdk
 github.com/googleapis/gax-go/v2 v2.0.3/go.mod h1:LLvjysVCY1JZeum8Z6l8qUty8fiNwE08qbEPm1M08qg=
 github.com/goph/emperror v0.16.0 h1:CbMlTydBuWz5bMQuk2rhibzkaDWG+oEMXAFnfaEu8G8=
 github.com/goph/emperror v0.16.0/go.mod h1:vakOpsf2BTE0/C0snxzXm5/l8pv6qjBhIqm/qlgDYC8=
-github.com/goph/idgen v0.1.0 h1:XJweFruIATrfDR9JVLPrao89BzSKR49Z8fJp1WF4gtU=
-github.com/goph/idgen v0.1.0/go.mod h1:YJORUtHQYeq6F9BsM7qfXVFrtJx0Mu2bRMaU7aCOUqA=
 github.com/goph/idgen v0.3.0 h1:MJcnn1OchhHAG8k9Cfif3csWL2SXbcfbeT3ZsHiqdio=
 github.com/goph/idgen v0.3.0/go.mod h1:s6kdnHhh7Cp/j3T7lAFEWglqO+2UJBGE4qvBukMjdAs=
-github.com/goph/logur v0.9.0 h1:lUQKlygWjnaK431q1GtUj4gphSV72evOQDgVRgD3Y7w=
-github.com/goph/logur v0.9.0/go.mod h1:PfIUaGrVwMKoEWyHjPF4820Qcitq0xJNmje9Eh7eRJA=
 github.com/goph/logur v0.11.0 h1:nKVK6frr7dakIaUElQkkAN3yVHi9n/ulc1so1XnNAV8=
 github.com/goph/logur v0.11.0/go.mod h1:SUhs+0vskrKgPHfpceKH+bB9K6ceen8x3zAOqEWJWpA=
-github.com/goph/watermillx v0.1.0 h1:lCD5DLmP0sVNbiszHd1XwEgT+CAdeqX1Iil8wCPJzOQ=
-github.com/goph/watermillx v0.1.0/go.mod h1:FToXV9QC7bQs+fXy/l9F6UvkSEpZBHa4gofdEjUHvrI=
 github.com/goph/watermillx v0.2.0 h1:XTNyzfjCSpKThui84k1umZt/CyAmdYJYCiWmY4i/tBM=
 github.com/goph/watermillx v0.2.0/go.mod h1:FToXV9QC7bQs+fXy/l9F6UvkSEpZBHa4gofdEjUHvrI=
 github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1/go.mod h1:wJfORRmW1u3UXTncJ5qlYoELFm8eSnnEO6hX4iZ3EWY=
@@ -122,7 +116,6 @@ github.com/hashicorp/hcl v1.0.0/go.mod h1:E5yfLk+7swimpb2L/Alb/PJmXilQ/rhwaUYs4T
 github.com/hpcloud/tail v1.0.0 h1:nfCOvKYfkgYP8hkirhJocXT2+zOD8yUNjXaWfTlyFKI=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
 github.com/jellevandenhooff/dkim v0.0.0-20150330215556-f50fe3d243e1/go.mod h1:E0B/fFc00Y+Rasa88328GlI/XbtyysCtTHZS8h7IrBU=
-github.com/jonboulle/clockwork v0.1.0/go.mod h1:Ii8DK3G1RaLaWxj9trq07+26W01tbo22gdxWY5EU2bo=
 github.com/kardianos/osext v0.0.0-20170510131534-ae77be60afb1/go.mod h1:1NbS8ALrpOvjt0rHPNLyCIeMtbizbir8U//inJ+zuB8=
 github.com/kisielk/errcheck v1.1.0/go.mod h1:EZBBE59ingxPouuu3KfxchcWSUPOHkagtvWXihfKN4Q=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
