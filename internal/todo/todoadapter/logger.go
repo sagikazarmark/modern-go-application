@@ -1,6 +1,8 @@
 package todoadapter
 
 import (
+	"context"
+
 	"github.com/goph/logur"
 
 	"github.com/sagikazarmark/modern-go-application/internal/todo"
@@ -8,13 +10,28 @@ import (
 
 // Logger wraps a logur logger and exposes it under a custom interface.
 type Logger struct {
-	logger logur.Logger
+	logger       logur.Logger
+	ctxExtractor ContextExtractor
+}
+
+// ContextExtractor extracts log fields from a context.
+type ContextExtractor interface {
+	// Extract extracts log fields from a context.
+	Extract(ctx context.Context) map[string]interface{}
 }
 
 // NewLogger returns a new Logger instance.
 func NewLogger(logger logur.Logger) *Logger {
 	return &Logger{
 		logger: logger,
+	}
+}
+
+// NewContextAwareLogger returns a new Logger instance that can extract information from a context.
+func NewContextAwareLogger(logger logur.Logger, ctxExtractor ContextExtractor) *Logger {
+	return &Logger{
+		logger:       logger,
+		ctxExtractor: ctxExtractor,
 	}
 }
 
@@ -43,9 +60,21 @@ func (l *Logger) Error(msg string, fields ...map[string]interface{}) {
 	l.logger.Error(msg, fields...)
 }
 
-// WithFields annotates a logger with some context.
+// WithFields annotates a logger with key-value pairs.
 func (l *Logger) WithFields(fields map[string]interface{}) todo.Logger {
-	return &Logger{logger: logur.WithFields(l.logger, fields)}
+	return &Logger{
+		logger:       logur.WithFields(l.logger, fields),
+		ctxExtractor: l.ctxExtractor,
+	}
+}
+
+// WithContext annotates a logger with a context.
+func (l *Logger) WithContext(ctx context.Context) todo.Logger {
+	if l.ctxExtractor == nil {
+		return l
+	}
+
+	return l.WithFields(l.ctxExtractor.Extract(ctx))
 }
 
 // NewNoopLogger returns a logger that discards all received log events.
