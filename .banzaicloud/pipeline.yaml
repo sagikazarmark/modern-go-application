@@ -44,7 +44,7 @@ pipeline:
     clusterSecret:
       name: '{{ .CICD_REPO_NAME }}-mysql-user'
       # sourceSecretName:
-      namespace: default
+      # namespace:
       merge: true
       spec:
         - name: mysql-username
@@ -62,7 +62,7 @@ pipeline:
     clusterSecret:
       name: '{{ .CICD_REPO_NAME }}-mysql-root-password'
       # sourceSecretName:
-      namespace: default
+      # namespace:
       merge: true
       spec:
         - name: mysql-root-password
@@ -77,6 +77,7 @@ pipeline:
     action: EnsureDeployment
     deployment:
       name: './spotguide-modern-go-application-0.2.0.tgz'
+      # namespace:
       reuseValues: true
       releaseName: '{{ .CICD_REPO_NAME }}'
       wait: true
