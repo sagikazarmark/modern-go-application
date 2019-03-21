@@ -12,9 +12,11 @@ import (
 	"github.com/goph/watermillx"
 	"github.com/gorilla/mux"
 	"github.com/mccutchen/go-httpbin/httpbin"
+	"github.com/sagikazarmark/ocmux"
 	"google.golang.org/grpc"
 
 	"github.com/sagikazarmark/modern-go-application/internal/landing/landingdriver"
+	"github.com/sagikazarmark/modern-go-application/internal/platform/trace"
 	"github.com/sagikazarmark/modern-go-application/internal/todo"
 	"github.com/sagikazarmark/modern-go-application/internal/todo/todoadapter"
 	"github.com/sagikazarmark/modern-go-application/internal/todo/tododriver"
@@ -28,22 +30,30 @@ func NewApp(
 	publisher message.Publisher,
 	errorHandler emperror.Handler,
 ) (http.Handler, func(*grpc.Server)) {
-	todoList := todo.NewList(
-		ulidgen.NewGenerator(),
-		todo.NewInmemoryStore(),
-		todoadapter.NewEventDispatcher(cqrs.NewEventBus(
-			publisher,
-			todoTopic,
-			watermillx.NewStructNameMarshaler(cqrs.JSONMarshaler{}),
-		)),
-	)
+	var todoList tododriver.TodoList
+	{
+		todoList = todo.NewList(
+			ulidgen.NewGenerator(),
+			todo.NewInmemoryStore(),
+			todoadapter.NewEventDispatcher(cqrs.NewEventBus(
+				publisher,
+				todoTopic,
+				watermillx.NewStructNameMarshaler(cqrs.JSONMarshaler{}),
+			)),
+		)
+		logger := todoadapter.NewContextAwareLogger(logger, &trace.ContextExtractor{}).WithFields(map[string]interface{}{
+			"module": "todo",
+		})
+		todoList = tododriver.LoggingMiddleware(logger)(todoList)
+		todoList = tododriver.TracingMiddleware()(todoList)
+	}
 
 	router := mux.NewRouter()
+	router.Use(ocmux.Middleware())
+	router.Use(trace.HTTPCorrelationIDMiddleware(ulidgen.NewGenerator()))
 
 	router.Path("/").Methods("GET").Handler(landingdriver.NewHTTPHandler())
-	router.PathPrefix("/todos").Handler(
-		http.StripPrefix("/todos", tododriver.MakeHTTPHandler(todoList, errorHandler)),
-	)
+	router.PathPrefix("/todos").Handler(tododriver.MakeHTTPHandler(todoList, errorHandler))
 	router.PathPrefix("/httpbin").Handler(
 		http.StripPrefix(
 			"/httpbin",
@@ -69,9 +79,10 @@ func NewApp(
 
 // RegisterEventHandlers registers event handlers in a message router.
 func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber, logger logur.Logger) error {
+	todoLogger := todoadapter.NewContextAwareLogger(logger, &trace.ContextExtractor{})
 	todoEventProcessor := cqrs.NewEventProcessor(
 		[]cqrs.EventHandler{
-			tododriver.NewMarkedAsDoneEventHandler(todo.NewLogEventHandler(todoadapter.NewLogger(logger))),
+			tododriver.NewMarkedAsDoneEventHandler(todo.NewLogEventHandler(todoLogger)),
 		},
 		todoTopic,
 		subscriber,

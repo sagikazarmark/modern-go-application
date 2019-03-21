@@ -12,6 +12,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/moogar0880/problems"
 	"github.com/pkg/errors"
+	"github.com/sagikazarmark/ocmux"
 
 	api "github.com/sagikazarmark/modern-go-application/.gen/api/openapi/todo/go"
 	"github.com/sagikazarmark/modern-go-application/internal/todo"
@@ -19,7 +20,9 @@ import (
 
 // MakeHTTPHandler mounts all of the service endpoints into an http.Handler.
 func MakeHTTPHandler(todoList TodoList, errorHandler todo.ErrorHandler) http.Handler {
-	r := mux.NewRouter()
+	r := mux.NewRouter().PathPrefix("/todos").Subrouter()
+	r.Use(ocmux.Middleware())
+
 	e := MakeEndpoints(todoList)
 
 	errorEncoder := httptransport.ServerErrorEncoder(func(ctx context.Context, err error, w http.ResponseWriter) {

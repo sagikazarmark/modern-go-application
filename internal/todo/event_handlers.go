@@ -17,7 +17,9 @@ func NewLogEventHandler(logger Logger) *LogEventHandler {
 }
 
 func (h *LogEventHandler) MarkedAsDone(ctx context.Context, event MarkedAsDone) error {
-	h.logger.Info("todo marked as done", map[string]interface{}{
+	logger := h.logger.WithContext(ctx)
+
+	logger.Info("todo marked as done", map[string]interface{}{
 		"event":   "MarkedAsDone",
 		"todo_id": event.ID,
 	})
