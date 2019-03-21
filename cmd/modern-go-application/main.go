@@ -10,10 +10,11 @@ import (
 	"syscall"
 	"time"
 
-	health "github.com/InVisionApp/go-health"
+	"github.com/InVisionApp/go-health"
 	"github.com/InVisionApp/go-health/checkers"
 	"github.com/cloudflare/tableflip"
 	"github.com/goph/emperror"
+	"github.com/goph/watermillx"
 	"github.com/oklog/run"
 	"github.com/opencensus-integrations/ocsql"
 	"github.com/pkg/errors"
@@ -33,6 +34,7 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/platform/jaeger"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/prometheus"
+	apptrace "github.com/sagikazarmark/modern-go-application/internal/platform/trace"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/watermill"
 )
 
@@ -213,11 +215,20 @@ func main() {
 
 	pubsub := watermill.NewPubSub(logger)
 	defer pubsub.Close()
+
+	publisher, _ := watermillx.CorrelationIDPublisherDecorator(
+		watermillx.ContextCorrelationIDExtractorFunc(apptrace.CorrelationID),
+	)(pubsub)
+
+	subscriber, _ := watermillx.CorrelationIDSubscriberDecorator(
+		watermillx.ContextCorrelationIDInserterFunc(apptrace.WithCorrelationID),
+	)(pubsub)
+
 	{
 		h, err := watermill.NewRouter(config.Watermill.RouterConfig, logger)
 		emperror.Panic(err)
 
-		err = internal.RegisterEventHandlers(h, pubsub, logger)
+		err = internal.RegisterEventHandlers(h, subscriber, logger)
 		emperror.Panic(err)
 
 		group.Add(h.Run, func(e error) { _ = h.Close() })
@@ -240,7 +251,7 @@ func main() {
 		logger := log.WithFields(logger, map[string]interface{}{"server": name})
 
 		grpcServer := grpc.NewServer(grpc.StatsHandler(&ocgrpc.ServerHandler{}))
-		httpHandler, grpcHandlers := internal.NewApp(logger, pubsub, errorHandler)
+		httpHandler, grpcHandlers := internal.NewApp(logger, publisher, errorHandler)
 		httpHandler = &ochttp.Handler{
 			Handler: httpHandler,
 		}

@@ -1,6 +1,7 @@
 package todoadapter
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -66,6 +67,49 @@ func TestLogger_WithFields(t *testing.T) {
 		Level:  logur.Debug,
 		Line:   "message",
 		Fields: fields,
+	}
+
+	logtesting.AssertLogEventsEqual(t, event, *(testLogger.LastEvent()))
+}
+
+type contextExtractor struct{}
+
+func (*contextExtractor) Extract(ctx context.Context) map[string]interface{} {
+	return map[string]interface{}{
+		"key1": "value1",
+		"key2": "value2",
+	}
+}
+
+func TestLogger_WithContext(t *testing.T) {
+	testLogger := logur.NewTestLogger()
+
+	logger := NewLogger(testLogger).WithContext(context.Background())
+
+	logger.Debug("message", nil)
+
+	event := logur.LogEvent{
+		Level: logur.Debug,
+		Line:  "message",
+	}
+
+	logtesting.AssertLogEventsEqual(t, event, *(testLogger.LastEvent()))
+}
+
+func TestContextAwareLogger_WithContext(t *testing.T) {
+	testLogger := logur.NewTestLogger()
+
+	logger := NewContextAwareLogger(testLogger, &contextExtractor{}).WithContext(context.Background())
+
+	logger.Debug("message", nil)
+
+	event := logur.LogEvent{
+		Level: logur.Debug,
+		Line:  "message",
+		Fields: map[string]interface{}{
+			"key1": "value1",
+			"key2": "value2",
+		},
 	}
 
 	logtesting.AssertLogEventsEqual(t, event, *(testLogger.LastEvent()))
