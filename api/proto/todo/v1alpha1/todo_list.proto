@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package todo.v1beta1;
+
+option csharp_namespace = "Todo.V1Beta1";
+option go_package = "todov1beta1";
+option java_multiple_files = true;
+option java_outer_classname = "TodoListProto";
+option java_package = "com.todo.v1beta1";
+option objc_class_prefix = "TXX";
+option php_namespace = "Todo\\V1Beta1";
+
+import "api/proto/todo/v1alpha1/todo.proto";
+
+// TodoList manages a list of todos.
+service TodoList {
+  // CreateTodo adds a new todo to the todo list.
+  rpc CreateTodo(CreateTodoRequest) returns (CreateTodoResponse);
+  // ListTodos returns the list of todos.
+  rpc ListTodos(ListTodosRequest) returns (ListTodosResponse);
+  // MarkAsDone marks a todo as done.
+  rpc MarkAsDone(MarkAsDoneRequest) returns (MarkAsDoneResponse);
+}
+
+message CreateTodoRequest {
+  string text = 1;
+}
+
+message CreateTodoResponse {
+  string id = 1;
+}
+
+message ListTodosRequest {}
+
+message ListTodosResponse {
+  repeated Todo todos = 1;
+}
+
+message MarkAsDoneRequest {
+  string id = 1;
+}
+
+message MarkAsDoneResponse {}
