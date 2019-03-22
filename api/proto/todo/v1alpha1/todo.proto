@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package todo.v1beta1;
+
+option csharp_namespace = "Todo.V1Beta1";
+option go_package = "todov1beta1";
+option java_multiple_files = true;
+option java_outer_classname = "TodoProto";
+option java_package = "com.todo.v1beta1";
+option objc_class_prefix = "TXX";
+option php_namespace = "Todo\\V1Beta1";
+
+// Todo is a note describing a task to be done.
+message Todo {
+  string id = 1;
+  string text = 2;
+  bool done = 3;
+}
