@@ -29,8 +29,6 @@ DOCKER_TAG ?= ${VERSION}
 GOTESTSUM_VERSION = 0.3.3
 GOLANGCI_VERSION = 1.15.0
 OPENAPI_GENERATOR_VERSION = 3.3.4
-PROTOLOCK_VERSION = 0.10.0
-PROTOLOCK_BUILD_DATE = 20190101T225741Z
 GOBIN_VERSION = 0.0.4
 PROTOC_GEN_GO_VERSION = 1.3.1
 PROTOTOOL_VERSION = 1.4.0
@@ -184,24 +182,6 @@ openapi: ## Generate client and server stubs from the OpenAPI definition
 	-o /local/.gen/${OPENAPI_DESCRIPTOR_DIR}/$$api; \
 	done
 
-bin/protolock: bin/protolock-${PROTOLOCK_VERSION}
-	@ln -sf protolock-${PROTOLOCK_VERSION} bin/protolock
-bin/protolock-${PROTOLOCK_VERSION}:
-	@mkdir -p bin
-ifeq (${OS}, Darwin)
-	curl -L https://github.com/nilslice/protolock/releases/download/v${PROTOLOCK_VERSION}/protolock.${PROTOLOCK_BUILD_DATE}.darwin-amd64.tgz | tar -zOxf - protolock > ./bin/protolock-${PROTOLOCK_VERSION} && chmod +x ./bin/protolock-${PROTOLOCK_VERSION}
-endif
-ifeq (${OS}, Linux)
-	curl -L https://github.com/nilslice/protolock/releases/download/v${PROTOLOCK_VERSION}/protolock.${PROTOLOCK_BUILD_DATE}.linux-amd64.tgz | tar -zOxf - protolock > ./bin/protolock-${PROTOLOCK_VERSION} && chmod +x ./bin/protolock-${PROTOLOCK_VERSION}
-endif
-
-proto.lock: bin/protolock
-	bin/protolock init
-
-.PHONY: protolock
-protolock: bin/protolock
-	bin/protolock status
-
 bin/gobin: bin/gobin-${GOBIN_VERSION}
 	@ln -sf gobin-${GOBIN_VERSION} bin/gobin
 bin/gobin-${GOBIN_VERSION}:
@@ -224,6 +204,12 @@ bin/prototool: bin/prototool-${PROTOTOOL_VERSION}
 bin/prototool-${PROTOTOOL_VERSION}:
 	@mkdir -p bin
 	curl -L https://github.com/uber/prototool/releases/download/v${PROTOTOOL_VERSION}/prototool-${OS}-x86_64 > ./bin/prototool-${PROTOTOOL_VERSION} && chmod +x ./bin/prototool-${PROTOTOOL_VERSION}
+
+.PHONY: validate-proto
+validate-proto: bin/prototool bin/protoc-gen-go ## Validate protobuf definition
+	bin/prototool $(if ${VERBOSE},--debug ,)compile
+	bin/prototool $(if ${VERBOSE},--debug ,)lint
+	bin/prototool $(if ${VERBOSE},--debug ,)break check
 
 .PHONY: proto
 proto: bin/prototool bin/protoc-gen-go ## Generate client and server stubs from the protobuf definition
