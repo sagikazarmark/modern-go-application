@@ -32,8 +32,8 @@ OPENAPI_GENERATOR_VERSION = 3.3.4
 PROTOLOCK_VERSION = 0.10.0
 PROTOLOCK_BUILD_DATE = 20190101T225741Z
 GOBIN_VERSION = 0.0.4
-PROTOC_GEN_GO_VERSION = 1.2.0
-PROTOTOOL_VERSION = 1.3.0
+PROTOC_GEN_GO_VERSION = 1.3.1
+PROTOTOOL_VERSION = 1.4.0
 
 GOLANG_VERSION = 1.12
 
@@ -217,7 +217,7 @@ bin/protoc-gen-go: bin/protoc-gen-go-${PROTOC_GEN_GO_VERSION}
 	@ln -sf protoc-gen-go-${PROTOC_GEN_GO_VERSION} bin/protoc-gen-go
 bin/protoc-gen-go-${PROTOC_GEN_GO_VERSION}: bin/gobin
 	@mkdir -p bin
-	GOBIN=bin/ bin/gobin github.com/golang/protobuf/protoc-gen-go@v1.2.0
+	GOBIN=bin/ bin/gobin github.com/golang/protobuf/protoc-gen-go@v${PROTOC_GEN_GO_VERSION}
 
 bin/prototool: bin/prototool-${PROTOTOOL_VERSION}
 	@ln -sf prototool-${PROTOTOOL_VERSION} bin/prototool
@@ -226,8 +226,8 @@ bin/prototool-${PROTOTOOL_VERSION}:
 	curl -L https://github.com/uber/prototool/releases/download/v${PROTOTOOL_VERSION}/prototool-${OS}-x86_64 > ./bin/prototool-${PROTOTOOL_VERSION} && chmod +x ./bin/prototool-${PROTOTOOL_VERSION}
 
 .PHONY: proto
-proto: bin/prototool bin/protoc-gen-go protolock ## Generate client and server stubs from the protobuf definition
-	bin/prototool $(if ${VERBOSE},--debug,) all
+proto: bin/prototool bin/protoc-gen-go ## Generate client and server stubs from the protobuf definition
+	bin/prototool $(if ${VERBOSE},--debug ,)all
 
 release-%: TAG_PREFIX = v
 release-%:

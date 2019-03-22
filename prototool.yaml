@@ -2,7 +2,7 @@ excludes:
     - vendor
 
 protoc:
-    version: 3.6.1
+    version: 3.7.0
 
 create:
     packages:
@@ -23,8 +23,14 @@ generate:
             output: ./.gen
 
 lint:
+    group: uber2
     rules:
         remove:
-            - FILE_OPTIONS_REQUIRE_JAVA_MULTIPLE_FILES
-            - FILE_OPTIONS_REQUIRE_JAVA_OUTER_CLASSNAME
-            - FILE_OPTIONS_REQUIRE_JAVA_PACKAGE
+            - SERVICE_NAMES_API_SUFFIX
+
+#            - FILE_OPTIONS_REQUIRE_CSHARP_NAMESPACE
+#            - FILE_OPTIONS_REQUIRE_OBJC_CLASS_PREFIX
+#            - FILE_OPTIONS_REQUIRE_PHP_NAMESPACE
+#            - FILE_OPTIONS_REQUIRE_JAVA_MULTIPLE_FILES
+#            - FILE_OPTIONS_REQUIRE_JAVA_OUTER_CLASSNAME
+#            - FILE_OPTIONS_REQUIRE_JAVA_PACKAGE
