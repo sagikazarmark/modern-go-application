@@ -6,6 +6,7 @@ require (
 	github.com/cloudflare/tableflip v0.0.0-20190111135955-d1e14f24db7d
 	github.com/go-kit/kit v0.8.0
 	github.com/go-sql-driver/mysql v1.4.1
+	github.com/golang/protobuf v1.2.1-0.20190205222052-c823c79ea157
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/goph/emperror v0.16.0
 	github.com/goph/idgen v0.3.0

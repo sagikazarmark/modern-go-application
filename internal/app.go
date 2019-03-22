@@ -15,6 +15,7 @@ import (
 	"github.com/sagikazarmark/ocmux"
 	"google.golang.org/grpc"
 
+	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1alpha1"
 	"github.com/sagikazarmark/modern-go-application/internal/landing/landingdriver"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/trace"
 	"github.com/sagikazarmark/modern-go-application/internal/todo"
@@ -48,12 +49,14 @@ func NewApp(
 		todoList = tododriver.TracingMiddleware()(todoList)
 	}
 
+	todoListEndpoint := tododriver.MakeEndpoints(todoList)
+
 	router := mux.NewRouter()
 	router.Use(ocmux.Middleware())
 	router.Use(trace.HTTPCorrelationIDMiddleware(ulidgen.NewGenerator()))
 
 	router.Path("/").Methods("GET").Handler(landingdriver.NewHTTPHandler())
-	router.PathPrefix("/todos").Handler(tododriver.MakeHTTPHandler(todoList, errorHandler))
+	router.PathPrefix("/todos").Handler(tododriver.MakeHTTPHandler(todoListEndpoint, errorHandler))
 	router.PathPrefix("/httpbin").Handler(
 		http.StripPrefix(
 			"/httpbin",
@@ -74,7 +77,9 @@ func NewApp(
 		),
 	)
 
-	return router, func(s *grpc.Server) {}
+	return router, func(s *grpc.Server) {
+		todov1beta1.RegisterTodoListServer(s, tododriver.MakeGRPCServer(todoListEndpoint, errorHandler))
+	}
 }
 
 // RegisterEventHandlers registers event handlers in a message router.
