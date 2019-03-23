@@ -90,11 +90,13 @@ func InstrumentationMiddleware() Middleware {
 }
 
 // Todo business metrics
+// nolint: gochecknoglobals
 var (
 	CreatedTodoCount = stats.Int64("created_todo_count", "Number of TODOs created", stats.UnitDimensionless)
 	DoneTodoCount    = stats.Int64("done_todo_count", "Number of TODOs marked done", stats.UnitDimensionless)
 )
 
+// nolint: gochecknoglobals
 var (
 	CreatedTodoCountView = &view.View{
 		Name:        "todo_created_count",
