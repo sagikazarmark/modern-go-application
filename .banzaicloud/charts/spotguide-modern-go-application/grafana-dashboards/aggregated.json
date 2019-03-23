@@ -12,11 +12,12 @@
             }
         ]
     },
+    "description": "Aggregates the most important metrics of Modern Go Application.",
     "editable": true,
     "gnetId": null,
-    "graphTooltip": 0,
-    "id": 6,
-    "iteration": 1547459182105,
+    "graphTooltip": 1,
+    "id": 1,
+    "iteration": 1553339409427,
     "links": [],
     "panels": [
         {
@@ -93,7 +94,7 @@
             "tableColumn": "",
             "targets": [
                 {
-                    "expr": "sum(delta(opencensus_io_http_server_request_count{app_kubernetes_io_instance=\"$app\"}[1m]))",
+                    "expr": "sum(delta(opencensus_io_http_server_request_count{app_kubernetes_io_instance=\"$app\"}[1m])) +\nsum(delta(grpc_io_server_completed_rpcs{app_kubernetes_io_instance=\"$app\"}[1m]))",
                     "format": "time_series",
                     "intervalFactor": 1,
                     "legendFormat": "Today ",
@@ -174,7 +175,7 @@
             "tableColumn": "",
             "targets": [
                 {
-                    "expr": "sum(opencensus_io_http_server_response_count_by_status_code{http_status=\"500\",app_kubernetes_io_instance=\"$app\"}) / sum(opencensus_io_http_server_response_count_by_status_code{app_kubernetes_io_instance=\"$app\"}) * 100",
+                    "expr": "(\n  sum(opencensus_io_http_server_response_count_by_status_code{http_status=\"500\",app_kubernetes_io_instance=\"$app\"}) +\n  sum(grpc_io_server_completed_rpcs{grpc_server_status=\"INTERNAL\",app_kubernetes_io_instance=\"$app\"})\n) / (\n  sum(opencensus_io_http_server_response_count_by_status_code{app_kubernetes_io_instance=\"$app\"}) +\n  sum(grpc_io_server_completed_rpcs{app_kubernetes_io_instance=\"$app\"})\n) * 100",
                     "format": "time_series",
                     "hide": false,
                     "instant": false,
@@ -257,7 +258,7 @@
             "tableColumn": "",
             "targets": [
                 {
-                    "expr": "sum(rate(opencensus_io_http_server_response_bytes_sum{app_kubernetes_io_instance=\"$app\"}[1m]))/sum(rate(opencensus_io_http_server_response_bytes_count{app_kubernetes_io_instance=\"$app\"}[1m]))",
+                    "expr": "(\n  sum(rate(opencensus_io_http_server_response_bytes_sum{app_kubernetes_io_instance=\"$app\"}[1m])) +\n  sum(rate(grpc_io_server_sent_bytes_per_rpc_sum{app_kubernetes_io_instance=\"$app\"}[1m]))\n) / (\n  sum(rate(opencensus_io_http_server_response_bytes_count{app_kubernetes_io_instance=\"$app\"}[1m])) +\n  sum(rate(grpc_io_server_sent_bytes_per_rpc_count{app_kubernetes_io_instance=\"$app\"}[1m]))\n)",
                     "format": "time_series",
                     "intervalFactor": 1,
                     "legendFormat": "Today ",
@@ -338,7 +339,7 @@
             "tableColumn": "",
             "targets": [
                 {
-                    "expr": "histogram_quantile(0.95, sum(rate(opencensus_io_http_server_latency_bucket{app_kubernetes_io_instance=\"$app\"}[5m])) by (le))",
+                    "expr": "histogram_quantile(0.95, sum(rate(opencensus_io_http_server_latency_bucket{app_kubernetes_io_instance=\"$app\"}[5m])) by (le) + sum(rate(grpc_io_server_server_latency_bucket{app_kubernetes_io_instance=\"$app\"}[5m])) by (le))",
                     "format": "time_series",
                     "intervalFactor": 1,
                     "legendFormat": "Today ",
@@ -395,21 +396,21 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "histogram_quantile(0.50, sum(rate(opencensus_io_http_server_latency_bucket{app_kubernetes_io_instance=\"$app\"}[5m])) by (le))",
+                    "expr": "histogram_quantile(0.50, sum(rate(opencensus_io_http_server_latency_bucket{app_kubernetes_io_instance=\"$app\"}[5m])) by (le) + sum(rate(grpc_io_server_server_latency_bucket{app_kubernetes_io_instance=\"$app\"}[5m])) by (le))",
                     "format": "time_series",
                     "intervalFactor": 1,
                     "legendFormat": "50 percentile",
                     "refId": "B"
                 },
                 {
-                    "expr": "histogram_quantile(0.95, sum(rate(opencensus_io_http_server_latency_bucket{app_kubernetes_io_instance=\"$app\"}[5m])) by (le))",
+                    "expr": "histogram_quantile(0.95, sum(rate(opencensus_io_http_server_latency_bucket{app_kubernetes_io_instance=\"$app\"}[5m])) by (le) + sum(rate(grpc_io_server_server_latency_bucket{app_kubernetes_io_instance=\"$app\"}[5m])) by (le))",
                     "format": "time_series",
                     "intervalFactor": 1,
                     "legendFormat": "95 percentile",
                     "refId": "C"
                 },
                 {
-                    "expr": "histogram_quantile(0.99, sum(rate(opencensus_io_http_server_latency_bucket{app_kubernetes_io_instance=\"$app\"}[5m])) by (le))",
+                    "expr": "histogram_quantile(0.99, sum(rate(opencensus_io_http_server_latency_bucket{app_kubernetes_io_instance=\"$app\"}[5m])) by (le) + sum(rate(grpc_io_server_server_latency_bucket{app_kubernetes_io_instance=\"$app\"}[5m])) by (le))",
                     "format": "time_series",
                     "intervalFactor": 1,
                     "legendFormat": "99 percentile",
@@ -435,6 +436,7 @@
                 }
             ],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "Overall Latency",
             "tooltip": {
@@ -474,151 +476,6 @@
             }
         },
         {
-            "cards": {
-                "cardPadding": null,
-                "cardRound": null
-            },
-            "color": {
-                "cardColor": "#b4ff00",
-                "colorScale": "sqrt",
-                "colorScheme": "interpolateOranges",
-                "exponent": 0.5,
-                "mode": "spectrum"
-            },
-            "dataFormat": "tsbuckets",
-            "datasource": "Prometheus",
-            "gridPos": {
-                "h": 10,
-                "w": 24,
-                "x": 0,
-                "y": 17
-            },
-            "heatmap": {},
-            "highlightCards": true,
-            "id": 24,
-            "legend": {
-                "show": true
-            },
-            "links": [],
-            "targets": [
-                {
-                    "expr": "sum(increase(opencensus_io_http_server_latency_bucket{app_kubernetes_io_instance=\"$app\"}[10m])) by (le)",
-                    "format": "heatmap",
-                    "intervalFactor": 1,
-                    "legendFormat": "",
-                    "refId": "A"
-                }
-            ],
-            "title": "Latency Heatmap",
-            "tooltip": {
-                "show": true,
-                "showHistogram": true
-            },
-            "type": "heatmap",
-            "xAxis": {
-                "show": true
-            },
-            "xBucketNumber": null,
-            "xBucketSize": null,
-            "yAxis": {
-                "decimals": null,
-                "format": "none",
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true,
-                "splitFactor": null
-            },
-            "yBucketBound": "upper",
-            "yBucketNumber": null,
-            "yBucketSize": null
-        },
-        {
-            "aliasColors": {},
-            "bars": true,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "Prometheus",
-            "fill": 1,
-            "gridPos": {
-                "h": 10,
-                "w": 12,
-                "x": 0,
-                "y": 27
-            },
-            "id": 6,
-            "legend": {
-                "alignAsTable": false,
-                "avg": false,
-                "current": false,
-                "max": false,
-                "min": false,
-                "show": true,
-                "total": false,
-                "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "nullPointMode": "null",
-            "percentage": false,
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-                {
-                    "expr": "sum by(http_status) (delta(opencensus_io_http_server_response_count_by_status_code{app_kubernetes_io_instance=\"$app\"}[1m]))",
-                    "format": "time_series",
-                    "intervalFactor": 10,
-                    "legendFormat": "{{http_status}}",
-                    "refId": "A"
-                }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Number of Response by Status",
-            "tooltip": {
-                "shared": true,
-                "sort": 0,
-                "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-                "buckets": null,
-                "mode": "time",
-                "name": null,
-                "show": true,
-                "values": []
-            },
-            "yaxes": [
-                {
-                    "format": "short",
-                    "label": "# of response / sec",
-                    "logBase": 1,
-                    "max": null,
-                    "min": null,
-                    "show": true
-                },
-                {
-                    "format": "short",
-                    "label": null,
-                    "logBase": 1,
-                    "max": null,
-                    "min": null,
-                    "show": true
-                }
-            ],
-            "yaxis": {
-                "align": false,
-                "alignLevel": null
-            }
-        },
-        {
             "aliasColors": {},
             "bars": false,
             "dashLength": 10,
@@ -627,9 +484,9 @@
             "fill": 1,
             "gridPos": {
                 "h": 10,
-                "w": 12,
-                "x": 12,
-                "y": 27
+                "w": 24,
+                "x": 0,
+                "y": 17
             },
             "id": 28,
             "legend": {
@@ -664,14 +521,14 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "sum(rate(opencensus_io_http_server_request_bytes_sum{app_kubernetes_io_instance=\"$app\"}[5m]))",
+                    "expr": "sum(rate(opencensus_io_http_server_request_bytes_sum{app_kubernetes_io_instance=\"$app\"}[5m])) + sum(rate(grpc_io_server_received_bytes_per_rpc_sum{app_kubernetes_io_instance=\"$app\"}[5m]))",
                     "format": "time_series",
                     "intervalFactor": 1,
                     "legendFormat": "Request",
                     "refId": "A"
                 },
                 {
-                    "expr": "sum(rate(opencensus_io_http_server_response_bytes_sum{app_kubernetes_io_instance=\"$app\"}[5m]))",
+                    "expr": "sum(rate(opencensus_io_http_server_response_bytes_sum{app_kubernetes_io_instance=\"$app\"}[5m])) + sum(rate(grpc_io_server_sent_bytes_per_rpc_sum{app_kubernetes_io_instance=\"$app\"}[5m]))",
                     "format": "time_series",
                     "intervalFactor": 1,
                     "legendFormat": "Response",
@@ -680,6 +537,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "Request and Response BW",
             "tooltip": {
@@ -717,6 +575,66 @@
                 "align": true,
                 "alignLevel": null
             }
+        },
+        {
+            "cards": {
+                "cardPadding": null,
+                "cardRound": null
+            },
+            "color": {
+                "cardColor": "#b4ff00",
+                "colorScale": "sqrt",
+                "colorScheme": "interpolateOranges",
+                "exponent": 0.5,
+                "mode": "spectrum"
+            },
+            "dataFormat": "tsbuckets",
+            "datasource": "Prometheus",
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 27
+            },
+            "heatmap": {},
+            "highlightCards": true,
+            "id": 24,
+            "legend": {
+                "show": true
+            },
+            "links": [],
+            "targets": [
+                {
+                    "expr": "sum(increase(opencensus_io_http_server_latency_bucket{app_kubernetes_io_instance=\"$app\"}[10m])) by (le) + sum(increase(opencensus_io_http_server_latency_bucket{app_kubernetes_io_instance=\"$app\"}[10m])) by (le)",
+                    "format": "heatmap",
+                    "intervalFactor": 1,
+                    "legendFormat": "",
+                    "refId": "A"
+                }
+            ],
+            "title": "Latency Heatmap",
+            "tooltip": {
+                "show": true,
+                "showHistogram": true
+            },
+            "type": "heatmap",
+            "xAxis": {
+                "show": true
+            },
+            "xBucketNumber": null,
+            "xBucketSize": null,
+            "yAxis": {
+                "decimals": null,
+                "format": "none",
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true,
+                "splitFactor": null
+            },
+            "yBucketBound": "upper",
+            "yBucketNumber": null,
+            "yBucketSize": null
         }
     ],
     "refresh": false,
@@ -728,10 +646,12 @@
             {
                 "allValue": null,
                 "current": {
-                    "text": "modern-go-application-test10",
-                    "value": "modern-go-application-test10"
+                    "isNone": true,
+                    "text": "None",
+                    "value": ""
                 },
                 "datasource": "Prometheus",
+                "definition": "",
                 "hide": 0,
                 "includeAll": false,
                 "label": null,
@@ -781,7 +701,6 @@
         ]
     },
     "timezone": "",
-    "title": "Modern Go Application Dashboard",
-    "uid": "FPHI7T0mz",
+    "title": "Modern Go Application Aggregated Dashboard",
     "version": 1
 }
