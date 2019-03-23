@@ -22,5 +22,5 @@ RUN apk add --update --no-cache ca-certificates tzdata
 
 COPY --from=builder /build/build/release/app /app
 
-EXPOSE 8000 10000
-CMD ["/app", "--instrumentation.addr", ":10000", "--app.addr", ":8000"]
+EXPOSE 8000 8001 10000
+CMD ["/app", "--instrumentation.addr", ":10000", "--app.httpAddr", ":8000", "--app.grpcAddr", ":8001"]
