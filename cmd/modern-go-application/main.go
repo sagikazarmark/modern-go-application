@@ -25,8 +25,6 @@ import (
 	"go.opencensus.io/trace"
 	"google.golang.org/grpc"
 
-	"github.com/sagikazarmark/modern-go-application/internal/todo/tododriver"
-
 	"github.com/sagikazarmark/modern-go-application/internal"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/buildinfo"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
@@ -37,6 +35,7 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/platform/prometheus"
 	apptrace "github.com/sagikazarmark/modern-go-application/internal/platform/trace"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/watermill"
+	"github.com/sagikazarmark/modern-go-application/internal/todo/tododriver"
 )
 
 // nolint: gochecknoinits
