@@ -12,7 +12,7 @@
             }
         ]
     },
-    "description": "Aggregates the most important metrics of Modern Go Application.",
+    "description": "HTTP metrics of Modern Go Application.",
     "editable": true,
     "gnetId": null,
     "graphTooltip": 1,
