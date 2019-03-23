@@ -38,8 +38,12 @@ type Config struct {
 
 	// App configuration
 	App struct {
-		// App server address
-		Addr string
+		// HTTP server address
+		// nolint: golint
+		HttpAddr string
+
+		// GRPC server address
+		GrpcAddr string
 	}
 
 	// Database connection information
@@ -64,8 +68,12 @@ func (c Config) Validate() error {
 		return err
 	}
 
-	if c.App.Addr == "" {
-		return errors.New("app server address is required")
+	if c.App.HttpAddr == "" {
+		return errors.New("http app server address is required")
+	}
+
+	if c.App.GrpcAddr == "" {
+		return errors.New("grpc app server address is required")
 	}
 
 	if err := c.Database.Validate(); err != nil {
@@ -158,8 +166,11 @@ func Configure(v *viper.Viper, p *pflag.FlagSet) {
 	_ = v.BindEnv("instrumentation.jaeger.password")
 
 	// App configuration
-	p.String("app.addr", ":8000", "App HTTP server address")
-	v.SetDefault("app.addr", ":8000")
+	p.String("app.httpAddr", ":8000", "App HTTP server address")
+	v.SetDefault("app.httpAddr", ":8000")
+
+	p.String("app.grpcAddr", ":8001", "App GRPC server address")
+	v.SetDefault("app.grpcAddr", ":8001")
 
 	// Database configuration
 	_ = v.BindEnv("database.host")

@@ -23,7 +23,8 @@ agentEndpoint = "localhost:6831"
 # password = ""
 
 [app]
-addr = ":8000"
+httpAddr = ":8000"
+grpcAddr = ":8001"
 
 [database]
 host = "localhost"
