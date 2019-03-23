@@ -8,9 +8,8 @@ import (
 	"go.opencensus.io/trace"
 	"google.golang.org/grpc"
 
-	"github.com/sagikazarmark/modern-go-application/internal/todocli/command"
-
 	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1beta1"
+	"github.com/sagikazarmark/modern-go-application/internal/todocli/command"
 )
 
 // Configure configures a root command.
@@ -24,6 +23,7 @@ func Configure(rootCmd *cobra.Command) {
 	c := &context{}
 
 	var grpcConn *grpc.ClientConn
+	var jaegerExporter *jaeger.Exporter
 
 	rootCmd.PersistentPreRunE = func(_ *cobra.Command, _ []string) error {
 		conn, err := grpc.Dial(
@@ -50,6 +50,8 @@ func Configure(rootCmd *cobra.Command) {
 			return emperror.Wrap(err, "failed to create exporter")
 		}
 
+		jaegerExporter = exporter
+
 		trace.RegisterExporter(exporter)
 
 		grpcConn = conn
@@ -60,6 +62,8 @@ func Configure(rootCmd *cobra.Command) {
 	}
 
 	rootCmd.PersistentPostRunE = func(_ *cobra.Command, _ []string) error {
+		jaegerExporter.Flush()
+
 		return grpcConn.Close()
 	}
 
