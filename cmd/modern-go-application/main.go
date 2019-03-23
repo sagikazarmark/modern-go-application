@@ -241,6 +241,10 @@ func main() {
 		ochttp.ServerLatencyView,
 		ochttp.ServerRequestCountByMethod,
 		ochttp.ServerResponseCountByStatusCode,
+		ocgrpc.ServerReceivedBytesPerRPCView,
+		ocgrpc.ServerSentBytesPerRPCView,
+		ocgrpc.ServerLatencyView,
+		ocgrpc.ServerCompletedRPCsView,
 	)
 	emperror.Panic(errors.Wrap(err, "failed to register HTTP server stat views"))
 
