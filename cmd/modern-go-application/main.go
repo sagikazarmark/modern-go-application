@@ -25,6 +25,8 @@ import (
 	"go.opencensus.io/trace"
 	"google.golang.org/grpc"
 
+	"github.com/sagikazarmark/modern-go-application/internal/todo/tododriver"
+
 	"github.com/sagikazarmark/modern-go-application/internal"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/buildinfo"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
@@ -233,14 +235,25 @@ func main() {
 		group.Add(h.Run, func(e error) { _ = h.Close() })
 	}
 
-	// Register HTTP stat views
+	// Register stat views
 	err = view.Register(
+		// HTTP
 		ochttp.ServerRequestCountView,
 		ochttp.ServerRequestBytesView,
 		ochttp.ServerResponseBytesView,
 		ochttp.ServerLatencyView,
 		ochttp.ServerRequestCountByMethod,
 		ochttp.ServerResponseCountByStatusCode,
+
+		// GRPC
+		ocgrpc.ServerReceivedBytesPerRPCView,
+		ocgrpc.ServerSentBytesPerRPCView,
+		ocgrpc.ServerLatencyView,
+		ocgrpc.ServerCompletedRPCsView,
+
+		// Todo
+		tododriver.CreatedTodoCountView,
+		tododriver.DoneTodoCountView,
 	)
 	emperror.Panic(errors.Wrap(err, "failed to register HTTP server stat views"))
 

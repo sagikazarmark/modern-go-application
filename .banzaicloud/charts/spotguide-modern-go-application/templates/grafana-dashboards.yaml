@@ -12,5 +12,11 @@ metadata:
     app.kubernetes.io/part-of: {{ include "spotguide-modern-go-application.name" . }}
     pipeline_grafana_dashboard: "1"
 data:
-  application.json: |-2
-{{ .Files.Get "grafana-dashboards/application.json"| indent 8 }}
+  aggregated.json: |-2
+{{ .Files.Get "grafana-dashboards/aggregated.json"| indent 8 }}
+  http.json: |-2
+{{ .Files.Get "grafana-dashboards/http.json"| indent 8 }}
+  grpc.json: |-2
+{{ .Files.Get "grafana-dashboards/grpc.json"| indent 8 }}
+  business.json: |-2
+{{ .Files.Get "grafana-dashboards/business.json"| indent 8 }}

@@ -46,7 +46,7 @@ func NewApp(
 			"module": "todo",
 		})
 		todoList = tododriver.LoggingMiddleware(logger)(todoList)
-		todoList = tododriver.TracingMiddleware()(todoList)
+		todoList = tododriver.InstrumentationMiddleware()(todoList)
 	}
 
 	todoListEndpoint := tododriver.MakeEndpoints(todoList)
