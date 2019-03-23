@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"go.opencensus.io/stats"
+	"go.opencensus.io/stats/view"
 	"go.opencensus.io/trace"
 
 	"github.com/sagikazarmark/modern-go-application/internal/todo"
@@ -87,6 +89,28 @@ func TracingMiddleware() Middleware {
 	}
 }
 
+// Todo business metrics
+var (
+	CreatedTodoCount = stats.Int64("created_todo_count", "Number of TODOs created", stats.UnitDimensionless)
+	DoneTodoCount    = stats.Int64("done_todo_count", "Number of TODOs marked done", stats.UnitDimensionless)
+)
+
+var (
+	CreatedTodoCountView = &view.View{
+		Name:        "todo_created_count",
+		Description: "Count of TODOs created",
+		Measure:     CreatedTodoCount,
+		Aggregation: view.Count(),
+	}
+
+	DoneTodoCountView = &view.View{
+		Name:        "todo_done_count",
+		Description: "Count of TODOs done",
+		Measure:     DoneTodoCount,
+		Aggregation: view.Count(),
+	}
+)
+
 type tracingMiddleware struct {
 	next TodoList
 }
@@ -97,6 +121,8 @@ func (mw *tracingMiddleware) CreateTodo(ctx context.Context, text string) (strin
 	if span := trace.FromContext(ctx); span != nil {
 		span.AddAttributes(trace.StringAttribute("todo_id", id))
 	}
+
+	stats.Record(ctx, CreatedTodoCount.M(1))
 
 	return id, err
 }
@@ -109,6 +135,8 @@ func (mw *tracingMiddleware) MarkAsDone(ctx context.Context, id string) error {
 	if span := trace.FromContext(ctx); span != nil {
 		span.AddAttributes(trace.StringAttribute("todo_id", id))
 	}
+
+	stats.Record(ctx, DoneTodoCount.M(1))
 
 	return mw.next.MarkAsDone(ctx, id)
 }

@@ -15,6 +15,8 @@ data:
   aggregated.json: |-2
 {{ .Files.Get "grafana-dashboards/aggregated.json"| indent 8 }}
   http.json: |-2
-    {{ .Files.Get "grafana-dashboards/http.json"| indent 8 }}
+{{ .Files.Get "grafana-dashboards/http.json"| indent 8 }}
   grpc.json: |-2
-    {{ .Files.Get "grafana-dashboards/grpc.json"| indent 8 }}
+{{ .Files.Get "grafana-dashboards/grpc.json"| indent 8 }}
+  business.json: |-2
+{{ .Files.Get "grafana-dashboards/business.json"| indent 8 }}
