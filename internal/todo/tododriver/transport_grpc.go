@@ -21,6 +21,7 @@ type grpcServer struct {
 // MakeGRPCServer makes a set of endpoints available as a gRPC server.
 func MakeGRPCServer(endpoints Endpoints, errorHandler todo.ErrorHandler) todov1beta1.TodoListServer {
 	options := []grpctransport.ServerOption{
+		// TODO(#74): do not log business errors.
 		grpctransport.ServerFinalizer(func(ctx context.Context, err error) {
 			if err != nil {
 				errorHandler.Handle(err)
