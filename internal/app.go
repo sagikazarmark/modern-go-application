@@ -15,7 +15,7 @@ import (
 	"github.com/sagikazarmark/ocmux"
 	"google.golang.org/grpc"
 
-	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1alpha1"
+	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1beta1"
 	"github.com/sagikazarmark/modern-go-application/internal/landing/landingdriver"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/trace"
 	"github.com/sagikazarmark/modern-go-application/internal/todo"

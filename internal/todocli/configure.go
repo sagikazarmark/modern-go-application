@@ -10,7 +10,7 @@ import (
 
 	"github.com/sagikazarmark/modern-go-application/internal/todocli/command"
 
-	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1alpha1"
+	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1beta1"
 )
 
 // Configure configures a root command.
