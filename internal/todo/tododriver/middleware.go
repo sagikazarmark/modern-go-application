@@ -80,10 +80,10 @@ func (mw *loggingMiddleware) MarkAsDone(ctx context.Context, id string) error {
 	return mw.next.MarkAsDone(ctx, id)
 }
 
-// TracingMiddleware is a service level tracing middleware for TodoList.
-func TracingMiddleware() Middleware {
+// InstrumentationMiddleware is a service level tracing middleware for TodoList.
+func InstrumentationMiddleware() Middleware {
 	return func(next TodoList) TodoList {
-		return &tracingMiddleware{
+		return &instrumentationMiddleware{
 			next: next,
 		}
 	}
@@ -111,11 +111,11 @@ var (
 	}
 )
 
-type tracingMiddleware struct {
+type instrumentationMiddleware struct {
 	next TodoList
 }
 
-func (mw *tracingMiddleware) CreateTodo(ctx context.Context, text string) (string, error) {
+func (mw *instrumentationMiddleware) CreateTodo(ctx context.Context, text string) (string, error) {
 	id, err := mw.next.CreateTodo(ctx, text)
 
 	if span := trace.FromContext(ctx); span != nil {
@@ -127,11 +127,11 @@ func (mw *tracingMiddleware) CreateTodo(ctx context.Context, text string) (strin
 	return id, err
 }
 
-func (mw *tracingMiddleware) ListTodos(ctx context.Context) ([]todo.Todo, error) {
+func (mw *instrumentationMiddleware) ListTodos(ctx context.Context) ([]todo.Todo, error) {
 	return mw.next.ListTodos(ctx)
 }
 
-func (mw *tracingMiddleware) MarkAsDone(ctx context.Context, id string) error {
+func (mw *instrumentationMiddleware) MarkAsDone(ctx context.Context, id string) error {
 	if span := trace.FromContext(ctx); span != nil {
 		span.AddAttributes(trace.StringAttribute("todo_id", id))
 	}
