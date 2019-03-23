@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/go-kit/kit/endpoint"
-	kitoc "github.com/go-kit/kit/tracing/opencensus"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/goph/emperror"
 	"github.com/gorilla/mux"
@@ -19,11 +18,9 @@ import (
 )
 
 // MakeHTTPHandler mounts all of the service endpoints into an http.Handler.
-func MakeHTTPHandler(todoList TodoList, errorHandler todo.ErrorHandler) http.Handler {
+func MakeHTTPHandler(endpoints Endpoints, errorHandler todo.ErrorHandler) http.Handler {
 	r := mux.NewRouter().PathPrefix("/todos").Subrouter()
 	r.Use(ocmux.Middleware())
-
-	e := MakeEndpoints(todoList)
 
 	errorEncoder := httptransport.ServerErrorEncoder(func(ctx context.Context, err error, w http.ResponseWriter) {
 		// This replaces server error log
@@ -36,21 +33,21 @@ func MakeHTTPHandler(todoList TodoList, errorHandler todo.ErrorHandler) http.Han
 	})
 
 	r.Methods(http.MethodPost).Path("/").Handler(httptransport.NewServer(
-		kitoc.TraceEndpoint("todo.CreateTodo")(e.Create),
+		endpoints.Create,
 		decodeCreateTodoHTTPRequest,
 		encodeCreateTodoHTTPResponse,
 		errorEncoder,
 	))
 
 	r.Methods(http.MethodGet).Path("/").Handler(httptransport.NewServer(
-		kitoc.TraceEndpoint("todo.ListTodos")(e.List),
+		endpoints.List,
 		decodeListTodosHTTPRequest,
 		encodeListTodosHTTPResponse,
 		errorEncoder,
 	))
 
 	r.Methods(http.MethodPost).Path("/{id}/done").Handler(httptransport.NewServer(
-		kitoc.TraceEndpoint("todo.MarkAsDone")(e.MarkAsDone),
+		endpoints.MarkAsDone,
 		decodeMarkAsDoneHTTPRequest,
 		encodeMarkAsDoneHTTPResponse,
 		errorEncoder,

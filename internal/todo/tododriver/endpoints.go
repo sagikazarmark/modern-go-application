@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kit/kit/endpoint"
+	kitoc "github.com/go-kit/kit/tracing/opencensus"
 	"github.com/pkg/errors"
 
 	"github.com/sagikazarmark/modern-go-application/internal/todo"
@@ -51,9 +52,9 @@ type Endpoints struct {
 // the corresponding method on the provided service.
 func MakeEndpoints(t TodoList) Endpoints {
 	return Endpoints{
-		Create:     MakeCreateEndpoint(t),
-		List:       MakeListEndpoint(t),
-		MarkAsDone: MakeMarkAsDoneEndpoint(t),
+		Create:     kitoc.TraceEndpoint("todo.CreateTodo")(MakeCreateEndpoint(t)),
+		List:       kitoc.TraceEndpoint("todo.ListTodos")(MakeListEndpoint(t)),
+		MarkAsDone: kitoc.TraceEndpoint("todo.MarkAsDone")(MakeMarkAsDoneEndpoint(t)),
 	}
 }
 

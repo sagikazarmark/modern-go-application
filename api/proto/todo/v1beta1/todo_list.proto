@@ -10,7 +10,7 @@ option java_package = "com.todo.v1beta1";
 option objc_class_prefix = "TXX";
 option php_namespace = "Todo\\V1Beta1";
 
-import "api/proto/todo/v1alpha1/todo.proto";
+import "api/proto/todo/v1beta1/todo.proto";
 
 // TodoList manages a list of todos.
 service TodoList {

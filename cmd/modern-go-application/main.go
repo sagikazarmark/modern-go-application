@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 	"time"
 
@@ -250,36 +249,43 @@ func main() {
 		const name = "app"
 		logger := log.WithFields(logger, map[string]interface{}{"server": name})
 
-		grpcServer := grpc.NewServer(grpc.StatsHandler(&ocgrpc.ServerHandler{}))
+		grpcServer := grpc.NewServer(grpc.StatsHandler(&ocgrpc.ServerHandler{
+			StartOptions: trace.StartOptions{
+				Sampler:  trace.AlwaysSample(),
+				SpanKind: trace.SpanKindServer,
+			},
+		}))
+
 		httpHandler, grpcHandlers := internal.NewApp(logger, publisher, errorHandler)
 		httpHandler = &ochttp.Handler{
 			Handler: httpHandler,
+			StartOptions: trace.StartOptions{
+				Sampler:  trace.AlwaysSample(),
+				SpanKind: trace.SpanKindServer,
+			},
 		}
 		grpcHandlers(grpcServer)
 
-		logger.Info("listening on address", map[string]interface{}{"address": config.App.Addr})
-
-		ln, err := upg.Fds.Listen("tcp", config.App.Addr)
-		emperror.Panic(err)
-
-		server := &http.Server{
-			Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				// This is a partial recreation of gRPC's internal checks:
-				// https://github.com/grpc/grpc-go/blob/7346c871b018d255a1d89b3f814a645cc9c5e356/transport/handler_server.go#L61-L75
-				if r.ProtoMajor == 2 && strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
-					grpcServer.ServeHTTP(w, r)
-				} else {
-					httpHandler.ServeHTTP(w, r)
-				}
-			}),
+		httpServer := &http.Server{
+			Handler:  httpHandler,
 			ErrorLog: log.NewErrorStandardLogger(logger),
 		}
+
+		logger.Info("listening on address", map[string]interface{}{"address": config.App.HttpAddr})
+
+		httpLn, err := upg.Fds.Listen("tcp", config.App.HttpAddr)
+		emperror.Panic(err)
+
+		logger.Info("listening on address", map[string]interface{}{"address": config.App.GrpcAddr})
+
+		grpcLn, err := upg.Fds.Listen("tcp", config.App.GrpcAddr)
+		emperror.Panic(err)
 
 		group.Add(
 			func() error {
 				logger.Info("starting server")
 
-				return server.Serve(ln)
+				return httpServer.Serve(httpLn)
 			},
 			func(e error) {
 				logger.Info("shutting server down")
@@ -291,10 +297,24 @@ func main() {
 					defer cancel()
 				}
 
-				err := server.Shutdown(ctx)
+				err := httpServer.Shutdown(ctx)
 				emperror.Handle(errorHandler, emperror.With(err, "server", name))
 
-				_ = server.Close()
+				_ = httpServer.Close()
+			},
+		)
+
+		group.Add(
+			func() error {
+				logger.Info("starting server")
+
+				return grpcServer.Serve(grpcLn)
+			},
+			func(e error) {
+				logger.Info("shutting server down")
+
+				defer grpcServer.Stop()
+				grpcServer.GracefulStop()
 			},
 		)
 	}
