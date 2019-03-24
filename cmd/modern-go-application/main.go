@@ -74,12 +74,12 @@ func main() {
 	log.SetStandardLogger(logger)
 
 	if configFileNotFound {
-		logger.Warn("configuration file not found", nil)
+		logger.Warn("configuration file not found")
 	}
 
 	err = config.Validate()
 	if err != nil {
-		logger.Error(err.Error(), nil)
+		logger.Error(err.Error())
 
 		os.Exit(3)
 	}
@@ -107,7 +107,7 @@ func main() {
 
 	// Configure Prometheus
 	if config.Instrumentation.Prometheus.Enabled {
-		logger.Info("prometheus exporter enabled", nil)
+		logger.Info("prometheus exporter enabled")
 
 		exporter, err := prometheus.NewExporter(config.Instrumentation.Prometheus.Config, errorHandler)
 		emperror.Panic(err)
@@ -123,7 +123,7 @@ func main() {
 
 	// Configure Jaeger
 	if config.Instrumentation.Jaeger.Enabled {
-		logger.Info("jaeger exporter enabled", nil)
+		logger.Info("jaeger exporter enabled")
 
 		exporter, err := jaeger.NewExporter(config.Instrumentation.Jaeger.Config, errorHandler)
 		emperror.Panic(err)
@@ -139,7 +139,7 @@ func main() {
 		ch := make(chan os.Signal, 1)
 		signal.Notify(ch, syscall.SIGHUP)
 		for range ch {
-			logger.Info("graceful reloading", nil)
+			logger.Info("graceful reloading")
 
 			_ = upg.Upgrade()
 		}
@@ -190,7 +190,7 @@ func main() {
 	ocsql.RegisterAllViews()
 
 	// Connect to the database
-	logger.Info("connecting to database", nil)
+	logger.Info("connecting to database")
 	db, err := database.NewConnection(config.Database)
 	emperror.Panic(err)
 	defer db.Close()
