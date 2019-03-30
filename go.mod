@@ -8,7 +8,7 @@ require (
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/golang/protobuf v1.2.1-0.20190205222052-c823c79ea157
 	github.com/gomodule/redigo v2.0.0+incompatible
-	github.com/goph/emperror v0.16.0
+	github.com/goph/emperror v0.17.0
 	github.com/goph/idgen v0.3.0
 	github.com/goph/logur v0.11.0
 	github.com/goph/watermillx v0.2.0
@@ -19,8 +19,6 @@ require (
 	github.com/moogar0880/problems v0.0.0-20160529214634-33afcba6336a
 	github.com/oklog/run v1.0.0
 	github.com/olekukonko/tablewriter v0.0.1
-	github.com/onsi/ginkgo v1.7.0 // indirect
-	github.com/onsi/gomega v1.4.3 // indirect
 	github.com/opencensus-integrations/ocsql v0.1.3
 	github.com/pkg/errors v0.8.1
 	github.com/sagikazarmark/ocmux v0.1.0
