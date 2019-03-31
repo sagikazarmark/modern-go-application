@@ -17,10 +17,10 @@ import (
 
 	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1beta1"
 	"github.com/sagikazarmark/modern-go-application/internal/landing/landingdriver"
-	"github.com/sagikazarmark/modern-go-application/internal/platform/trace"
 	"github.com/sagikazarmark/modern-go-application/internal/todo"
 	"github.com/sagikazarmark/modern-go-application/internal/todo/todoadapter"
 	"github.com/sagikazarmark/modern-go-application/internal/todo/tododriver"
+	"github.com/sagikazarmark/modern-go-application/pkg/correlation"
 )
 
 const todoTopic = "todo"
@@ -42,9 +42,10 @@ func NewApp(
 				watermillx.NewStructNameMarshaler(cqrs.JSONMarshaler{}),
 			)),
 		)
-		logger := todoadapter.NewContextAwareLogger(logger, &trace.ContextExtractor{}).WithFields(map[string]interface{}{
-			"module": "todo",
-		})
+		logger := todoadapter.NewContextAwareLogger(logger, &correlation.ContextExtractor{}).
+			WithFields(map[string]interface{}{
+				"module": "todo",
+			})
 		todoList = tododriver.LoggingMiddleware(logger)(todoList)
 		todoList = tododriver.InstrumentationMiddleware()(todoList)
 	}
@@ -53,7 +54,7 @@ func NewApp(
 
 	router := mux.NewRouter()
 	router.Use(ocmux.Middleware())
-	router.Use(trace.HTTPCorrelationIDMiddleware(ulidgen.NewGenerator()))
+	router.Use(correlation.HTTPMiddleware(ulidgen.NewGenerator()))
 
 	router.Path("/").Methods("GET").Handler(landingdriver.NewHTTPHandler())
 	router.PathPrefix("/todos").Handler(tododriver.MakeHTTPHandler(todoListEndpoint, errorHandler))
@@ -84,7 +85,7 @@ func NewApp(
 
 // RegisterEventHandlers registers event handlers in a message router.
 func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber, logger logur.Logger) error {
-	todoLogger := todoadapter.NewContextAwareLogger(logger, &trace.ContextExtractor{})
+	todoLogger := todoadapter.NewContextAwareLogger(logger, &correlation.ContextExtractor{})
 	todoEventProcessor := cqrs.NewEventProcessor(
 		[]cqrs.EventHandler{
 			tododriver.NewMarkedAsDoneEventHandler(todo.NewLogEventHandler(todoLogger)),

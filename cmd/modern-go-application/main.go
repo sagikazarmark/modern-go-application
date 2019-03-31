@@ -33,9 +33,9 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/platform/jaeger"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/prometheus"
-	apptrace "github.com/sagikazarmark/modern-go-application/internal/platform/trace"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/watermill"
 	"github.com/sagikazarmark/modern-go-application/internal/todo/tododriver"
+	"github.com/sagikazarmark/modern-go-application/pkg/correlation"
 )
 
 // nolint: gochecknoinits
@@ -217,11 +217,11 @@ func main() {
 	defer pubsub.Close()
 
 	publisher, _ := watermillx.CorrelationIDPublisherDecorator(
-		watermillx.ContextCorrelationIDExtractorFunc(apptrace.CorrelationID),
+		watermillx.ContextCorrelationIDExtractorFunc(correlation.ID),
 	)(pubsub)
 
 	subscriber, _ := watermillx.CorrelationIDSubscriberDecorator(
-		watermillx.ContextCorrelationIDInserterFunc(apptrace.WithCorrelationID),
+		watermillx.ContextCorrelationIDInserterFunc(correlation.WithID),
 	)(pubsub)
 
 	{
