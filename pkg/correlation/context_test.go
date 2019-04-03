@@ -1,4 +1,4 @@
-package trace
+package correlation
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 )
 
 func TestContextExtractor_Extract(t *testing.T) {
-	ctx := WithCorrelationID(context.Background(), "id")
+	ctx := WithID(context.Background(), "id")
 
 	extractor := &ContextExtractor{}
 

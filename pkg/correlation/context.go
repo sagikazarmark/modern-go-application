@@ -1,4 +1,4 @@
-package trace
+package correlation
 
 import (
 	"context"
@@ -17,7 +17,7 @@ type ContextExtractor struct{}
 func (*ContextExtractor) Extract(ctx context.Context) map[string]interface{} {
 	fields := make(map[string]interface{})
 
-	if correlationID, ok := CorrelationID(ctx); ok {
+	if correlationID, ok := ID(ctx); ok {
 		fields["correlation_id"] = correlationID
 	}
 

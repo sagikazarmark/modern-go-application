@@ -1,4 +1,4 @@
-package trace
+package correlation
 
 import (
 	"net/http"
@@ -13,8 +13,8 @@ type IDGenerator interface {
 	Generate() (string, error)
 }
 
-// HTTPCorrelationIDMiddleware attaches a correlation ID to the request.
-func HTTPCorrelationIDMiddleware(idgenerator IDGenerator) mux.MiddlewareFunc {
+// HTTPMiddleware attaches a correlation ID to the request.
+func HTTPMiddleware(idgenerator IDGenerator) mux.MiddlewareFunc {
 	idgen := idgen.NewGenerator(idgenerator)
 
 	return func(next http.Handler) http.Handler {
@@ -27,7 +27,7 @@ func HTTPCorrelationIDMiddleware(idgenerator IDGenerator) mux.MiddlewareFunc {
 				id = idgen.Generate()
 			}
 
-			req = req.WithContext(WithCorrelationID(req.Context(), id))
+			req = req.WithContext(WithID(req.Context(), id))
 
 			next.ServeHTTP(w, req)
 		})

@@ -1,4 +1,4 @@
-package trace
+package correlation
 
 import (
 	"net/http"
@@ -11,13 +11,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestHTTPCorrelationIDMiddleware(t *testing.T) {
+func TestHTTPMiddleware(t *testing.T) {
 	router := mux.NewRouter()
 
-	router.Use(HTTPCorrelationIDMiddleware(nil))
+	router.Use(HTTPMiddleware(nil))
 
 	router.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		id, ok := CorrelationID(r.Context())
+		id, ok := ID(r.Context())
 		require.True(t, ok)
 		assert.Equal(t, "id", id)
 	}))
@@ -29,13 +29,13 @@ func TestHTTPCorrelationIDMiddleware(t *testing.T) {
 	router.ServeHTTP(rec, req)
 }
 
-func TestHTTPCorrelationIDMiddleware_Generate(t *testing.T) {
+func TestHTTPMiddleware_Generate(t *testing.T) {
 	router := mux.NewRouter()
 
-	router.Use(HTTPCorrelationIDMiddleware(idgen.NewConstantGenerator("id")))
+	router.Use(HTTPMiddleware(idgen.NewConstantGenerator("id")))
 
 	router.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		id, ok := CorrelationID(r.Context())
+		id, ok := ID(r.Context())
 		require.True(t, ok)
 		assert.Equal(t, "id", id)
 	}))

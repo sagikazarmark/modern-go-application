@@ -1,4 +1,4 @@
-package trace
+package correlation
 
 import (
 	"context"
@@ -8,16 +8,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestWithCorrelationID(t *testing.T) {
-	ctx := WithCorrelationID(context.Background(), "id")
+func TestWithID(t *testing.T) {
+	ctx := WithID(context.Background(), "id")
 
 	assert.Equal(t, "id", ctx.Value(correlationID))
 }
 
-func TestCorrelationID(t *testing.T) {
+func TestID(t *testing.T) {
 	ctx := context.WithValue(context.Background(), correlationID, "id")
 
-	id, ok := CorrelationID(ctx)
+	id, ok := ID(ctx)
 	require.True(t, ok)
 	assert.Equal(t, "id", id)
 }
