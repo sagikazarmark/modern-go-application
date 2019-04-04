@@ -1,24 +1,25 @@
-defaults: &defaults
+version: 2.1
+
+executors:
     docker:
-        -   image: circleci/golang:1.12
-            environment:
-                GOFLAGS: -mod=readonly
+        docker:
+            -   image: circleci/golang:1.12
+                environment:
+                    GOFLAGS: -mod=readonly
 
-version: 2
-
-jobs:
-    deps:
-        <<: *defaults
-
+commands:
+    restore_build_cache:
+        description: Restore build cache
         steps:
-            - checkout
-
             -
                 restore_cache:
                     name: Restore build dependencies
                     keys:
                         - build-deps-v1-{{ .Branch }}-{{ checksum "Makefile" }}
 
+    restore_go_module_cache:
+        description: Restore Go module cache
+        steps:
             -
                 restore_cache:
                     name: Restore Go module cache
@@ -27,6 +28,24 @@ jobs:
                         - gomod-v1-{{ .Branch }}
                         - gomod-v1-master
                         - gomod-v1
+
+    save_build_cache:
+        description: Save build cache
+        steps:
+            -
+                save_cache:
+                    name: Save build dependencies
+                    key: build-deps-v1-{{ .Branch }}-{{ checksum "Makefile" }}
+                    paths:
+                        - bin/
+
+jobs:
+    deps:
+        executor: docker
+
+        steps:
+            - checkout
+            - restore_go_module_cache
 
             -
                 run:
@@ -40,50 +59,13 @@ jobs:
                     paths:
                         - /go/pkg/mod
 
-            -
-                run:
-                    name: Run tests
-                    command: TEST_PKGS=$(echo `go list ./... | circleci tests split`) TEST_REPORT_NAME=results_${CIRCLE_NODE_INDEX}.xml make test
-
-            -
-                run:
-                    name: Run integration tests
-                    command: TEST_PKGS=$(echo `go list ./... | circleci tests split`) TEST_REPORT_NAME=results_${CIRCLE_NODE_INDEX}.xml make test-integration
-
-            -
-                run:
-                    name: Run linter
-                    command: make lint
-
-            -
-                save_cache:
-                    name: Save build dependencies
-                    key: build-deps-v1-{{ .Branch }}-{{ checksum "Makefile" }}
-                    paths:
-                        - bin/
-
-            -
-                store_test_results:
-                    path: build/test_results/
-
     test:
+        executor: docker
+
         steps:
             - checkout
-
-            -
-                restore_cache:
-                    name: Restore build dependencies
-                    keys:
-                        - build-deps-v1-{{ .Branch }}-{{ checksum "Makefile" }}
-
-            -
-                restore_cache:
-                    name: Restore Go module cache
-                    keys:
-                        - gomod-v1-{{ .Branch }}-{{ checksum "go.sum" }}
-                        - gomod-v1-{{ .Branch }}
-                        - gomod-v1-master
-                        - gomod-v1
+            - restore_build_cache
+            - restore_go_module_cache
 
             -
                 run:
@@ -100,82 +82,45 @@ jobs:
                     name: Run linter
                     command: make lint
 
-            -
-                save_cache:
-                    name: Save build dependencies
-                    key: build-deps-v1-{{ .Branch }}-{{ checksum "Makefile" }}
-                    paths:
-                        - bin/
+            - save_build_cache
 
             -
                 store_test_results:
                     path: build/test_results/
 
     test-integration:
+        executor: docker
+
         steps:
             - checkout
-
-            -
-                restore_cache:
-                    name: Restore build dependencies
-                    keys:
-                        - build-deps-v1-{{ .Branch }}-{{ checksum "Makefile" }}
-
-            -
-                restore_cache:
-                    name: Restore Go module cache
-                    keys:
-                        - gomod-v1-{{ .Branch }}-{{ checksum "go.sum" }}
-                        - gomod-v1-{{ .Branch }}
-                        - gomod-v1-master
-                        - gomod-v1
+            - restore_build_cache
+            - restore_go_module_cache
 
             -
                 run:
                     name: Run integration tests
                     command: TEST_PKGS=$(echo `go list ./... | circleci tests split`) TEST_REPORT_NAME=results_${CIRCLE_NODE_INDEX}.xml make test-integration
 
-            -
-                save_cache:
-                    name: Save build dependencies
-                    key: build-deps-v1-{{ .Branch }}-{{ checksum "Makefile" }}
-                    paths:
-                        - bin/
+            - save_build_cache
 
             -
                 store_test_results:
                     path: build/test_results/
 
     lint:
+        executor: docker
+
         steps:
             - checkout
-
-            -
-                restore_cache:
-                    name: Restore build dependencies
-                    keys:
-                        - build-deps-v1-{{ .Branch }}-{{ checksum "Makefile" }}
-
-            -
-                restore_cache:
-                    name: Restore Go module cache
-                    keys:
-                        - gomod-v1-{{ .Branch }}-{{ checksum "go.sum" }}
-                        - gomod-v1-{{ .Branch }}
-                        - gomod-v1-master
-                        - gomod-v1
+            - restore_build_cache
+            - restore_go_module_cache
 
             -
                 run:
                     name: Run linter
                     command: make lint
 
-            -
-                save_cache:
-                    name: Save build dependencies
-                    key: build-deps-v1-{{ .Branch }}-{{ checksum "Makefile" }}
-                    paths:
-                        - bin/
+            - save_build_cache
 
 workflows:
     version: 2
