@@ -1,12 +1,14 @@
+defaults: &defaults
+    docker:
+        -   image: circleci/golang:1.12
+            environment:
+                GOFLAGS: -mod=readonly
+
 version: 2
 
 jobs:
-    build:
-        docker:
-            -
-                image: circleci/golang:1.12
-                environment:
-                    GOFLAGS: -mod=readonly
+    deps:
+        <<: *defaults
 
         steps:
             - checkout
@@ -63,3 +65,129 @@ jobs:
             -
                 store_test_results:
                     path: build/test_results/
+
+    test:
+        steps:
+            - checkout
+
+            -
+                restore_cache:
+                    name: Restore build dependencies
+                    keys:
+                        - build-deps-v1-{{ .Branch }}-{{ checksum "Makefile" }}
+
+            -
+                restore_cache:
+                    name: Restore Go module cache
+                    keys:
+                        - gomod-v1-{{ .Branch }}-{{ checksum "go.sum" }}
+                        - gomod-v1-{{ .Branch }}
+                        - gomod-v1-master
+                        - gomod-v1
+
+            -
+                run:
+                    name: Run tests
+                    command: TEST_PKGS=$(echo `go list ./... | circleci tests split`) TEST_REPORT_NAME=results_${CIRCLE_NODE_INDEX}.xml make test
+
+            -
+                run:
+                    name: Run integration tests
+                    command: TEST_PKGS=$(echo `go list ./... | circleci tests split`) TEST_REPORT_NAME=results_${CIRCLE_NODE_INDEX}.xml make test-integration
+
+            -
+                run:
+                    name: Run linter
+                    command: make lint
+
+            -
+                save_cache:
+                    name: Save build dependencies
+                    key: build-deps-v1-{{ .Branch }}-{{ checksum "Makefile" }}
+                    paths:
+                        - bin/
+
+            -
+                store_test_results:
+                    path: build/test_results/
+
+    test-integration:
+        steps:
+            - checkout
+
+            -
+                restore_cache:
+                    name: Restore build dependencies
+                    keys:
+                        - build-deps-v1-{{ .Branch }}-{{ checksum "Makefile" }}
+
+            -
+                restore_cache:
+                    name: Restore Go module cache
+                    keys:
+                        - gomod-v1-{{ .Branch }}-{{ checksum "go.sum" }}
+                        - gomod-v1-{{ .Branch }}
+                        - gomod-v1-master
+                        - gomod-v1
+
+            -
+                run:
+                    name: Run integration tests
+                    command: TEST_PKGS=$(echo `go list ./... | circleci tests split`) TEST_REPORT_NAME=results_${CIRCLE_NODE_INDEX}.xml make test-integration
+
+            -
+                save_cache:
+                    name: Save build dependencies
+                    key: build-deps-v1-{{ .Branch }}-{{ checksum "Makefile" }}
+                    paths:
+                        - bin/
+
+            -
+                store_test_results:
+                    path: build/test_results/
+
+    lint:
+        steps:
+            - checkout
+
+            -
+                restore_cache:
+                    name: Restore build dependencies
+                    keys:
+                        - build-deps-v1-{{ .Branch }}-{{ checksum "Makefile" }}
+
+            -
+                restore_cache:
+                    name: Restore Go module cache
+                    keys:
+                        - gomod-v1-{{ .Branch }}-{{ checksum "go.sum" }}
+                        - gomod-v1-{{ .Branch }}
+                        - gomod-v1-master
+                        - gomod-v1
+
+            -
+                run:
+                    name: Run linter
+                    command: make lint
+
+            -
+                save_cache:
+                    name: Save build dependencies
+                    key: build-deps-v1-{{ .Branch }}-{{ checksum "Makefile" }}
+                    paths:
+                        - bin/
+
+workflows:
+    version: 2
+    build:
+        jobs:
+            - deps
+            - test:
+                  requires:
+                      - deps
+            - test-integration:
+                  requires:
+                      - deps
+            - lint:
+                  requires:
+                      - deps
