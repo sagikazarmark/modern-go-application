@@ -131,7 +131,6 @@ func Configure(v *viper.Viper, p *pflag.FlagSet) {
 		_, _ = fmt.Fprintf(os.Stderr, "Usage of %s:\n", FriendlyServiceName)
 		pflag.PrintDefaults()
 	}
-	_ = v.BindPFlags(p)
 
 	v.SetEnvPrefix(EnvPrefix)
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
@@ -189,4 +188,6 @@ func Configure(v *viper.Viper, p *pflag.FlagSet) {
 
 	// Watermill configuration
 	v.RegisterAlias("watermill.routerConfig.closeTimeout", "shutdownTimeout")
+
+	_ = v.BindPFlags(p)
 }
