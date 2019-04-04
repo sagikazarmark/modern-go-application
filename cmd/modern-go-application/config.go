@@ -189,5 +189,6 @@ func Configure(v *viper.Viper, p *pflag.FlagSet) {
 	// Watermill configuration
 	v.RegisterAlias("watermill.routerConfig.closeTimeout", "shutdownTimeout")
 
+	// Bind flags to Viper
 	_ = v.BindPFlags(p)
 }
