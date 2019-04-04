@@ -91,8 +91,10 @@ release:
     script:
         - docker build --build-arg BUILD_DIR=build/release --build-arg BINARY_NAME=$(make var-BINARY_NAME) -t ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME} -f Dockerfile.local .
         - docker build --build-arg BUILD_DIR=build/debug --build-arg BINARY_NAME=$(make var-BINARY_NAME) -t ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug -f Dockerfile.debug .
-        - docker push ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}
-        - docker push ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug
+        - if [[ "${CI_COMMIT_REF_NAME}" == "${CI_COMMIT_TAG}" ]]; then docker tag ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME} ${DOCKER_IMAGE}:latest; fi
+        - if [[ "${CI_COMMIT_REF_NAME}" == "${CI_COMMIT_TAG}" ]]; then docker tag ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug ${DOCKER_IMAGE}:latest-debug; fi
+        - docker push ${DOCKER_IMAGE}
+        - docker push ${DOCKER_IMAGE}
 
 docker:snapshot:
     <<: *docker_definition
@@ -107,12 +109,3 @@ docker:release:
         - release
     only:
         - tags
-    script:
-        - docker build --build-arg BUILD_DIR=build/release --build-arg BINARY_NAME=$(make var-BINARY_NAME) -t ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME} -f Dockerfile.local .
-        - docker build --build-arg BUILD_DIR=build/debug --build-arg BINARY_NAME=$(make var-BINARY_NAME) -t ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug -f Dockerfile.debug .
-        - docker push ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}
-        - docker push ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug
-        - docker tag ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME} ${DOCKER_IMAGE}:latest
-        - docker tag ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug ${DOCKER_IMAGE}:latest-debug
-        - docker push ${DOCKER_IMAGE}:latest
-        - docker push ${DOCKER_IMAGE}:latest-debug
