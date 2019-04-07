@@ -22,6 +22,7 @@
 /.idea/*
 !/.idea/codeStyles/
 !/.idea/copyright/
+!/.idea/dataSources.xml
 !/.idea/*.iml
 !/.idea/externalDependencies.xml
 !/.idea/go.imports.xml
