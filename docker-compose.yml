@@ -9,14 +9,14 @@ services:
             MYSQL_DATABASE: app
 
     redis:
-        image: redis:4.0
+        image: redis:5.0
 
     dockerhost:
         image: qoomon/docker-host:2.1.0
         cap_add: [ 'NET_ADMIN', 'NET_RAW' ]
 
     prometheus:
-        image: prom/prometheus:v2.6.1
+        image: prom/prometheus:v2.8.1
         volumes:
             - ./etc/prometheus/:/etc/prometheus/
         command:
@@ -28,13 +28,15 @@ services:
             - '--web.enable-lifecycle'
 
     grafana:
-        image: grafana/grafana:6.0.2
+        image: grafana/grafana:6.1.2
         depends_on:
             - prometheus
         environment:
             GF_USERS_ALLOW_SIGN_UP: "false"
+            GF_AUTH_ANONYMOUS_ENABLED: "true"
+            GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
         volumes:
             - ./etc/grafana/provisioning:/etc/grafana/provisioning
 
     jaeger:
-        image: jaegertracing/all-in-one:latest
+        image: jaegertracing/all-in-one:1.11
