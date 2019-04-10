@@ -1,6 +1,4 @@
-ARG GO_VERSION=1.12
-
-FROM golang:${GO_VERSION}-alpine AS builder
+FROM golang:1.12.3-alpine AS builder
 
 ENV GOFLAGS="-mod=readonly"
 
@@ -16,9 +14,9 @@ COPY . /build
 RUN BINARY_NAME=app make build-release
 
 
-FROM alpine:3.9
+FROM alpine:3.9.3
 
-RUN apk add --update --no-cache ca-certificates tzdata
+RUN apk add --update --no-cache ca-certificates tzdata bash curl
 
 COPY --from=builder /build/build/release/app /app
 

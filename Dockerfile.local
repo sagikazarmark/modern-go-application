@@ -1,6 +1,6 @@
-FROM alpine:3.9
+FROM alpine:3.9.3
 
-RUN apk add --update --no-cache ca-certificates tzdata
+RUN apk add --update --no-cache ca-certificates bash curl tzdata
 
 ARG BUILD_DIR
 ARG BINARY_NAME
