@@ -109,7 +109,7 @@ endif
 
 .PHONY: docker-debug
 docker-debug: ## Build a Docker image with remote debugging capabilities
-	docker build --build-arg build_target=debug -t ${DOCKER_IMAGE}:${DOCKER_TAG}-debug .
+	docker build --build-arg BUILD_TARGET=debug -t ${DOCKER_IMAGE}:${DOCKER_TAG}-debug .
 ifeq (${DOCKER_LATEST}, 1)
 	docker tag ${DOCKER_IMAGE}:${DOCKER_TAG}-debug ${DOCKER_IMAGE}:latest-debug
 endif

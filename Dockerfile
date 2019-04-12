@@ -8,12 +8,24 @@ RUN apk add --update --no-cache ca-certificates make git curl mercurial bzr
 RUN mkdir -p /workspace
 WORKDIR /workspace
 
+ARG GOPROXY
+
 COPY go.* /workspace/
 RUN go mod download
 
 COPY . /workspace
 
-RUN BINARY_NAME=app make build-release
+ARG BUILD_TARGET
+
+RUN set -xe && \
+    if [[ "${BUILD_TARGET}" == "debug" ]]; then \
+        cd /tmp; GOBIN=/workspace/build/debug go get github.com/go-delve/delve/cmd/dlv; cd -; \
+        make build-debug; \
+        mv build/debug /build; \
+    else \
+        make build-release; \
+        mv build/release /build; \
+    fi
 
 
 # Final image
@@ -21,7 +33,11 @@ FROM alpine:3.9.3
 
 RUN apk add --update --no-cache ca-certificates tzdata bash curl
 
-COPY --from=builder /workspace/build/${build_target}/app /usr/local/bin
+ARG BUILD_TARGET
+
+RUN if [[ "${BUILD_TARGET}" == "debug" ]]; then apk add --update --no-cache libc6-compat; fi
+
+COPY --from=builder /build/* /usr/local/bin/
 
 EXPOSE 8000 8001 10000
-CMD ["app", "--instrumentation.addr", ":10000", "--app.httpAddr", ":8000", "--app.grpcAddr", ":8001"]
+CMD ["modern-go-application", "--instrumentation.addr", ":10000", "--app.httpAddr", ":8000", "--app.grpcAddr", ":8001"]
