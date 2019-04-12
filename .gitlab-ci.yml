@@ -89,11 +89,10 @@ release:
         - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
         - apk add --update --no-cache ca-certificates make
     script:
-        - docker build --build-arg BUILD_DIR=build/release --build-arg BINARY_NAME=$(make var-BINARY_NAME) -t ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME} -f Dockerfile.local .
-        - docker build --build-arg BUILD_DIR=build/debug --build-arg BINARY_NAME=$(make var-BINARY_NAME) -t ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug -f Dockerfile.debug .
+        - docker build -t ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME} .
         - if [[ "${CI_COMMIT_REF_NAME}" == "${CI_COMMIT_TAG}" ]]; then docker tag ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME} ${DOCKER_IMAGE}:latest; fi
+        - docker build -t ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug --build-arg BUILD_TARGET=debug  .
         - if [[ "${CI_COMMIT_REF_NAME}" == "${CI_COMMIT_TAG}" ]]; then docker tag ${DOCKER_IMAGE}:${CI_COMMIT_REF_NAME}-debug ${DOCKER_IMAGE}:latest-debug; fi
-        - docker push ${DOCKER_IMAGE}
         - docker push ${DOCKER_IMAGE}
 
 docker:snapshot:
