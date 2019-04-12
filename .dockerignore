@@ -3,7 +3,6 @@
 !.git/
 !.gen/
 !*.go
-!build/
 !cmd/
 !go.*
 !internal/
