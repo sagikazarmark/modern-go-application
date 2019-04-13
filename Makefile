@@ -3,8 +3,6 @@
 OS = $(shell uname)
 
 # Project variables
-BUILD_PACKAGE ?= ./cmd/modern-go-application
-BINARY_NAME ?= modern-go-application
 DOCKER_IMAGE = sagikazarmark/modern-go-application
 OPENAPI_DESCRIPTOR_DIR = api/openapi
 
@@ -69,10 +67,13 @@ stop: ## Stop docker development environment
 config.toml:
 	sed 's/production/development/g; s/debug = false/debug = true/g; s/shutdownTimeout = "15s"/shutdownTimeout = "0s"/g; s/format = "json"/format = "logfmt"/g; s/level = "info"/level = "debug"/g; s/addr = ":10000"/addr = "127.0.0.1:10000"/g; s/httpAddr = ":8000"/httpAddr = "127.0.0.1:8000"/g; s/grpcAddr = ":8001"/grpcAddr = "127.0.0.1:8001"/g' config.toml.dist > config.toml
 
+.PHONY: run-%
+run-%: GOTAGS += dev
+run-%: build-%
+	${BUILD_DIR}/$*
+
 .PHONY: run
-run: GOTAGS += dev
-run: build ## Build and execute a binary
-	${BUILD_DIR}/${BINARY_NAME} ${ARGS}
+run: $(patsubst cmd/%,run-%,$(wildcard cmd/*)) ## Build and execute a binary
 
 .PHONY: clean
 clean: ## Clean builds
@@ -92,9 +93,8 @@ endif
 
 	go build ${GOARGS} -tags "${GOTAGS}" -ldflags "${LDFLAGS}" -o ${BUILD_DIR}/$* ./cmd/$*
 
-builds := $(patsubst cmd/%,build-%,$(wildcard cmd/*))
 .PHONY: build
-build: $(builds) ## Build all binaries
+build: $(patsubst cmd/%,build-%,$(wildcard cmd/*)) ## Build all binaries
 
 .PHONY: build-release
 build-release: ## Build all binaries without debug information
