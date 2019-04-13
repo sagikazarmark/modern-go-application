@@ -1,6 +1,7 @@
 module github.com/sagikazarmark/modern-go-application
 
 require (
+	github.com/99designs/gqlgen v0.8.3
 	github.com/InVisionApp/go-health v2.1.0+incompatible
 	github.com/ThreeDotsLabs/watermill v0.3.0
 	github.com/cloudflare/tableflip v0.0.0-20190111135955-d1e14f24db7d
@@ -27,6 +28,7 @@ require (
 	github.com/spf13/pflag v1.0.3
 	github.com/spf13/viper v1.3.1
 	github.com/stretchr/testify v1.3.0
+	github.com/vektah/gqlparser v1.1.2
 	go.opencensus.io v0.19.1
 	golang.org/x/net v0.0.0-20190206173232-65e2d4e15006 // indirect
 	google.golang.org/grpc v1.19.0
