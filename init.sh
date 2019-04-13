@@ -120,6 +120,12 @@ for file in "${files[@]}"; do
         replace "s|${originalProjectName}|${projectName}|" ${file}
     fi
 done
+declare -a files=("Dockerfile")
+for file in "${files[@]}"; do
+    if [[ -f "${file}" ]]; then
+        replace "s|${originalBinaryName}|${binaryName}|" ${file}
+    fi
+done
 
 # Update source code
 find internal -type f | while read file; do replace "s|${originalPackageName}|${packageName}|" "$file"; done
