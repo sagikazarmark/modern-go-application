@@ -105,7 +105,7 @@ replace "s|${originalServiceName}|${serviceName}|; s|${originalFriendlyServiceNa
 find ${DEST}/cmd -type f | while read file; do replace "s|${originalPackageName}|${packageName}|" "$file"; done
 
 # Makefile
-replace "s|^BUILD_PACKAGE \??= .*|BUILD_PACKAGE = ./cmd/${binaryName}|; s|^BINARY_NAME \?= .*|BINARY_NAME \?= ${binaryName}|; s|^DOCKER_IMAGE = .*|DOCKER_IMAGE = ${packageName#'github.com/'}|" Makefile
+replace "s|^DOCKER_IMAGE = .*|DOCKER_IMAGE = ${packageName#'github.com/'}|" Makefile
 
 # Other project files
 declare -a files=("CHANGELOG.md" "prototool.yaml", "go.mod", ".golangci.yml")
@@ -118,6 +118,12 @@ declare -a files=("prototool.yaml")
 for file in "${files[@]}"; do
     if [[ -f "${file}" ]]; then
         replace "s|${originalProjectName}|${projectName}|" ${file}
+    fi
+done
+declare -a files=("Dockerfile")
+for file in "${files[@]}"; do
+    if [[ -f "${file}" ]]; then
+        replace "s|${originalBinaryName}|${binaryName}|" ${file}
     fi
 done
 

@@ -3,8 +3,6 @@
 OS = $(shell uname)
 
 # Project variables
-BUILD_PACKAGE ?= ./cmd/modern-go-application
-BINARY_NAME ?= modern-go-application
 DOCKER_IMAGE = sagikazarmark/modern-go-application
 OPENAPI_DESCRIPTOR_DIR = api/openapi
 
@@ -69,50 +67,53 @@ stop: ## Stop docker development environment
 config.toml:
 	sed 's/production/development/g; s/debug = false/debug = true/g; s/shutdownTimeout = "15s"/shutdownTimeout = "0s"/g; s/format = "json"/format = "logfmt"/g; s/level = "info"/level = "debug"/g; s/addr = ":10000"/addr = "127.0.0.1:10000"/g; s/httpAddr = ":8000"/httpAddr = "127.0.0.1:8000"/g; s/grpcAddr = ":8001"/grpcAddr = "127.0.0.1:8001"/g' config.toml.dist > config.toml
 
+.PHONY: run-%
+run-%: GOTAGS += dev
+run-%: build-%
+	${BUILD_DIR}/$*
+
 .PHONY: run
-run: GOTAGS += dev
-run: build ## Build and execute a binary
-	${BUILD_DIR}/${BINARY_NAME} ${ARGS}
+run: $(patsubst cmd/%,run-%,$(wildcard cmd/*)) ## Build and execute a binary
 
 .PHONY: clean
 clean: ## Clean builds
 	rm -rf ${BUILD_DIR}/
 
-.PHONY: build
-build: ## Build a binary
-ifeq (${VERBOSE}, 1)
-	go env
-endif
+.PHONY: goversion
+goversion:
 ifneq (${IGNORE_GOLANG_VERSION_REQ}, 1)
 	@printf "${GOLANG_VERSION}\n$$(go version | awk '{sub(/^go/, "", $$3);print $$3}')" | sort -t '.' -k 1,1 -k 2,2 -k 3,3 -g | head -1 | grep -q -E "^${GOLANG_VERSION}$$" || (printf "Required Go version is ${GOLANG_VERSION}\nInstalled: `go version`" && exit 1)
 endif
 
-	go build ${GOARGS} -tags "${GOTAGS}" -ldflags "${LDFLAGS}" -o ${BUILD_DIR}/${BINARY_NAME} ${BUILD_PACKAGE}
+.PHONY: build-%
+build-%: goversion
+ifeq (${VERBOSE}, 1)
+	go env
+endif
+
+	go build ${GOARGS} -tags "${GOTAGS}" -ldflags "${LDFLAGS}" -o ${BUILD_DIR}/$* ./cmd/$*
+
+.PHONY: build
+build: $(patsubst cmd/%,build-%,$(wildcard cmd/*)) ## Build all binaries
 
 .PHONY: build-release
-build-release: ## Build a binary without debug information
+build-release: ## Build all binaries without debug information
 	@${MAKE} LDFLAGS="-w ${LDFLAGS}" BUILD_DIR="${BUILD_DIR}/release" build
 
 .PHONY: build-debug
-build-debug: ## Build a binary with remote debugging capabilities
+build-debug: ## Build all binaries with remote debugging capabilities
 	@${MAKE} GOARGS="${GOARGS} -gcflags \"all=-N -l\"" BUILD_DIR="${BUILD_DIR}/debug" build
 
 .PHONY: docker
 docker: ## Build a Docker image
-ifneq (${DOCKER_PREBUILT}, 1)
-	@${MAKE} BINARY_NAME="${BINARY_NAME}-linux-amd64" GOOS=linux GOARCH=amd64 build-release
-endif
-	docker build --build-arg BUILD_DIR=${BUILD_DIR}/release --build-arg BINARY_NAME=${BINARY_NAME}-linux-amd64 -t ${DOCKER_IMAGE}:${DOCKER_TAG} -f Dockerfile.local .
+	docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
 ifeq (${DOCKER_LATEST}, 1)
 	docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
 endif
 
 .PHONY: docker-debug
 docker-debug: ## Build a Docker image with remote debugging capabilities
-ifneq (${DOCKER_PREBUILT}, 1)
-	@${MAKE} BINARY_NAME="${BINARY_NAME}-linux-amd64" GOOS=linux GOARCH=amd64 build-debug
-endif
-	docker build --build-arg BUILD_DIR=${BUILD_DIR}/debug --build-arg BINARY_NAME=${BINARY_NAME}-linux-amd64 -t ${DOCKER_IMAGE}:${DOCKER_TAG}-debug -f Dockerfile.debug .
+	docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG}-debug --build-arg BUILD_TARGET=debug .
 ifeq (${DOCKER_LATEST}, 1)
 	docker tag ${DOCKER_IMAGE}:${DOCKER_TAG}-debug ${DOCKER_IMAGE}:latest-debug
 endif
