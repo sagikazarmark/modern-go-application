@@ -42,7 +42,8 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Mutation struct {
-		CreateTodo func(childComplexity int, input NewTodo) int
+		CreateTodo     func(childComplexity int, input NewTodo) int
+		MarkTodoAsDone func(childComplexity int, input string) int
 	}
 
 	Query struct {
@@ -58,6 +59,7 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	CreateTodo(ctx context.Context, input NewTodo) (string, error)
+	MarkTodoAsDone(ctx context.Context, input string) (bool, error)
 }
 type QueryResolver interface {
 	Todos(ctx context.Context) ([]Todo, error)
@@ -89,6 +91,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateTodo(childComplexity, args["input"].(NewTodo)), true
+
+	case "Mutation.MarkTodoAsDone":
+		if e.complexity.Mutation.MarkTodoAsDone == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_markTodoAsDone_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.MarkTodoAsDone(childComplexity, args["input"].(string)), true
 
 	case "Query.Todos":
 		if e.complexity.Query.Todos == nil {
@@ -211,6 +225,7 @@ input NewTodo {
 
 type Mutation {
     createTodo(input: NewTodo!): ID!
+    markTodoAsDone(input: ID!): Boolean!
 }
 `},
 )
@@ -225,6 +240,20 @@ func (ec *executionContext) field_Mutation_createTodo_args(ctx context.Context, 
 	var arg0 NewTodo
 	if tmp, ok := rawArgs["input"]; ok {
 		arg0, err = ec.unmarshalNNewTodo2githubᚗcomᚋsagikazarmarkᚋmodernᚑgoᚑapplicationᚋᚗgenᚋapiᚋgraphqlᚐNewTodo(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_markTodoAsDone_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["input"]; ok {
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -311,6 +340,40 @@ func (ec *executionContext) _Mutation_createTodo(ctx context.Context, field grap
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_markTodoAsDone(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
+	rctx := &graphql.ResolverContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_markTodoAsDone_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().MarkTodoAsDone(rctx, args["input"].(string))
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_todos(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -1350,6 +1413,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = graphql.MarshalString("Mutation")
 		case "createTodo":
 			out.Values[i] = ec._Mutation_createTodo(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		case "markTodoAsDone":
+			out.Values[i] = ec._Mutation_markTodoAsDone(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}

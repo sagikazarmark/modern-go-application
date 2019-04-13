@@ -55,6 +55,25 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input graphql.NewTodo
 	return resp.(createTodoResponse).ID, nil
 }
 
+func (r *mutationResolver) MarkTodoAsDone(ctx context.Context, input string) (bool, error) {
+	req := markAsDoneRequest{
+		ID: input,
+	}
+
+	resp, err := r.endpoints.MarkAsDone(ctx, req)
+	if err != nil {
+		r.errorHandler.Handle(err)
+
+		return false, errors.New("internal server error")
+	}
+
+	if f, ok := resp.(endpoint.Failer); ok {
+		return false, f.Failed()
+	}
+
+	return true, nil
+}
+
 type queryResolver struct{ *resolver }
 
 func (r *queryResolver) Todos(ctx context.Context) ([]graphql.Todo, error) {

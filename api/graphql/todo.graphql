@@ -14,4 +14,5 @@ input NewTodo {
 
 type Mutation {
     createTodo(input: NewTodo!): ID!
+    markTodoAsDone(input: ID!): Boolean!
 }
