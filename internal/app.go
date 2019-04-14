@@ -58,6 +58,7 @@ func NewApp(
 
 	router.Path("/").Methods("GET").Handler(landingdriver.NewHTTPHandler())
 	router.PathPrefix("/todos").Handler(tododriver.MakeHTTPHandler(todoListEndpoint, errorHandler))
+	router.PathPrefix("/graph").Handler(tododriver.MakeGraphQLHandler(todoListEndpoint, errorHandler))
 	router.PathPrefix("/httpbin").Handler(
 		http.StripPrefix(
 			"/httpbin",

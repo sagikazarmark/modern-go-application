@@ -30,6 +30,7 @@ OPENAPI_GENERATOR_VERSION = 3.3.4
 GOBIN_VERSION = 0.0.9
 PROTOC_GEN_GO_VERSION = 1.3.1
 PROTOTOOL_VERSION = 1.6.0
+GQLGEN_VERSION = 0.8.3
 
 GOLANG_VERSION = 1.12
 
@@ -199,6 +200,7 @@ bin/protoc-gen-go: bin/protoc-gen-go-${PROTOC_GEN_GO_VERSION}
 bin/protoc-gen-go-${PROTOC_GEN_GO_VERSION}: bin/gobin
 	@mkdir -p bin
 	GOBIN=bin/ bin/gobin github.com/golang/protobuf/protoc-gen-go@v${PROTOC_GEN_GO_VERSION}
+	@mv bin/protoc-gen-go bin/protoc-gen-go-${PROTOC_GEN_GO_VERSION}
 
 bin/prototool: bin/prototool-${PROTOTOOL_VERSION}
 	@ln -sf prototool-${PROTOTOOL_VERSION} bin/prototool
@@ -215,6 +217,17 @@ validate-proto: bin/prototool bin/protoc-gen-go ## Validate protobuf definition
 .PHONY: proto
 proto: bin/prototool bin/protoc-gen-go ## Generate client and server stubs from the protobuf definition
 	bin/prototool $(if ${VERBOSE},--debug ,)all
+
+bin/gqlgen: bin/gqlgen-${GQLGEN_VERSION}
+	@ln -sf gqlgen-${GQLGEN_VERSION} bin/gqlgen
+bin/gqlgen-${GQLGEN_VERSION}: bin/gobin
+	@mkdir -p bin
+	GOBIN=bin/ bin/gobin github.com/99designs/gqlgen@v${GQLGEN_VERSION}
+	@mv bin/gqlgen bin/gqlgen-${GQLGEN_VERSION}
+
+.PHONY: graphql
+graphql: bin/gqlgen ## Generate GraphQL code
+	bin/gqlgen
 
 release-%: TAG_PREFIX = v
 release-%:

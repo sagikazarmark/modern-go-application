@@ -1,0 +1,12 @@
+schema:
+    - "api/graphql/*.graphql"
+
+exec:
+    filename: .gen/api/graphql/exec.go
+    package: graphql
+
+model:
+    filename: .gen/api/graphql/generated.go
+    package: graphql
+
+struct_tag: json
