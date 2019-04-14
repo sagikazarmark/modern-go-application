@@ -1,6 +1,6 @@
 {{- if .Values.application.ingress.enabled -}}
 {{- $fullName := include "spotguide-modern-go-application.fullname" . -}}
-{{- $ingressPath := .Values.application.ingress.path -}}
+{{- $ingressPaths := .Values.application.ingress.paths -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -13,10 +13,10 @@ metadata:
     app.kubernetes.io/version: {{ .Chart.AppVersion | replace "+" "_" }}
     app.kubernetes.io/component: application
     app.kubernetes.io/part-of: {{ include "spotguide-modern-go-application.name" . }}
-{{- with .Values.application.ingress.annotations }}
+  {{- with .Values.application.ingress.annotations }}
   annotations:
-{{ toYaml . | indent 4 }}
-{{- end }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
 {{- if .Values.application.ingress.tls }}
   tls:
@@ -33,9 +33,11 @@ spec:
     - host: {{ . | quote }}
       http:
         paths:
-          - path: {{ $ingressPath }}
+  {{- range $ingressPaths }}
+          - path: {{ . }}
             backend:
               serviceName: {{ $fullName }}
               servicePort: app
+  {{- end }}
   {{- end }}
 {{- end }}
