@@ -93,6 +93,7 @@ pipeline:
             instrumentation:
               prometheus:
                 enabled: true
+          {{{{- if .Platform.AutoDNSEnabled | default true }}}}
           ingress:
             enabled: true
             annotations:
@@ -102,6 +103,10 @@ pipeline:
               traefik.ingress.kubernetes.io/redirect-permanent: "true"
             hosts:
               - 'app-{{ .CICD_REPO_NAME }}.{{ .CLUSTER_NAME }}.{{ .ORG_NAME }}.{{ .DOMAIN_NAME }}'
+          {{{{ else }}}}
+          service:
+            type: LoadBalancer
+          {{{{- end }}}}
 
         mysql:
           {{{{- if .pipeline.install_mysql_root_password_secret.clusterSecret.sourceSecretName }}}}
