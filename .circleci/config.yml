@@ -40,7 +40,7 @@ commands:
                         - bin/
 
 jobs:
-    deps:
+    dependencies:
         executor: docker
 
         steps:
@@ -59,7 +59,7 @@ jobs:
                     paths:
                         - /go/pkg/mod
 
-    test:
+    unit-tests:
         executor: docker
 
         steps:
@@ -74,11 +74,6 @@ jobs:
 
             -
                 run:
-                    name: Run integration tests
-                    command: TEST_PKGS=$(echo `go list ./... | circleci tests split`) TEST_REPORT_NAME=results_${CIRCLE_NODE_INDEX}.xml make test-integration
-
-            -
-                run:
                     name: Run linter
                     command: make lint
 
@@ -88,7 +83,7 @@ jobs:
                 store_test_results:
                     path: build/test_results/
 
-    test-integration:
+    integration-tests:
         executor: docker
 
         steps:
@@ -126,13 +121,13 @@ workflows:
     version: 2
     build:
         jobs:
-            - deps
-            - test:
+            - dependencies
+            - unit-tests:
                   requires:
-                      - deps
-            - test-integration:
+                      - dependencies
+            - integration-tests:
                   requires:
-                      - deps
+                      - dependencies
             - lint:
                   requires:
-                      - deps
+                      - dependencies
