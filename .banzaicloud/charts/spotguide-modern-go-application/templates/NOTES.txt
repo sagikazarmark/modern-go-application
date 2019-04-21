@@ -1,17 +1,35 @@
 Congratulations, your [Modern Go Application](https://github.com/sagikazarmark/modern-go-application) has been deployed!
 
-{{ if gt (len .Values.application.ingress.hosts) 0 }}
+{{ if .Values.application.ingress.enabled }}
 The application can be accessed on the following URL(s):
-{{ range .Values.application.ingress.hosts }}
-- [{{ . }}](https://{{ . }})
+{{- range $host := .Values.application.ingress.hosts }}
+  {{- range $.Values.application.ingress.paths }}
+  http{{ if $.Values.application.ingress.tls }}s{{ end }}://{{ $host }}{{ . }}
+  {{- end }}
 {{- end }}
-{{- else }}
-The application can be accessed on localhost by using the following command:
+{{- else if contains "NodePort" .Values.application.service.type }}
+You can get the application URL by running these commands:
 
-  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "spotguide-modern-go-application.fullname" . }} 8080:{{ .Values.application.service.port }}
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "spotguide-modern-go-application.fullname" . }})
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+{{- else if contains "LoadBalancer" .Values.application.service.type }}
+You can get the application URL by running these commands:
+
+     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+           You can watch the status of by running 'kubectl get svc -w {{ include "spotguide-modern-go-application.fullname" . }}'
+
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "spotguide-modern-go-application.fullname" . }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+  echo http://$SERVICE_IP:{{ .Values.application.service.port }}
+{{- else if contains "ClusterIP" .Values.application.service.type }}
+You can get the application URL by running these commands:
+
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "spotguide-modern-go-application.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl port-forward $POD_NAME 8080:80
 {{- end }}
 
-_It might take a few minutes until it becomes available._
+_It might take a few minutes until the application becomes available._
 
 {{- if .Values.banzaicloud.cluster.id }}
 

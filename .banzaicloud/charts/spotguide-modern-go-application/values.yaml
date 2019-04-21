@@ -35,7 +35,7 @@ application:
     annotations: {}
       # kubernetes.io/ingress.class: nginx
       # kubernetes.io/tls-acme: "true"
-    path: /
+    paths: [/]
     hosts:
       - chart-example.local
     tls: []
