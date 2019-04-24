@@ -49,7 +49,7 @@ func main() {
 
 	pflag.Parse()
 
-	if viper.GetBool("version") {
+	if v, _ := pflag.CommandLine.GetBool("version"); v {
 		fmt.Printf("%s version %s (%s) built on %s\n", friendlyServiceName, version, commitHash, buildDate)
 
 		os.Exit(0)
@@ -84,7 +84,7 @@ func main() {
 		os.Exit(3)
 	}
 
-	if viper.GetBool("dump-config") {
+	if d, _ := pflag.CommandLine.GetBool("dump-config"); d {
 		fmt.Printf("%+v\n", config)
 
 		os.Exit(0)
