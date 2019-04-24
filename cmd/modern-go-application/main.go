@@ -50,7 +50,7 @@ func main() {
 	pflag.Parse()
 
 	if viper.GetBool("version") {
-		fmt.Printf("%s version %s (%s) built on %s\n", FriendlyServiceName, version, commitHash, buildDate)
+		fmt.Printf("%s version %s (%s) built on %s\n", friendlyServiceName, version, commitHash, buildDate)
 
 		os.Exit(0)
 	}
@@ -69,7 +69,7 @@ func main() {
 	logger := log.NewLogger(config.Log)
 
 	// Provide some basic context to all log lines
-	logger = log.WithFields(logger, map[string]interface{}{"environment": config.Environment, "service": ServiceName})
+	logger = log.WithFields(logger, map[string]interface{}{"environment": config.Environment, "service": serviceName})
 
 	log.SetStandardLogger(logger)
 

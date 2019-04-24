@@ -125,19 +125,19 @@ func (c InstrumentationConfig) Validate() error {
 func Configure(v *viper.Viper, p *pflag.FlagSet) {
 	v.AllowEmptyEnv(true)
 	v.AddConfigPath(".")
-	v.AddConfigPath(fmt.Sprintf("$%s_CONFIG_DIR/", strings.ToUpper(EnvPrefix)))
-	p.Init(FriendlyServiceName, pflag.ExitOnError)
+	v.AddConfigPath(fmt.Sprintf("$%s_CONFIG_DIR/", strings.ToUpper(envPrefix)))
+	p.Init(friendlyServiceName, pflag.ExitOnError)
 	pflag.Usage = func() {
-		_, _ = fmt.Fprintf(os.Stderr, "Usage of %s:\n", FriendlyServiceName)
+		_, _ = fmt.Fprintf(os.Stderr, "Usage of %s:\n", friendlyServiceName)
 		pflag.PrintDefaults()
 	}
 
-	v.SetEnvPrefix(EnvPrefix)
+	v.SetEnvPrefix(envPrefix)
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 	v.AutomaticEnv()
 
 	// Application constants
-	v.Set("serviceName", ServiceName)
+	v.Set("serviceName", serviceName)
 
 	// Global configuration
 	v.SetDefault("environment", "production")
