@@ -127,9 +127,9 @@ func Configure(v *viper.Viper, p *pflag.FlagSet) {
 	v.AddConfigPath(".")
 	v.AddConfigPath(fmt.Sprintf("$%s_CONFIG_DIR/", strings.ToUpper(envPrefix)))
 	p.Init(friendlyServiceName, pflag.ExitOnError)
-	pflag.Usage = func() {
+	p.Usage = func() {
 		_, _ = fmt.Fprintf(os.Stderr, "Usage of %s:\n", friendlyServiceName)
-		pflag.PrintDefaults()
+		p.PrintDefaults()
 	}
 
 	v.SetEnvPrefix(envPrefix)
