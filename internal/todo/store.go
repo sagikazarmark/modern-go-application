@@ -9,7 +9,7 @@ import (
 )
 
 // InmemoryStore keeps todos in the memory.
-// Use it in tests or development/demo purposes.
+// Use it in tests or for development/demo purposes.
 type InmemoryStore struct {
 	todos map[string]Todo
 }
