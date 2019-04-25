@@ -57,7 +57,7 @@ type createTodoResponse struct {
 
 // MakeCreateEndpoint returns an endpoint for the matching method of the underlying service.
 func MakeCreateEndpoint(t TodoList) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(createTodoRequest)
 
 		id, err := t.CreateTodo(ctx, req.Text)
@@ -74,7 +74,7 @@ type listTodosResponse struct {
 
 // MakeListEndpoint returns an endpoint for the matching method of the underlying service.
 func MakeListEndpoint(t TodoList) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		todos, err := t.ListTodos(ctx)
 
 		resp := listTodosResponse{
@@ -99,10 +99,10 @@ func (r markAsDoneResponse) Failed() error {
 
 // MakeMarkAsDoneEndpoint returns an endpoint for the matching method of the underlying service.
 func MakeMarkAsDoneEndpoint(t TodoList) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(markAsDoneRequest)
 
-		err = t.MarkAsDone(ctx, req.ID)
+		err := t.MarkAsDone(ctx, req.ID)
 
 		if b, ok := errors.Cause(err).(businessError); ok && b.IsBusinessError() {
 			return markAsDoneResponse{
