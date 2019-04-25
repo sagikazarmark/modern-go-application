@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-kit/kit/endpoint"
 	grpctransport "github.com/go-kit/kit/transport/grpc"
+	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -133,14 +134,21 @@ func decodeMarkAsDoneGRPCRequest(_ context.Context, grpcReq interface{}) (interf
 func encodeMarkAsDoneGRPCResponse(_ context.Context, response interface{}) (interface{}, error) {
 	if f, ok := response.(endpoint.Failer); ok && f.Failed() != nil {
 		err := f.Failed()
-		code := codes.Internal
 
-		if e, ok := err.(*todoError); ok && e.Code() == codeNotFound {
-			code = codes.NotFound
-		}
-
-		return nil, status.Error(code, err.Error())
+		return nil, status.Error(getErrorCode(err), err.Error())
 	}
 
 	return &todov1beta1.MarkAsDoneResponse{}, nil
+}
+
+func getErrorCode(err error) codes.Code {
+	code := codes.Internal
+
+	// nolint: gocritic
+	switch errors.Cause(err).(type) {
+	case todo.NotFoundError:
+		code = codes.NotFound
+	}
+
+	return code
 }

@@ -22,23 +22,6 @@ type TodoList interface {
 	MarkAsDone(ctx context.Context, id string) error
 }
 
-const (
-	codeNotFound int = 1
-)
-
-type todoError struct {
-	msg  string
-	code int
-}
-
-func (e *todoError) Error() string {
-	return e.msg
-}
-
-func (e *todoError) Code() int {
-	return e.code
-}
-
 // Endpoints collects all of the endpoints that compose a todo list service. It's
 // meant to be used as a helper struct, to collect all of the endpoints into a
 // single parameter.
@@ -56,6 +39,12 @@ func MakeEndpoints(t TodoList) Endpoints {
 		List:       kitoc.TraceEndpoint("todo.ListTodos")(MakeListEndpoint(t)),
 		MarkAsDone: kitoc.TraceEndpoint("todo.MarkAsDone")(MakeMarkAsDoneEndpoint(t)),
 	}
+}
+
+type businessError interface {
+	// IsBusinessError tells the transport layer whether this error should be translated into the transport format
+	// or an internal error should be returned instead.
+	IsBusinessError() bool
 }
 
 type createTodoRequest struct {
@@ -115,12 +104,9 @@ func MakeMarkAsDoneEndpoint(t TodoList) endpoint.Endpoint {
 
 		err = t.MarkAsDone(ctx, req.ID)
 
-		if _, ok := errors.Cause(err).(todo.NotFoundError); ok {
+		if b, ok := errors.Cause(err).(businessError); ok && b.IsBusinessError() {
 			return markAsDoneResponse{
-				Err: &todoError{
-					msg:  "todo not found",
-					code: codeNotFound,
-				},
+				Err: err,
 			}, nil
 		}
 

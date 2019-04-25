@@ -53,6 +53,12 @@ func (e NotFoundError) Context() []interface{} {
 	return []interface{}{"todo_id", e.ID}
 }
 
+// IsBusinessError tells the transport layer whether this error should be translated into the transport format
+// or an internal error should be returned instead.
+func (NotFoundError) IsBusinessError() bool {
+	return true
+}
+
 // Events dispatches todo events.
 type Events interface {
 	// MarkedAsDone dispatches a MarkedAsDone event.
