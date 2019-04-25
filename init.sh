@@ -108,7 +108,7 @@ find ${DEST}/cmd -type f | while read file; do replace "s|${originalPackageName}
 replace "s|^DOCKER_IMAGE = .*|DOCKER_IMAGE = ${packageName#'github.com/'}|" Makefile
 
 # Other project files
-declare -a files=("CHANGELOG.md" "prototool.yaml", "go.mod", ".golangci.yml")
+declare -a files=("CHANGELOG.md" "prototool.yaml", "go.mod", ".golangci.yml", "gqlgen.yml")
 for file in "${files[@]}"; do
     if [[ -f "${file}" ]]; then
         replace "s|${originalPackageName}|${packageName}|" ${file}
