@@ -79,14 +79,8 @@ func MakeCreateEndpoint(t TodoList) endpoint.Endpoint {
 	}
 }
 
-type todoListItem struct {
-	ID   string
-	Text string
-	Done bool
-}
-
 type listTodosResponse struct {
-	Todos []todoListItem
+	Todos []todo.Todo
 }
 
 // MakeListEndpoint returns an endpoint for the matching method of the underlying service.
@@ -95,11 +89,7 @@ func MakeListEndpoint(t TodoList) endpoint.Endpoint {
 		todos, err := t.ListTodos(ctx)
 
 		resp := listTodosResponse{
-			Todos: make([]todoListItem, len(todos)),
-		}
-
-		for i, t := range todos {
-			resp.Todos[i] = todoListItem(t)
+			Todos: todos,
 		}
 
 		return resp, err

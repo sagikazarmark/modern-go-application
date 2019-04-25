@@ -11,6 +11,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
+	"github.com/sagikazarmark/modern-go-application/internal/todo"
 	"github.com/vektah/gqlparser"
 	"github.com/vektah/gqlparser/ast"
 )
@@ -62,7 +63,7 @@ type MutationResolver interface {
 	MarkTodoAsDone(ctx context.Context, input string) (bool, error)
 }
 type QueryResolver interface {
-	Todos(ctx context.Context) ([]Todo, error)
+	Todos(ctx context.Context) ([]todo.Todo, error)
 }
 
 type executableSchema struct {
@@ -397,10 +398,10 @@ func (ec *executionContext) _Query_todos(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]Todo)
+	res := resTmp.([]todo.Todo)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNTodo2ᚕgithubᚗcomᚋsagikazarmarkᚋmodernᚑgoᚑapplicationᚋᚗgenᚋapiᚋgraphqlᚐTodo(ctx, field.Selections, res)
+	return ec.marshalNTodo2ᚕgithubᚗcomᚋsagikazarmarkᚋmodernᚑgoᚑapplicationᚋinternalᚋtodoᚐTodo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -458,7 +459,7 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Todo_id(ctx context.Context, field graphql.CollectedField, obj *Todo) graphql.Marshaler {
+func (ec *executionContext) _Todo_id(ctx context.Context, field graphql.CollectedField, obj *todo.Todo) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -485,7 +486,7 @@ func (ec *executionContext) _Todo_id(ctx context.Context, field graphql.Collecte
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Todo_text(ctx context.Context, field graphql.CollectedField, obj *Todo) graphql.Marshaler {
+func (ec *executionContext) _Todo_text(ctx context.Context, field graphql.CollectedField, obj *todo.Todo) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -512,7 +513,7 @@ func (ec *executionContext) _Todo_text(ctx context.Context, field graphql.Collec
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Todo_done(ctx context.Context, field graphql.CollectedField, obj *Todo) graphql.Marshaler {
+func (ec *executionContext) _Todo_done(ctx context.Context, field graphql.CollectedField, obj *todo.Todo) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -1478,7 +1479,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 
 var todoImplementors = []string{"Todo"}
 
-func (ec *executionContext) _Todo(ctx context.Context, sel ast.SelectionSet, obj *Todo) graphql.Marshaler {
+func (ec *executionContext) _Todo(ctx context.Context, sel ast.SelectionSet, obj *todo.Todo) graphql.Marshaler {
 	fields := graphql.CollectFields(ctx, sel, todoImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1786,11 +1787,11 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return graphql.MarshalString(v)
 }
 
-func (ec *executionContext) marshalNTodo2githubᚗcomᚋsagikazarmarkᚋmodernᚑgoᚑapplicationᚋᚗgenᚋapiᚋgraphqlᚐTodo(ctx context.Context, sel ast.SelectionSet, v Todo) graphql.Marshaler {
+func (ec *executionContext) marshalNTodo2githubᚗcomᚋsagikazarmarkᚋmodernᚑgoᚑapplicationᚋinternalᚋtodoᚐTodo(ctx context.Context, sel ast.SelectionSet, v todo.Todo) graphql.Marshaler {
 	return ec._Todo(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNTodo2ᚕgithubᚗcomᚋsagikazarmarkᚋmodernᚑgoᚑapplicationᚋᚗgenᚋapiᚋgraphqlᚐTodo(ctx context.Context, sel ast.SelectionSet, v []Todo) graphql.Marshaler {
+func (ec *executionContext) marshalNTodo2ᚕgithubᚗcomᚋsagikazarmarkᚋmodernᚑgoᚑapplicationᚋinternalᚋtodoᚐTodo(ctx context.Context, sel ast.SelectionSet, v []todo.Todo) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -1814,7 +1815,7 @@ func (ec *executionContext) marshalNTodo2ᚕgithubᚗcomᚋsagikazarmarkᚋmoder
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNTodo2githubᚗcomᚋsagikazarmarkᚋmodernᚑgoᚑapplicationᚋᚗgenᚋapiᚋgraphqlᚐTodo(ctx, sel, v[i])
+			ret[i] = ec.marshalNTodo2githubᚗcomᚋsagikazarmarkᚋmodernᚑgoᚑapplicationᚋinternalᚋtodoᚐTodo(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)

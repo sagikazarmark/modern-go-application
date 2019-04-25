@@ -76,7 +76,7 @@ func (r *mutationResolver) MarkTodoAsDone(ctx context.Context, input string) (bo
 
 type queryResolver struct{ *resolver }
 
-func (r *queryResolver) Todos(ctx context.Context) ([]graphql.Todo, error) {
+func (r *queryResolver) Todos(ctx context.Context) ([]todo.Todo, error) {
 	resp, err := r.endpoints.List(ctx, nil)
 	if err != nil {
 		r.errorHandler.Handle(err)
@@ -84,17 +84,5 @@ func (r *queryResolver) Todos(ctx context.Context) ([]graphql.Todo, error) {
 		return nil, errors.New("internal server error")
 	}
 
-	todoResp := resp.(listTodosResponse)
-
-	todos := make([]graphql.Todo, len(todoResp.Todos))
-
-	for i, t := range todoResp.Todos {
-		todos[i] = graphql.Todo{
-			ID:   t.ID,
-			Text: t.Text,
-			Done: t.Done,
-		}
-	}
-
-	return todos, nil
+	return resp.(listTodosResponse).Todos, nil
 }

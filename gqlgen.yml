@@ -10,3 +10,7 @@ model:
     package: graphql
 
 struct_tag: json
+
+models:
+    Todo:
+        model: github.com/sagikazarmark/modern-go-application/internal/todo.Todo
