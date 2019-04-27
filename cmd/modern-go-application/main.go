@@ -38,32 +38,31 @@ import (
 	"github.com/sagikazarmark/modern-go-application/pkg/correlation"
 )
 
-// nolint: gochecknoinits
-func init() {
-	pflag.Bool("version", false, "Show version information")
-	pflag.Bool("dump-config", false, "Dump configuration to the console (and exit)")
-}
-
 func main() {
-	Configure(viper.GetViper(), pflag.CommandLine)
-	pflag.Usage = pflag.CommandLine.Usage
+	v, p := viper.New(), pflag.NewFlagSet(friendlyServiceName, pflag.ExitOnError)
 
-	pflag.Parse()
+	Configure(v, p)
 
-	if v, _ := pflag.CommandLine.GetBool("version"); v {
+	_ = p.Parse(os.Args[1:])
+
+	if v, _ := p.GetBool("version"); v {
 		fmt.Printf("%s version %s (%s) built on %s\n", friendlyServiceName, version, commitHash, buildDate)
 
 		os.Exit(0)
 	}
 
-	err := viper.ReadInConfig()
+	if c, _ := p.GetString("config"); c != "" {
+		v.SetConfigFile(c)
+	}
+
+	err := v.ReadInConfig()
 	_, configFileNotFound := err.(viper.ConfigFileNotFoundError)
 	if !configFileNotFound {
 		emperror.Panic(errors.Wrap(err, "failed to read configuration"))
 	}
 
 	var config Config
-	err = viper.Unmarshal(&config)
+	err = v.Unmarshal(&config)
 	emperror.Panic(errors.Wrap(err, "failed to unmarshal configuration"))
 
 	// Create logger (first thing after configuration loading)
@@ -85,7 +84,7 @@ func main() {
 		os.Exit(3)
 	}
 
-	if d, _ := pflag.CommandLine.GetBool("dump-config"); d {
+	if d, _ := p.GetBool("dump-config"); d {
 		fmt.Printf("%+v\n", config)
 
 		os.Exit(0)

@@ -123,17 +123,23 @@ func (c InstrumentationConfig) Validate() error {
 
 // Configure configures some defaults in the Viper instance.
 func Configure(v *viper.Viper, p *pflag.FlagSet) {
-	v.AllowEmptyEnv(true)
+	// Viper settings
 	v.AddConfigPath(".")
 	v.AddConfigPath(fmt.Sprintf("$%s_CONFIG_DIR/", strings.ToUpper(envPrefix)))
-	p.Init(friendlyServiceName, pflag.ExitOnError)
+
+	// Pflag settings
 	p.Usage = func() {
 		_, _ = fmt.Fprintf(os.Stderr, "Usage of %s:\n", friendlyServiceName)
 		p.PrintDefaults()
 	}
+	p.String("config", "", "Configuration file")
+	p.Bool("version", false, "Show version information")
+	p.Bool("dump-config", false, "Dump configuration to the console (and exit)")
 
+	// Viper environment variable settings
 	v.SetEnvPrefix(envPrefix)
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
+	v.AllowEmptyEnv(true)
 	v.AutomaticEnv()
 
 	// Application constants
