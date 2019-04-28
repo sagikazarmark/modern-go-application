@@ -32,7 +32,7 @@ func NewPool(config Config) *redis.Pool {
 				}
 
 				if err != nil {
-					c.Close()
+					_ = c.Close()
 
 					return nil, errors.Wrap(err, "none of the provided passwords were accepted by the server")
 				}
