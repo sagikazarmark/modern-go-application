@@ -127,12 +127,7 @@ func configure(v *viper.Viper, p *pflag.FlagSet) {
 	v.AddConfigPath(".")
 	v.AddConfigPath(fmt.Sprintf("$%s_CONFIG_DIR/", strings.ToUpper(envPrefix)))
 
-	// Pflag settings
-	p.String("config", "", "Configuration file")
-	p.Bool("version", false, "Show version information")
-	p.Bool("dump-config", false, "Dump configuration to the console (and exit)")
-
-	// Viper environment variable settings
+	// Environment variable settings
 	v.SetEnvPrefix(envPrefix)
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 	v.AllowEmptyEnv(true)

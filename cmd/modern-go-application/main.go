@@ -51,6 +51,10 @@ func main() {
 
 	configure(v, p)
 
+	p.String("config", "", "Configuration file")
+	p.Bool("version", false, "Show version information")
+	p.Bool("dump-config", false, "Dump configuration to the console (and exit)")
+
 	_ = p.Parse(os.Args[1:])
 
 	if v, _ := p.GetBool("version"); v {
