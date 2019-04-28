@@ -128,10 +128,6 @@ func configure(v *viper.Viper, p *pflag.FlagSet) {
 	v.AddConfigPath(fmt.Sprintf("$%s_CONFIG_DIR/", strings.ToUpper(envPrefix)))
 
 	// Pflag settings
-	p.Usage = func() {
-		_, _ = fmt.Fprintf(os.Stderr, "Usage of %s:\n", firendlyAppName)
-		p.PrintDefaults()
-	}
 	p.String("config", "", "Configuration file")
 	p.Bool("version", false, "Show version information")
 	p.Bool("dump-config", false, "Dump configuration to the console (and exit)")
