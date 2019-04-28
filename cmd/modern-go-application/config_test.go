@@ -10,12 +10,12 @@ import (
 )
 
 func TestConfigure(t *testing.T) {
-	var config Config
+	var config configuration
 
 	v := viper.New()
 	p := pflag.NewFlagSet("test", pflag.ContinueOnError)
 
-	Configure(v, p)
+	configure(v, p)
 
 	file, err := os.Open("../../config.toml.dist")
 	require.NoError(t, err)

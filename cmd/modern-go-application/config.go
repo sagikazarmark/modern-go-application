@@ -18,9 +18,9 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/platform/watermill"
 )
 
-// Config holds any kind of configuration that comes from the outside world and
+// configuration holds any kind of configuration that comes from the outside world and
 // is necessary for running the application.
-type Config struct {
+type configuration struct {
 	// Meaningful values are recommended (eg. production, development, staging, release/123, etc)
 	Environment string
 
@@ -34,7 +34,7 @@ type Config struct {
 	Log log.Config
 
 	// Instrumentation configuration
-	Instrumentation InstrumentationConfig
+	Instrumentation instrumentationConfig
 
 	// App configuration
 	App struct {
@@ -59,7 +59,7 @@ type Config struct {
 }
 
 // Validate validates the configuration.
-func (c Config) Validate() error {
+func (c configuration) Validate() error {
 	if c.Environment == "" {
 		return errors.New("environment is required")
 	}
@@ -88,8 +88,8 @@ func (c Config) Validate() error {
 	return nil
 }
 
-// InstrumentationConfig represents the instrumentation related configuration.
-type InstrumentationConfig struct {
+// instrumentationConfig represents the instrumentation related configuration.
+type instrumentationConfig struct {
 	// Instrumentation HTTP server address
 	Addr string
 
@@ -107,7 +107,7 @@ type InstrumentationConfig struct {
 }
 
 // Validate validates the configuration.
-func (c InstrumentationConfig) Validate() error {
+func (c instrumentationConfig) Validate() error {
 	if c.Addr == "" {
 		return errors.New("instrumentation http server address is required")
 	}
@@ -121,8 +121,8 @@ func (c InstrumentationConfig) Validate() error {
 	return nil
 }
 
-// Configure configures some defaults in the Viper instance.
-func Configure(v *viper.Viper, p *pflag.FlagSet) {
+// configure configures some defaults in the Viper instance.
+func configure(v *viper.Viper, p *pflag.FlagSet) {
 	// Viper settings
 	v.AddConfigPath(".")
 	v.AddConfigPath(fmt.Sprintf("$%s_CONFIG_DIR/", strings.ToUpper(envPrefix)))

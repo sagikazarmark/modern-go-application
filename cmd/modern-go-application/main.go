@@ -49,7 +49,7 @@ var (
 func main() {
 	v, p := viper.New(), pflag.NewFlagSet(firendlyAppName, pflag.ExitOnError)
 
-	Configure(v, p)
+	configure(v, p)
 
 	_ = p.Parse(os.Args[1:])
 
@@ -69,7 +69,7 @@ func main() {
 		emperror.Panic(errors.Wrap(err, "failed to read configuration"))
 	}
 
-	var config Config
+	var config configuration
 	err = v.Unmarshal(&config)
 	emperror.Panic(errors.Wrap(err, "failed to unmarshal configuration"))
 
@@ -98,7 +98,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	// Configure error handler
+	// configure error handler
 	errorHandler := errorhandler.New(logger)
 	defer emperror.HandleRecover(errorHandler)
 
@@ -109,11 +109,11 @@ func main() {
 	instrumentationRouter := http.NewServeMux()
 	instrumentationRouter.Handle("/version", buildinfo.Handler(buildInfo))
 
-	// Configure health checker
+	// configure health checker
 	healthChecker := healthcheck.New(logger)
 	instrumentationRouter.Handle("/healthz", healthcheck.Handler(healthChecker))
 
-	// Configure Prometheus
+	// configure Prometheus
 	if config.Instrumentation.Prometheus.Enabled {
 		logger.Info("prometheus exporter enabled")
 
@@ -129,7 +129,7 @@ func main() {
 		trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
 	}
 
-	// Configure Jaeger
+	// configure Jaeger
 	if config.Instrumentation.Jaeger.Enabled {
 		logger.Info("jaeger exporter enabled")
 
@@ -139,7 +139,7 @@ func main() {
 		trace.RegisterExporter(exporter)
 	}
 
-	// Configure graceful restart
+	// configure graceful restart
 	upg, _ := tableflip.New(tableflip.Options{})
 
 	// Do an upgrade on SIGHUP
