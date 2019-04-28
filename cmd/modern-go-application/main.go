@@ -38,6 +38,14 @@ import (
 	"github.com/sagikazarmark/modern-go-application/pkg/correlation"
 )
 
+// Provisioned by ldflags
+// nolint: gochecknoglobals
+var (
+	version    string
+	commitHash string
+	buildDate  string
+)
+
 func main() {
 	v, p := viper.New(), pflag.NewFlagSet(friendlyServiceName, pflag.ExitOnError)
 
