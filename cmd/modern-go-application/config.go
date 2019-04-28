@@ -155,7 +155,8 @@ func configure(v *viper.Viper, p *pflag.FlagSet) {
 	v.RegisterAlias("log.noColor", "no_color")
 
 	// Instrumentation configuration
-	p.String("instrumentation.addr", ":10000", "Instrumentation HTTP server address")
+	p.String("instrumentation-addr", ":10000", "Instrumentation HTTP server address")
+	_ = v.BindPFlag("instrumentation.addr", p.Lookup("instrumentation-addr"))
 	v.SetDefault("instrumentation.addr", ":10000")
 
 	v.SetDefault("instrumentation.prometheus.enabled", false)
@@ -167,10 +168,12 @@ func configure(v *viper.Viper, p *pflag.FlagSet) {
 	_ = v.BindEnv("instrumentation.jaeger.password")
 
 	// App configuration
-	p.String("app.httpAddr", ":8000", "App HTTP server address")
+	p.String("http-addr", ":8000", "App HTTP server address")
+	_ = v.BindPFlag("app.httpAddr", p.Lookup("http-addr"))
 	v.SetDefault("app.httpAddr", ":8000")
 
-	p.String("app.grpcAddr", ":8001", "App GRPC server address")
+	p.String("grpc-addr", ":8001", "App GRPC server address")
+	_ = v.BindPFlag("app.grpcAddr", p.Lookup("grpc-addr"))
 	v.SetDefault("app.grpcAddr", ":8001")
 
 	// Database configuration
@@ -190,7 +193,4 @@ func configure(v *viper.Viper, p *pflag.FlagSet) {
 
 	// Watermill configuration
 	v.RegisterAlias("watermill.routerConfig.closeTimeout", "shutdownTimeout")
-
-	// Bind flags to Viper
-	_ = v.BindPFlags(p)
 }

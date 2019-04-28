@@ -40,4 +40,4 @@ RUN if [[ "${BUILD_TARGET}" == "debug" ]]; then apk add --update --no-cache libc
 COPY --from=builder /build/* /usr/local/bin/
 
 EXPOSE 8000 8001 10000
-CMD ["modern-go-application", "--instrumentation.addr", ":10000", "--app.httpAddr", ":8000", "--app.grpcAddr", ":8001"]
+CMD ["modern-go-application", "--instrumentation-addr", ":10000", "--http-addr", ":8000", "--grpc-addr", ":8001"]
