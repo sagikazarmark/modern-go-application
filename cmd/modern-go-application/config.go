@@ -129,7 +129,7 @@ func Configure(v *viper.Viper, p *pflag.FlagSet) {
 
 	// Pflag settings
 	p.Usage = func() {
-		_, _ = fmt.Fprintf(os.Stderr, "Usage of %s:\n", friendlyServiceName)
+		_, _ = fmt.Fprintf(os.Stderr, "Usage of %s:\n", firendlyAppName)
 		p.PrintDefaults()
 	}
 	p.String("config", "", "Configuration file")
@@ -143,7 +143,7 @@ func Configure(v *viper.Viper, p *pflag.FlagSet) {
 	v.AutomaticEnv()
 
 	// Application constants
-	v.Set("serviceName", serviceName)
+	v.Set("appName", appName)
 
 	// Global configuration
 	v.SetDefault("environment", "production")
@@ -166,7 +166,7 @@ func Configure(v *viper.Viper, p *pflag.FlagSet) {
 	v.SetDefault("instrumentation.jaeger.enabled", false)
 	_ = v.BindEnv("instrumentation.jaeger.collectorEndpoint")
 	v.SetDefault("instrumentation.jaeger.agentEndpoint", "localhost:6831")
-	v.RegisterAlias("instrumentation.jaeger.serviceName", "serviceName")
+	v.RegisterAlias("instrumentation.jaeger.serviceName", "appName")
 	_ = v.BindEnv("instrumentation.jaeger.username")
 	_ = v.BindEnv("instrumentation.jaeger.password")
 
