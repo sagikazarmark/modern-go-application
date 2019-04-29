@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Debug" type="GoApplicationRunConfiguration" factoryName="Go Application" singleton="true">
-    <output_file path="$PROJECT_DIR$/var/log/debug.log" is_save="true" />
+    <output_file path="$PROJECT_DIR$/build/goland/debug.log" is_save="true" />
     <module name="project" />
     <working_directory value="$PROJECT_DIR$/" />
     <go_parameters value="-gcflags &quot;all=-N -l&quot;" />
