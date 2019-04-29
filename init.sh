@@ -128,6 +128,7 @@ for file in "${files[@]}"; do
 done
 
 # Update source code
+find .gen -type f | while read file; do replace "s|${originalPackageName}|${packageName}|" "$file"; done
 find internal -type f | while read file; do replace "s|${originalPackageName}|${packageName}|" "$file"; done
 
 if [[ "${removeInit}" != "n" && "${removeInit}" != "N" ]]; then
