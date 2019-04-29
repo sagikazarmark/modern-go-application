@@ -7,8 +7,8 @@ DEST="."
 originalProjectName="project"
 originalPackageName="github.com/sagikazarmark/modern-go-application"
 originalBinaryName="modern-go-application"
-originalServiceName="mga"
-originalFriendlyServiceName="Modern Go Application"
+originalAppName="mga"
+originalFriendlyAppName="Modern Go Application"
 
 # Prepare testing
 if [[ ! -z "${TEST}" ]]; then
@@ -68,14 +68,14 @@ prompt "Binary name" ${projectName}
 read binaryName
 binaryName=$(echo "${binaryName:-${projectName}}" | sed 's/[[:space:]]//g')
 
-prompt "Service name" ${projectName}
-read serviceName
-serviceName=$(echo "${serviceName:-${projectName}}" | sed 's/[[:space:]]//g')
+prompt "Application name" ${projectName}
+read appName
+appName=$(echo "${appName:-${projectName}}" | sed 's/[[:space:]]//g')
 
-defaultFriendlyServiceName=$(echo "${serviceName}" | sed -e 's/-/ /g;' | awk '{for(i=1;i<=NF;i++){ $i=toupper(substr($i,1,1)) substr($i,2) }}1')
-prompt "Friendly service name" "${defaultFriendlyServiceName}"
-read friendlyServiceName
-friendlyServiceName=${friendlyServiceName:-${defaultFriendlyServiceName}}
+defaultFriendlyAppName=$(echo "${appName}" | sed -e 's/-/ /g;' | awk '{for(i=1;i<=NF;i++){ $i=toupper(substr($i,1,1)) substr($i,2) }}1')
+prompt "Friendly application name" "${defaultFriendlyAppName}"
+read friendlyAppName
+friendlyAppName=${friendlyAppName:-${defaultFriendlyAppName}}
 
 prompt "Update README" "Y/n"
 read updateReadme
@@ -101,7 +101,7 @@ replace "s|${originalBinaryName}|${binaryName}|" .vscode/launch.json
 #   - source code
 #   - variables
 move cmd/${originalBinaryName} cmd/${binaryName}
-replace "s|${originalServiceName}|${serviceName}|; s|${originalFriendlyServiceName}|${friendlyServiceName}|" ${DEST}/cmd/${binaryName}/vars.go
+replace "s|${originalAppName}|${appName}|; s|${originalFriendlyAppName}|${friendlyAppName}|" ${DEST}/cmd/${binaryName}/vars.go
 find ${DEST}/cmd -type f | while read file; do replace "s|${originalPackageName}|${packageName}|" "$file"; done
 
 # Makefile
@@ -136,5 +136,5 @@ fi
 
 # Update readme
 if [[ "${updateReadme}" == "y" || "${updateReadme}" == "Y" ]]; then
-    echo -e "# FRIENDLY_PROJECT_NAME\n\n**Project description.**" | sed "s/FRIENDLY_PROJECT_NAME/${friendlyServiceName}/" > ${DEST}/README.md
+    echo -e "# FRIENDLY_PROJECT_NAME\n\n**Project description.**" | sed "s/FRIENDLY_PROJECT_NAME/${friendlyAppName}/" > ${DEST}/README.md
 fi
