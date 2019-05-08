@@ -3,7 +3,7 @@ workspace:
 
 pipeline:
   create_cluster:
-    image: banzaicloud/ci-pipeline-client:0.10
+    image: banzaicloud/ci-pipeline-client:0.11
     action: EnsureCluster
 
   test:
@@ -39,7 +39,7 @@ pipeline:
     when:
       branch:
         include: [master]
-    image: banzaicloud/ci-pipeline-client:0.10
+    image: banzaicloud/ci-pipeline-client:0.11
     action: InstallSecret
     clusterSecret:
       name: '{{ .CICD_REPO_NAME }}-mysql-user'
@@ -57,7 +57,7 @@ pipeline:
     when:
       branch:
         include: [master]
-    image: banzaicloud/ci-pipeline-client:0.10
+    image: banzaicloud/ci-pipeline-client:0.11
     action: InstallSecret
     clusterSecret:
       name: '{{ .CICD_REPO_NAME }}-mysql-root-password'
@@ -73,7 +73,7 @@ pipeline:
     when:
       branch:
         include: [master]
-    image: banzaicloud/ci-pipeline-client:0.10
+    image: banzaicloud/ci-pipeline-client:0.11
     action: EnsureDeployment
     deployment:
       name: './spotguide-modern-go-application-0.2.0.tgz'
