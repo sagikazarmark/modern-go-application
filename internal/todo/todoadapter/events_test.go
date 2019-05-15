@@ -18,7 +18,7 @@ import (
 func TestEventDispatcher_MarkedAsDone(t *testing.T) {
 	publisher := gochannel.NewGoChannel(gochannel.Config{}, watermill.NopLogger{})
 	const topic = "todo"
-	eventBus := cqrs.NewEventBus(publisher, topic, &cqrs.JSONMarshaler{})
+	eventBus, _ := cqrs.NewEventBus(publisher, func(_ string) string { return topic }, &cqrs.JSONMarshaler{})
 
 	messages, err := publisher.Subscribe(context.Background(), topic)
 	require.NoError(t, err)
