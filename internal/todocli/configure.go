@@ -1,9 +1,9 @@
 package todocli
 
 import (
+	"contrib.go.opencensus.io/exporter/jaeger"
 	"github.com/goph/emperror"
 	"github.com/spf13/cobra"
-	"go.opencensus.io/exporter/jaeger"
 	"go.opencensus.io/plugin/ocgrpc"
 	"go.opencensus.io/trace"
 	"google.golang.org/grpc"

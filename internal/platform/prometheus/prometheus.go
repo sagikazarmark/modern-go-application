@@ -1,9 +1,9 @@
 package prometheus
 
 import (
+	"contrib.go.opencensus.io/exporter/prometheus"
 	"github.com/goph/emperror"
 	"github.com/pkg/errors"
-	"go.opencensus.io/exporter/prometheus"
 )
 
 // NewExporter creates a new, configured Prometheus exporter.

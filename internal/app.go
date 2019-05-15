@@ -33,14 +33,15 @@ func NewApp(
 ) (http.Handler, func(*grpc.Server)) {
 	var todoList tododriver.TodoList
 	{
+		eventBus, _ := cqrs.NewEventBus(
+			publisher,
+			func(eventName string) string { return todoTopic },
+			watermillx.NewStructNameMarshaler(cqrs.JSONMarshaler{}),
+		)
 		todoList = todo.NewList(
 			ulidgen.NewGenerator(),
 			todo.NewInmemoryStore(),
-			todoadapter.NewEventDispatcher(cqrs.NewEventBus(
-				publisher,
-				todoTopic,
-				watermillx.NewStructNameMarshaler(cqrs.JSONMarshaler{}),
-			)),
+			todoadapter.NewEventDispatcher(eventBus),
 		)
 		logger := todoadapter.NewContextAwareLogger(logger, &correlation.ContextExtractor{}).
 			WithFields(map[string]interface{}{
@@ -87,12 +88,12 @@ func NewApp(
 // RegisterEventHandlers registers event handlers in a message router.
 func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber, logger logur.Logger) error {
 	todoLogger := todoadapter.NewContextAwareLogger(logger, &correlation.ContextExtractor{})
-	todoEventProcessor := cqrs.NewEventProcessor(
+	todoEventProcessor, _ := cqrs.NewEventProcessor(
 		[]cqrs.EventHandler{
 			tododriver.NewMarkedAsDoneEventHandler(todo.NewLogEventHandler(todoLogger)),
 		},
-		todoTopic,
-		subscriber,
+		func(eventName string) string { return todoTopic },
+		func(handlerName string) (subscriber message.Subscriber, e error) { return subscriber, nil },
 		watermillx.NewStructNameMarshaler(cqrs.JSONMarshaler{}),
 		watermilllog.New(logur.WithFields(logger, map[string]interface{}{"component": "watermill"})),
 	)

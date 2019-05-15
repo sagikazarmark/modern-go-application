@@ -1,9 +1,9 @@
 package jaeger
 
 import (
+	"contrib.go.opencensus.io/exporter/jaeger"
 	"github.com/goph/emperror"
 	"github.com/pkg/errors"
-	"go.opencensus.io/exporter/jaeger"
 )
 
 // NewExporter creates a new, configured Jaeger exporter.

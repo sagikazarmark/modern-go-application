@@ -28,6 +28,10 @@ func NewMarkedAsDoneEventHandler(handler MarkedAsDoneHandler) *MarkedAsDoneEvent
 	}
 }
 
+func (MarkedAsDoneEventHandler) HandlerName() string {
+	return "marked_as_done"
+}
+
 func (*MarkedAsDoneEventHandler) NewEvent() interface{} {
 	return &todo.MarkedAsDone{}
 }

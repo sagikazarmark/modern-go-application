@@ -1,19 +1,23 @@
 module github.com/sagikazarmark/modern-go-application
 
 require (
+	cloud.google.com/go v0.35.1 // indirect
+	contrib.go.opencensus.io/exporter/jaeger v0.1.0
+	contrib.go.opencensus.io/exporter/prometheus v0.1.0
 	github.com/99designs/gqlgen v0.8.3
 	github.com/99designs/gqlgen-contrib v0.0.0-20190222015228-c654377d611c
 	github.com/InVisionApp/go-health v2.1.0+incompatible
-	github.com/ThreeDotsLabs/watermill v0.3.0
+	github.com/ThreeDotsLabs/watermill v0.4.0
 	github.com/cloudflare/tableflip v0.0.0-20190111135955-d1e14f24db7d
 	github.com/go-kit/kit v0.8.0
 	github.com/go-sql-driver/mysql v1.4.1
-	github.com/golang/protobuf v1.2.1-0.20190205222052-c823c79ea157
+	github.com/golang/protobuf v1.3.1
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/goph/emperror v0.17.1
 	github.com/goph/idgen v0.3.0
 	github.com/goph/logur v0.11.0
 	github.com/goph/watermillx v0.2.0
+	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/mux v1.7.0
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
@@ -22,7 +26,9 @@ require (
 	github.com/oklog/run v1.0.0
 	github.com/olekukonko/tablewriter v0.0.1
 	github.com/opencensus-integrations/ocsql v0.1.3
+	github.com/pierrec/lz4 v2.0.5+incompatible // indirect
 	github.com/pkg/errors v0.8.1
+	github.com/prometheus/client_golang v0.9.3-0.20190127221311-3c4408c8b829 // indirect
 	github.com/sagikazarmark/ocmux v0.1.0
 	github.com/sirupsen/logrus v1.3.0
 	github.com/spf13/cobra v0.0.3
@@ -30,9 +36,6 @@ require (
 	github.com/spf13/viper v1.3.1
 	github.com/stretchr/testify v1.3.0
 	github.com/vektah/gqlparser v1.1.2
-	go.opencensus.io v0.19.1
-	golang.org/x/net v0.0.0-20190206173232-65e2d4e15006 // indirect
-	google.golang.org/grpc v1.19.0
+	go.opencensus.io v0.21.0
+	google.golang.org/grpc v1.20.1
 )
-
-replace github.com/ThreeDotsLabs/watermill v0.3.0 => github.com/ThreeDotsLabs/watermill v0.2.2-0.20190314231218-4a425811ce2e
