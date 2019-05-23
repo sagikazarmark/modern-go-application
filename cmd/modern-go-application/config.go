@@ -13,6 +13,7 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/jaeger"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
+	"github.com/sagikazarmark/modern-go-application/internal/platform/opencensus"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/prometheus"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/redis"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/watermill"
@@ -35,6 +36,9 @@ type configuration struct {
 
 	// Instrumentation configuration
 	Instrumentation instrumentationConfig
+
+	// OpenCensus configuration
+	Opencensus opencensus.Config
 
 	// App configuration
 	App struct {
@@ -161,6 +165,9 @@ func configure(v *viper.Viper, p *pflag.FlagSet) {
 	v.RegisterAlias("instrumentation.jaeger.serviceName", "appName")
 	_ = v.BindEnv("instrumentation.jaeger.username")
 	_ = v.BindEnv("instrumentation.jaeger.password")
+
+	// OpenCensus configuration
+	v.SetDefault("opencensus.trace.sampling.sampler", "never")
 
 	// App configuration
 	p.String("http-addr", ":8000", "App HTTP server address")

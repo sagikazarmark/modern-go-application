@@ -15,6 +15,10 @@ enabled = false
 [instrumentation.jaeger]
 enabled = false
 
+[opencensus.trace]
+sampling = { sampler = "always" }
+# sampling = { sampler = "probability", fraction = 0.5 }
+
 # Configure either collectorEndpoint or agentEndpoint.
 # When both are configured collectorEndpoint will take precedence and the exporter will report directly to the collector.
 collectorEndpoint = "http://localhost:14268/api/traces?format=jaeger.thrift"

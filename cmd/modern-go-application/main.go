@@ -117,6 +117,8 @@ func main() {
 	healthChecker := healthcheck.New(logger)
 	instrumentationRouter.Handle("/healthz", healthcheck.Handler(healthChecker))
 
+	trace.ApplyConfig(config.Opencensus.Trace.Config())
+
 	// configure Prometheus
 	if config.Instrumentation.Prometheus.Enabled {
 		logger.Info("prometheus exporter enabled")
@@ -126,11 +128,6 @@ func main() {
 
 		view.RegisterExporter(exporter)
 		instrumentationRouter.Handle("/metrics", exporter)
-	}
-
-	// Trace everything in development environment or when debugging is enabled
-	if config.Environment == "development" || config.Debug {
-		trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
 	}
 
 	// configure Jaeger
