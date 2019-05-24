@@ -24,6 +24,7 @@ import (
 	"go.opencensus.io/plugin/ochttp"
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/trace"
+	"go.opencensus.io/zpages"
 	"google.golang.org/grpc"
 
 	"github.com/sagikazarmark/modern-go-application/internal"
@@ -116,6 +117,8 @@ func main() {
 	// configure health checker
 	healthChecker := healthcheck.New(logger)
 	instrumentationRouter.Handle("/healthz", healthcheck.Handler(healthChecker))
+
+	zpages.Handle(instrumentationRouter, "/debug")
 
 	trace.ApplyConfig(config.Opencensus.Trace.Config())
 
