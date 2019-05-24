@@ -1,0 +1,14 @@
+receivers:
+    opencensus:
+        port: 55678
+
+exporters:
+queued-exporters:
+    jaeger-all-in-one:
+        num-workers: 4
+        queue-size: 100
+        retry-on-failure: true
+        sender-type: jaeger-thrift-http
+        jaeger-thrift-http:
+            collector-endpoint: http://jaeger:14268/api/traces
+            timeout: 5s

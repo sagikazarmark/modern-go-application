@@ -15,6 +15,11 @@ enabled = false
 [instrumentation.jaeger]
 enabled = false
 
+[opencensus.agent]
+address = "127.0.0.1:55678"
+insecure = false
+reconnectPeriod = "5s"
+
 [opencensus.trace]
 sampling = { sampler = "always" }
 # sampling = { sampler = "probability", fraction = 0.5 }

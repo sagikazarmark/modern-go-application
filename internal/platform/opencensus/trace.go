@@ -6,11 +6,6 @@ import (
 	"go.opencensus.io/trace"
 )
 
-// Config configures OpenCensus.
-type Config struct {
-	Trace TraceConfig
-}
-
 // TraceConfig configures OpenCensus tracing.
 type TraceConfig struct {
 	// Sampling describes the default sampler used when creating new spans.

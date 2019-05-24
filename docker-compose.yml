@@ -40,3 +40,19 @@ services:
 
     jaeger:
         image: jaegertracing/all-in-one:1.11
+
+    oc-collector:
+        image: omnition/opencensus-collector:latest
+        command: ["--config=/etc/opencensus/collector.yaml"]
+        volumes:
+            - ./etc/opencensus/:/etc/opencensus/:ro
+        depends_on:
+            - jaeger
+
+    oc-agent:
+        image: omnition/opencensus-agent:latest
+        command: ["--config=/etc/opencensus/agent.yaml"]
+        volumes:
+            - ./etc/opencensus/:/etc/opencensus/:ro
+        depends_on:
+            - oc-collector

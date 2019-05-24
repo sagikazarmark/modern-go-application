@@ -38,7 +38,10 @@ type configuration struct {
 	Instrumentation instrumentationConfig
 
 	// OpenCensus configuration
-	Opencensus opencensus.Config
+	Opencensus struct {
+		Exporter opencensus.ExporterConfig
+		Trace    opencensus.TraceConfig
+	}
 
 	// App configuration
 	App struct {
@@ -167,6 +170,7 @@ func configure(v *viper.Viper, p *pflag.FlagSet) {
 	_ = v.BindEnv("instrumentation.jaeger.password")
 
 	// OpenCensus configuration
+	v.RegisterAlias("opencensus.exporter.serviceName", "appName")
 	v.SetDefault("opencensus.trace.sampling.sampler", "never")
 
 	// App configuration

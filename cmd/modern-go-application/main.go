@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"contrib.go.opencensus.io/exporter/ocagent"
 	"github.com/InVisionApp/go-health"
 	"github.com/InVisionApp/go-health/checkers"
 	"github.com/cloudflare/tableflip"
@@ -118,6 +119,18 @@ func main() {
 	instrumentationRouter.Handle("/healthz", healthcheck.Handler(healthChecker))
 
 	trace.ApplyConfig(config.Opencensus.Trace.Config())
+
+	// Configure OpenCensus exporter
+	{
+		exporter, err := ocagent.NewExporter(append(
+			config.Opencensus.Exporter.Options(),
+			ocagent.WithServiceName(appName),
+		)...)
+		emperror.Panic(err)
+
+		trace.RegisterExporter(exporter)
+		view.RegisterExporter(exporter)
+	}
 
 	// configure Prometheus
 	if config.Instrumentation.Prometheus.Enabled {
