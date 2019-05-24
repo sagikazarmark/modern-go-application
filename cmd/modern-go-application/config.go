@@ -38,8 +38,11 @@ type configuration struct {
 
 	// OpenCensus configuration
 	Opencensus struct {
-		Exporter opencensus.ExporterConfig
-		Trace    opencensus.TraceConfig
+		Exporter struct {
+			Enabled                   bool
+			opencensus.ExporterConfig `mapstructure:",squash"`
+		}
+		Trace opencensus.TraceConfig
 	}
 
 	// App configuration
@@ -148,8 +151,14 @@ func configure(v *viper.Viper, p *pflag.FlagSet) {
 	_ = v.BindPFlag("instrumentation.addr", p.Lookup("instrumentation-addr"))
 	v.SetDefault("instrumentation.addr", ":10000")
 
+	// Prometheus configuration
+	v.SetDefault("instrumentation.prometheus.enabled", false)
+
 	// OpenCensus configuration
-	v.RegisterAlias("opencensus.exporter.serviceName", "appName")
+	v.SetDefault("opencensus.exporter.enabled", false)
+	_ = v.BindEnv("opencensus.exporter.address")
+	_ = v.BindEnv("opencensus.exporter.insecure")
+	_ = v.BindEnv("opencensus.exporter.reconnectPeriod")
 	v.SetDefault("opencensus.trace.sampling.sampler", "never")
 
 	// App configuration

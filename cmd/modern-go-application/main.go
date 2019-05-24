@@ -123,7 +123,7 @@ func main() {
 	trace.ApplyConfig(config.Opencensus.Trace.Config())
 
 	// Configure OpenCensus exporter
-	{
+	if config.Opencensus.Exporter.Enabled {
 		exporter, err := ocagent.NewExporter(append(
 			config.Opencensus.Exporter.Options(),
 			ocagent.WithServiceName(appName),
