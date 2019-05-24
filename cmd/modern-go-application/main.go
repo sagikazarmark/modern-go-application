@@ -31,7 +31,6 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/errorhandler"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/healthcheck"
-	"github.com/sagikazarmark/modern-go-application/internal/platform/jaeger"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/prometheus"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/watermill"
@@ -141,16 +140,6 @@ func main() {
 
 		view.RegisterExporter(exporter)
 		instrumentationRouter.Handle("/metrics", exporter)
-	}
-
-	// configure Jaeger
-	if config.Instrumentation.Jaeger.Enabled {
-		logger.Info("jaeger exporter enabled")
-
-		exporter, err := jaeger.NewExporter(config.Instrumentation.Jaeger.Config, errorHandler)
-		emperror.Panic(err)
-
-		trace.RegisterExporter(exporter)
 	}
 
 	// configure graceful restart

@@ -1,7 +1,7 @@
 package todocli
 
 import (
-	"contrib.go.opencensus.io/exporter/jaeger"
+	"contrib.go.opencensus.io/exporter/ocagent"
 	"github.com/goph/emperror"
 	"github.com/spf13/cobra"
 	"go.opencensus.io/plugin/ocgrpc"
@@ -23,7 +23,7 @@ func Configure(rootCmd *cobra.Command) {
 	c := &context{}
 
 	var grpcConn *grpc.ClientConn
-	var jaegerExporter *jaeger.Exporter
+	var ocagentExporter *ocagent.Exporter
 
 	rootCmd.PersistentPreRunE = func(_ *cobra.Command, _ []string) error {
 		conn, err := grpc.Dial(
@@ -40,17 +40,13 @@ func Configure(rootCmd *cobra.Command) {
 			return emperror.Wrap(err, "failed to dial service")
 		}
 
-		exporter, err := jaeger.NewExporter(jaeger.Options{
-			CollectorEndpoint: "http://localhost:14268/api/traces?format=jaeger.thrift",
-			Process: jaeger.Process{
-				ServiceName: "todocli",
-			},
-		})
+		// Configure OpenCensus exporter
+		exporter, err := ocagent.NewExporter(ocagent.WithServiceName("todocli"))
 		if err != nil {
 			return emperror.Wrap(err, "failed to create exporter")
 		}
 
-		jaegerExporter = exporter
+		ocagentExporter = exporter
 
 		trace.RegisterExporter(exporter)
 
@@ -62,7 +58,7 @@ func Configure(rootCmd *cobra.Command) {
 	}
 
 	rootCmd.PersistentPostRunE = func(_ *cobra.Command, _ []string) error {
-		jaegerExporter.Flush()
+		ocagentExporter.Flush()
 
 		return grpcConn.Close()
 	}

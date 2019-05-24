@@ -1,7 +1,6 @@
 module github.com/sagikazarmark/modern-go-application
 
 require (
-	contrib.go.opencensus.io/exporter/jaeger v0.1.0
 	contrib.go.opencensus.io/exporter/ocagent v0.5.0
 	contrib.go.opencensus.io/exporter/prometheus v0.1.0
 	github.com/99designs/gqlgen v0.8.3

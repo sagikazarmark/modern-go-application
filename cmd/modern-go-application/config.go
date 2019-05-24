@@ -11,7 +11,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
-	"github.com/sagikazarmark/modern-go-application/internal/platform/jaeger"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/opencensus"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/prometheus"
@@ -105,24 +104,12 @@ type instrumentationConfig struct {
 		Enabled           bool
 		prometheus.Config `mapstructure:",squash"`
 	}
-
-	// Jaeger configuration
-	Jaeger struct {
-		Enabled       bool
-		jaeger.Config `mapstructure:",squash"`
-	}
 }
 
 // Validate validates the configuration.
 func (c instrumentationConfig) Validate() error {
 	if c.Addr == "" {
 		return errors.New("instrumentation http server address is required")
-	}
-
-	if c.Jaeger.Enabled {
-		if err := c.Jaeger.Validate(); err != nil {
-			return err
-		}
 	}
 
 	return nil
@@ -160,14 +147,6 @@ func configure(v *viper.Viper, p *pflag.FlagSet) {
 	p.String("instrumentation-addr", ":10000", "Instrumentation HTTP server address")
 	_ = v.BindPFlag("instrumentation.addr", p.Lookup("instrumentation-addr"))
 	v.SetDefault("instrumentation.addr", ":10000")
-
-	v.SetDefault("instrumentation.prometheus.enabled", false)
-	v.SetDefault("instrumentation.jaeger.enabled", false)
-	_ = v.BindEnv("instrumentation.jaeger.collectorEndpoint")
-	v.SetDefault("instrumentation.jaeger.agentEndpoint", "localhost:6831")
-	v.RegisterAlias("instrumentation.jaeger.serviceName", "appName")
-	_ = v.BindEnv("instrumentation.jaeger.username")
-	_ = v.BindEnv("instrumentation.jaeger.password")
 
 	// OpenCensus configuration
 	v.RegisterAlias("opencensus.exporter.serviceName", "appName")
