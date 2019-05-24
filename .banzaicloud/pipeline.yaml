@@ -93,7 +93,7 @@ pipeline:
             instrumentation:
               prometheus:
                 enabled: true
-          {{{{- if .Platform.AutoDNSEnabled | default true }}}}
+          {{{{- if .platform.AutoDNSEnabled | default true }}}}
           ingress:
             enabled: true
             annotations:
