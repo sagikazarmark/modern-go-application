@@ -1,6 +1,7 @@
 module github.com/sagikazarmark/modern-go-application
 
 require (
+	cloud.google.com/go v0.35.1 // indirect
 	contrib.go.opencensus.io/exporter/ocagent v0.5.0
 	contrib.go.opencensus.io/exporter/prometheus v0.1.0
 	github.com/99designs/gqlgen v0.8.3
@@ -24,6 +25,7 @@ require (
 	github.com/oklog/run v1.0.0
 	github.com/olekukonko/tablewriter v0.0.1
 	github.com/opencensus-integrations/ocsql v0.1.3
+	github.com/pierrec/lz4 v2.0.5+incompatible // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/sagikazarmark/ocmux v0.1.0
 	github.com/sirupsen/logrus v1.3.0
@@ -33,6 +35,5 @@ require (
 	github.com/stretchr/testify v1.3.0
 	github.com/vektah/gqlparser v1.1.2
 	go.opencensus.io v0.21.0
-	golang.org/x/text v0.3.1-0.20180807135948-17ff2d5776d2 // indirect
 	google.golang.org/grpc v1.21.0
 )
