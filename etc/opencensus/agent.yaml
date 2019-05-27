@@ -1,0 +1,7 @@
+receivers:
+    opencensus:
+        address: ":55678"
+
+exporters:
+    opencensus:
+        endpoint: "oc-collector:55678"

@@ -93,7 +93,7 @@ func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber
 			tododriver.NewMarkedAsDoneEventHandler(todo.NewLogEventHandler(todoLogger)),
 		},
 		func(eventName string) string { return todoTopic },
-		func(handlerName string) (subscriber message.Subscriber, e error) { return subscriber, nil },
+		func(handlerName string) (message.Subscriber, error) { return subscriber, nil },
 		watermillx.NewStructNameMarshaler(cqrs.JSONMarshaler{}),
 		watermilllog.New(logur.WithFields(logger, map[string]interface{}{"component": "watermill"})),
 	)

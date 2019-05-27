@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"contrib.go.opencensus.io/exporter/ocagent"
 	"github.com/InVisionApp/go-health"
 	"github.com/InVisionApp/go-health/checkers"
 	"github.com/cloudflare/tableflip"
@@ -23,6 +24,7 @@ import (
 	"go.opencensus.io/plugin/ochttp"
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/trace"
+	"go.opencensus.io/zpages"
 	"google.golang.org/grpc"
 
 	"github.com/sagikazarmark/modern-go-application/internal"
@@ -30,7 +32,6 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/errorhandler"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/healthcheck"
-	"github.com/sagikazarmark/modern-go-application/internal/platform/jaeger"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/prometheus"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/watermill"
@@ -117,6 +118,22 @@ func main() {
 	healthChecker := healthcheck.New(logger)
 	instrumentationRouter.Handle("/healthz", healthcheck.Handler(healthChecker))
 
+	zpages.Handle(instrumentationRouter, "/debug")
+
+	trace.ApplyConfig(config.Opencensus.Trace.Config())
+
+	// Configure OpenCensus exporter
+	if config.Opencensus.Exporter.Enabled {
+		exporter, err := ocagent.NewExporter(append(
+			config.Opencensus.Exporter.Options(),
+			ocagent.WithServiceName(appName),
+		)...)
+		emperror.Panic(err)
+
+		trace.RegisterExporter(exporter)
+		view.RegisterExporter(exporter)
+	}
+
 	// configure Prometheus
 	if config.Instrumentation.Prometheus.Enabled {
 		logger.Info("prometheus exporter enabled")
@@ -126,21 +143,6 @@ func main() {
 
 		view.RegisterExporter(exporter)
 		instrumentationRouter.Handle("/metrics", exporter)
-	}
-
-	// Trace everything in development environment or when debugging is enabled
-	if config.Environment == "development" || config.Debug {
-		trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
-	}
-
-	// configure Jaeger
-	if config.Instrumentation.Jaeger.Enabled {
-		logger.Info("jaeger exporter enabled")
-
-		exporter, err := jaeger.NewExporter(config.Instrumentation.Jaeger.Config, errorHandler)
-		emperror.Panic(err)
-
-		trace.RegisterExporter(exporter)
 	}
 
 	// configure graceful restart

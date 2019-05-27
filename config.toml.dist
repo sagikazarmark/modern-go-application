@@ -12,8 +12,15 @@ addr = ":10000"
 [instrumentation.prometheus]
 enabled = false
 
-[instrumentation.jaeger]
+[opencensus.exporter]
 enabled = false
+address = "127.0.0.1:55678"
+insecure = false
+reconnectPeriod = "5s"
+
+[opencensus.trace]
+sampling = { sampler = "always" }
+# sampling = { sampler = "probability", fraction = 0.5 }
 
 # Configure either collectorEndpoint or agentEndpoint.
 # When both are configured collectorEndpoint will take precedence and the exporter will report directly to the collector.

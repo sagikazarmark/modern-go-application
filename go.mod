@@ -2,7 +2,7 @@ module github.com/sagikazarmark/modern-go-application
 
 require (
 	cloud.google.com/go v0.35.1 // indirect
-	contrib.go.opencensus.io/exporter/jaeger v0.1.0
+	contrib.go.opencensus.io/exporter/ocagent v0.5.0
 	contrib.go.opencensus.io/exporter/prometheus v0.1.0
 	github.com/99designs/gqlgen v0.8.3
 	github.com/99designs/gqlgen-contrib v0.0.0-20190222015228-c654377d611c
@@ -17,7 +17,6 @@ require (
 	github.com/goph/idgen v0.3.0
 	github.com/goph/logur v0.11.0
 	github.com/goph/watermillx v0.2.0
-	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/mux v1.7.0
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
