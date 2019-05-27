@@ -28,14 +28,13 @@ require (
 	github.com/opencensus-integrations/ocsql v0.1.3
 	github.com/pierrec/lz4 v2.0.5+incompatible // indirect
 	github.com/pkg/errors v0.8.1
-	github.com/prometheus/client_golang v0.9.3-0.20190127221311-3c4408c8b829 // indirect
 	github.com/sagikazarmark/ocmux v0.1.0
 	github.com/sirupsen/logrus v1.3.0
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/pflag v1.0.3
-	github.com/spf13/viper v1.3.1
+	github.com/spf13/viper v1.4.0
 	github.com/stretchr/testify v1.3.0
 	github.com/vektah/gqlparser v1.1.2
 	go.opencensus.io v0.21.0
-	google.golang.org/grpc v1.20.1
+	google.golang.org/grpc v1.21.0
 )
