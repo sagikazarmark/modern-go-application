@@ -22,13 +22,6 @@ reconnectPeriod = "5s"
 sampling = { sampler = "always" }
 # sampling = { sampler = "probability", fraction = 0.5 }
 
-# Configure either collectorEndpoint or agentEndpoint.
-# When both are configured collectorEndpoint will take precedence and the exporter will report directly to the collector.
-collectorEndpoint = "http://localhost:14268/api/traces?format=jaeger.thrift"
-agentEndpoint = "localhost:6831"
-# username = ""
-# password = ""
-
 [app]
 httpAddr = ":8000"
 grpcAddr = ":8001"
