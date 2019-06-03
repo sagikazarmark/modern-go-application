@@ -174,7 +174,7 @@ func configure(v *viper.Viper, p *pflag.FlagSet) {
 	_ = v.BindEnv("database.pass")
 	_ = v.BindEnv("database.name")
 	v.SetDefault("database.params", map[string]string{
-		"charset": "utf8mb4",
+		"collation": "utf8mb4_general_ci",
 	})
 
 	// Redis configuration
