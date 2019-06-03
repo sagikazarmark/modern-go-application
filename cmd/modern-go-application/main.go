@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"contrib.go.opencensus.io/exporter/ocagent"
+	"contrib.go.opencensus.io/exporter/prometheus"
 	"github.com/InVisionApp/go-health"
 	"github.com/InVisionApp/go-health/checkers"
 	"github.com/cloudflare/tableflip"
@@ -33,7 +34,6 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/platform/errorhandler"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/healthcheck"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
-	"github.com/sagikazarmark/modern-go-application/internal/platform/prometheus"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/watermill"
 	"github.com/sagikazarmark/modern-go-application/internal/todo/tododriver"
 	"github.com/sagikazarmark/modern-go-application/pkg/correlation"
@@ -124,6 +124,8 @@ func main() {
 
 	// Configure OpenCensus exporter
 	if config.Opencensus.Exporter.Enabled {
+		logger.Info("opencensus exporter enabled")
+
 		exporter, err := ocagent.NewExporter(append(
 			config.Opencensus.Exporter.Options(),
 			ocagent.WithServiceName(appName),
@@ -134,11 +136,17 @@ func main() {
 		view.RegisterExporter(exporter)
 	}
 
-	// configure Prometheus
-	if config.Instrumentation.Prometheus.Enabled {
+	// Configure Prometheus exporter
+	if config.Opencensus.Prometheus.Enabled {
 		logger.Info("prometheus exporter enabled")
 
-		exporter, err := prometheus.NewExporter(config.Instrumentation.Prometheus.Config, errorHandler)
+		exporter, err := prometheus.NewExporter(prometheus.Options{
+			OnError: emperror.HandlerWith(
+				errorHandler,
+				"component", "opencensus",
+				"exporter", "prometheus",
+			).Handle,
+		})
 		emperror.Panic(err)
 
 		view.RegisterExporter(exporter)

@@ -9,9 +9,6 @@ level = "info"
 [instrumentation]
 addr = ":10000"
 
-[instrumentation.prometheus]
-enabled = false
-
 [opencensus.exporter]
 enabled = false
 address = "127.0.0.1:55678"
@@ -21,6 +18,9 @@ reconnectPeriod = "5s"
 [opencensus.trace]
 sampling = { sampler = "always" }
 # sampling = { sampler = "probability", fraction = 0.5 }
+
+[opencensus.prometheus]
+enabled = false
 
 [app]
 httpAddr = ":8000"

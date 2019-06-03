@@ -13,7 +13,6 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/opencensus"
-	"github.com/sagikazarmark/modern-go-application/internal/platform/prometheus"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/redis"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/watermill"
 )
@@ -42,7 +41,13 @@ type configuration struct {
 			Enabled                   bool
 			opencensus.ExporterConfig `mapstructure:",squash"`
 		}
+
 		Trace opencensus.TraceConfig
+
+		// Prometheus configuration
+		Prometheus struct {
+			Enabled bool
+		}
 	}
 
 	// App configuration
@@ -101,12 +106,6 @@ func (c configuration) Validate() error {
 type instrumentationConfig struct {
 	// Instrumentation HTTP server address
 	Addr string
-
-	// Prometheus configuration
-	Prometheus struct {
-		Enabled           bool
-		prometheus.Config `mapstructure:",squash"`
-	}
 }
 
 // Validate validates the configuration.
@@ -151,15 +150,13 @@ func configure(v *viper.Viper, p *pflag.FlagSet) {
 	_ = v.BindPFlag("instrumentation.addr", p.Lookup("instrumentation-addr"))
 	v.SetDefault("instrumentation.addr", ":10000")
 
-	// Prometheus configuration
-	v.SetDefault("instrumentation.prometheus.enabled", false)
-
 	// OpenCensus configuration
 	v.SetDefault("opencensus.exporter.enabled", false)
 	_ = v.BindEnv("opencensus.exporter.address")
 	_ = v.BindEnv("opencensus.exporter.insecure")
 	_ = v.BindEnv("opencensus.exporter.reconnectPeriod")
 	v.SetDefault("opencensus.trace.sampling.sampler", "never")
+	v.SetDefault("opencensus.prometheus.enabled", false)
 
 	// App configuration
 	p.String("http-addr", ":8000", "App HTTP server address")
