@@ -6,7 +6,7 @@ application:
     tag: latest
     pullPolicy: Always
   config:
-    instrumentation:
+    opencensus:
       prometheus:
         enabled: true
 
