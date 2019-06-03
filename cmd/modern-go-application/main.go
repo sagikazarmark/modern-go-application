@@ -15,6 +15,7 @@ import (
 	"github.com/InVisionApp/go-health/checkers"
 	"github.com/cloudflare/tableflip"
 	"github.com/goph/emperror"
+	"github.com/goph/logur"
 	"github.com/goph/watermillx"
 	"github.com/oklog/run"
 	"github.com/opencensus-integrations/ocsql"
@@ -31,7 +32,6 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/buildinfo"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
-	"github.com/sagikazarmark/modern-go-application/internal/platform/errorhandler"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/healthcheck"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/watermill"
@@ -104,7 +104,7 @@ func main() {
 	}
 
 	// configure error handler
-	errorHandler := errorhandler.New(logger)
+	errorHandler := logur.NewErrorHandler(logger)
 	defer emperror.HandleRecover(errorHandler)
 
 	buildInfo := buildinfo.New(version, commitHash, buildDate)
