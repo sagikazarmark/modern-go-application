@@ -72,11 +72,11 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /version
+              path: /healthz/live
               port: instrumentation
           readinessProbe:
             httpGet:
-              path: /healthz
+              path: /healthz/ready
               port: instrumentation
           resources:
 {{ toYaml .Values.application.resources | indent 12 }}

@@ -12,10 +12,12 @@ import (
 	"contrib.go.opencensus.io/exporter/ocagent"
 	"contrib.go.opencensus.io/exporter/prometheus"
 	"github.com/InVisionApp/go-health"
-	"github.com/InVisionApp/go-health/checkers"
+	healthcheckers "github.com/InVisionApp/go-health/checkers"
+	healthhandlers "github.com/InVisionApp/go-health/handlers"
 	"github.com/cloudflare/tableflip"
 	"github.com/goph/emperror"
 	"github.com/goph/logur"
+	"github.com/goph/logur/integrations/invisionlog"
 	"github.com/goph/watermillx"
 	"github.com/oklog/run"
 	"github.com/opencensus-integrations/ocsql"
@@ -32,7 +34,6 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/buildinfo"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
-	"github.com/sagikazarmark/modern-go-application/internal/platform/healthcheck"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/watermill"
 	"github.com/sagikazarmark/modern-go-application/internal/todo/tododriver"
@@ -114,9 +115,19 @@ func main() {
 	instrumentationRouter := http.NewServeMux()
 	instrumentationRouter.Handle("/version", buildinfo.Handler(buildInfo))
 
-	// configure health checker
-	healthChecker := healthcheck.New(logger)
-	instrumentationRouter.Handle("/healthz", healthcheck.Handler(healthChecker))
+	// Configure health checker
+	healthChecker := health.New()
+	healthChecker.Logger = invisionlog.New(logur.WithFields(logger, map[string]interface{}{"component": "healthcheck"}))
+	{
+		handler := healthhandlers.NewJSONHandlerFunc(healthChecker, nil)
+		instrumentationRouter.Handle("/healthz", handler)
+
+		// Kubernetes style health checks
+		instrumentationRouter.HandleFunc("/healthz/live", func(w http.ResponseWriter, _ *http.Request) {
+			_, _ = w.Write([]byte("ok"))
+		})
+		instrumentationRouter.Handle("/healthz/ready", handler)
+	}
 
 	zpages.Handle(instrumentationRouter, "/debug")
 
@@ -223,7 +234,7 @@ func main() {
 
 	// Register database health check
 	{
-		check, err := checkers.NewSQL(&checkers.SQLConfig{Pinger: db})
+		check, err := healthcheckers.NewSQL(&healthcheckers.SQLConfig{Pinger: db})
 		emperror.Panic(errors.Wrap(err, "failed to create db health checker"))
 
 		err = healthChecker.AddCheck(&health.Config{
