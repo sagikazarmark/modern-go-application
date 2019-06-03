@@ -76,7 +76,7 @@ pipeline:
     image: banzaicloud/ci-pipeline-client:0.11
     action: EnsureDeployment
     deployment:
-      name: './spotguide-modern-go-application-0.2.0.tgz'
+      name: './spotguide-modern-go-application-0.3.0.tgz'
       # namespace:
       reuseValues: true
       releaseName: '{{ .CICD_REPO_NAME }}'
