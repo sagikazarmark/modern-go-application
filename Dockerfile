@@ -33,6 +33,8 @@ FROM alpine:3.9.4
 
 RUN apk add --update --no-cache ca-certificates tzdata bash curl
 
+SHELL ["/bin/bash", "-c"]
+
 ARG BUILD_TARGET
 
 RUN if [[ "${BUILD_TARGET}" == "debug" ]]; then apk add --update --no-cache libc6-compat; fi
