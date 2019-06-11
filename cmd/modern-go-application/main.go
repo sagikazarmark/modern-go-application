@@ -14,11 +14,12 @@ import (
 	"github.com/InVisionApp/go-health"
 	healthcheckers "github.com/InVisionApp/go-health/checkers"
 	healthhandlers "github.com/InVisionApp/go-health/handlers"
+	"github.com/ThreeDotsLabs/watermill/message"
+	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
 	"github.com/cloudflare/tableflip"
 	"github.com/goph/emperror"
 	"github.com/goph/logur"
 	"github.com/goph/logur/integrations/invisionlog"
-	"github.com/goph/watermillx"
 	"github.com/oklog/run"
 	"github.com/opencensus-integrations/ocsql"
 	"github.com/pkg/errors"
@@ -249,13 +250,17 @@ func main() {
 	pubsub := watermill.NewPubSub(logger)
 	defer pubsub.Close()
 
-	publisher, _ := watermillx.CorrelationIDPublisherDecorator(
-		watermillx.ContextCorrelationIDExtractorFunc(correlation.ID),
-	)(pubsub)
+	publisher, _ := message.MessageTransformPublisherDecorator(func(msg *message.Message) {
+		if cid, ok := correlation.ID(msg.Context()); ok {
+			middleware.SetCorrelationID(cid, msg)
+		}
+	})(pubsub)
 
-	subscriber, _ := watermillx.CorrelationIDSubscriberDecorator(
-		watermillx.ContextCorrelationIDInserterFunc(correlation.WithID),
-	)(pubsub)
+	subscriber, _ := message.MessageTransformSubscriberDecorator(func(msg *message.Message) {
+		if cid := middleware.MessageCorrelationID(msg); cid != "" {
+			msg.SetContext(correlation.WithID(msg.Context(), cid))
+		}
+	})(pubsub)
 
 	{
 		h, err := watermill.NewRouter(config.Watermill.RouterConfig, logger)
