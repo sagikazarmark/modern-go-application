@@ -1,7 +1,6 @@
 module github.com/sagikazarmark/modern-go-application
 
 require (
-	cloud.google.com/go v0.35.1 // indirect
 	contrib.go.opencensus.io/exporter/ocagent v0.5.0
 	contrib.go.opencensus.io/exporter/prometheus v0.1.0
 	github.com/99designs/gqlgen v0.8.3
@@ -11,12 +10,12 @@ require (
 	github.com/cloudflare/tableflip v0.0.0-20190111135955-d1e14f24db7d
 	github.com/go-kit/kit v0.8.0
 	github.com/go-sql-driver/mysql v1.4.1
+	github.com/golang/mock v1.2.0 // indirect
 	github.com/golang/protobuf v1.3.1
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/goph/emperror v0.17.1
 	github.com/goph/idgen v0.3.0
 	github.com/goph/logur v0.11.0
-	github.com/goph/watermillx v0.2.0
 	github.com/gorilla/mux v1.7.0
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
@@ -25,7 +24,6 @@ require (
 	github.com/oklog/run v1.0.0
 	github.com/olekukonko/tablewriter v0.0.1
 	github.com/opencensus-integrations/ocsql v0.1.3
-	github.com/pierrec/lz4 v2.0.5+incompatible // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/sagikazarmark/ocmux v0.1.0
 	github.com/sirupsen/logrus v1.3.0
@@ -37,3 +35,7 @@ require (
 	go.opencensus.io v0.21.0
 	google.golang.org/grpc v1.21.0
 )
+
+replace github.com/ThreeDotsLabs/watermill v0.4.0 => github.com/ThreeDotsLabs/watermill v0.4.1-0.20190601181058-54fc7f5042f7
+
+replace github.com/nats-io/go-nats-streaming v0.4.5 => github.com/nats-io/go-nats-streaming v0.4.4

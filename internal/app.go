@@ -9,7 +9,6 @@ import (
 	"github.com/goph/idgen/ulidgen"
 	"github.com/goph/logur"
 	"github.com/goph/logur/integrations/watermilllog"
-	"github.com/goph/watermillx"
 	"github.com/gorilla/mux"
 	"github.com/mccutchen/go-httpbin/httpbin"
 	"github.com/sagikazarmark/ocmux"
@@ -36,7 +35,7 @@ func NewApp(
 		eventBus, _ := cqrs.NewEventBus(
 			publisher,
 			func(eventName string) string { return todoTopic },
-			watermillx.NewStructNameMarshaler(cqrs.JSONMarshaler{}),
+			cqrs.JSONMarshaler{GenerateName: cqrs.StructName},
 		)
 		todoList = todo.NewList(
 			ulidgen.NewGenerator(),
@@ -94,7 +93,7 @@ func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber
 		},
 		func(eventName string) string { return todoTopic },
 		func(handlerName string) (message.Subscriber, error) { return subscriber, nil },
-		watermillx.NewStructNameMarshaler(cqrs.JSONMarshaler{}),
+		cqrs.JSONMarshaler{GenerateName: cqrs.StructName},
 		watermilllog.New(logur.WithFields(logger, map[string]interface{}{"component": "watermill"})),
 	)
 

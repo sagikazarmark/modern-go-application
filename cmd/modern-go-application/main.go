@@ -247,20 +247,21 @@ func main() {
 		emperror.Panic(errors.Wrap(err, "failed to add health checker"))
 	}
 
-	pubsub := watermill.NewPubSub(logger)
-	defer pubsub.Close()
+	publisher, subscriber := watermill.NewPubSub(logger)
+	defer publisher.Close()
+	defer subscriber.Close()
 
-	publisher, _ := message.MessageTransformPublisherDecorator(func(msg *message.Message) {
+	publisher, _ = message.MessageTransformPublisherDecorator(func(msg *message.Message) {
 		if cid, ok := correlation.ID(msg.Context()); ok {
 			middleware.SetCorrelationID(cid, msg)
 		}
-	})(pubsub)
+	})(publisher)
 
-	subscriber, _ := message.MessageTransformSubscriberDecorator(func(msg *message.Message) {
+	subscriber, _ = message.MessageTransformSubscriberDecorator(func(msg *message.Message) {
 		if cid := middleware.MessageCorrelationID(msg); cid != "" {
 			msg.SetContext(correlation.WithID(msg.Context(), cid))
 		}
-	})(pubsub)
+	})(subscriber)
 
 	{
 		h, err := watermill.NewRouter(config.Watermill.RouterConfig, logger)
@@ -269,7 +270,7 @@ func main() {
 		err = internal.RegisterEventHandlers(h, subscriber, logger)
 		emperror.Panic(err)
 
-		group.Add(h.Run, func(e error) { _ = h.Close() })
+		group.Add(func() error { return h.Run(context.Background()) }, func(e error) { _ = h.Close() })
 	}
 
 	// Register stat views

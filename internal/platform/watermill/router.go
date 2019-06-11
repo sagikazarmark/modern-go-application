@@ -29,7 +29,7 @@ func NewRouter(config RouterConfig, logger logur.Logger) (*message.Router, error
 
 	retryMiddleware := middleware.Retry{}
 	retryMiddleware.MaxRetries = 1
-	retryMiddleware.WaitTime = time.Millisecond * 10
+	retryMiddleware.MaxInterval = time.Millisecond * 10
 
 	h.AddMiddleware(
 		// if retries limit was exceeded, message is sent to poison queue (poison_queue topic)
