@@ -3,8 +3,8 @@ package database
 import (
 	"database/sql"
 
+	"contrib.go.opencensus.io/integrations/ocsql"
 	_ "github.com/go-sql-driver/mysql" // Importing mysql driver here
-	"github.com/opencensus-integrations/ocsql"
 	"github.com/pkg/errors"
 )
 

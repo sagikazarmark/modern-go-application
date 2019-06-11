@@ -3,6 +3,7 @@ module github.com/sagikazarmark/modern-go-application
 require (
 	contrib.go.opencensus.io/exporter/ocagent v0.5.0
 	contrib.go.opencensus.io/exporter/prometheus v0.1.0
+	contrib.go.opencensus.io/integrations/ocsql v0.1.4
 	github.com/99designs/gqlgen v0.8.3
 	github.com/99designs/gqlgen-contrib v0.0.0-20190222015228-c654377d611c
 	github.com/InVisionApp/go-health v2.1.0+incompatible
@@ -23,7 +24,6 @@ require (
 	github.com/moogar0880/problems v0.0.0-20160529214634-33afcba6336a
 	github.com/oklog/run v1.0.0
 	github.com/olekukonko/tablewriter v0.0.1
-	github.com/opencensus-integrations/ocsql v0.1.3
 	github.com/pkg/errors v0.8.1
 	github.com/sagikazarmark/ocmux v0.1.0
 	github.com/sirupsen/logrus v1.3.0

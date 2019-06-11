@@ -11,6 +11,7 @@ import (
 
 	"contrib.go.opencensus.io/exporter/ocagent"
 	"contrib.go.opencensus.io/exporter/prometheus"
+	"contrib.go.opencensus.io/integrations/ocsql"
 	"github.com/InVisionApp/go-health"
 	healthcheckers "github.com/InVisionApp/go-health/checkers"
 	healthhandlers "github.com/InVisionApp/go-health/handlers"
@@ -21,7 +22,6 @@ import (
 	"github.com/goph/logur"
 	"github.com/goph/logur/integrations/invisionlog"
 	"github.com/oklog/run"
-	"github.com/opencensus-integrations/ocsql"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
