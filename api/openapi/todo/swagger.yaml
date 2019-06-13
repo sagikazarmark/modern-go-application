@@ -69,6 +69,13 @@ paths:
             summary: "Mark a TODO as done"
             description: ""
             operationId: "markAsDone"
+            parameters:
+                -
+                    in: path
+                    name: id
+                    type: integer
+                    required: true
+                    description: Numeric ID of the TODO
             consumes:
                 - "application/json"
             produces:
