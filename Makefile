@@ -25,7 +25,7 @@ DOCKER_TAG ?= ${VERSION}
 
 # Dependency versions
 GOTESTSUM_VERSION = 0.3.4
-GOLANGCI_VERSION = 1.16.0
+GOLANGCI_VERSION = 1.17.1
 OPENAPI_GENERATOR_VERSION = 3.3.4
 GOBIN_VERSION = 0.0.9
 PROTOC_GEN_GO_VERSION = 1.3.1
@@ -158,7 +158,7 @@ bin/golangci-lint: bin/golangci-lint-${GOLANGCI_VERSION}
 	@ln -sf golangci-lint-${GOLANGCI_VERSION} bin/golangci-lint
 bin/golangci-lint-${GOLANGCI_VERSION}:
 	@mkdir -p bin
-	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s -- -b ./bin/ v${GOLANGCI_VERSION}
+	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | BINARY=golangci-lint bash -s -- v${GOLANGCI_VERSION}
 	@mv bin/golangci-lint $@
 
 .PHONY: lint
