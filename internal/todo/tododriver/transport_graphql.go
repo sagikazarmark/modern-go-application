@@ -80,7 +80,7 @@ func (r *mutationResolver) MarkTodoAsDone(ctx context.Context, input string) (bo
 
 type queryResolver struct{ *resolver }
 
-func (r *queryResolver) Todos(ctx context.Context) ([]todo.Todo, error) {
+func (r *queryResolver) Todos(ctx context.Context) ([]*todo.Todo, error) {
 	resp, err := r.endpoints.List(ctx, nil)
 	if err != nil {
 		r.errorHandler.Handle(err)
@@ -88,5 +88,12 @@ func (r *queryResolver) Todos(ctx context.Context) ([]todo.Todo, error) {
 		return nil, errors.New("internal server error")
 	}
 
-	return resp.(listTodosResponse).Todos, nil
+	todos := make([]*todo.Todo, len(resp.(listTodosResponse).Todos))
+
+	for i, todo := range resp.(listTodosResponse).Todos {
+		todo := todo
+		todos[i] = &todo
+	}
+
+	return todos, nil
 }
