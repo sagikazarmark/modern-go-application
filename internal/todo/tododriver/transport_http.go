@@ -15,6 +15,7 @@ import (
 
 	api "github.com/sagikazarmark/modern-go-application/.gen/api/openapi/todo/go"
 	"github.com/sagikazarmark/modern-go-application/internal/todo"
+	"github.com/sagikazarmark/modern-go-application/pkg/kiterr"
 )
 
 // MakeHTTPHandler mounts all of the service endpoints into an http.Handler.
@@ -22,47 +23,40 @@ func MakeHTTPHandler(endpoints Endpoints, errorHandler todo.ErrorHandler) http.H
 	r := mux.NewRouter().PathPrefix("/todos").Subrouter()
 	r.Use(ocmux.Middleware())
 
-	errorEncoder := httptransport.ServerErrorEncoder(func(ctx context.Context, err error, w http.ResponseWriter) {
-		// This replaces server error log
-		errorHandler.Handle(err)
-
-		err = encodeHTTPError(err, w)
-		if err != nil {
-			errorHandler.Handle(err)
-		}
-	})
+	options := []httptransport.ServerOption{
+		httptransport.ServerErrorEncoder(encodeHTTPError),
+		httptransport.ServerErrorHandler(kiterr.NewHandler(errorHandler)),
+	}
 
 	r.Methods(http.MethodPost).Path("/").Handler(httptransport.NewServer(
 		endpoints.Create,
 		decodeCreateTodoHTTPRequest,
 		encodeCreateTodoHTTPResponse,
-		errorEncoder,
+		options...,
 	))
 
 	r.Methods(http.MethodGet).Path("/").Handler(httptransport.NewServer(
 		endpoints.List,
 		decodeListTodosHTTPRequest,
 		encodeListTodosHTTPResponse,
-		errorEncoder,
+		options...,
 	))
 
 	r.Methods(http.MethodPost).Path("/{id}/done").Handler(httptransport.NewServer(
 		endpoints.MarkAsDone,
 		decodeMarkAsDoneHTTPRequest,
 		encodeMarkAsDoneHTTPResponse,
-		errorEncoder,
+		options...,
 	))
 
 	return r
 }
 
-func encodeHTTPError(err error, w http.ResponseWriter) error {
+func encodeHTTPError(_ context.Context, err error, w http.ResponseWriter) {
 	problem := problems.NewDetailedProblem(http.StatusInternalServerError, err.Error())
 
 	w.Header().Set("Content-Type", problems.ProblemMediaType)
-	err = json.NewEncoder(w).Encode(problem)
-
-	return emperror.WrapWith(err, "failed to respond with error", "error", problem.Detail)
+	_ = json.NewEncoder(w).Encode(problem)
 }
 
 func decodeCreateTodoHTTPRequest(_ context.Context, r *http.Request) (interface{}, error) {
