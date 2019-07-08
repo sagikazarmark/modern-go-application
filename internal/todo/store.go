@@ -4,7 +4,7 @@ import (
 	"context"
 	"sort"
 
-	"github.com/goph/emperror"
+	"emperror.dev/emperror"
 	"github.com/pkg/errors"
 )
 
