@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"emperror.dev/emperror"
 	"github.com/go-kit/kit/endpoint"
 	httptransport "github.com/go-kit/kit/transport/http"
-	"github.com/goph/emperror"
 	"github.com/gorilla/mux"
 	"github.com/moogar0880/problems"
 	"github.com/pkg/errors"

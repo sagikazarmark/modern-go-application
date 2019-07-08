@@ -3,8 +3,8 @@ package kiterr
 import (
 	"context"
 
+	"emperror.dev/emperror"
 	"github.com/go-kit/kit/transport"
-	"github.com/goph/emperror"
 )
 
 type errorHandler struct {

@@ -2,7 +2,7 @@ package todocli
 
 import (
 	"contrib.go.opencensus.io/exporter/ocagent"
-	"github.com/goph/emperror"
+	"emperror.dev/emperror"
 	"github.com/spf13/cobra"
 	"go.opencensus.io/plugin/ocgrpc"
 	"go.opencensus.io/trace"

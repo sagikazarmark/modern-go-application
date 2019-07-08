@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/goph/emperror"
+	"emperror.dev/emperror"
 	"github.com/pkg/errors"
 
 	"github.com/sagikazarmark/modern-go-application/internal/todo"

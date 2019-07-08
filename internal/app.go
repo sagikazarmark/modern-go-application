@@ -3,9 +3,9 @@ package internal
 import (
 	"net/http"
 
+	"emperror.dev/emperror"
 	"github.com/ThreeDotsLabs/watermill/components/cqrs"
 	"github.com/ThreeDotsLabs/watermill/message"
-	"github.com/goph/emperror"
 	"github.com/goph/idgen/ulidgen"
 	"github.com/goph/logur"
 	"github.com/goph/logur/integrations/watermilllog"
