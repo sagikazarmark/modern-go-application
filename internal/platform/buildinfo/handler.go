@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/pkg/errors"
+	"emperror.dev/errors"
 )
 
 // Handler returns an HTTP handler for version information.

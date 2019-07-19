@@ -13,6 +13,8 @@ import (
 	"contrib.go.opencensus.io/exporter/prometheus"
 	"contrib.go.opencensus.io/integrations/ocsql"
 	"emperror.dev/emperror"
+	"emperror.dev/errors"
+	logurhandler "emperror.dev/handler/logur"
 	"github.com/InVisionApp/go-health"
 	healthcheckers "github.com/InVisionApp/go-health/checkers"
 	healthhandlers "github.com/InVisionApp/go-health/handlers"
@@ -22,7 +24,6 @@ import (
 	"github.com/goph/logur"
 	"github.com/goph/logur/integrations/invisionlog"
 	"github.com/oklog/run"
-	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.opencensus.io/plugin/ocgrpc"
@@ -106,7 +107,7 @@ func main() {
 	}
 
 	// configure error handler
-	errorHandler := logur.NewErrorHandler(logger)
+	errorHandler := logurhandler.New(logger)
 	defer emperror.HandleRecover(errorHandler)
 
 	buildInfo := buildinfo.New(version, commitHash, buildDate)
@@ -153,7 +154,7 @@ func main() {
 		logger.Info("prometheus exporter enabled")
 
 		exporter, err := prometheus.NewExporter(prometheus.Options{
-			OnError: emperror.HandlerWith(
+			OnError: emperror.WithDetails(
 				errorHandler,
 				"component", "opencensus",
 				"exporter", "prometheus",
@@ -213,7 +214,7 @@ func main() {
 				}
 
 				err := server.Shutdown(ctx)
-				emperror.Handle(errorHandler, emperror.With(err, "server", name))
+				emperror.Handle(errorHandler, errors.WithDetails(err, "server", name))
 
 				_ = server.Close()
 			},
@@ -349,7 +350,7 @@ func main() {
 				}
 
 				err := httpServer.Shutdown(ctx)
-				emperror.Handle(errorHandler, emperror.With(err, "server", name))
+				emperror.Handle(errorHandler, errors.WithDetails(err, "server", name))
 
 				_ = httpServer.Close()
 			},

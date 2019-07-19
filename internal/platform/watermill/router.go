@@ -3,11 +3,11 @@ package watermill
 import (
 	"time"
 
+	"emperror.dev/errors"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
 	"github.com/goph/logur"
 	"github.com/goph/logur/integrations/watermilllog"
-	"github.com/pkg/errors"
 )
 
 // Config holds information for configuring Watermill router.

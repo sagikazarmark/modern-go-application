@@ -3,7 +3,7 @@ package todo
 import (
 	"context"
 
-	"github.com/pkg/errors"
+	"emperror.dev/errors"
 )
 
 // Todo is a note describing a task to be done.
@@ -48,8 +48,8 @@ func (NotFoundError) Error() string {
 	return "todo not found"
 }
 
-// Context returns context parameters for the error.
-func (e NotFoundError) Context() []interface{} {
+// Details returns error details.
+func (e NotFoundError) Details() []interface{} {
 	return []interface{}{"todo_id", e.ID}
 }
 

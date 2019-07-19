@@ -4,8 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"emperror.dev/emperror"
-	"github.com/pkg/errors"
+	"emperror.dev/errors"
 
 	"github.com/sagikazarmark/modern-go-application/internal/todo"
 )
@@ -39,8 +38,8 @@ func (*MarkedAsDoneEventHandler) NewEvent() interface{} {
 func (h *MarkedAsDoneEventHandler) Handle(ctx context.Context, event interface{}) error {
 	e, ok := event.(*todo.MarkedAsDone)
 	if !ok {
-		return emperror.With(
-			errors.New("unexpected event type"),
+		return errors.NewWithDetails(
+			"unexpected event type",
 			"type", fmt.Sprintf("%T", event),
 		)
 	}

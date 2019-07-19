@@ -4,7 +4,9 @@ require (
 	contrib.go.opencensus.io/exporter/ocagent v0.5.0
 	contrib.go.opencensus.io/exporter/prometheus v0.1.0
 	contrib.go.opencensus.io/integrations/ocsql v0.1.4
-	emperror.dev/emperror v0.20.0
+	emperror.dev/emperror v0.21.2
+	emperror.dev/errors v0.4.2
+	emperror.dev/handler/logur v0.1.0
 	github.com/99designs/gqlgen v0.9.0
 	github.com/99designs/gqlgen-contrib v0.0.0-20190222015228-c654377d611c
 	github.com/InVisionApp/go-health v2.1.0+incompatible
@@ -15,7 +17,7 @@ require (
 	github.com/golang/protobuf v1.3.1
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/goph/idgen v0.3.0
-	github.com/goph/logur v0.11.0
+	github.com/goph/logur v0.11.2
 	github.com/gorilla/mux v1.7.0
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
@@ -25,9 +27,8 @@ require (
 	github.com/olekukonko/tablewriter v0.0.1
 	github.com/onsi/ginkgo v1.8.0 // indirect
 	github.com/onsi/gomega v1.5.0 // indirect
-	github.com/pkg/errors v0.8.1
 	github.com/sagikazarmark/ocmux v0.1.0
-	github.com/sirupsen/logrus v1.3.0
+	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/pflag v1.0.3
 	github.com/spf13/viper v1.4.0

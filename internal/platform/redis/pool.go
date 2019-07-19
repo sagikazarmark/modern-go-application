@@ -3,8 +3,8 @@ package redis
 import (
 	"time"
 
+	"emperror.dev/errors"
 	"github.com/gomodule/redigo/redis"
-	"github.com/pkg/errors"
 )
 
 // NewPool creates a new redis connection pool.

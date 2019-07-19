@@ -3,7 +3,7 @@ package todoadapter
 import (
 	"context"
 
-	"github.com/pkg/errors"
+	"emperror.dev/errors"
 
 	"github.com/sagikazarmark/modern-go-application/internal/todo"
 )
