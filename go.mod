@@ -11,7 +11,7 @@ require (
 	github.com/99designs/gqlgen-contrib v0.0.0-20190222015228-c654377d611c
 	github.com/InVisionApp/go-health v2.1.0+incompatible
 	github.com/ThreeDotsLabs/watermill v0.4.0
-	github.com/cloudflare/tableflip v0.0.0-20190111135955-d1e14f24db7d
+	github.com/cloudflare/tableflip v1.0.0
 	github.com/go-kit/kit v0.9.0
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/golang/protobuf v1.3.1
@@ -35,7 +35,7 @@ require (
 	github.com/stretchr/testify v1.3.0
 	github.com/vektah/gqlparser v1.1.2
 	go.opencensus.io v0.22.0
-	google.golang.org/grpc v1.21.1
+	google.golang.org/grpc v1.22.0
 )
 
 replace github.com/ThreeDotsLabs/watermill v0.4.0 => github.com/ThreeDotsLabs/watermill v0.4.1-0.20190614194842-8952d2e10035
