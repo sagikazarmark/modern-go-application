@@ -3,7 +3,7 @@ package database
 import (
 	"fmt"
 
-	"github.com/pkg/errors"
+	"emperror.dev/errors"
 )
 
 // Config holds information necessary for connecting to a database.

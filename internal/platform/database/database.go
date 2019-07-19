@@ -4,8 +4,8 @@ import (
 	"database/sql"
 
 	"contrib.go.opencensus.io/integrations/ocsql"
+	"emperror.dev/errors"
 	_ "github.com/go-sql-driver/mysql" // Importing mysql driver here
-	"github.com/pkg/errors"
 )
 
 // NewConnection returns a new database connection for the application.

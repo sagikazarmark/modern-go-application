@@ -6,16 +6,15 @@ import (
 	"net/http"
 
 	"emperror.dev/emperror"
+	"emperror.dev/errors"
 	"github.com/go-kit/kit/endpoint"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"github.com/moogar0880/problems"
-	"github.com/pkg/errors"
 	"github.com/sagikazarmark/ocmux"
 
 	api "github.com/sagikazarmark/modern-go-application/.gen/api/openapi/todo/go"
 	"github.com/sagikazarmark/modern-go-application/internal/todo"
-	"github.com/sagikazarmark/modern-go-application/pkg/kiterr"
 )
 
 // MakeHTTPHandler mounts all of the service endpoints into an http.Handler.
@@ -25,7 +24,7 @@ func MakeHTTPHandler(endpoints Endpoints, errorHandler todo.ErrorHandler) http.H
 
 	options := []httptransport.ServerOption{
 		httptransport.ServerErrorEncoder(encodeHTTPError),
-		httptransport.ServerErrorHandler(kiterr.NewHandler(errorHandler)),
+		httptransport.ServerErrorHandler(emperror.MakeContextAware(errorHandler)),
 	}
 
 	r.Methods(http.MethodPost).Path("/").Handler(httptransport.NewServer(
@@ -119,7 +118,7 @@ func decodeMarkAsDoneHTTPRequest(_ context.Context, r *http.Request) (interface{
 
 	id, ok := vars["id"]
 	if !ok || id == "" {
-		return nil, emperror.With(errors.New("missing parameter from the URL"), "param", "id")
+		return nil, errors.NewWithDetails("missing parameter from the URL", "param", "id")
 	}
 
 	return markAsDoneRequest{

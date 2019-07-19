@@ -2,7 +2,7 @@ package todocli
 
 import (
 	"contrib.go.opencensus.io/exporter/ocagent"
-	"emperror.dev/emperror"
+	"emperror.dev/errors"
 	"github.com/spf13/cobra"
 	"go.opencensus.io/plugin/ocgrpc"
 	"go.opencensus.io/trace"
@@ -37,13 +37,13 @@ func Configure(rootCmd *cobra.Command) {
 			}),
 		)
 		if err != nil {
-			return emperror.Wrap(err, "failed to dial service")
+			return errors.WrapIf(err, "failed to dial service")
 		}
 
 		// Configure OpenCensus exporter
 		exporter, err := ocagent.NewExporter(ocagent.WithServiceName("todocli"))
 		if err != nil {
-			return emperror.Wrap(err, "failed to create exporter")
+			return errors.WrapIf(err, "failed to create exporter")
 		}
 
 		ocagentExporter = exporter

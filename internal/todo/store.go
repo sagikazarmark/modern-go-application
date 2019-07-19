@@ -4,8 +4,7 @@ import (
 	"context"
 	"sort"
 
-	"emperror.dev/emperror"
-	"github.com/pkg/errors"
+	"emperror.dev/errors"
 )
 
 // InmemoryStore keeps todos in the memory.
@@ -72,7 +71,7 @@ func NewReadOnlyStore(store Store) *ReadOnlyStore {
 
 // Store stores a todo.
 func (*ReadOnlyStore) Store(ctx context.Context, todo Todo) error {
-	return emperror.With(errors.New("read-only todo store cannot be modified"), "todo_id", todo.ID)
+	return errors.NewWithDetails("read-only todo store cannot be modified", "todo_id", todo.ID)
 }
 
 // All returns all todos.
