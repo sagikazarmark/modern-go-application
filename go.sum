@@ -19,8 +19,8 @@ emperror.dev/handler/logur v0.1.0 h1:3gxkGVAekwp+KmRtkLkkuWfEUtpNWIfI8JPEPmW5fPA
 emperror.dev/handler/logur v0.1.0/go.mod h1:8aSkRKY886cZWvszH3CGEaD7GCrtJ5hAPKZ8HY1nR1s=
 git.apache.org/thrift.git v0.12.0 h1:CMxsZlAmxKs+VAZMlDDL0wXciMblJcutQbEe3A9CYUM=
 git.apache.org/thrift.git v0.12.0/go.mod h1:fPE2ZNJGynbRyZ4dJvy6G277gSllfV2HJqblrnkyeyg=
-github.com/99designs/gqlgen v0.9.0 h1:g1arBPML74Vqv0L3Q+TqIhGXLspV+2MYtRLkBxuZrlE=
-github.com/99designs/gqlgen v0.9.0/go.mod h1:HrrG7ic9EgLPsULxsZh/Ti+p0HNWgR3XRuvnD0pb5KY=
+github.com/99designs/gqlgen v0.9.1 h1:YqEOgwamerz8mNGwqL5fX/SJS3+TdQ8zE02jhHIwjx0=
+github.com/99designs/gqlgen v0.9.1/go.mod h1:HrrG7ic9EgLPsULxsZh/Ti+p0HNWgR3XRuvnD0pb5KY=
 github.com/99designs/gqlgen-contrib v0.0.0-20190222015228-c654377d611c h1:6PhFf4boI9ICEsb57Y8GNs+Yhk/y8x8sRvLcc1QTpYc=
 github.com/99designs/gqlgen-contrib v0.0.0-20190222015228-c654377d611c/go.mod h1:YBpBdxshfUEBRQzGDvYsWGKUnbnh+aYyOKwtzJajAq4=
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
@@ -58,8 +58,6 @@ github.com/cespare/xxhash v1.1.0/go.mod h1:XrSqR1VqqWfGrhpAt58auRo0WTKS1nRRg3ghf
 github.com/circonus-labs/circonus-gometrics v2.3.1+incompatible/go.mod h1:nmEj6Dob7S7YxXgwXpfOuvO54S+tGdZdw9fuRZt25Ag=
 github.com/circonus-labs/circonusllhist v0.1.3/go.mod h1:kMXHVDlOchFAehlya5ePtbp5jckzBHf4XRpQvBOLI+I=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
-github.com/cloudflare/tableflip v0.0.0-20190111135955-d1e14f24db7d h1:oO9ZEENEUm3YtOCEYhLdnAADR5IiNh7rtCG9Ri/UdQQ=
-github.com/cloudflare/tableflip v0.0.0-20190111135955-d1e14f24db7d/go.mod h1:erh4dYezoMVbIa52pi7i1Du7+cXOgqNuTamt10qvMoA=
 github.com/cloudflare/tableflip v1.0.0 h1:4wH3CxGBy/N0L5hrifOz5ldJUb8DCaq5i0x9Q6+mkF0=
 github.com/cloudflare/tableflip v1.0.0/go.mod h1:JxQ7OEXHm5lWh7l4QwFvp6d1aLGGxqPV/thmggcYqjw=
 github.com/confluentinc/confluent-kafka-go v0.11.6/go.mod h1:u2zNLny2xq+5rWeTQjFHbDzzNuba4P1vo31r9r4uAdg=
@@ -196,8 +194,8 @@ github.com/mitchellh/mapstructure v1.1.2 h1:fmNYVwqnSfB9mZU6OS2O6GsXM+wcskZDuKQz
 github.com/mitchellh/mapstructure v1.1.2/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh9fWfEaFds41c1Y=
 github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
 github.com/modern-go/reflect2 v1.0.1/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3RllmbCylyMrvgv0=
-github.com/moogar0880/problems v0.0.0-20160529214634-33afcba6336a h1:pamls6Aolv49HOyMoGeINH02mO8cm7WF2FwuOKD5w8s=
-github.com/moogar0880/problems v0.0.0-20160529214634-33afcba6336a/go.mod h1:q/97oY+RzF1ljvRX0sQv5bsEO4NoOJriGq3SRhjCIaU=
+github.com/moogar0880/problems v0.1.1 h1:bktLhq8NDG/czU2ZziYNigBFksx13RaYe5AVdNmHDT4=
+github.com/moogar0880/problems v0.1.1/go.mod h1:5Dxrk2sD7BfBAgnOzQ1yaTiuCYdGPUh49L8Vhfky62c=
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
 github.com/nats-io/jwt v0.2.6/go.mod h1:mQxQ0uHQ9FhEVPIcTSKwx2lqZEpXWWcCgA7R6NrWvvY=
 github.com/nats-io/nats-server/v2 v2.0.0/go.mod h1:RyVdsHHvY4B6c9pWG+uRLpZ0h0XsqiuKp2XCTurP5LI=
@@ -412,6 +410,7 @@ golang.org/x/tools v0.0.0-20190312170243-e65039ee4138/go.mod h1:LCzVGOaR6xXOjkQ3
 golang.org/x/tools v0.0.0-20190506145303-2d16b83fe98c/go.mod h1:RgjU9mgBXZiqYHBnxXauZ1Gv1EHHAz9KjViQ78xBX0Q=
 golang.org/x/tools v0.0.0-20190515012406-7d7faa4812bd h1:oMEQDWVXVNpceQoVd1JN3CQ7LYJJzs5qWqZIUcxXHHw=
 golang.org/x/tools v0.0.0-20190515012406-7d7faa4812bd/go.mod h1:RgjU9mgBXZiqYHBnxXauZ1Gv1EHHAz9KjViQ78xBX0Q=
+golang.org/x/tools v0.0.0-20190524140312-2c0ae7006135 h1:5Beo0mZN8dRzgrMMkDp0jc8YXQKx9DiJ2k1dkvGsn5A=
 golang.org/x/tools v0.0.0-20190524140312-2c0ae7006135/go.mod h1:RgjU9mgBXZiqYHBnxXauZ1Gv1EHHAz9KjViQ78xBX0Q=
 google.golang.org/api v0.0.0-20181220000619-583d854617af/go.mod h1:4mhQ8q/RsB7i+udVvVy5NUi08OU8ZlA0gRVgrF7VFY0=
 google.golang.org/api v0.4.0/go.mod h1:8k5glujaEP+g9n7WNsDg8QP6cUVNI86fCNMcbazEtwE=

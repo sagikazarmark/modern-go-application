@@ -7,7 +7,7 @@ require (
 	emperror.dev/emperror v0.21.2
 	emperror.dev/errors v0.4.2
 	emperror.dev/handler/logur v0.1.0
-	github.com/99designs/gqlgen v0.9.0
+	github.com/99designs/gqlgen v0.9.1
 	github.com/99designs/gqlgen-contrib v0.0.0-20190222015228-c654377d611c
 	github.com/InVisionApp/go-health v2.1.0+incompatible
 	github.com/ThreeDotsLabs/watermill v0.4.0
@@ -22,7 +22,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/mccutchen/go-httpbin v0.0.0-20190116014521-c5cb2f4802fa
-	github.com/moogar0880/problems v0.0.0-20160529214634-33afcba6336a
+	github.com/moogar0880/problems v0.1.1
 	github.com/oklog/run v1.0.0
 	github.com/olekukonko/tablewriter v0.0.1
 	github.com/onsi/ginkgo v1.8.0 // indirect
