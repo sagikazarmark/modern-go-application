@@ -8,14 +8,14 @@ import (
 	"github.com/goph/logur/logtesting"
 	"github.com/stretchr/testify/require"
 
+	"github.com/sagikazarmark/modern-go-application/internal/common/commonadapter"
 	. "github.com/sagikazarmark/modern-go-application/internal/todo"
-	"github.com/sagikazarmark/modern-go-application/internal/todo/todoadapter"
 )
 
 func TestLogEventHandler_MarkedAsDone(t *testing.T) {
 	logger := logur.NewTestLogger()
 
-	eventHandler := NewLogEventHandler(todoadapter.NewLogger(logger))
+	eventHandler := NewLogEventHandler(commonadapter.NewLogger(logger))
 
 	event := MarkedAsDone{
 		ID: "1234",

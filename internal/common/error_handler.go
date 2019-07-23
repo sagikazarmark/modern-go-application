@@ -1,4 +1,4 @@
-package todo
+package common
 
 // ErrorHandler handles an error.
 type ErrorHandler interface {

@@ -1,11 +1,11 @@
-package todoadapter
+package commonadapter
 
 import (
 	"context"
 
 	"github.com/goph/logur"
 
-	"github.com/sagikazarmark/modern-go-application/internal/todo"
+	"github.com/sagikazarmark/modern-go-application/internal/common"
 )
 
 // Logger wraps a logur logger and exposes it under a custom interface.
@@ -61,7 +61,7 @@ func (l *Logger) Error(msg string, fields ...map[string]interface{}) {
 }
 
 // WithFields annotates a logger with key-value pairs.
-func (l *Logger) WithFields(fields map[string]interface{}) todo.Logger {
+func (l *Logger) WithFields(fields map[string]interface{}) common.Logger {
 	return &Logger{
 		logger:       logur.WithFields(l.logger, fields),
 		ctxExtractor: l.ctxExtractor,
@@ -69,7 +69,7 @@ func (l *Logger) WithFields(fields map[string]interface{}) todo.Logger {
 }
 
 // WithContext annotates a logger with a context.
-func (l *Logger) WithContext(ctx context.Context) todo.Logger {
+func (l *Logger) WithContext(ctx context.Context) common.Logger {
 	if l.ctxExtractor == nil {
 		return l
 	}

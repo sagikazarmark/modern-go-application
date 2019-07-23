@@ -15,6 +15,7 @@ import (
 	"google.golang.org/grpc"
 
 	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1beta1"
+	"github.com/sagikazarmark/modern-go-application/internal/common/commonadapter"
 	"github.com/sagikazarmark/modern-go-application/internal/landing/landingdriver"
 	"github.com/sagikazarmark/modern-go-application/internal/todo"
 	"github.com/sagikazarmark/modern-go-application/internal/todo/todoadapter"
@@ -42,7 +43,7 @@ func NewApp(
 			todo.NewInmemoryStore(),
 			todoadapter.NewEventDispatcher(eventBus),
 		)
-		logger := todoadapter.NewContextAwareLogger(logger, &correlation.ContextExtractor{}).
+		logger := commonadapter.NewContextAwareLogger(logger, &correlation.ContextExtractor{}).
 			WithFields(map[string]interface{}{
 				"module": "todo",
 			})
@@ -86,10 +87,10 @@ func NewApp(
 
 // RegisterEventHandlers registers event handlers in a message router.
 func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber, logger logur.Logger) error {
-	todoLogger := todoadapter.NewContextAwareLogger(logger, &correlation.ContextExtractor{})
+	commonLogger := commonadapter.NewContextAwareLogger(logger, &correlation.ContextExtractor{})
 	todoEventProcessor, _ := cqrs.NewEventProcessor(
 		[]cqrs.EventHandler{
-			tododriver.NewMarkedAsDoneEventHandler(todo.NewLogEventHandler(todoLogger)),
+			tododriver.NewMarkedAsDoneEventHandler(todo.NewLogEventHandler(commonLogger)),
 		},
 		func(eventName string) string { return todoTopic },
 		func(handlerName string) (message.Subscriber, error) { return subscriber, nil },
