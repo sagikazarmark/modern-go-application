@@ -10,12 +10,12 @@ import (
 	"github.com/goph/logur"
 	"github.com/goph/logur/integrations/watermilllog"
 	"github.com/gorilla/mux"
-	"github.com/mccutchen/go-httpbin/httpbin"
 	"github.com/sagikazarmark/ocmux"
 	"google.golang.org/grpc"
 
 	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1beta1"
 	"github.com/sagikazarmark/modern-go-application/internal/common/commonadapter"
+	"github.com/sagikazarmark/modern-go-application/internal/httpbin"
 	"github.com/sagikazarmark/modern-go-application/internal/landing/landingdriver"
 	"github.com/sagikazarmark/modern-go-application/internal/todo"
 	"github.com/sagikazarmark/modern-go-application/internal/todo/todoadapter"
@@ -31,6 +31,8 @@ func NewApp(
 	publisher message.Publisher,
 	errorHandler emperror.Handler,
 ) (http.Handler, func(*grpc.Server)) {
+	commonLogger := commonadapter.NewContextAwareLogger(logger, &correlation.ContextExtractor{})
+
 	var todoList tododriver.TodoList
 	{
 		eventBus, _ := cqrs.NewEventBus(
@@ -43,10 +45,7 @@ func NewApp(
 			todo.NewInmemoryStore(),
 			todoadapter.NewEventDispatcher(eventBus),
 		)
-		logger := commonadapter.NewContextAwareLogger(logger, &correlation.ContextExtractor{}).
-			WithFields(map[string]interface{}{
-				"module": "todo",
-			})
+		logger := commonLogger.WithFields(map[string]interface{}{"module": "todo"})
 		todoList = tododriver.LoggingMiddleware(logger)(todoList)
 		todoList = tododriver.InstrumentationMiddleware()(todoList)
 	}
@@ -60,25 +59,10 @@ func NewApp(
 	router.Path("/").Methods("GET").Handler(landingdriver.NewHTTPHandler())
 	router.PathPrefix("/todos").Handler(tododriver.MakeHTTPHandler(todoListEndpoint, errorHandler))
 	router.PathPrefix("/graphql").Handler(tododriver.MakeGraphQLHandler(todoListEndpoint, errorHandler))
-	router.PathPrefix("/httpbin").Handler(
-		http.StripPrefix(
-			"/httpbin",
-			httpbin.New(
-				httpbin.WithObserver(func(result httpbin.Result) {
-					logger.Info(
-						"httpbin call",
-						map[string]interface{}{
-							"status":      result.Status,
-							"method":      result.Method,
-							"uri":         result.URI,
-							"size_bytes":  result.Size,
-							"duration_ms": result.Duration.Seconds() * 1e3, // https://github.com/golang/go/issues/5491#issuecomment-66079585
-						},
-					)
-				}),
-			).Handler(),
-		),
-	)
+	router.PathPrefix("/httpbin").Handler(http.StripPrefix(
+		"/httpbin",
+		httpbin.MakeHTTPHandler(commonLogger.WithFields(map[string]interface{}{"module": "httpbin"})),
+	))
 
 	return router, func(s *grpc.Server) {
 		todov1beta1.RegisterTodoListServer(s, tododriver.MakeGRPCServer(todoListEndpoint, errorHandler))
