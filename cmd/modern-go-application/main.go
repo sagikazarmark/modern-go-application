@@ -294,7 +294,7 @@ func main() {
 		tododriver.CreatedTodoCountView,
 		tododriver.DoneTodoCountView,
 	)
-	emperror.Panic(errors.Wrap(err, "failed to register HTTP server stat views"))
+	emperror.Panic(errors.Wrap(err, "failed to register stat views"))
 
 	// Set up app server
 	{
