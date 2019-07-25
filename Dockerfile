@@ -33,6 +33,10 @@ FROM alpine:3.9.4
 
 RUN apk add --update --no-cache ca-certificates tzdata bash curl
 
+# set up nsswitch.conf for Go's "netgo" implementation
+# https://github.com/gliderlabs/docker-alpine/issues/367#issuecomment-424546457
+RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
+
 SHELL ["/bin/bash", "-c"]
 
 ARG BUILD_TARGET
