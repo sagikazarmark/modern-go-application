@@ -67,17 +67,17 @@ spec:
             - name: app
               containerPort: 8000
               protocol: TCP
-            - name: instrumentation
+            - name: telemetry
               containerPort: 10000
               protocol: TCP
           livenessProbe:
             httpGet:
               path: /healthz/live
-              port: instrumentation
+              port: telemetry
           readinessProbe:
             httpGet:
               path: /healthz/ready
-              port: instrumentation
+              port: telemetry
           resources:
 {{ toYaml .Values.application.resources | indent 12 }}
     {{- with .Values.application.nodeSelector }}

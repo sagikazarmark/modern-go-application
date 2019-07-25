@@ -114,24 +114,24 @@ func main() {
 
 	logger.Info("starting application", buildInfo.Fields())
 
-	instrumentationRouter := http.NewServeMux()
-	instrumentationRouter.Handle("/version", buildinfo.Handler(buildInfo))
+	telemetryRouter := http.NewServeMux()
+	telemetryRouter.Handle("/version", buildinfo.Handler(buildInfo))
 
 	// Configure health checker
 	healthChecker := health.New()
 	healthChecker.Logger = invisionlog.New(logur.WithFields(logger, map[string]interface{}{"component": "healthcheck"}))
 	{
 		handler := healthhandlers.NewJSONHandlerFunc(healthChecker, nil)
-		instrumentationRouter.Handle("/healthz", handler)
+		telemetryRouter.Handle("/healthz", handler)
 
 		// Kubernetes style health checks
-		instrumentationRouter.HandleFunc("/healthz/live", func(w http.ResponseWriter, _ *http.Request) {
+		telemetryRouter.HandleFunc("/healthz/live", func(w http.ResponseWriter, _ *http.Request) {
 			_, _ = w.Write([]byte("ok"))
 		})
-		instrumentationRouter.Handle("/healthz/ready", handler)
+		telemetryRouter.Handle("/healthz/ready", handler)
 	}
 
-	zpages.Handle(instrumentationRouter, "/debug")
+	zpages.Handle(telemetryRouter, "/debug")
 
 	trace.ApplyConfig(config.Opencensus.Trace.Config())
 
@@ -163,7 +163,7 @@ func main() {
 		emperror.Panic(err)
 
 		view.RegisterExporter(exporter)
-		instrumentationRouter.Handle("/metrics", exporter)
+		telemetryRouter.Handle("/metrics", exporter)
 	}
 
 	// configure graceful restart
@@ -182,18 +182,18 @@ func main() {
 
 	var group run.Group
 
-	// Set up instrumentation server
+	// Set up telemetry server
 	{
-		const name = "instrumentation"
+		const name = "telemetry"
 		logger := log.WithFields(logger, map[string]interface{}{"server": name})
 
-		logger.Info("listening on address", map[string]interface{}{"address": config.Instrumentation.Addr})
+		logger.Info("listening on address", map[string]interface{}{"address": config.Telemetry.Addr})
 
-		ln, err := upg.Fds.Listen("tcp", config.Instrumentation.Addr)
+		ln, err := upg.Fds.Listen("tcp", config.Telemetry.Addr)
 		emperror.Panic(err)
 
 		server := &http.Server{
-			Handler:  instrumentationRouter,
+			Handler:  telemetryRouter,
 			ErrorLog: log.NewErrorStandardLogger(logger),
 		}
 

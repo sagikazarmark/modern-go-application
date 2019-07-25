@@ -22,7 +22,7 @@ Some of the areas Modern Go Application touches:
 - configuration
 - running the application (eg. in Docker)
 - developer environment/experience
-- instrumentation
+- telemetry
 
 To help adopting these practices, this repository also serves as a boilerplate for new applications.
 

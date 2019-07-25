@@ -32,8 +32,8 @@ type configuration struct {
 	// Log configuration
 	Log log.Config
 
-	// Instrumentation configuration
-	Instrumentation instrumentationConfig
+	// Telemetry configuration
+	Telemetry telemetryConfig
 
 	// OpenCensus configuration
 	Opencensus struct {
@@ -78,7 +78,7 @@ func (c configuration) Validate() error {
 		return errors.New("environment is required")
 	}
 
-	if err := c.Instrumentation.Validate(); err != nil {
+	if err := c.Telemetry.Validate(); err != nil {
 		return err
 	}
 
@@ -102,16 +102,16 @@ func (c configuration) Validate() error {
 	return nil
 }
 
-// instrumentationConfig represents the instrumentation related configuration.
-type instrumentationConfig struct {
-	// Instrumentation HTTP server address
+// telemetryConfig represents the telemetry related configuration.
+type telemetryConfig struct {
+	// Telemetry HTTP server address
 	Addr string
 }
 
 // Validate validates the configuration.
-func (c instrumentationConfig) Validate() error {
+func (c telemetryConfig) Validate() error {
 	if c.Addr == "" {
-		return errors.New("instrumentation http server address is required")
+		return errors.New("telemetry http server address is required")
 	}
 
 	return nil
@@ -145,10 +145,10 @@ func configure(v *viper.Viper, p *pflag.FlagSet) {
 	v.SetDefault("log.level", "info")
 	v.RegisterAlias("log.noColor", "no_color")
 
-	// Instrumentation configuration
-	p.String("instrumentation-addr", ":10000", "Instrumentation HTTP server address")
-	_ = v.BindPFlag("instrumentation.addr", p.Lookup("instrumentation-addr"))
-	v.SetDefault("instrumentation.addr", ":10000")
+	// Telemetry configuration
+	p.String("telemetry-addr", ":10000", "Telemetry HTTP server address")
+	_ = v.BindPFlag("telemetry.addr", p.Lookup("telemetry-addr"))
+	v.SetDefault("telemetry.addr", ":10000")
 
 	// OpenCensus configuration
 	v.SetDefault("opencensus.exporter.enabled", false)

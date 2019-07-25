@@ -90,7 +90,7 @@ pipeline:
             tag: '{{ trunc 7 .CICD_COMMIT_SHA }}'
             pullPolicy: Always
           config:
-            instrumentation:
+            opencensus:
               prometheus:
                 enabled: true
           {{{{- if .platform.AutoDNSEnabled }}}}

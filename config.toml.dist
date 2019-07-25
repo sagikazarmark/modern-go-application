@@ -6,7 +6,7 @@ shutdownTimeout = "15s"
 format = "json"
 level = "info"
 
-[instrumentation]
+[telemetry]
 addr = ":10000"
 
 [opencensus.exporter]
