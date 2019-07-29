@@ -57,7 +57,6 @@ func main() {
 
 	p.String("config", "", "Configuration file")
 	p.Bool("version", false, "Show version information")
-	p.Bool("dump-config", false, "Dump configuration to the console (and exit)")
 
 	_ = p.Parse(os.Args[1:])
 
@@ -98,12 +97,6 @@ func main() {
 		logger.Error(err.Error())
 
 		os.Exit(3)
-	}
-
-	if d, _ := p.GetBool("dump-config"); d {
-		fmt.Printf("%+v\n", config)
-
-		os.Exit(0)
 	}
 
 	// configure error handler
