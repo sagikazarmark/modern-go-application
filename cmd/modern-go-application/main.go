@@ -51,7 +51,7 @@ var (
 )
 
 func main() {
-	v, p := viper.New(), pflag.NewFlagSet(firendlyAppName, pflag.ExitOnError)
+	v, p := viper.New(), pflag.NewFlagSet(friendlyAppName, pflag.ExitOnError)
 
 	configure(v, p)
 
@@ -61,7 +61,7 @@ func main() {
 	_ = p.Parse(os.Args[1:])
 
 	if v, _ := p.GetBool("version"); v {
-		fmt.Printf("%s version %s (%s) built on %s\n", firendlyAppName, version, commitHash, buildDate)
+		fmt.Printf("%s version %s (%s) built on %s\n", friendlyAppName, version, commitHash, buildDate)
 
 		os.Exit(0)
 	}

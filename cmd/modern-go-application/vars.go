@@ -7,8 +7,8 @@ const (
 	// and other details.
 	appName = "mga"
 
-	// firendlyAppName is the visible name of the application.
-	firendlyAppName = "Modern Go Application"
+	// friendlyAppName is the visible name of the application.
+	friendlyAppName = "Modern Go Application"
 
 	// envPrefix is prepended to environment variables when processing configuration.
 	envPrefix = "app"
