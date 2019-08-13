@@ -31,7 +31,7 @@ To help adopting these practices, this repository also serves as a boilerplate f
 
 - configuration (using [spf13/viper](https://github.com/spf13/viper))
 - logging (using [goph/logur](https://github.com/goph/logur) and [sirupsen/logrus](https://github.com/sirupsen/logrus))
-- error handling (using [goph/emperror](https://github.com/goph/emperror))
+- error handling (using [emperror.dev/emperror](https://emperror.dev/emperror))
 - metrics and tracing using [Prometheus](https://prometheus.io/) and [Jaeger](https://www.jaegertracing.io/) (via [OpenCensus](https://opencensus.io/))
 - health checks (using [InVisionApp/go-health](https://github.com/InVisionApp/go-health))
 - graceful restart (using [cloudflare/tableflip](https://github.com/cloudflare/tableflip)) and shutdown
