@@ -10,7 +10,7 @@ import (
 	"github.com/goph/logur/integrations/watermilllog"
 )
 
-// Config holds information for configuring Watermill router.
+// RouterConfig holds information for configuring Watermill router.
 type RouterConfig struct {
 	CloseTimeout time.Duration
 }

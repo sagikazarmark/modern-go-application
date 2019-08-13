@@ -1,6 +1,8 @@
+// Package landing contains a landing page for the application.
 // nolint: lll
 package landing
 
+// Template holds the landing page template.
 const Template = `
 <html lang="en">
 <head>

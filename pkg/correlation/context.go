@@ -12,8 +12,10 @@ func (c contextKey) String() string {
 	return "trace context key " + string(c)
 }
 
+// ContextExtractor extracts values from a context.
 type ContextExtractor struct{}
 
+// Extract extracts values from a context.
 func (*ContextExtractor) Extract(ctx context.Context) map[string]interface{} {
 	fields := make(map[string]interface{})
 

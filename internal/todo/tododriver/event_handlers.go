@@ -27,14 +27,17 @@ func NewMarkedAsDoneEventHandler(handler MarkedAsDoneHandler) *MarkedAsDoneEvent
 	}
 }
 
+// HandlerName implements the cqrs.EventHandler interface.
 func (MarkedAsDoneEventHandler) HandlerName() string {
 	return "marked_as_done"
 }
 
+// NewEvent implements the cqrs.EventHandler interface.
 func (*MarkedAsDoneEventHandler) NewEvent() interface{} {
 	return &todo.MarkedAsDone{}
 }
 
+// Handle implements the cqrs.EventHandler interface.
 func (h *MarkedAsDoneEventHandler) Handle(ctx context.Context, event interface{}) error {
 	e, ok := event.(*todo.MarkedAsDone)
 	if !ok {

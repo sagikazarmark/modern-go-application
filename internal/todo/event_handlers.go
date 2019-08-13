@@ -16,6 +16,7 @@ func NewLogEventHandler(logger Logger) *LogEventHandler {
 	}
 }
 
+// MarkedAsDone logs a MarkedAsDone event.
 func (h *LogEventHandler) MarkedAsDone(ctx context.Context, event MarkedAsDone) error {
 	logger := h.logger.WithContext(ctx)
 
