@@ -1,117 +1,93 @@
 version: 2.1
 
 executors:
-    docker:
+    go:
+        parameters:
+            build_image:
+                type: string
+                default: "circleci/golang"
+                description: Go build image
+            go_version:
+                type: string
+                default: "1.12"
+                description: Go build image version
         docker:
-            -   image: circleci/golang:1.12
+            -   image: << parameters.build_image >>:<< parameters.go_version >>
                 environment:
                     GOFLAGS: -mod=readonly
+                    GOPROXY: https://proxy.golang.org
 
 commands:
     restore_build_cache:
         description: Restore build cache
         steps:
-            -
-                restore_cache:
+            -   restore_cache:
                     name: Restore build dependencies
                     keys:
                         - build-deps-v1-{{ .Branch }}-{{ checksum "Makefile" }}
 
-    restore_go_module_cache:
-        description: Restore Go module cache
-        steps:
-            -
-                restore_cache:
-                    name: Restore Go module cache
-                    keys:
-                        - gomod-v1-{{ .Branch }}-{{ checksum "go.sum" }}
-                        - gomod-v1-{{ .Branch }}
-                        - gomod-v1-master
-                        - gomod-v1
-
     save_build_cache:
         description: Save build cache
         steps:
-            -
-                save_cache:
+            -   save_cache:
                     name: Save build dependencies
                     key: build-deps-v1-{{ .Branch }}-{{ checksum "Makefile" }}
                     paths:
                         - bin/
 
 jobs:
-    dependencies:
-        executor: docker
-
-        steps:
-            - checkout
-            - restore_go_module_cache
-
-            -
-                run:
-                    name: Download Go module cache
-                    command: go mod download
-
-            -
-                save_cache:
-                    name: Save Go module cache
-                    key: gomod-v1-{{ .Branch }}-{{ checksum "go.sum" }}
-                    paths:
-                        - /go/pkg/mod
-
     unit-tests:
-        executor: docker
+        executor: go
 
         steps:
             - checkout
             - restore_build_cache
-            - restore_go_module_cache
 
-            -
-                run:
+            -   run:
                     name: Run tests
-                    command: TEST_PKGS=$(echo `go list ./... | circleci tests split`) TEST_REPORT_NAME=results_${CIRCLE_NODE_INDEX}.xml make test
+                    command: |
+                        if [ $CIRCLE_NODE_TOTAL -gt 1 ]; then
+                            export TEST_PKGS=$(echo `go list ./... | circleci tests split`)
+                            export TEST_REPORT_NAME=results_${CIRCLE_NODE_INDEX}.xml
+                        fi
 
-            -
-                run:
-                    name: Run linter
-                    command: make lint
+                        make test
 
             - save_build_cache
 
-            -
-                store_test_results:
+            -   store_test_results:
                     path: build/test_results/
 
     integration-tests:
-        executor: docker
+        executor: go
 
         steps:
             - checkout
             - restore_build_cache
-            - restore_go_module_cache
 
-            -
-                run:
+            -   run:
                     name: Run integration tests
-                    command: TEST_PKGS=$(echo `go list ./... | circleci tests split`) TEST_REPORT_NAME=results_${CIRCLE_NODE_INDEX}.xml make test-integration
+                    command: |
+                        if [ $CIRCLE_NODE_TOTAL -gt 1 ]; then
+                            export TEST_PKGS=$(echo `go list ./... | circleci tests split`)
+                            export TEST_REPORT_NAME=results_${CIRCLE_NODE_INDEX}.xml
+                        fi
+
+                        make test-integration
 
             - save_build_cache
 
-            -
-                store_test_results:
+            -   store_test_results:
                     path: build/test_results/
 
     lint:
-        executor: docker
+        executor: go
 
         steps:
             - checkout
             - restore_build_cache
-            - restore_go_module_cache
 
-            -
-                run:
+            -   run:
                     name: Run linter
                     command: make lint
 
@@ -121,13 +97,6 @@ workflows:
     version: 2
     build:
         jobs:
-            - dependencies
-            - unit-tests:
-                  requires:
-                      - dependencies
-            - integration-tests:
-                  requires:
-                      - dependencies
-            - lint:
-                  requires:
-                      - dependencies
+            - unit-tests
+            - integration-tests
+            - lint

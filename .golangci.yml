@@ -12,3 +12,6 @@ linters-settings:
         min-confidence: 0.1
     goimports:
         local-prefixes: github.com/sagikazarmark/modern-go-application
+
+service:
+    golangci-lint-version: 1.17.x
