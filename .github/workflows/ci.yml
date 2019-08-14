@@ -1,11 +1,10 @@
 name: CI
 on:
   push:
-  pull_request:
     branches:
-      - nope
-    tags:
-      - nope
+      - master
+      - !refs/pull/*
+  pull_request:
 jobs:
 
   build:
@@ -63,4 +62,4 @@ jobs:
       
     - name: Tag image
       run: docker tag ${GITHUB_REPOSITORY}:${GITHUB_SHA} ${GITHUB_REPOSITORY}:${GITHUB_REF#"refs/heads/"}
-      if: github.ref != '' && github.head_ref == ''
+      if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.base.repo.fullname == github.event.pull_request.head.repo.fullname)
