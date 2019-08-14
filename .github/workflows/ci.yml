@@ -5,7 +5,7 @@ on:
     branches:
       - !refs/heads/*
     tags:
-      - !refs/heads/*
+      - !refs/tags/*
 jobs:
 
   build:
