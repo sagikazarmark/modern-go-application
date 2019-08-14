@@ -37,6 +37,4 @@ jobs:
         VERBOSE: 1
         
     - name: Lint
-      run: make test-integration
-      env:
-        VERBOSE: 1
+      run: make lint
