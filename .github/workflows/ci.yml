@@ -55,17 +55,6 @@ jobs:
     - name: Build image
       run: docker build --build-arg GOPROXY=https://proxy.golang.org -t ${GITHUB_REPOSITORY}:${GITHUB_SHA} .
       
-    - name: Dump GitHub context
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
-      
-    - name: Dump GitHub context2
-      run: echo "$GITHUB_REF"
-      
-    - name: Dump env
-      run: env
-      
     - name: Tag image
-      run: docker tag ${GITHUB_REPOSITORY}:${GITHUB_SHA} ${GITHUB_REPOSITORY}:${GITHUB_REF#"refs/heads/"}
+      run: docker tag ${GITHUB_REPOSITORY}:${GITHUB_SHA} ${GITHUB_REPOSITORY}:${GITHUB_HEAD_REF:-${GITHUB_REF#"refs/heads/"}}
       if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.base.repo.fullname == github.event.pull_request.head.repo.fullname)
