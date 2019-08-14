@@ -3,9 +3,9 @@ on:
   push:
   pull_request:
     branches:
-      - !*
+      - nope
     tags:
-      - !*
+      - nope
 jobs:
 
   build:
