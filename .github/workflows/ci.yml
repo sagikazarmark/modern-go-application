@@ -1,9 +1,11 @@
 name: CI
 on:
   push:
-    branches:
-      - master
   pull_request:
+    branches:
+      - !refs/heads/*
+    tags:
+      - !refs/heads/*
 jobs:
 
   build:
