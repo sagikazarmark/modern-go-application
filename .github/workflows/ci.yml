@@ -14,11 +14,10 @@ jobs:
       id: go
 
     - name: Check out code into the Go module directory
-      use: actions/checkout@master
+      uses: actions/checkout@master
 
     - name: Get dependencies
       run: go mod download
-
 
     - name: Build
       run: make build
