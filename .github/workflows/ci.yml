@@ -55,5 +55,5 @@ jobs:
       run: docker build --build-arg GOPROXY=https://proxy.golang.org -t ${GITHUB_REPOSITORY}:${GITHUB_SHA} .
       
     - name: Tag image
-      run: docker build --build-arg GOPROXY=https://proxy.golang.org -t ${GITHUB_REPOSITORY}:${GITHUB_SHA} .
-      if: 
+      run: docker tag ${GITHUB_REPOSITORY}:${GITHUB_SHA} ${GITHUB_REPOSITORY}:${GITHUB_REF#"$prefix"}
+      if: github.ref != '' && github.head_ref == ''
