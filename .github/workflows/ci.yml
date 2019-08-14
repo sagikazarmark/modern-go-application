@@ -25,3 +25,18 @@ jobs:
       run: make build
       env:
         VERBOSE: 1
+
+    - name: Unit tests
+      run: make test
+      env:
+        VERBOSE: 1
+        
+    - name: Integration tests
+      run: make test-integration
+      env:
+        VERBOSE: 1
+        
+    - name: Lint
+      run: make test-integration
+      env:
+        VERBOSE: 1
