@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - master
-      - !refs/pull/*
+      - '!refs/pull/*'
   pull_request:
 jobs:
 
