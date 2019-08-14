@@ -1,63 +1,63 @@
 name: CI
+
 on:
   push:
     branches:
       - master
   pull_request:
+
 jobs:
 
   build:
     name: Build
     runs-on: ubuntu-latest
     steps:
+      - name: Set up Go
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.12
+        id: go
 
-    - name: Set up Go
-      uses: actions/setup-go@v1
-      with:
-        go-version: 1.12
-      id: go
+      - name: Checkout code
+        uses: actions/checkout@master
 
-    - name: Checkout code
-      uses: actions/checkout@master
+      - name: Download dependencies
+        run: go mod download
+        env:
+          GOPROXY: https://proxy.golang.org
 
-    - name: Download dependencies
-      run: go mod download
-      env:
-        GOPROXY: https://proxy.golang.org
+      - name: Build
+        run: make build
+        env:
+          VERBOSE: 1
 
-    - name: Build
-      run: make build
-      env:
-        VERBOSE: 1
+      - name: Unit tests
+        run: make test
+        env:
+          VERBOSE: 1
 
-    - name: Unit tests
-      run: make test
-      env:
-        VERBOSE: 1
-        
-    - name: Integration tests
-      run: make test-integration
-      env:
-        VERBOSE: 1
-        
-    - name: Lint
-      run: make lint
+      - name: Integration tests
+        run: make test-integration
+        env:
+          VERBOSE: 1
+
+      - name: Lint
+        run: make lint
 
   docker:
     name: Docker
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@master
 
-    - name: Checkout code
-      uses: actions/checkout@master
+      - name: Build image
+        run: docker build --build-arg GOPROXY=https://proxy.golang.org -t ${GITHUB_REPOSITORY}:${GITHUB_SHA} .
 
-    - name: Build image
-      run: docker build --build-arg GOPROXY=https://proxy.golang.org -t ${GITHUB_REPOSITORY}:${GITHUB_SHA} .
-      
-    - name: Tag image
-      run: docker tag ${GITHUB_REPOSITORY}:${GITHUB_SHA} ${GITHUB_REPOSITORY}:${GITHUB_HEAD_REF:-${GITHUB_REF#"refs/heads/"}}
-      if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.base.repo.fullname == github.event.pull_request.head.repo.fullname)
+      - name: Tag image
+        run: docker tag ${GITHUB_REPOSITORY}:${GITHUB_SHA} ${GITHUB_REPOSITORY}:${GITHUB_HEAD_REF:-${GITHUB_REF#"refs/heads/"}}
+        if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.base.repo.fullname == github.event.pull_request.head.repo.fullname)
 
-    - name: Tag latest image
-      run: docker tag ${GITHUB_REPOSITORY}:${GITHUB_SHA} ${GITHUB_REPOSITORY}:latest
-      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+      - name: Tag latest image
+        run: docker tag ${GITHUB_REPOSITORY}:${GITHUB_SHA} ${GITHUB_REPOSITORY}:latest
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
