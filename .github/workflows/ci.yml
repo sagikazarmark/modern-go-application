@@ -18,6 +18,8 @@ jobs:
 
     - name: Get dependencies
       run: go mod download
+      env:
+        GOPROXY: https://proxy.golang.org
 
     - name: Build
       run: make build
