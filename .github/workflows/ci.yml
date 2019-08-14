@@ -53,24 +53,23 @@ jobs:
       uses: actions/checkout@master
 
     - name: Build image
-      run: docker build --build-arg GOPROXY=https://proxy.golang.org -t docker.pkg.github.com/${GITHUB_REPOSITORY}:${GITHUB_SHA} .
+      run: docker build --build-arg GOPROXY=https://proxy.golang.org -t ${GITHUB_REPOSITORY}:${GITHUB_SHA} .
       
     - name: Tag image
-      run: docker tag docker.pkg.github.com/${GITHUB_REPOSITORY}:${GITHUB_SHA} docker.pkg.github.com/${GITHUB_REPOSITORY}:${GITHUB_HEAD_REF:-${GITHUB_REF#"refs/heads/"}}
+      run: docker tag ${GITHUB_REPOSITORY}:${GITHUB_SHA} ${GITHUB_REPOSITORY}:${GITHUB_HEAD_REF:-${GITHUB_REF#"refs/heads/"}}
       if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.base.repo.fullname == github.event.pull_request.head.repo.fullname)
 
     - name: Tag latest image
-      run: docker tag docker.pkg.github.com/${GITHUB_REPOSITORY}:${GITHUB_SHA} docker.pkg.github.com/${GITHUB_REPOSITORY}:latest
+      run: docker tag ${GITHUB_REPOSITORY}:${GITHUB_SHA} ${GITHUB_REPOSITORY}:latest
       if: github.event_name == 'push' && github.ref == 'refs/heads/master'
       
     - name: Log in to registry
       uses: actions/docker/login@master
       env:
-        DOCKER_REGISTRY_URL: docker.pkg.github.com
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.base.repo.fullname == github.event.pull_request.head.repo.fullname)
       
     - name: Push images
-      run: docker push docker.pkg.github.com/${GITHUB_REPOSITORY}
+      run: docker push ${GITHUB_REPOSITORY}
       if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.base.repo.fullname == github.event.pull_request.head.repo.fullname)
