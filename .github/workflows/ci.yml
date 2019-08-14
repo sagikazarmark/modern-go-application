@@ -13,7 +13,7 @@ jobs:
         go-version: 1.12
       id: go
 
-    - name: Check out code
+    - name: Checkout code
       uses: actions/checkout@master
 
     - name: Download dependencies
@@ -38,3 +38,14 @@ jobs:
         
     - name: Lint
       run: make lint
+
+  docker:
+    name: Docker
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout code
+      uses: actions/checkout@master
+
+    - name: Build image
+      run: docker build --build-arg GOPROXY=https://proxy.golang.org -t ${GITHUB_REPOSITORY}:${GITHUB_SHA} .
