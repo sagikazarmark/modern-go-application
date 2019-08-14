@@ -62,14 +62,3 @@ jobs:
     - name: Tag latest image
       run: docker tag ${GITHUB_REPOSITORY}:${GITHUB_SHA} ${GITHUB_REPOSITORY}:latest
       if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-      
-    - name: Log in to registry
-      uses: actions/docker/login@master
-      env:
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.base.repo.fullname == github.event.pull_request.head.repo.fullname)
-      
-    - name: Push images
-      run: docker push ${GITHUB_REPOSITORY}
-      if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.base.repo.fullname == github.event.pull_request.head.repo.fullname)
