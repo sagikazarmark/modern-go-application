@@ -3,7 +3,7 @@ package log
 import (
 	"log"
 
-	"github.com/goph/logur"
+	"logur.dev/logur"
 )
 
 // NewErrorStandardLogger returns a new standard logger logging on error level.

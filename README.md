@@ -30,7 +30,7 @@ To help adopting these practices, this repository also serves as a boilerplate f
 ## Features
 
 - configuration (using [spf13/viper](https://github.com/spf13/viper))
-- logging (using [goph/logur](https://github.com/goph/logur) and [sirupsen/logrus](https://github.com/sirupsen/logrus))
+- logging (using [logur.dev/logur](https://logur.dev/logur) and [sirupsen/logrus](https://github.com/sirupsen/logrus))
 - error handling (using [emperror.dev/emperror](https://emperror.dev/emperror))
 - metrics and tracing using [Prometheus](https://prometheus.io/) and [Jaeger](https://www.jaegertracing.io/) (via [OpenCensus](https://opencensus.io/))
 - health checks (using [InVisionApp/go-health](https://github.com/InVisionApp/go-health))

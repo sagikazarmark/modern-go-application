@@ -3,7 +3,7 @@ package commonadapter
 import (
 	"context"
 
-	"github.com/goph/logur"
+	"logur.dev/logur"
 
 	"github.com/sagikazarmark/modern-go-application/internal/common"
 )

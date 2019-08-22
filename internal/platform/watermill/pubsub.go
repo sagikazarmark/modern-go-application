@@ -3,8 +3,8 @@ package watermill
 import (
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
-	"github.com/goph/logur"
-	"github.com/goph/logur/integrations/watermilllog"
+	watermilllog "logur.dev/integration/watermill"
+	"logur.dev/logur"
 )
 
 // NewPubSub returns a new PubSub.

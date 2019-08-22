@@ -2,7 +2,7 @@ package database
 
 import (
 	"github.com/go-sql-driver/mysql"
-	"github.com/goph/logur"
+	"logur.dev/logur"
 )
 
 // SetLogger configures the global database logger.
