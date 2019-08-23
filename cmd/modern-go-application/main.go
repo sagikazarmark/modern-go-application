@@ -21,8 +21,6 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
 	"github.com/cloudflare/tableflip"
-	"github.com/goph/logur"
-	"github.com/goph/logur/integrations/invisionlog"
 	"github.com/oklog/run"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -32,6 +30,8 @@ import (
 	"go.opencensus.io/trace"
 	"go.opencensus.io/zpages"
 	"google.golang.org/grpc"
+	invisionlog "logur.dev/integration/invision"
+	"logur.dev/logur"
 
 	"github.com/sagikazarmark/modern-go-application/internal"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/buildinfo"

@@ -6,8 +6,8 @@ import (
 	"emperror.dev/errors"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
-	"github.com/goph/logur"
-	"github.com/goph/logur/integrations/watermilllog"
+	watermilllog "logur.dev/integration/watermill"
+	"logur.dev/logur"
 )
 
 // RouterConfig holds information for configuring Watermill router.

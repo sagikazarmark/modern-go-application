@@ -7,11 +7,11 @@ import (
 	"github.com/ThreeDotsLabs/watermill/components/cqrs"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/goph/idgen/ulidgen"
-	"github.com/goph/logur"
-	"github.com/goph/logur/integrations/watermilllog"
 	"github.com/gorilla/mux"
 	"github.com/sagikazarmark/ocmux"
 	"google.golang.org/grpc"
+	watermilllog "logur.dev/integration/watermill"
+	"logur.dev/logur"
 
 	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1beta1"
 	"github.com/sagikazarmark/modern-go-application/internal/common/commonadapter"

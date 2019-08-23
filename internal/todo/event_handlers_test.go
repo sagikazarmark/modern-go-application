@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/goph/logur"
-	"github.com/goph/logur/logtesting"
 	"github.com/stretchr/testify/require"
+	"logur.dev/logur"
+	"logur.dev/logur/logtesting"
 
 	"github.com/sagikazarmark/modern-go-application/internal/common/commonadapter"
 	. "github.com/sagikazarmark/modern-go-application/internal/todo"
