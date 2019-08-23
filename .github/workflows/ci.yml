@@ -63,11 +63,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
 
       - name: Log in to registry
-        uses: actions/docker/login@master
-        env:
-          DOCKER_REGISTRY_URL: docker.pkg.github.com
-          DOCKER_USERNAME: ${{ github.actor }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_GITHUB_PASSWORD }}
+        run: echo ${{ secrets.DOCKER_GITHUB_PASSWORD }} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
         if: github.event_name == 'push'
 
       - name: Push image
