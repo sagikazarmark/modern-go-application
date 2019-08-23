@@ -54,18 +54,18 @@ jobs:
       - name: Build image
         run: docker build --build-arg GOPROXY=https://proxy.golang.org -t docker.pkg.github.com/${GITHUB_REPOSITORY}/${{ github.event.repository.name }}:${GITHUB_SHA:0:7} .
 
-      - name: Tag image
-        run: docker tag docker.pkg.github.com/${GITHUB_REPOSITORY}/${{ github.event.repository.name }}:${GITHUB_SHA:0:7} docker.pkg.github.com/${GITHUB_REPOSITORY}/${{ github.event.repository.name }}:${GITHUB_REF#"refs/heads/"}
-        if: github.event_name == 'push'
-
-      - name: Tag latest image
-        run: docker tag docker.pkg.github.com/${GITHUB_REPOSITORY}/${{ github.event.repository.name }}:${GITHUB_SHA:0:7} docker.pkg.github.com/${GITHUB_REPOSITORY}/${{ github.event.repository.name }}:latest
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-
-      - name: Log in to registry
-        run: echo ${{ secrets.DOCKER_GITHUB_PASSWORD }} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
-        if: github.event_name == 'push'
-
-      - name: Push image
-        run: docker push docker.pkg.github.com/${GITHUB_REPOSITORY}/${{ github.event.repository.name }}
-        if: github.event_name == 'push'
+#      - name: Tag image
+#        run: docker tag docker.pkg.github.com/${GITHUB_REPOSITORY}/${{ github.event.repository.name }}:${GITHUB_SHA:0:7} docker.pkg.github.com/${GITHUB_REPOSITORY}/${{ github.event.repository.name }}:${GITHUB_REF#"refs/heads/"}
+#        if: github.event_name == 'push'
+#
+#      - name: Tag latest image
+#        run: docker tag docker.pkg.github.com/${GITHUB_REPOSITORY}/${{ github.event.repository.name }}:${GITHUB_SHA:0:7} docker.pkg.github.com/${GITHUB_REPOSITORY}/${{ github.event.repository.name }}:latest
+#        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+#
+#      - name: Log in to registry
+#        run: echo ${{ secrets.DOCKER_GITHUB_PASSWORD }} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
+#        if: github.event_name == 'push'
+#
+#      - name: Push image
+#        run: docker push docker.pkg.github.com/${GITHUB_REPOSITORY}/${{ github.event.repository.name }}
+#        if: github.event_name == 'push'
