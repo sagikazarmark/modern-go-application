@@ -66,8 +66,8 @@ jobs:
         uses: actions/docker/login@master
         env:
           DOCKER_REGISTRY_URL: docker.pkg.github.com
-          DOCKER_USERNAME: github-actions
-          DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+          DOCKER_USERNAME: ${{ github.actor }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_GITHUB_PASSWORD }}
         if: github.event_name == 'push'
 
       - name: Push image
