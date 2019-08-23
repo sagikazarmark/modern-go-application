@@ -61,3 +61,15 @@ jobs:
       - name: Tag latest image
         run: docker tag docker.pkg.github.com/${GITHUB_REPOSITORY}/${{ github.event.repository.name }}:${GITHUB_SHA:0:7} docker.pkg.github.com/${GITHUB_REPOSITORY}/${{ github.event.repository.name }}:latest
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+
+      - name: Log in to registry
+        uses: actions/docker/login@master
+        env:
+          DOCKER_REGISTRY_URL: docker.pkg.github.com
+          DOCKER_USERNAME: ${{ github.actor }}
+          DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        if: github.event_name == 'push'
+
+      - name: Push image
+        run: docker push docker.pkg.github.com/${GITHUB_REPOSITORY}/${{ github.event.repository.name }}
+        if: github.event_name == 'push'
