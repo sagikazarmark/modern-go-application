@@ -43,7 +43,7 @@ up: start config.toml ## Set up the development environment
 
 .PHONY: down
 down: clear ## Destroy the development environment
-	docker-compose down
+	docker-compose down --volumes --remove-orphans --rmi local
 	rm -rf var/docker/volumes/*
 
 .PHONY: reset
