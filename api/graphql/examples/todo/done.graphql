@@ -1,0 +1,7 @@
+# Variables:
+#{
+#    "id": "01D99XST2G2D8KVJ0YMYCWD9FD"
+#}
+mutation($id: ID!) {
+    markTodoAsDone(input: $id)
+}

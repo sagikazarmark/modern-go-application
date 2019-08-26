@@ -1,0 +1,7 @@
+{
+    todos {
+        id
+        text
+        done
+    }
+}
