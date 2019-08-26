@@ -9,7 +9,7 @@ require (
 	emperror.dev/handler/logur v0.2.0
 	github.com/99designs/gqlgen v0.9.1
 	github.com/99designs/gqlgen-contrib v0.0.0-20190222015228-c654377d611c
-	github.com/InVisionApp/go-health v2.1.0+incompatible
+	github.com/AppsFlyer/go-sundheit v0.0.10
 	github.com/ThreeDotsLabs/watermill v1.0.0-rc.2
 	github.com/cloudflare/tableflip v1.0.0
 	github.com/go-kit/kit v0.9.0

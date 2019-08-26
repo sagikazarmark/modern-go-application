@@ -15,9 +15,9 @@ import (
 	"emperror.dev/emperror"
 	"emperror.dev/errors"
 	logurhandler "emperror.dev/handler/logur"
-	"github.com/InVisionApp/go-health"
-	healthcheckers "github.com/InVisionApp/go-health/checkers"
-	healthhandlers "github.com/InVisionApp/go-health/handlers"
+	health "github.com/AppsFlyer/go-sundheit"
+	"github.com/AppsFlyer/go-sundheit/checks"
+	healthhttp "github.com/AppsFlyer/go-sundheit/http"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
 	"github.com/cloudflare/tableflip"
@@ -112,9 +112,9 @@ func main() {
 
 	// Configure health checker
 	healthChecker := health.New()
-	healthChecker.Logger = invisionlog.New(logur.WithFields(logger, map[string]interface{}{"component": "healthcheck"}))
+	healthChecker.WithLogger(invisionlog.New(logur.WithFields(logger, map[string]interface{}{"component": "healthcheck"})))
 	{
-		handler := healthhandlers.NewJSONHandlerFunc(healthChecker, nil)
+		handler := healthhttp.HandleHealthJSON(healthChecker)
 		telemetryRouter.Handle("/healthz", handler)
 
 		// Kubernetes style health checks
@@ -228,18 +228,10 @@ func main() {
 	defer ocsql.RecordStats(db, 5*time.Second)()
 
 	// Register database health check
-	{
-		check, err := healthcheckers.NewSQL(&healthcheckers.SQLConfig{Pinger: db})
-		emperror.Panic(errors.Wrap(err, "failed to create db health checker"))
-
-		err = healthChecker.AddCheck(&health.Config{
-			Name:     "database",
-			Checker:  check,
-			Interval: time.Duration(3) * time.Second,
-			Fatal:    true,
-		})
-		emperror.Panic(errors.Wrap(err, "failed to add health checker"))
-	}
+	_ = healthChecker.RegisterCheck(&health.Config{
+		Check:           checks.Must(checks.NewPingCheck("db.check", db, time.Millisecond*100)),
+		ExecutionPeriod: 3 * time.Second,
+	})
 
 	publisher, subscriber := watermill.NewPubSub(logger)
 	defer publisher.Close()
@@ -269,6 +261,11 @@ func main() {
 
 	// Register stat views
 	err = view.Register(
+		// Health checks
+		health.ViewCheckCountByNameAndStatus,
+		health.ViewCheckStatusByName,
+		health.ViewCheckExecutionTime,
+
 		// HTTP
 		ochttp.ServerRequestCountView,
 		ochttp.ServerRequestBytesView,
@@ -408,9 +405,6 @@ func main() {
 			},
 		)
 	}
-
-	err = healthChecker.Start()
-	emperror.Panic(errors.Wrap(err, "failed to start health checker"))
 
 	err = group.Run()
 	emperror.Handle(errorHandler, err)
