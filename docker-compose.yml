@@ -12,11 +12,11 @@ services:
         image: redis:5.0
 
     dockerhost:
-        image: qoomon/docker-host:2.1.0
+        image: qoomon/docker-host:2.3.0
         cap_add: [ 'NET_ADMIN', 'NET_RAW' ]
 
     prometheus:
-        image: prom/prometheus:v2.8.1
+        image: prom/prometheus:v2.12.0
         volumes:
             - ./etc/local/prometheus/:/etc/prometheus/
         command:
@@ -28,7 +28,7 @@ services:
             - '--web.enable-lifecycle'
 
     grafana:
-        image: grafana/grafana:6.1.2
+        image: grafana/grafana:6.3.3
         depends_on:
             - prometheus
         environment:
@@ -39,10 +39,10 @@ services:
             - ./etc/local/grafana/provisioning:/etc/grafana/provisioning
 
     jaeger:
-        image: jaegertracing/all-in-one:1.11
+        image: jaegertracing/all-in-one:1.13.1
 
     oc-collector:
-        image: omnition/opencensus-collector:latest
+        image: omnition/opencensus-collector:0.1.10
         command: ["--config=/etc/opencensus/collector.yaml"]
         volumes:
             - ./etc/local/opencensus/:/etc/opencensus/:ro
@@ -50,7 +50,7 @@ services:
             - jaeger
 
     oc-agent:
-        image: omnition/opencensus-agent:latest
+        image: omnition/opencensus-agent:0.1.10
         command: ["--config=/etc/opencensus/agent.yaml"]
         volumes:
             - ./etc/local/opencensus/:/etc/opencensus/:ro
