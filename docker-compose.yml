@@ -18,7 +18,7 @@ services:
     prometheus:
         image: prom/prometheus:v2.8.1
         volumes:
-            - ./etc/prometheus/:/etc/prometheus/
+            - ./etc/local/prometheus/:/etc/prometheus/
         command:
             - '--config.file=/etc/prometheus/prometheus.yml'
             - '--storage.tsdb.path=/prometheus'
@@ -36,7 +36,7 @@ services:
             GF_AUTH_ANONYMOUS_ENABLED: "true"
             GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
         volumes:
-            - ./etc/grafana/provisioning:/etc/grafana/provisioning
+            - ./etc/local/grafana/provisioning:/etc/grafana/provisioning
 
     jaeger:
         image: jaegertracing/all-in-one:1.11
@@ -45,7 +45,7 @@ services:
         image: omnition/opencensus-collector:latest
         command: ["--config=/etc/opencensus/collector.yaml"]
         volumes:
-            - ./etc/opencensus/:/etc/opencensus/:ro
+            - ./etc/local/opencensus/:/etc/opencensus/:ro
         depends_on:
             - jaeger
 
@@ -53,6 +53,6 @@ services:
         image: omnition/opencensus-agent:latest
         command: ["--config=/etc/opencensus/agent.yaml"]
         volumes:
-            - ./etc/opencensus/:/etc/opencensus/:ro
+            - ./etc/local/opencensus/:/etc/opencensus/:ro
         depends_on:
             - oc-collector
