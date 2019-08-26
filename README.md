@@ -33,7 +33,7 @@ To help adopting these practices, this repository also serves as a boilerplate f
 - logging (using [logur.dev/logur](https://logur.dev/logur) and [sirupsen/logrus](https://github.com/sirupsen/logrus))
 - error handling (using [emperror.dev/emperror](https://emperror.dev/emperror))
 - metrics and tracing using [Prometheus](https://prometheus.io/) and [Jaeger](https://www.jaegertracing.io/) (via [OpenCensus](https://opencensus.io/))
-- health checks (using [InVisionApp/go-health](https://github.com/InVisionApp/go-health))
+- health checks (using [AppsFlyer/go-sundheit](https://github.com/AppsFlyer/go-sundheit))
 - graceful restart (using [cloudflare/tableflip](https://github.com/cloudflare/tableflip)) and shutdown
 - support for multiple server/daemon instances (using [oklog/run](https://github.com/oklog/run))
 - messaging (using [ThreeDotsLabs/watermill](https://github.com/ThreeDotsLabs/watermill))
