@@ -1,4 +1,4 @@
-package internal
+package mga
 
 import (
 	"net/http"
@@ -14,12 +14,12 @@ import (
 	"logur.dev/logur"
 
 	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1beta1"
+	"github.com/sagikazarmark/modern-go-application/internal/app/mga/httpbin"
+	"github.com/sagikazarmark/modern-go-application/internal/app/mga/landing/landingdriver"
+	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
+	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter"
+	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/tododriver"
 	"github.com/sagikazarmark/modern-go-application/internal/common/commonadapter"
-	"github.com/sagikazarmark/modern-go-application/internal/httpbin"
-	"github.com/sagikazarmark/modern-go-application/internal/landing/landingdriver"
-	"github.com/sagikazarmark/modern-go-application/internal/todo"
-	"github.com/sagikazarmark/modern-go-application/internal/todo/todoadapter"
-	"github.com/sagikazarmark/modern-go-application/internal/todo/tododriver"
 	"github.com/sagikazarmark/modern-go-application/pkg/correlation"
 )
 

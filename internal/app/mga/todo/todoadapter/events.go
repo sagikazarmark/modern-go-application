@@ -5,7 +5,7 @@ import (
 
 	"emperror.dev/errors"
 
-	"github.com/sagikazarmark/modern-go-application/internal/todo"
+	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
 )
 
 // EventBus dispatches events to event handlers.
