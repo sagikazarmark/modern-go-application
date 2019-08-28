@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc"
 
 	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1beta1"
-	"github.com/sagikazarmark/modern-go-application/internal/todocli/command"
+	"github.com/sagikazarmark/modern-go-application/internal/app/todocli/command"
 )
 
 // Configure configures a root command.

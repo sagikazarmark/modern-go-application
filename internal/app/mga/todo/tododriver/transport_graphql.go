@@ -10,7 +10,7 @@ import (
 	"github.com/go-kit/kit/endpoint"
 
 	"github.com/sagikazarmark/modern-go-application/.gen/api/graphql"
-	"github.com/sagikazarmark/modern-go-application/internal/todo"
+	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
 )
 
 // MakeGraphQLHandler mounts all of the service endpoints into a GraphQL handler.

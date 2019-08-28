@@ -6,7 +6,7 @@ import (
 
 	"emperror.dev/errors"
 
-	"github.com/sagikazarmark/modern-go-application/internal/todo"
+	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
 )
 
 // MarkedAsDoneHandler handles MarkedAsDone events.

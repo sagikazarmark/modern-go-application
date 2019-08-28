@@ -7,7 +7,7 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	kitoc "github.com/go-kit/kit/tracing/opencensus"
 
-	"github.com/sagikazarmark/modern-go-application/internal/todo"
+	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
 )
 
 // TodoList manages a list of todos.

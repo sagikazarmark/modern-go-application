@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1beta1"
-	"github.com/sagikazarmark/modern-go-application/internal/todo"
+	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
 )
 
 type grpcServer struct {

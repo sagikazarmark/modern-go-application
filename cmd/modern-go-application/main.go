@@ -33,12 +33,12 @@ import (
 	invisionlog "logur.dev/integration/invision"
 	"logur.dev/logur"
 
-	"github.com/sagikazarmark/modern-go-application/internal"
+	"github.com/sagikazarmark/modern-go-application/internal/app/mga"
+	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/tododriver"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/buildinfo"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/watermill"
-	"github.com/sagikazarmark/modern-go-application/internal/todo/tododriver"
 	"github.com/sagikazarmark/modern-go-application/pkg/correlation"
 )
 
@@ -253,7 +253,7 @@ func main() {
 		h, err := watermill.NewRouter(config.Watermill.RouterConfig, logger)
 		emperror.Panic(err)
 
-		err = internal.RegisterEventHandlers(h, subscriber, logger)
+		err = mga.RegisterEventHandlers(h, subscriber, logger)
 		emperror.Panic(err)
 
 		group.Add(func() error { return h.Run(context.Background()) }, func(e error) { _ = h.Close() })
@@ -298,7 +298,7 @@ func main() {
 			},
 		}))
 
-		httpHandler, grpcHandlers := internal.NewApp(logger, publisher, errorHandler)
+		httpHandler, grpcHandlers := mga.NewApp(logger, publisher, errorHandler)
 		httpHandler = &ochttp.Handler{
 			Handler: httpHandler,
 			StartOptions: trace.StartOptions{

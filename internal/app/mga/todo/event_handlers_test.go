@@ -8,8 +8,8 @@ import (
 	"logur.dev/logur"
 	"logur.dev/logur/logtesting"
 
+	. "github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
 	"github.com/sagikazarmark/modern-go-application/internal/common/commonadapter"
-	. "github.com/sagikazarmark/modern-go-application/internal/todo"
 )
 
 func TestLogEventHandler_MarkedAsDone(t *testing.T) {

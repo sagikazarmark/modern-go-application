@@ -5,7 +5,7 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/sagikazarmark/modern-go-application/internal/landing"
+	"github.com/sagikazarmark/modern-go-application/internal/app/mga/landing"
 )
 
 // NewHTTPHandler returns a new HTTP handler for the landing page.

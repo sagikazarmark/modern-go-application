@@ -14,7 +14,7 @@ import (
 	"github.com/sagikazarmark/ocmux"
 
 	api "github.com/sagikazarmark/modern-go-application/.gen/api/openapi/todo/go"
-	"github.com/sagikazarmark/modern-go-application/internal/todo"
+	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
 )
 
 // MakeHTTPHandler mounts all of the service endpoints into an http.Handler.
