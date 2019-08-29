@@ -1,10 +1,10 @@
 module github.com/sagikazarmark/modern-go-application
 
 require (
-	contrib.go.opencensus.io/exporter/ocagent v0.5.0
+	contrib.go.opencensus.io/exporter/ocagent v0.6.0
 	contrib.go.opencensus.io/exporter/prometheus v0.1.0
 	contrib.go.opencensus.io/integrations/ocsql v0.1.4
-	emperror.dev/emperror v0.21.2
+	emperror.dev/emperror v0.21.3
 	emperror.dev/errors v0.4.2
 	emperror.dev/handler/logur v0.2.0
 	github.com/99designs/gqlgen v0.9.3
@@ -15,11 +15,10 @@ require (
 	github.com/go-kit/kit v0.9.0
 	github.com/go-logfmt/logfmt v0.4.0 // indirect
 	github.com/go-sql-driver/mysql v1.4.1
-	github.com/golang/mock v1.2.0 // indirect
 	github.com/golang/protobuf v1.3.2
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/goph/idgen v0.3.0
-	github.com/gorilla/mux v1.7.0
+	github.com/gorilla/mux v1.7.3
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/mccutchen/go-httpbin v0.0.0-20190116014521-c5cb2f4802fa
