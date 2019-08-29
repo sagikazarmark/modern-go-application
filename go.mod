@@ -16,7 +16,7 @@ require (
 	github.com/go-logfmt/logfmt v0.4.0 // indirect
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/golang/mock v1.2.0 // indirect
-	github.com/golang/protobuf v1.3.1
+	github.com/golang/protobuf v1.3.2
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/goph/idgen v0.3.0
 	github.com/gorilla/mux v1.7.0
@@ -34,7 +34,7 @@ require (
 	github.com/stretchr/testify v1.4.0
 	github.com/vektah/gqlparser v1.1.2
 	go.opencensus.io v0.22.0
-	google.golang.org/grpc v1.22.0
+	google.golang.org/grpc v1.23.0
 	logur.dev/adapter/logrus v0.2.0
 	logur.dev/integration/invision v0.2.0
 	logur.dev/integration/watermill v0.2.0

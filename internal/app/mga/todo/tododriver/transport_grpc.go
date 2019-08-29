@@ -15,6 +15,8 @@ import (
 )
 
 type grpcServer struct {
+	*todov1beta1.UnimplementedTodoListServer
+
 	createTodo grpctransport.Handler
 	listTodos  grpctransport.Handler
 	markAsDone grpctransport.Handler

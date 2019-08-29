@@ -8,6 +8,8 @@ import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -340,6 +342,20 @@ type TodoListServer interface {
 	ListTodos(context.Context, *ListTodosRequest) (*ListTodosResponse, error)
 	// MarkAsDone marks a todo as done.
 	MarkAsDone(context.Context, *MarkAsDoneRequest) (*MarkAsDoneResponse, error)
+}
+
+// UnimplementedTodoListServer can be embedded to have forward compatible implementations.
+type UnimplementedTodoListServer struct {
+}
+
+func (*UnimplementedTodoListServer) CreateTodo(ctx context.Context, req *CreateTodoRequest) (*CreateTodoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateTodo not implemented")
+}
+func (*UnimplementedTodoListServer) ListTodos(ctx context.Context, req *ListTodosRequest) (*ListTodosResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListTodos not implemented")
+}
+func (*UnimplementedTodoListServer) MarkAsDone(ctx context.Context, req *MarkAsDoneRequest) (*MarkAsDoneResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MarkAsDone not implemented")
 }
 
 func RegisterTodoListServer(s *grpc.Server, srv TodoListServer) {
