@@ -1,5 +1,5 @@
 # Build image
-FROM golang:1.12.7-alpine AS builder
+FROM golang:1.13.0-alpine AS builder
 
 ENV GOFLAGS="-mod=readonly"
 

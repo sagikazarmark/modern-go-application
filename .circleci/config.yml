@@ -9,7 +9,7 @@ executors:
                 description: Go build image
             go_version:
                 type: string
-                default: "1.12"
+                default: "1.13"
                 description: Go build image version
         docker:
             -   image: << parameters.build_image >>:<< parameters.go_version >>
@@ -17,31 +17,12 @@ executors:
                     GOFLAGS: -mod=readonly
                     GOPROXY: https://proxy.golang.org
 
-commands:
-    restore_build_cache:
-        description: Restore build cache
-        steps:
-            -   restore_cache:
-                    name: Restore build dependencies
-                    keys:
-                        - build-deps-v1-{{ .Branch }}-{{ checksum "Makefile" }}
-
-    save_build_cache:
-        description: Save build cache
-        steps:
-            -   save_cache:
-                    name: Save build dependencies
-                    key: build-deps-v1-{{ .Branch }}-{{ checksum "Makefile" }}
-                    paths:
-                        - bin/
-
 jobs:
     unit-tests:
         executor: go
 
         steps:
             - checkout
-            - restore_build_cache
 
             -   run:
                     name: Run tests
@@ -53,8 +34,6 @@ jobs:
 
                         make test
 
-            - save_build_cache
-
             -   store_test_results:
                     path: build/test_results/
 
@@ -63,7 +42,6 @@ jobs:
 
         steps:
             - checkout
-            - restore_build_cache
 
             -   run:
                     name: Run integration tests
@@ -75,8 +53,6 @@ jobs:
 
                         make test-integration
 
-            - save_build_cache
-
             -   store_test_results:
                     path: build/test_results/
 
@@ -85,13 +61,10 @@ jobs:
 
         steps:
             - checkout
-            - restore_build_cache
 
             -   run:
                     name: Run linter
                     command: make lint
-
-            - save_build_cache
 
 workflows:
     version: 2

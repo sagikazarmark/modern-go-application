@@ -7,7 +7,7 @@ pipeline:
     action: EnsureCluster
 
   test:
-    image: golang:1.12
+    image: golang:1.13
     commands: make check
     environment:
       GOFLAGS: -mod=readonly
