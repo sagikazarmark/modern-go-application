@@ -32,7 +32,7 @@ PROTOC_GEN_GO_VERSION = 1.3.2
 PROTOTOOL_VERSION = 1.8.0
 GQLGEN_VERSION = 0.9.3
 
-GOLANG_VERSION = 1.12
+GOLANG_VERSION = 1.13
 
 # Add the ability to override some variables
 # Use with care
@@ -94,11 +94,17 @@ endif
 	go build ${GOARGS} -tags "${GOTAGS}" -ldflags "${LDFLAGS}" -o ${BUILD_DIR}/$* ./cmd/$*
 
 .PHONY: build
-build: $(patsubst cmd/%,build-%,$(wildcard cmd/*)) ## Build all binaries
+build: goversion ## Build all binaries
+ifeq (${VERBOSE}, 1)
+	go env
+endif
+
+	@mkdir -p ${BUILD_DIR}
+	go build ${GOARGS} -tags "${GOTAGS}" -ldflags "${LDFLAGS}" -o ${BUILD_DIR}/ ./cmd/...
 
 .PHONY: build-release
 build-release: ## Build all binaries without debug information
-	@${MAKE} LDFLAGS="-w ${LDFLAGS}" BUILD_DIR="${BUILD_DIR}/release" build
+	@${MAKE} LDFLAGS="-w ${LDFLAGS}" GOARGS="${GOARGS} -trimpath" BUILD_DIR="${BUILD_DIR}/release" build
 
 .PHONY: build-debug
 build-debug: ## Build all binaries with remote debugging capabilities

@@ -1,5 +1,7 @@
 module github.com/sagikazarmark/modern-go-application
 
+go 1.13
+
 require (
 	contrib.go.opencensus.io/exporter/ocagent v0.6.0
 	contrib.go.opencensus.io/exporter/prometheus v0.1.0
@@ -13,7 +15,6 @@ require (
 	github.com/ThreeDotsLabs/watermill v1.0.0-rc.2
 	github.com/cloudflare/tableflip v1.0.0
 	github.com/go-kit/kit v0.9.0
-	github.com/go-logfmt/logfmt v0.4.0 // indirect
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/golang/protobuf v1.3.2
 	github.com/gomodule/redigo v2.0.0+incompatible
