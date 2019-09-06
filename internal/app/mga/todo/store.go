@@ -7,36 +7,34 @@ import (
 	"emperror.dev/errors"
 )
 
-// InmemoryStore keeps todos in the memory.
+// InMemoryStore keeps todos in the memory.
 // Use it in tests or for development/demo purposes.
-type InmemoryStore struct {
+type InMemoryStore struct {
 	todos map[string]Todo
 }
 
 // NewInmemoryStore returns a new inmemory todo store.
-func NewInmemoryStore() *InmemoryStore {
-	return &InmemoryStore{
+func NewInmemoryStore() *InMemoryStore {
+	return &InMemoryStore{
 		todos: make(map[string]Todo),
 	}
 }
 
 // Store stores a todo.
-func (s *InmemoryStore) Store(ctx context.Context, todo Todo) error {
+func (s *InMemoryStore) Store(ctx context.Context, todo Todo) error {
 	s.todos[todo.ID] = todo
 
 	return nil
 }
 
 // All returns all todos.
-func (s *InmemoryStore) All(ctx context.Context) ([]Todo, error) {
+func (s *InMemoryStore) All(ctx context.Context) ([]Todo, error) {
 	todos := make([]Todo, len(s.todos))
 
-	// This makes sure todos are always returned in the same, sorted representation
-	keys := make([]string, len(s.todos))
-	i := 0
+	// This makes sure todos are always returned in the same, sorted order
+	keys := make([]string, 0, len(s.todos))
 	for k := range s.todos {
-		keys[i] = k
-		i++
+		keys = append(keys, k)
 	}
 	sort.Strings(keys)
 
@@ -48,7 +46,7 @@ func (s *InmemoryStore) All(ctx context.Context) ([]Todo, error) {
 }
 
 // Get returns a single todo by its ID.
-func (s *InmemoryStore) Get(ctx context.Context, id string) (Todo, error) {
+func (s *InMemoryStore) Get(ctx context.Context, id string) (Todo, error) {
 	todo, ok := s.todos[id]
 	if !ok {
 		return todo, NotFoundError{ID: id}

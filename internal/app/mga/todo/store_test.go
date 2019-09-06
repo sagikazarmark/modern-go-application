@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestInmemoryStore_StoresATodo(t *testing.T) {
+func TestInMemoryStore_StoresATodo(t *testing.T) {
 	store := NewInmemoryStore()
 
 	todo := Todo{
@@ -22,7 +22,7 @@ func TestInmemoryStore_StoresATodo(t *testing.T) {
 	assert.Equal(t, todo, store.todos[todo.ID])
 }
 
-func TestInmemoryStore_OverwritesAnExistingTodo(t *testing.T) {
+func TestInMemoryStore_OverwritesAnExistingTodo(t *testing.T) {
 	store := NewInmemoryStore()
 
 	todo := Todo{
@@ -45,7 +45,7 @@ func TestInmemoryStore_OverwritesAnExistingTodo(t *testing.T) {
 	assert.Equal(t, todo, store.todos[todo.ID])
 }
 
-func TestInmemoryStore_ListsAllTodos(t *testing.T) {
+func TestInMemoryStore_ListsAllTodos(t *testing.T) {
 	store := NewInmemoryStore()
 
 	store.todos["id"] = Todo{
@@ -68,7 +68,7 @@ func TestInmemoryStore_ListsAllTodos(t *testing.T) {
 	assert.Equal(t, expectedTodos, todos)
 }
 
-func TestInmemoryStore_GetsATodo(t *testing.T) {
+func TestInMemoryStore_GetsATodo(t *testing.T) {
 	store := NewInmemoryStore()
 
 	id := "id"
@@ -84,7 +84,7 @@ func TestInmemoryStore_GetsATodo(t *testing.T) {
 	assert.Equal(t, store.todos[id], todo)
 }
 
-func TestInmemoryStore_CannotReturnANonExistingTodo(t *testing.T) {
+func TestInMemoryStore_CannotReturnANonExistingTodo(t *testing.T) {
 	store := NewInmemoryStore()
 
 	_, err := store.Get(context.Background(), "id")
