@@ -2,6 +2,7 @@ package todoadapter
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -37,5 +38,10 @@ func TestEventDispatcher_MarkedAsDone(t *testing.T) {
 		t.Fatal("no message received")
 	}
 
-	assert.Equal(t, string(received[0].Payload), "{\"ID\":\"id\"}")
+	var receivedEvent todo.MarkedAsDone
+
+	err = json.Unmarshal(received[0].Payload, &receivedEvent)
+	require.NoError(t, err)
+
+	assert.Equal(t, event, receivedEvent)
 }
