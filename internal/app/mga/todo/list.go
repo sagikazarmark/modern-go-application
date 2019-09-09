@@ -59,6 +59,8 @@ func (NotFoundError) IsBusinessError() bool {
 	return true
 }
 
+//go:generate sh -c "test -x ${MGA} && ${MGA} gen ev dispatcher --from Events"
+
 // Events dispatches todo events.
 type Events interface {
 	// MarkedAsDone dispatches a MarkedAsDone event.
