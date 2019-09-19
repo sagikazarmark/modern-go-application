@@ -76,7 +76,7 @@ func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber
 	commonLogger := commonadapter.NewContextAwareLogger(logger, &correlation.ContextExtractor{})
 	todoEventProcessor, _ := cqrs.NewEventProcessor(
 		[]cqrs.EventHandler{
-			tododriver.NewMarkedAsDoneEventHandler(todo.NewLogEventHandler(commonLogger)),
+			todogen.NewMarkedAsDoneEventHandler(todo.NewLogEventHandler(commonLogger), "marked_as_done"),
 		},
 		func(eventName string) string { return todoTopic },
 		func(handlerName string) (message.Subscriber, error) { return subscriber, nil },
