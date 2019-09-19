@@ -47,7 +47,7 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input graphql.NewTodo
 
 	resp, err := r.endpoints.Create(ctx, req)
 	if err != nil {
-		r.errorHandler.Handle(err)
+		r.errorHandler.Handle(ctx, err)
 
 		return "", errors.New("internal server error")
 	}
@@ -66,7 +66,7 @@ func (r *mutationResolver) MarkTodoAsDone(ctx context.Context, input string) (bo
 
 	resp, err := r.endpoints.MarkAsDone(ctx, req)
 	if err != nil {
-		r.errorHandler.Handle(err)
+		r.errorHandler.Handle(ctx, err)
 
 		return false, errors.New("internal server error")
 	}
@@ -83,7 +83,7 @@ type queryResolver struct{ *resolver }
 func (r *queryResolver) Todos(ctx context.Context) ([]*todo.Todo, error) {
 	resp, err := r.endpoints.List(ctx, nil)
 	if err != nil {
-		r.errorHandler.Handle(err)
+		r.errorHandler.Handle(ctx, err)
 
 		return nil, errors.New("internal server error")
 	}

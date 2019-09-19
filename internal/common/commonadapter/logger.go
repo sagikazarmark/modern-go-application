@@ -76,8 +76,3 @@ func (l *Logger) WithContext(ctx context.Context) common.Logger {
 
 	return l.WithFields(l.ctxExtractor.Extract(ctx))
 }
-
-// NewNoopLogger returns a logger that discards all received log events.
-func NewNoopLogger() *Logger {
-	return NewLogger(logur.NewNoopLogger())
-}

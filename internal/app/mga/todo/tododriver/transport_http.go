@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"emperror.dev/emperror"
 	"emperror.dev/errors"
 	"github.com/go-kit/kit/endpoint"
 	httptransport "github.com/go-kit/kit/transport/http"
@@ -24,7 +23,7 @@ func MakeHTTPHandler(endpoints Endpoints, errorHandler todo.ErrorHandler) http.H
 
 	options := []httptransport.ServerOption{
 		httptransport.ServerErrorEncoder(encodeHTTPError),
-		httptransport.ServerErrorHandler(emperror.MakeContextAware(errorHandler)),
+		httptransport.ServerErrorHandler(errorHandler),
 	}
 
 	r.Methods(http.MethodPost).Path("/").Handler(httptransport.NewServer(

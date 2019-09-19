@@ -3,7 +3,6 @@ package tododriver
 import (
 	"context"
 
-	"emperror.dev/emperror"
 	"emperror.dev/errors"
 	"github.com/go-kit/kit/endpoint"
 	grpctransport "github.com/go-kit/kit/transport/grpc"
@@ -25,7 +24,7 @@ type grpcServer struct {
 // MakeGRPCServer makes a set of endpoints available as a gRPC server.
 func MakeGRPCServer(endpoints Endpoints, errorHandler todo.ErrorHandler) todov1beta1.TodoListServer {
 	options := []grpctransport.ServerOption{
-		grpctransport.ServerErrorHandler(emperror.MakeContextAware(errorHandler)),
+		grpctransport.ServerErrorHandler(errorHandler),
 	}
 
 	return &grpcServer{

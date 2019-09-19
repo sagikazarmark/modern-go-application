@@ -52,20 +52,22 @@ func NewApp(
 
 	todoListEndpoint := tododriver.MakeEndpoints(todoList)
 
+	ctxErrorHandler := emperror.MakeContextAware(errorHandler)
+
 	router := mux.NewRouter()
 	router.Use(ocmux.Middleware())
 	router.Use(correlation.HTTPMiddleware(ulidgen.NewGenerator()))
 
 	router.Path("/").Methods("GET").Handler(landingdriver.NewHTTPHandler())
-	router.PathPrefix("/todos").Handler(tododriver.MakeHTTPHandler(todoListEndpoint, errorHandler))
-	router.PathPrefix("/graphql").Handler(tododriver.MakeGraphQLHandler(todoListEndpoint, errorHandler))
+	router.PathPrefix("/todos").Handler(tododriver.MakeHTTPHandler(todoListEndpoint, ctxErrorHandler))
+	router.PathPrefix("/graphql").Handler(tododriver.MakeGraphQLHandler(todoListEndpoint, ctxErrorHandler))
 	router.PathPrefix("/httpbin").Handler(http.StripPrefix(
 		"/httpbin",
 		httpbin.MakeHTTPHandler(commonLogger.WithFields(map[string]interface{}{"module": "httpbin"})),
 	))
 
 	return router, func(s *grpc.Server) {
-		todov1beta1.RegisterTodoListServer(s, tododriver.MakeGRPCServer(todoListEndpoint, errorHandler))
+		todov1beta1.RegisterTodoListServer(s, tododriver.MakeGRPCServer(todoListEndpoint, ctxErrorHandler))
 	}
 }
 
