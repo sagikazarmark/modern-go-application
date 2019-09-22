@@ -31,6 +31,7 @@ GOBIN_VERSION = 0.0.12
 PROTOC_GEN_GO_VERSION = 1.3.2
 PROTOTOOL_VERSION = 1.8.0
 GQLGEN_VERSION = 0.9.3
+MGA_VERSION = 0.0.4
 
 GOLANG_VERSION = 1.13
 
@@ -165,6 +166,17 @@ bin/golangci-lint-${GOLANGCI_VERSION}:
 .PHONY: lint
 lint: bin/golangci-lint ## Run linter
 	bin/golangci-lint run
+
+bin/mga: bin/mga-${MGA_VERSION}
+	@ln -sf mga-${MGA_VERSION} bin/mga
+bin/mga-${MGA_VERSION}:
+	@mkdir -p bin
+	curl -sfL https://raw.githubusercontent.com/sagikazarmark/mga/master/install.sh | bash -s v${MGA_VERSION}
+	@mv bin/mga $@
+
+.PHONY: generate
+generate: bin/mga ## Generate code
+	MGA=$(abspath bin/mga) go generate ./...
 
 .PHONY: validate-openapi
 validate-openapi: ## Validate the OpenAPI descriptor

@@ -17,8 +17,8 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/httpbin"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/landing/landingdriver"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
-	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/tododriver"
+	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todogen"
 	"github.com/sagikazarmark/modern-go-application/internal/common/commonadapter"
 	"github.com/sagikazarmark/modern-go-application/pkg/correlation"
 )
@@ -43,7 +43,7 @@ func NewApp(
 		todoList = todo.NewList(
 			ulidgen.NewGenerator(),
 			todo.NewInmemoryStore(),
-			todoadapter.NewEventDispatcher(eventBus),
+			todogen.NewEventDispatcher(eventBus),
 		)
 		logger := commonLogger.WithFields(map[string]interface{}{"module": "todo"})
 		todoList = tododriver.LoggingMiddleware(logger)(todoList)
@@ -76,7 +76,7 @@ func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber
 	commonLogger := commonadapter.NewContextAwareLogger(logger, &correlation.ContextExtractor{})
 	todoEventProcessor, _ := cqrs.NewEventProcessor(
 		[]cqrs.EventHandler{
-			tododriver.NewMarkedAsDoneEventHandler(todo.NewLogEventHandler(commonLogger)),
+			todogen.NewMarkedAsDoneEventHandler(todo.NewLogEventHandler(commonLogger), "marked_as_done"),
 		},
 		func(eventName string) string { return todoTopic },
 		func(handlerName string) (message.Subscriber, error) { return subscriber, nil },
