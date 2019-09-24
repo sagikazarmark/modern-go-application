@@ -7,7 +7,7 @@ import (
 
 func TestMiddleware(t *testing.T) {
 	t.Run("existing", func(t *testing.T) {
-		cid := "1234"
+		cid := "4321"
 
 		e := func(ctx context.Context, _ interface{}) (interface{}, error) {
 			c := ctx.Value(correlationIDContextKey)
@@ -25,7 +25,7 @@ func TestMiddleware(t *testing.T) {
 
 		ctx := context.WithValue(context.Background(), correlationIDContextKey, cid)
 
-		e(ctx, nil)
+		_, _ = e(ctx, nil)
 	})
 
 	t.Run("generated", func(t *testing.T) {
@@ -47,6 +47,6 @@ func TestMiddleware(t *testing.T) {
 
 		ctx := context.Background()
 
-		e(ctx, nil)
+		_, _ = e(ctx, nil)
 	})
 }

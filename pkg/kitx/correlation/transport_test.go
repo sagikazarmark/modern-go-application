@@ -20,7 +20,7 @@ func TestHTTPToContext(t *testing.T) {
 	})
 
 	t.Run("default_header", func(t *testing.T) {
-		headerVal := "1234"
+		headerVal := "2314"
 
 		header := http.Header{}
 		header.Set("Correlation-ID", headerVal)
@@ -40,7 +40,7 @@ func TestHTTPToContext(t *testing.T) {
 	t.Run("custom_header", func(t *testing.T) {
 		reqFunc := HTTPToContext("Correlation-ID", "X-Correlation-ID")
 
-		headerVal := "1234"
+		headerVal := "3412"
 
 		header := http.Header{}
 		header.Set("X-Correlation-ID", headerVal)
@@ -70,7 +70,7 @@ func TestGRPCToContext(t *testing.T) {
 	})
 
 	t.Run("default_header", func(t *testing.T) {
-		headerVal := "1234"
+		headerVal := "2431"
 
 		md := metadata.MD{}
 		md.Set("correlation-id", headerVal)

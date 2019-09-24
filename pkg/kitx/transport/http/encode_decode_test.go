@@ -28,6 +28,7 @@ func TestNopResponseEncoder(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer resp.Body.Close()
 
 	if want, have := http.StatusOK, resp.StatusCode; want != have {
 		t.Errorf("unexpected status code\nexpected: %d\nactual:   %d", want, have)
@@ -48,6 +49,7 @@ func TestStatusCodeResponseEncoder(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer resp.Body.Close()
 
 	if want, have := http.StatusNoContent, resp.StatusCode; want != have {
 		t.Errorf("unexpected status code\nexpected: %d\nactual:   %d", want, have)
@@ -72,6 +74,7 @@ func TestJSONResponseEncoder(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer resp.Body.Close()
 
 	if want, have := http.StatusOK, resp.StatusCode; want != have {
 		t.Errorf("unexpected status code\nexpected: %d\nactual:   %d", want, have)
@@ -119,6 +122,7 @@ func TestErrorResponseEncoder(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+		defer resp.Body.Close()
 
 		if want, have := http.StatusOK, resp.StatusCode; want != have {
 			t.Errorf("unexpected status code\nexpected: %d\nactual:   %d", want, have)
@@ -153,13 +157,15 @@ func TestErrorResponseEncoder(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+		defer resp.Body.Close()
 
 		if want, have := http.StatusBadRequest, resp.StatusCode; want != have {
 			t.Errorf("unexpected status code\nexpected: %d\nactual:   %d", want, have)
 		}
 
+		expectedBody := `{"type":"about:blank","title":"Bad Request","status":400,"detail":"error"}`
 		buf, _ := ioutil.ReadAll(resp.Body)
-		if want, have := `{"type":"about:blank","title":"Bad Request","status":400,"detail":"error"}`, strings.TrimSpace(string(buf)); want != have {
+		if want, have := expectedBody, strings.TrimSpace(string(buf)); want != have {
 			t.Errorf("unexpected body\nexpected: %s\nactual:   %s", want, have)
 		}
 	})
@@ -182,13 +188,15 @@ func TestProblemErrorEncoder(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer resp.Body.Close()
 
 	if want, have := http.StatusInternalServerError, resp.StatusCode; want != have {
 		t.Errorf("unexpected status code\nexpected: %d\nactual:   %d", want, have)
 	}
 
+	expectedBody := `{"type":"about:blank","title":"Internal Server Error","status":500,"detail":"something went wrong"}`
 	buf, _ := ioutil.ReadAll(resp.Body)
-	if want, have := `{"type":"about:blank","title":"Internal Server Error","status":500,"detail":"something went wrong"}`, strings.TrimSpace(string(buf)); want != have {
+	if want, have := expectedBody, strings.TrimSpace(string(buf)); want != have {
 		t.Errorf("unexpected body\nexpected: %s\nactual:   %s", want, have)
 	}
 }

@@ -43,7 +43,10 @@ func JSONResponseEncoder(ctx context.Context, w http.ResponseWriter, resp interf
 type EncodeErrorResponseFunc func(context.Context, http.ResponseWriter, error) error
 
 // ErrorResponseEncoder encodes the passed response object to the HTTP response writer in JSON format.
-func ErrorResponseEncoder(encoder kithttp.EncodeResponseFunc, errorEncoder EncodeErrorResponseFunc) kithttp.EncodeResponseFunc {
+func ErrorResponseEncoder(
+	encoder kithttp.EncodeResponseFunc,
+	errorEncoder EncodeErrorResponseFunc,
+) kithttp.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, resp interface{}) error {
 		if f, ok := resp.(endpoint.Failer); ok && f.Failed() != nil {
 			return errorEncoder(ctx, w, f.Failed())
