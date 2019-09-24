@@ -9,37 +9,31 @@ import (
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"github.com/moogar0880/problems"
-	"github.com/sagikazarmark/ocmux"
 
 	api "github.com/sagikazarmark/modern-go-application/.gen/api/openapi/todo/go"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
 	kitxhttp "github.com/sagikazarmark/modern-go-application/pkg/kitx/transport/http"
 )
 
-// MakeHTTPHandler mounts all of the service endpoints into an http.Handler.
-func MakeHTTPHandler(endpoints Endpoints, factory kitxhttp.ServerFactory) http.Handler {
-	r := mux.NewRouter().PathPrefix("/todos").Subrouter()
-	r.Use(ocmux.Middleware())
-
-	r.Methods(http.MethodPost).Path("/").Handler(factory.NewServer(
+// RegisterHTTPHandlers mounts all of the service endpoints into a router.
+func RegisterHTTPHandlers(endpoints Endpoints, factory kitxhttp.ServerFactory, router *mux.Router) {
+	router.Methods(http.MethodPost).Path("").Handler(factory.NewServer(
 		endpoints.Create,
 		decodeCreateTodoHTTPRequest,
 		encodeCreateTodoHTTPResponse,
 	))
 
-	r.Methods(http.MethodGet).Path("/").Handler(factory.NewServer(
+	router.Methods(http.MethodGet).Path("").Handler(factory.NewServer(
 		endpoints.List,
 		kithttp.NopRequestDecoder,
 		encodeListTodosHTTPResponse,
 	))
 
-	r.Methods(http.MethodPost).Path("/{id}/done").Handler(factory.NewServer(
+	router.Methods(http.MethodPost).Path("/{id}/done").Handler(factory.NewServer(
 		endpoints.MarkAsDone,
 		decodeMarkAsDoneHTTPRequest,
 		kitxhttp.ErrorResponseEncoder(kitxhttp.NopResponseEncoder, errorEncoder),
 	))
-
-	return r
 }
 
 func decodeCreateTodoHTTPRequest(_ context.Context, r *http.Request) (interface{}, error) {

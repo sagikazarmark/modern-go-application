@@ -8,13 +8,9 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/landing"
 )
 
-// NewHTTPHandler returns a new HTTP handler for the landing page.
-func NewHTTPHandler() http.Handler {
-	router := mux.NewRouter()
-
-	router.Path("/").Methods("GET").HandlerFunc(Landing)
-
-	return router
+// RegisterHTTPHandlers mounts the HTTP handler for the landing page in a router.
+func RegisterHTTPHandlers(router *mux.Router) {
+	router.Path("").Methods(http.MethodGet).HandlerFunc(Landing)
 }
 
 // Landing is the landing page for Modern Go Application.
