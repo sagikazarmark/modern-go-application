@@ -10,6 +10,7 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/go-kit/kit/endpoint"
 	kitoc "github.com/go-kit/kit/tracing/opencensus"
+	kitgrpc "github.com/go-kit/kit/transport/grpc"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/goph/idgen/ulidgen"
 	"github.com/gorilla/mux"
@@ -28,6 +29,7 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/common/commonadapter"
 	"github.com/sagikazarmark/modern-go-application/pkg/kitx/correlation"
 	kitxendpoint "github.com/sagikazarmark/modern-go-application/pkg/kitx/endpoint"
+	kitxgrpc "github.com/sagikazarmark/modern-go-application/pkg/kitx/transport/grpc"
 	kitxhttp "github.com/sagikazarmark/modern-go-application/pkg/kitx/transport/http"
 )
 
@@ -123,8 +125,13 @@ func NewApp(
 		httpbin.MakeHTTPHandler(commonLogger.WithFields(map[string]interface{}{"module": "httpbin"})),
 	))
 
+	grpcServerFactory := kitxgrpc.NewServerFactory(
+		kitgrpc.ServerErrorHandler(ctxErrorHandler),
+		kitgrpc.ServerBefore(correlation.GRPCToContext()),
+	)
+
 	return router, func(s *grpc.Server) {
-		todov1beta1.RegisterTodoListServer(s, tododriver.MakeGRPCServer(todoListEndpoint, ctxErrorHandler))
+		todov1beta1.RegisterTodoListServer(s, tododriver.MakeGRPCServer(todoListEndpoint, grpcServerFactory))
 	}
 }
 
