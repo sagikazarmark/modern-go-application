@@ -6,57 +6,40 @@ import (
 	"net/http"
 
 	"emperror.dev/errors"
-	"github.com/go-kit/kit/endpoint"
-	httptransport "github.com/go-kit/kit/transport/http"
+	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"github.com/moogar0880/problems"
 	"github.com/sagikazarmark/ocmux"
 
 	api "github.com/sagikazarmark/modern-go-application/.gen/api/openapi/todo/go"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
+	kitxhttp "github.com/sagikazarmark/modern-go-application/pkg/kitx/transport/http"
 )
 
 // MakeHTTPHandler mounts all of the service endpoints into an http.Handler.
-func MakeHTTPHandler(endpoints Endpoints, errorHandler todo.ErrorHandler) http.Handler {
+func MakeHTTPHandler(endpoints Endpoints, factory kitxhttp.ServerFactory) http.Handler {
 	r := mux.NewRouter().PathPrefix("/todos").Subrouter()
 	r.Use(ocmux.Middleware())
 
-	options := []httptransport.ServerOption{
-		httptransport.ServerErrorEncoder(encodeHTTPError),
-		httptransport.ServerErrorHandler(errorHandler),
-	}
-
-	r.Methods(http.MethodPost).Path("/").Handler(httptransport.NewServer(
+	r.Methods(http.MethodPost).Path("/").Handler(factory.NewServer(
 		endpoints.Create,
 		decodeCreateTodoHTTPRequest,
 		encodeCreateTodoHTTPResponse,
-		options...,
 	))
 
-	r.Methods(http.MethodGet).Path("/").Handler(httptransport.NewServer(
+	r.Methods(http.MethodGet).Path("/").Handler(factory.NewServer(
 		endpoints.List,
-		decodeListTodosHTTPRequest,
+		kithttp.NopRequestDecoder,
 		encodeListTodosHTTPResponse,
-		options...,
 	))
 
-	r.Methods(http.MethodPost).Path("/{id}/done").Handler(httptransport.NewServer(
+	r.Methods(http.MethodPost).Path("/{id}/done").Handler(factory.NewServer(
 		endpoints.MarkAsDone,
 		decodeMarkAsDoneHTTPRequest,
-		encodeMarkAsDoneHTTPResponse,
-		options...,
+		kitxhttp.ErrorResponseEncoder(kitxhttp.NopResponseEncoder, errorEncoder),
 	))
 
 	return r
-}
-
-func encodeHTTPError(_ context.Context, err error, w http.ResponseWriter) {
-	problem := problems.NewDetailedProblem(http.StatusInternalServerError, err.Error())
-
-	w.Header().Set("Content-Type", problems.ProblemMediaType)
-	w.WriteHeader(problem.Status)
-
-	_ = json.NewEncoder(w).Encode(problem)
 }
 
 func decodeCreateTodoHTTPRequest(_ context.Context, r *http.Request) (interface{}, error) {
@@ -87,10 +70,6 @@ func encodeCreateTodoHTTPResponse(_ context.Context, w http.ResponseWriter, resp
 	err := json.NewEncoder(w).Encode(apiResp)
 
 	return errors.Wrap(err, "failed to send response")
-}
-
-func decodeListTodosHTTPRequest(_ context.Context, _ *http.Request) (interface{}, error) {
-	return nil, nil
 }
 
 func encodeListTodosHTTPResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
@@ -127,30 +106,20 @@ func decodeMarkAsDoneHTTPRequest(_ context.Context, r *http.Request) (interface{
 	}, nil
 }
 
-func encodeMarkAsDoneHTTPResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
-	if f, ok := response.(endpoint.Failer); ok && f.Failed() != nil {
-		errorEncoder(f.Failed(), w)
-
-		return nil
-	}
-
-	w.WriteHeader(http.StatusOK)
-
-	return nil
-}
-
-func errorEncoder(failed error, w http.ResponseWriter) {
+func errorEncoder(_ context.Context, w http.ResponseWriter, err error) error {
 	status := http.StatusInternalServerError
 
 	// nolint: gocritic
-	switch errors.Cause(failed).(type) {
+	switch errors.Cause(err).(type) {
 	case todo.NotFoundError:
 		status = http.StatusNotFound
 	}
 
-	problem := problems.NewDetailedProblem(status, failed.Error())
+	problem := problems.NewDetailedProblem(status, err.Error())
 
 	w.Header().Set("Content-Type", problems.ProblemMediaType)
 	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(problem)
+	e := json.NewEncoder(w).Encode(problem)
+
+	return e
 }

@@ -5,9 +5,9 @@ import (
 
 	"emperror.dev/errors"
 	"github.com/go-kit/kit/endpoint"
-	kitoc "github.com/go-kit/kit/tracing/opencensus"
 
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
+	kitxendpoint "github.com/sagikazarmark/modern-go-application/pkg/kitx/endpoint"
 )
 
 // TodoList manages a list of todos.
@@ -39,11 +39,11 @@ type Endpoints struct {
 
 // MakeEndpoints returns an Endpoints struct where each endpoint invokes
 // the corresponding method on the provided service.
-func MakeEndpoints(t TodoList) Endpoints {
+func MakeEndpoints(t TodoList, factory kitxendpoint.Factory) Endpoints {
 	return Endpoints{
-		Create:     kitoc.TraceEndpoint("todo.CreateTodo")(MakeCreateEndpoint(t)),
-		List:       kitoc.TraceEndpoint("todo.ListTodos")(MakeListEndpoint(t)),
-		MarkAsDone: kitoc.TraceEndpoint("todo.MarkAsDone")(MakeMarkAsDoneEndpoint(t)),
+		Create:     factory.NewEndpoint("todo.CreateTodo", MakeCreateEndpoint(t)),
+		List:       factory.NewEndpoint("todo.ListTodos", MakeListEndpoint(t)),
+		MarkAsDone: factory.NewEndpoint("todo.MarkAsDone", MakeMarkAsDoneEndpoint(t)),
 	}
 }
 
