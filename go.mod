@@ -12,7 +12,7 @@ require (
 	github.com/99designs/gqlgen v0.9.3
 	github.com/99designs/gqlgen-contrib v0.0.0-20190222015228-c654377d611c
 	github.com/AppsFlyer/go-sundheit v0.0.10
-	github.com/ThreeDotsLabs/watermill v1.0.0-rc.2
+	github.com/ThreeDotsLabs/watermill v1.0.0
 	github.com/cloudflare/tableflip v1.0.0
 	github.com/go-kit/kit v0.9.0
 	github.com/go-sql-driver/mysql v1.4.1
@@ -37,6 +37,6 @@ require (
 	google.golang.org/grpc v1.23.0
 	logur.dev/adapter/logrus v0.2.0
 	logur.dev/integration/invision v0.2.0
-	logur.dev/integration/watermill v0.2.0
+	logur.dev/integration/watermill v0.3.0
 	logur.dev/logur v0.15.0
 )
