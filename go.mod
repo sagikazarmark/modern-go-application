@@ -37,6 +37,6 @@ require (
 	google.golang.org/grpc v1.23.0
 	logur.dev/adapter/logrus v0.2.0
 	logur.dev/integration/invision v0.2.0
-	logur.dev/integration/watermill v0.2.0
+	logur.dev/integration/watermill v0.3.0
 	logur.dev/logur v0.15.0
 )
