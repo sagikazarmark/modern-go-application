@@ -3,6 +3,7 @@ package mga
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"emperror.dev/emperror"
 	"github.com/ThreeDotsLabs/watermill/components/cqrs"
@@ -78,8 +79,28 @@ func NewApp(
 	}
 
 	endpointFactory := kitxendpoint.NewFactory(
-		func(name string) endpoint.Middleware { return kitoc.TraceEndpoint(name) },
 		kitxendpoint.Middleware(correlation.Middleware()),
+		func(name string) endpoint.Middleware { return kitoc.TraceEndpoint(name) },
+		func(name string) endpoint.Middleware {
+			return func(e endpoint.Endpoint) endpoint.Endpoint {
+				return func(ctx context.Context, request interface{}) (interface{}, error) {
+					logger := commonLogger.WithContext(ctx).WithFields(map[string]interface{}{"module": "todo"})
+
+					logger.Trace("processing request", map[string]interface{}{
+						"operation": name,
+					})
+
+					defer func(begin time.Time) {
+						logger.Trace("processing request finished", map[string]interface{}{
+							"operation": name,
+							"took":      time.Since(begin),
+						})
+					}(time.Now())
+
+					return e(ctx, request)
+				}
+			}
+		},
 	)
 
 	todoListEndpoint := tododriver.MakeEndpoints(todoList, endpointFactory)

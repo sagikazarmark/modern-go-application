@@ -2,7 +2,6 @@ package tododriver
 
 import (
 	"context"
-	"time"
 
 	"go.opencensus.io/stats"
 	"go.opencensus.io/stats/view"
@@ -32,33 +31,24 @@ type loggingMiddleware struct {
 func (mw *loggingMiddleware) CreateTodo(ctx context.Context, text string) (string, error) {
 	logger := mw.logger.WithContext(ctx)
 
-	logger.Trace("processing request", map[string]interface{}{
-		"operation": "todo.CreateTodo",
+	logger.Info("creating todo")
+
+	id, err := mw.next.CreateTodo(ctx, text)
+	if err != nil {
+		return id, err
+	}
+
+	logger.Info("created todo", map[string]interface{}{
+		"id": id,
 	})
 
-	defer func(begin time.Time) {
-		logger.Trace("processing request finished", map[string]interface{}{
-			"operation": "todo.CreateTodo",
-			"took":      time.Since(begin),
-		})
-	}(time.Now())
-
-	return mw.next.CreateTodo(ctx, text)
+	return id, err
 }
 
 func (mw *loggingMiddleware) ListTodos(ctx context.Context) ([]todo.Todo, error) {
 	logger := mw.logger.WithContext(ctx)
 
-	logger.Trace("processing request", map[string]interface{}{
-		"operation": "todo.ListTodos",
-	})
-
-	defer func(begin time.Time) {
-		logger.Trace("processing request finished", map[string]interface{}{
-			"operation": "todo.ListTodos",
-			"took":      time.Since(begin),
-		})
-	}(time.Now())
+	logger.Info("listing todos")
 
 	return mw.next.ListTodos(ctx)
 }
@@ -66,16 +56,9 @@ func (mw *loggingMiddleware) ListTodos(ctx context.Context) ([]todo.Todo, error)
 func (mw *loggingMiddleware) MarkAsDone(ctx context.Context, id string) error {
 	logger := mw.logger.WithContext(ctx)
 
-	logger.Trace("processing request", map[string]interface{}{
-		"operation": "todo.MarkAsDone",
+	logger.Info("marking todo as done", map[string]interface{}{
+		"id": id,
 	})
-
-	defer func(begin time.Time) {
-		logger.Trace("processing request finished", map[string]interface{}{
-			"operation": "todo.MarkAsDone",
-			"took":      time.Since(begin),
-		})
-	}(time.Now())
 
 	return mw.next.MarkAsDone(ctx, id)
 }
