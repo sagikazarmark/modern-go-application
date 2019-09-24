@@ -19,3 +19,8 @@ func FromContext(ctx context.Context) (string, bool) {
 
 	return id, ok
 }
+
+// ToContext returns a new context annotated with a correlation ID.
+func ToContext(ctx context.Context, id string) context.Context {
+	return context.WithValue(ctx, correlationIDContextKey, id)
+}
