@@ -11,6 +11,7 @@ import (
 
 	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1beta1"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
+	kitxgrpc "github.com/sagikazarmark/modern-go-application/pkg/kitx/transport/grpc"
 )
 
 type grpcServer struct {
@@ -22,29 +23,22 @@ type grpcServer struct {
 }
 
 // MakeGRPCServer makes a set of endpoints available as a gRPC server.
-func MakeGRPCServer(endpoints Endpoints, errorHandler todo.ErrorHandler) todov1beta1.TodoListServer {
-	options := []grpctransport.ServerOption{
-		grpctransport.ServerErrorHandler(errorHandler),
-	}
-
+func MakeGRPCServer(endpoints Endpoints, factory kitxgrpc.ServerFactory) todov1beta1.TodoListServer {
 	return &grpcServer{
-		createTodo: grpctransport.NewServer(
+		createTodo: factory.NewServer(
 			endpoints.Create,
 			decodeCreateTodoGRPCRequest,
 			encodeCreateTodoGRPCResponse,
-			options...,
 		),
-		listTodos: grpctransport.NewServer(
+		listTodos: factory.NewServer(
 			endpoints.List,
 			decodeListTodosGRPCRequest,
 			encodeListTodosGRPCResponse,
-			options...,
 		),
-		markAsDone: grpctransport.NewServer(
+		markAsDone: factory.NewServer(
 			endpoints.MarkAsDone,
 			decodeMarkAsDoneGRPCRequest,
 			encodeMarkAsDoneGRPCResponse,
-			options...,
 		),
 	}
 }
