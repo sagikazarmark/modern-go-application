@@ -39,7 +39,7 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/watermill"
-	"github.com/sagikazarmark/modern-go-application/pkg/correlation"
+	"github.com/sagikazarmark/modern-go-application/pkg/kitx/correlation"
 )
 
 // Provisioned by ldflags
@@ -238,14 +238,14 @@ func main() {
 	defer subscriber.Close()
 
 	publisher, _ = message.MessageTransformPublisherDecorator(func(msg *message.Message) {
-		if cid, ok := correlation.ID(msg.Context()); ok {
+		if cid, ok := correlation.FromContext(msg.Context()); ok {
 			middleware.SetCorrelationID(cid, msg)
 		}
 	})(publisher)
 
 	subscriber, _ = message.MessageTransformSubscriberDecorator(func(msg *message.Message) {
 		if cid := middleware.MessageCorrelationID(msg); cid != "" {
-			msg.SetContext(correlation.WithID(msg.Context(), cid))
+			msg.SetContext(correlation.ToContext(msg.Context(), cid))
 		}
 	})(subscriber)
 
