@@ -117,8 +117,8 @@ func NewApp(
 		kithttp.ServerBefore(correlation.HTTPToContext()),
 	)
 
-	router.Path("/").Methods("GET").Handler(landingdriver.NewHTTPHandler())
-	router.PathPrefix("/todos").Handler(tododriver.MakeHTTPHandler(todoListEndpoint, httpServerFactory))
+	landingdriver.RegisterHTTPHandlers(router)
+	tododriver.RegisterHTTPHandlers(todoListEndpoint, httpServerFactory, router.PathPrefix("/todos").Subrouter())
 	router.PathPrefix("/graphql").Handler(tododriver.MakeGraphQLHandler(todoListEndpoint, ctxErrorHandler))
 	router.PathPrefix("/httpbin").Handler(http.StripPrefix(
 		"/httpbin",
