@@ -5,9 +5,9 @@ import (
 
 	"emperror.dev/errors"
 	"github.com/go-kit/kit/endpoint"
+	kitxendpoint "github.com/sagikazarmark/kitx/endpoint"
 
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
-	kitxendpoint "github.com/sagikazarmark/modern-go-application/pkg/kitx/endpoint"
 )
 
 type businessError interface {

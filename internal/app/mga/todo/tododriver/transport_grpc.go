@@ -6,12 +6,12 @@ import (
 	"emperror.dev/errors"
 	"github.com/go-kit/kit/endpoint"
 	grpctransport "github.com/go-kit/kit/transport/grpc"
+	kitxgrpc "github.com/sagikazarmark/kitx/transport/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1beta1"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
-	kitxgrpc "github.com/sagikazarmark/modern-go-application/pkg/kitx/transport/grpc"
 )
 
 type grpcServer struct {
