@@ -92,7 +92,8 @@ func MakeMarkAsDoneEndpoint(service todo.Service) endpoint.Endpoint {
 
 		err := service.MarkAsDone(ctx, req.ID)
 
-		if b, ok := errors.Cause(err).(businessError); ok && b.IsBusinessError() {
+		var berr businessError
+		if errors.As(err, &berr) && berr.IsBusinessError() {
 			return markAsDoneResponse{
 				Err: err,
 			}, nil
