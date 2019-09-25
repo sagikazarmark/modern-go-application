@@ -21,8 +21,10 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
 	"github.com/cloudflare/tableflip"
+	"github.com/gorilla/mux"
 	"github.com/oklog/run"
 	"github.com/sagikazarmark/kitx/correlation"
+	"github.com/sagikazarmark/ocmux"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.opencensus.io/plugin/ocgrpc"
@@ -291,6 +293,20 @@ func main() {
 		const name = "app"
 		logger := log.WithFields(logger, map[string]interface{}{"server": name})
 
+		httpRouter := mux.NewRouter()
+		httpRouter.Use(ocmux.Middleware())
+
+		httpServer := &http.Server{
+			Handler: &ochttp.Handler{
+				Handler: httpRouter,
+				StartOptions: trace.StartOptions{
+					Sampler:  trace.AlwaysSample(),
+					SpanKind: trace.SpanKindServer,
+				},
+			},
+			ErrorLog: log.NewErrorStandardLogger(logger),
+		}
+
 		grpcServer := grpc.NewServer(grpc.StatsHandler(&ocgrpc.ServerHandler{
 			StartOptions: trace.StartOptions{
 				Sampler:  trace.AlwaysSample(),
@@ -298,20 +314,8 @@ func main() {
 			},
 		}))
 
-		httpHandler, grpcHandlers := mga.NewApp(logger, publisher, errorHandler)
-		httpHandler = &ochttp.Handler{
-			Handler: httpHandler,
-			StartOptions: trace.StartOptions{
-				Sampler:  trace.AlwaysSample(),
-				SpanKind: trace.SpanKindServer,
-			},
-		}
-		grpcHandlers(grpcServer)
-
-		httpServer := &http.Server{
-			Handler:  httpHandler,
-			ErrorLog: log.NewErrorStandardLogger(logger),
-		}
+		// In larger apps, this should be split up into smaller functions
+		mga.InitializeApp(httpRouter, grpcServer, publisher, logger, errorHandler)
 
 		logger.Info("listening on address", map[string]interface{}{"address": config.App.HttpAddr})
 

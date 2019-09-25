@@ -3,7 +3,6 @@ package mga
 import (
 	"context"
 	"net/http"
-	"time"
 
 	"emperror.dev/emperror"
 	"github.com/ThreeDotsLabs/watermill/components/cqrs"
@@ -18,7 +17,6 @@ import (
 	kitxendpoint "github.com/sagikazarmark/kitx/endpoint"
 	kitxgrpc "github.com/sagikazarmark/kitx/transport/grpc"
 	kitxhttp "github.com/sagikazarmark/kitx/transport/http"
-	"github.com/sagikazarmark/ocmux"
 	"go.opencensus.io/trace"
 	"google.golang.org/grpc"
 	watermilllog "logur.dev/integration/watermill"
@@ -30,7 +28,9 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/tododriver"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todogen"
+	"github.com/sagikazarmark/modern-go-application/internal/common"
 	"github.com/sagikazarmark/modern-go-application/internal/common/commonadapter"
+	"github.com/sagikazarmark/modern-go-application/internal/platform/appkit"
 )
 
 const todoTopic = "todo"
@@ -55,84 +55,77 @@ func (ContextExtractor) Extract(ctx context.Context) map[string]interface{} {
 	return fields
 }
 
-// NewApp returns a new HTTP and a new gRPC application.
-func NewApp(
-	logger logur.Logger,
+// InitializeApp initializes a new HTTP and a new gRPC application.
+func InitializeApp(
+	httpRouter *mux.Router,
+	grpcServer *grpc.Server,
 	publisher message.Publisher,
+	logger logur.Logger,
 	errorHandler emperror.Handler,
-) (http.Handler, func(*grpc.Server)) {
+) {
 	commonLogger := commonadapter.NewContextAwareLogger(logger, ContextExtractor{})
 
-	endpointFactory := kitxendpoint.NewFactory(
-		kitxendpoint.Middleware(correlation.Middleware()),
-		func(name string) endpoint.Middleware { return kitoc.TraceEndpoint(name) },
-		func(name string) endpoint.Middleware {
-			return func(e endpoint.Endpoint) endpoint.Endpoint {
-				return func(ctx context.Context, request interface{}) (interface{}, error) {
-					logger := commonLogger.WithContext(ctx).WithFields(map[string]interface{}{"module": "todo"})
+	endpointFactory := func(logger common.Logger) kitxendpoint.Factory {
+		return kitxendpoint.NewFactory(
+			kitxendpoint.Middleware(correlation.Middleware()),
+			func(name string) endpoint.Middleware { return kitoc.TraceEndpoint(name) },
+			appkit.EndpointLoggerFactory(logger),
+		)
+	}
 
-					logger.Trace("processing request", map[string]interface{}{
-						"operation": name,
-					})
+	httpServerFactory := func(errorHandler common.ErrorHandler) kitxhttp.ServerFactory {
+		return kitxhttp.NewServerFactory(
+			kithttp.ServerErrorHandler(errorHandler),
+			kithttp.ServerBefore(correlation.HTTPToContext()),
+		)
+	}
 
-					defer func(begin time.Time) {
-						logger.Trace("processing request finished", map[string]interface{}{
-							"operation": name,
-							"took":      time.Since(begin),
-						})
-					}(time.Now())
+	grpcServerFactory := func(errorHandler common.ErrorHandler) kitxgrpc.ServerFactory {
+		return kitxgrpc.NewServerFactory(
+			kitgrpc.ServerErrorHandler(errorHandler),
+			kitgrpc.ServerBefore(correlation.GRPCToContext()),
+		)
+	}
 
-					return e(ctx, request)
-				}
-			}
-		},
-	)
-
-	var todoEndpoints tododriver.Endpoints
 	{
+		logger := commonLogger.WithFields(map[string]interface{}{"module": "todo"})
+		errorHandler := emperror.MakeContextAware(emperror.WithDetails(errorHandler, "module", "todo"))
+
 		eventBus, _ := cqrs.NewEventBus(
 			publisher,
 			func(eventName string) string { return todoTopic },
 			cqrs.JSONMarshaler{GenerateName: cqrs.StructName},
 		)
-		todoService := todo.NewService(
+
+		service := todo.NewService(
 			ulidgen.NewGenerator(),
 			todo.NewInMemoryStore(),
 			todogen.NewEventDispatcher(eventBus),
 		)
-		logger := commonLogger.WithFields(map[string]interface{}{"module": "todo"})
-		todoService = tododriver.LoggingMiddleware(logger)(todoService)
-		todoService = tododriver.InstrumentationMiddleware()(todoService)
+		service = tododriver.LoggingMiddleware(logger)(service)
+		service = tododriver.InstrumentationMiddleware()(service)
 
-		todoEndpoints = tododriver.MakeEndpoints(todoService, endpointFactory)
+		endpoints := tododriver.MakeEndpoints(service, endpointFactory(logger))
+
+		tododriver.RegisterHTTPHandlers(
+			endpoints,
+			httpServerFactory(errorHandler),
+			httpRouter.PathPrefix("/todos").Subrouter(),
+		)
+
+		todov1beta1.RegisterTodoListServer(
+			grpcServer,
+			tododriver.MakeGRPCServer(endpoints, grpcServerFactory(errorHandler)),
+		)
+
+		httpRouter.PathPrefix("/graphql").Handler(tododriver.MakeGraphQLHandler(endpoints, errorHandler))
 	}
 
-	ctxErrorHandler := emperror.MakeContextAware(errorHandler)
-
-	router := mux.NewRouter()
-	router.Use(ocmux.Middleware())
-
-	httpServerFactory := kitxhttp.NewServerFactory(
-		kithttp.ServerErrorHandler(ctxErrorHandler),
-		kithttp.ServerBefore(correlation.HTTPToContext()),
-	)
-
-	landingdriver.RegisterHTTPHandlers(router)
-	tododriver.RegisterHTTPHandlers(todoEndpoints, httpServerFactory, router.PathPrefix("/todos").Subrouter())
-	router.PathPrefix("/graphql").Handler(tododriver.MakeGraphQLHandler(todoEndpoints, ctxErrorHandler))
-	router.PathPrefix("/httpbin").Handler(http.StripPrefix(
+	landingdriver.RegisterHTTPHandlers(httpRouter)
+	httpRouter.PathPrefix("/httpbin").Handler(http.StripPrefix(
 		"/httpbin",
 		httpbin.MakeHTTPHandler(commonLogger.WithFields(map[string]interface{}{"module": "httpbin"})),
 	))
-
-	grpcServerFactory := kitxgrpc.NewServerFactory(
-		kitgrpc.ServerErrorHandler(ctxErrorHandler),
-		kitgrpc.ServerBefore(correlation.GRPCToContext()),
-	)
-
-	return router, func(s *grpc.Server) {
-		todov1beta1.RegisterTodoListServer(s, tododriver.MakeGRPCServer(todoEndpoints, grpcServerFactory))
-	}
 }
 
 // RegisterEventHandlers registers event handlers in a message router.
