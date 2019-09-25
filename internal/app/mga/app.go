@@ -63,23 +63,6 @@ func NewApp(
 ) (http.Handler, func(*grpc.Server)) {
 	commonLogger := commonadapter.NewContextAwareLogger(logger, ContextExtractor{})
 
-	var todoList todo.Service
-	{
-		eventBus, _ := cqrs.NewEventBus(
-			publisher,
-			func(eventName string) string { return todoTopic },
-			cqrs.JSONMarshaler{GenerateName: cqrs.StructName},
-		)
-		todoList = todo.NewService(
-			ulidgen.NewGenerator(),
-			todo.NewInmemoryStore(),
-			todogen.NewEventDispatcher(eventBus),
-		)
-		logger := commonLogger.WithFields(map[string]interface{}{"module": "todo"})
-		todoList = tododriver.LoggingMiddleware(logger)(todoList)
-		todoList = tododriver.InstrumentationMiddleware()(todoList)
-	}
-
 	endpointFactory := kitxendpoint.NewFactory(
 		kitxendpoint.Middleware(correlation.Middleware()),
 		func(name string) endpoint.Middleware { return kitoc.TraceEndpoint(name) },
@@ -105,7 +88,24 @@ func NewApp(
 		},
 	)
 
-	todoListEndpoint := tododriver.MakeEndpoints(todoList, endpointFactory)
+	var todoEndpoints tododriver.Endpoints
+	{
+		eventBus, _ := cqrs.NewEventBus(
+			publisher,
+			func(eventName string) string { return todoTopic },
+			cqrs.JSONMarshaler{GenerateName: cqrs.StructName},
+		)
+		todoService := todo.NewService(
+			ulidgen.NewGenerator(),
+			todo.NewInmemoryStore(),
+			todogen.NewEventDispatcher(eventBus),
+		)
+		logger := commonLogger.WithFields(map[string]interface{}{"module": "todo"})
+		todoService = tododriver.LoggingMiddleware(logger)(todoService)
+		todoService = tododriver.InstrumentationMiddleware()(todoService)
+
+		todoEndpoints = tododriver.MakeEndpoints(todoService, endpointFactory)
+	}
 
 	ctxErrorHandler := emperror.MakeContextAware(errorHandler)
 
@@ -118,8 +118,8 @@ func NewApp(
 	)
 
 	landingdriver.RegisterHTTPHandlers(router)
-	tododriver.RegisterHTTPHandlers(todoListEndpoint, httpServerFactory, router.PathPrefix("/todos").Subrouter())
-	router.PathPrefix("/graphql").Handler(tododriver.MakeGraphQLHandler(todoListEndpoint, ctxErrorHandler))
+	tododriver.RegisterHTTPHandlers(todoEndpoints, httpServerFactory, router.PathPrefix("/todos").Subrouter())
+	router.PathPrefix("/graphql").Handler(tododriver.MakeGraphQLHandler(todoEndpoints, ctxErrorHandler))
 	router.PathPrefix("/httpbin").Handler(http.StripPrefix(
 		"/httpbin",
 		httpbin.MakeHTTPHandler(commonLogger.WithFields(map[string]interface{}{"module": "httpbin"})),
@@ -131,7 +131,7 @@ func NewApp(
 	)
 
 	return router, func(s *grpc.Server) {
-		todov1beta1.RegisterTodoListServer(s, tododriver.MakeGRPCServer(todoListEndpoint, grpcServerFactory))
+		todov1beta1.RegisterTodoListServer(s, tododriver.MakeGRPCServer(todoEndpoints, grpcServerFactory))
 	}
 }
 
