@@ -9,10 +9,10 @@ import (
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"github.com/moogar0880/problems"
+	kitxhttp "github.com/sagikazarmark/kitx/transport/http"
 
 	api "github.com/sagikazarmark/modern-go-application/.gen/api/openapi/todo/go"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
-	kitxhttp "github.com/sagikazarmark/modern-go-application/pkg/kitx/transport/http"
 )
 
 // RegisterHTTPHandlers mounts all of the service endpoints into a router.

@@ -22,6 +22,7 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
 	"github.com/cloudflare/tableflip"
 	"github.com/oklog/run"
+	"github.com/sagikazarmark/kitx/correlation"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.opencensus.io/plugin/ocgrpc"
@@ -39,7 +40,6 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/watermill"
-	"github.com/sagikazarmark/modern-go-application/pkg/kitx/correlation"
 )
 
 // Provisioned by ldflags

@@ -14,6 +14,10 @@ import (
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/goph/idgen/ulidgen"
 	"github.com/gorilla/mux"
+	"github.com/sagikazarmark/kitx/correlation"
+	kitxendpoint "github.com/sagikazarmark/kitx/endpoint"
+	kitxgrpc "github.com/sagikazarmark/kitx/transport/grpc"
+	kitxhttp "github.com/sagikazarmark/kitx/transport/http"
 	"github.com/sagikazarmark/ocmux"
 	"go.opencensus.io/trace"
 	"google.golang.org/grpc"
@@ -27,10 +31,6 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/tododriver"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todogen"
 	"github.com/sagikazarmark/modern-go-application/internal/common/commonadapter"
-	"github.com/sagikazarmark/modern-go-application/pkg/kitx/correlation"
-	kitxendpoint "github.com/sagikazarmark/modern-go-application/pkg/kitx/endpoint"
-	kitxgrpc "github.com/sagikazarmark/modern-go-application/pkg/kitx/transport/grpc"
-	kitxhttp "github.com/sagikazarmark/modern-go-application/pkg/kitx/transport/http"
 )
 
 const todoTopic = "todo"
