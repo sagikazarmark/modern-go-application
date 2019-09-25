@@ -16,7 +16,7 @@ type Middleware func(todo.Service) todo.Service
 // LoggingMiddleware is a service level logging middleware for TodoList.
 func LoggingMiddleware(logger todo.Logger) Middleware {
 	return func(next todo.Service) todo.Service {
-		return &loggingMiddleware{
+		return loggingMiddleware{
 			next:   next,
 			logger: logger,
 		}
@@ -28,7 +28,7 @@ type loggingMiddleware struct {
 	logger todo.Logger
 }
 
-func (mw *loggingMiddleware) CreateTodo(ctx context.Context, text string) (string, error) {
+func (mw loggingMiddleware) CreateTodo(ctx context.Context, text string) (string, error) {
 	logger := mw.logger.WithContext(ctx)
 
 	logger.Info("creating todo")
@@ -45,7 +45,7 @@ func (mw *loggingMiddleware) CreateTodo(ctx context.Context, text string) (strin
 	return id, err
 }
 
-func (mw *loggingMiddleware) ListTodos(ctx context.Context) ([]todo.Todo, error) {
+func (mw loggingMiddleware) ListTodos(ctx context.Context) ([]todo.Todo, error) {
 	logger := mw.logger.WithContext(ctx)
 
 	logger.Info("listing todos")
@@ -53,7 +53,7 @@ func (mw *loggingMiddleware) ListTodos(ctx context.Context) ([]todo.Todo, error)
 	return mw.next.ListTodos(ctx)
 }
 
-func (mw *loggingMiddleware) MarkAsDone(ctx context.Context, id string) error {
+func (mw loggingMiddleware) MarkAsDone(ctx context.Context, id string) error {
 	logger := mw.logger.WithContext(ctx)
 
 	logger.Info("marking todo as done", map[string]interface{}{
@@ -66,7 +66,7 @@ func (mw *loggingMiddleware) MarkAsDone(ctx context.Context, id string) error {
 // InstrumentationMiddleware is a service level tracing middleware for TodoList.
 func InstrumentationMiddleware() Middleware {
 	return func(next todo.Service) todo.Service {
-		return &instrumentationMiddleware{
+		return instrumentationMiddleware{
 			next: next,
 		}
 	}
@@ -100,7 +100,7 @@ type instrumentationMiddleware struct {
 	next todo.Service
 }
 
-func (mw *instrumentationMiddleware) CreateTodo(ctx context.Context, text string) (string, error) {
+func (mw instrumentationMiddleware) CreateTodo(ctx context.Context, text string) (string, error) {
 	id, err := mw.next.CreateTodo(ctx, text)
 
 	if span := trace.FromContext(ctx); span != nil {
@@ -112,11 +112,11 @@ func (mw *instrumentationMiddleware) CreateTodo(ctx context.Context, text string
 	return id, err
 }
 
-func (mw *instrumentationMiddleware) ListTodos(ctx context.Context) ([]todo.Todo, error) {
+func (mw instrumentationMiddleware) ListTodos(ctx context.Context) ([]todo.Todo, error) {
 	return mw.next.ListTodos(ctx)
 }
 
-func (mw *instrumentationMiddleware) MarkAsDone(ctx context.Context, id string) error {
+func (mw instrumentationMiddleware) MarkAsDone(ctx context.Context, id string) error {
 	if span := trace.FromContext(ctx); span != nil {
 		span.AddAttributes(trace.StringAttribute("todo_id", id))
 	}
