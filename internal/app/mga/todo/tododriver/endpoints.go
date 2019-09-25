@@ -10,18 +10,6 @@ import (
 	kitxendpoint "github.com/sagikazarmark/modern-go-application/pkg/kitx/endpoint"
 )
 
-// TodoList manages a list of todos.
-type TodoList interface {
-	// CreateTodo adds a new todo to the todo list.
-	CreateTodo(ctx context.Context, text string) (string, error)
-
-	// ListTodos returns the list of todos.
-	ListTodos(ctx context.Context) ([]todo.Todo, error)
-
-	// MarkAsDone marks a todo as done.
-	MarkAsDone(ctx context.Context, id string) error
-}
-
 type businessError interface {
 	// IsBusinessError tells the transport layer whether this error should be translated into the transport format
 	// or an internal error should be returned instead.
@@ -32,18 +20,18 @@ type businessError interface {
 // meant to be used as a helper struct, to collect all of the endpoints into a
 // single parameter.
 type Endpoints struct {
-	Create     endpoint.Endpoint
-	List       endpoint.Endpoint
+	CreateTodo endpoint.Endpoint
+	ListTodos  endpoint.Endpoint
 	MarkAsDone endpoint.Endpoint
 }
 
 // MakeEndpoints returns an Endpoints struct where each endpoint invokes
 // the corresponding method on the provided service.
-func MakeEndpoints(t TodoList, factory kitxendpoint.Factory) Endpoints {
+func MakeEndpoints(service todo.Service, factory kitxendpoint.Factory) Endpoints {
 	return Endpoints{
-		Create:     factory.NewEndpoint("todo.CreateTodo", MakeCreateEndpoint(t)),
-		List:       factory.NewEndpoint("todo.ListTodos", MakeListEndpoint(t)),
-		MarkAsDone: factory.NewEndpoint("todo.MarkAsDone", MakeMarkAsDoneEndpoint(t)),
+		CreateTodo: factory.NewEndpoint("todo.CreateTodo", MakeCreateEndpoint(service)),
+		ListTodos:  factory.NewEndpoint("todo.ListTodos", MakeListEndpoint(service)),
+		MarkAsDone: factory.NewEndpoint("todo.MarkAsDone", MakeMarkAsDoneEndpoint(service)),
 	}
 }
 
@@ -56,11 +44,11 @@ type createTodoResponse struct {
 }
 
 // MakeCreateEndpoint returns an endpoint for the matching method of the underlying service.
-func MakeCreateEndpoint(t TodoList) endpoint.Endpoint {
+func MakeCreateEndpoint(service todo.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(createTodoRequest)
 
-		id, err := t.CreateTodo(ctx, req.Text)
+		id, err := service.CreateTodo(ctx, req.Text)
 
 		return createTodoResponse{
 			ID: id,
@@ -73,9 +61,9 @@ type listTodosResponse struct {
 }
 
 // MakeListEndpoint returns an endpoint for the matching method of the underlying service.
-func MakeListEndpoint(t TodoList) endpoint.Endpoint {
+func MakeListEndpoint(service todo.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		todos, err := t.ListTodos(ctx)
+		todos, err := service.ListTodos(ctx)
 
 		resp := listTodosResponse{
 			Todos: todos,
@@ -98,13 +86,14 @@ func (r markAsDoneResponse) Failed() error {
 }
 
 // MakeMarkAsDoneEndpoint returns an endpoint for the matching method of the underlying service.
-func MakeMarkAsDoneEndpoint(t TodoList) endpoint.Endpoint {
+func MakeMarkAsDoneEndpoint(service todo.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(markAsDoneRequest)
 
-		err := t.MarkAsDone(ctx, req.ID)
+		err := service.MarkAsDone(ctx, req.ID)
 
-		if b, ok := errors.Cause(err).(businessError); ok && b.IsBusinessError() {
+		var berr businessError
+		if errors.As(err, &berr) && berr.IsBusinessError() {
 			return markAsDoneResponse{
 				Err: err,
 			}, nil

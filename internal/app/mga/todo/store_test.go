@@ -9,7 +9,7 @@ import (
 )
 
 func TestInMemoryStore_StoresATodo(t *testing.T) {
-	store := NewInmemoryStore()
+	store := NewInMemoryStore()
 
 	todo := Todo{
 		ID:   "id",
@@ -23,7 +23,7 @@ func TestInMemoryStore_StoresATodo(t *testing.T) {
 }
 
 func TestInMemoryStore_OverwritesAnExistingTodo(t *testing.T) {
-	store := NewInmemoryStore()
+	store := NewInMemoryStore()
 
 	todo := Todo{
 		ID:   "id",
@@ -46,7 +46,7 @@ func TestInMemoryStore_OverwritesAnExistingTodo(t *testing.T) {
 }
 
 func TestInMemoryStore_ListsAllTodos(t *testing.T) {
-	store := NewInmemoryStore()
+	store := NewInMemoryStore()
 
 	store.todos["id"] = Todo{
 		ID:   "id",
@@ -69,7 +69,7 @@ func TestInMemoryStore_ListsAllTodos(t *testing.T) {
 }
 
 func TestInMemoryStore_GetsATodo(t *testing.T) {
-	store := NewInmemoryStore()
+	store := NewInMemoryStore()
 
 	id := "id"
 
@@ -85,7 +85,7 @@ func TestInMemoryStore_GetsATodo(t *testing.T) {
 }
 
 func TestInMemoryStore_CannotReturnANonExistingTodo(t *testing.T) {
-	store := NewInmemoryStore()
+	store := NewInMemoryStore()
 
 	_, err := store.Get(context.Background(), "id")
 	require.Error(t, err)
@@ -102,14 +102,14 @@ func TestReadOnlyStore_IsReadOnly(t *testing.T) {
 		Text: "Store me!",
 	}
 
-	store := NewReadOnlyStore(NewInmemoryStore())
+	store := NewReadOnlyStore(NewInMemoryStore())
 
 	err := store.Store(context.Background(), todo)
 	require.Error(t, err)
 }
 
 func TestReadOnlyStore_ListsAllTodos(t *testing.T) {
-	inmemStore := NewInmemoryStore()
+	inmemStore := NewInMemoryStore()
 	store := NewReadOnlyStore(inmemStore)
 
 	inmemStore.todos["id"] = Todo{
@@ -133,7 +133,7 @@ func TestReadOnlyStore_ListsAllTodos(t *testing.T) {
 }
 
 func TestReadOnlyStore_GetsATodo(t *testing.T) {
-	inmemStore := NewInmemoryStore()
+	inmemStore := NewInMemoryStore()
 	store := NewReadOnlyStore(inmemStore)
 
 	id := "id"

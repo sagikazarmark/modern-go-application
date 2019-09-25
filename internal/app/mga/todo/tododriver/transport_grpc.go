@@ -26,12 +26,12 @@ type grpcServer struct {
 func MakeGRPCServer(endpoints Endpoints, factory kitxgrpc.ServerFactory) todov1beta1.TodoListServer {
 	return &grpcServer{
 		createTodo: factory.NewServer(
-			endpoints.Create,
+			endpoints.CreateTodo,
 			decodeCreateTodoGRPCRequest,
 			encodeCreateTodoGRPCResponse,
 		),
 		listTodos: factory.NewServer(
-			endpoints.List,
+			endpoints.ListTodos,
 			decodeListTodosGRPCRequest,
 			encodeListTodosGRPCResponse,
 		),

@@ -18,13 +18,13 @@ import (
 // RegisterHTTPHandlers mounts all of the service endpoints into a router.
 func RegisterHTTPHandlers(endpoints Endpoints, factory kitxhttp.ServerFactory, router *mux.Router) {
 	router.Methods(http.MethodPost).Path("").Handler(factory.NewServer(
-		endpoints.Create,
+		endpoints.CreateTodo,
 		decodeCreateTodoHTTPRequest,
 		encodeCreateTodoHTTPResponse,
 	))
 
 	router.Methods(http.MethodGet).Path("").Handler(factory.NewServer(
-		endpoints.List,
+		endpoints.ListTodos,
 		kithttp.NopRequestDecoder,
 		encodeListTodosHTTPResponse,
 	))
