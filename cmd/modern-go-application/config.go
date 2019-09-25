@@ -53,7 +53,7 @@ type configuration struct {
 	// App configuration
 	App struct {
 		// HTTP server address
-		// nolint: golint
+		// nolint: golint, stylecheck
 		HttpAddr string
 
 		// GRPC server address

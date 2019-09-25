@@ -2,19 +2,20 @@ run:
     skip-dirs:
         - .gen
 
-linters:
-    enable-all: true
-    disable:
-        - maligned
-
-        # Disabled because of Go 1.13
-        - typecheck
-
 linters-settings:
     golint:
         min-confidence: 0.1
     goimports:
         local-prefixes: github.com/sagikazarmark/modern-go-application
 
+linters:
+    enable-all: true
+    disable:
+        - funlen
+        - maligned
+
+        # Drives todos nuts
+        - godox
+
 service:
-    golangci-lint-version: 1.17.x
+    golangci-lint-version: 1.19.x
