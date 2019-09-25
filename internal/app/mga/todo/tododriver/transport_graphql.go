@@ -45,7 +45,7 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input graphql.NewTodo
 		Text: input.Text,
 	}
 
-	resp, err := r.endpoints.Create(ctx, req)
+	resp, err := r.endpoints.CreateTodo(ctx, req)
 	if err != nil {
 		r.errorHandler.Handle(ctx, err)
 
@@ -81,7 +81,7 @@ func (r *mutationResolver) MarkTodoAsDone(ctx context.Context, input string) (bo
 type queryResolver struct{ *resolver }
 
 func (r *queryResolver) Todos(ctx context.Context) ([]*todo.Todo, error) {
-	resp, err := r.endpoints.List(ctx, nil)
+	resp, err := r.endpoints.ListTodos(ctx, nil)
 	if err != nil {
 		r.errorHandler.Handle(ctx, err)
 

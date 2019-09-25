@@ -11,11 +11,11 @@ import (
 )
 
 // Middleware describes a service middleware.
-type Middleware func(TodoList) TodoList
+type Middleware func(todo.Service) todo.Service
 
 // LoggingMiddleware is a service level logging middleware for TodoList.
 func LoggingMiddleware(logger todo.Logger) Middleware {
-	return func(next TodoList) TodoList {
+	return func(next todo.Service) todo.Service {
 		return &loggingMiddleware{
 			next:   next,
 			logger: logger,
@@ -24,7 +24,7 @@ func LoggingMiddleware(logger todo.Logger) Middleware {
 }
 
 type loggingMiddleware struct {
-	next   TodoList
+	next   todo.Service
 	logger todo.Logger
 }
 
@@ -65,7 +65,7 @@ func (mw *loggingMiddleware) MarkAsDone(ctx context.Context, id string) error {
 
 // InstrumentationMiddleware is a service level tracing middleware for TodoList.
 func InstrumentationMiddleware() Middleware {
-	return func(next TodoList) TodoList {
+	return func(next todo.Service) todo.Service {
 		return &instrumentationMiddleware{
 			next: next,
 		}
@@ -97,7 +97,7 @@ var (
 )
 
 type instrumentationMiddleware struct {
-	next TodoList
+	next todo.Service
 }
 
 func (mw *instrumentationMiddleware) CreateTodo(ctx context.Context, text string) (string, error) {

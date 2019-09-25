@@ -13,8 +13,19 @@ type Todo struct {
 	Done bool
 }
 
-// List manages a list of todos.
-type List struct {
+// Service manages a list of todos.
+type Service interface {
+	// CreateTodo adds a new todo to the todo list.
+	CreateTodo(ctx context.Context, text string) (string, error)
+
+	// ListTodos returns the list of todos.
+	ListTodos(ctx context.Context) ([]Todo, error)
+
+	// MarkAsDone marks a todo as done.
+	MarkAsDone(ctx context.Context, id string) error
+}
+
+type service struct {
 	idgenerator IDGenerator
 	store       Store
 	events      Events
@@ -26,7 +37,7 @@ type IDGenerator interface {
 	Generate() (string, error)
 }
 
-// Store stores todos.
+// Store provides todo persistence.
 type Store interface {
 	// Store stores a todo.
 	Store(ctx context.Context, todo Todo) error
@@ -73,18 +84,17 @@ type MarkedAsDone struct {
 	ID string
 }
 
-// NewList returns a new todo list.
-func NewList(id IDGenerator, todos Store, events Events) *List {
-	return &List{
-		idgenerator: id,
-		store:       todos,
+// NewService returns a new Service.
+func NewService(idgenerator IDGenerator, store Store, events Events) Service {
+	return &service{
+		idgenerator: idgenerator,
+		store:       store,
 		events:      events,
 	}
 }
 
-// CreateTodo adds a new todo to the list.
-func (l *List) CreateTodo(ctx context.Context, text string) (string, error) {
-	id, err := l.idgenerator.Generate()
+func (s service) CreateTodo(ctx context.Context, text string) (string, error) {
+	id, err := s.idgenerator.Generate()
 	if err != nil {
 		return "", err
 	}
@@ -94,26 +104,24 @@ func (l *List) CreateTodo(ctx context.Context, text string) (string, error) {
 		Text: text,
 	}
 
-	err = l.store.Store(ctx, todo)
+	err = s.store.Store(ctx, todo)
 
 	return id, err
 }
 
-// ListTodos returns the list of todos.
-func (l *List) ListTodos(ctx context.Context) ([]Todo, error) {
-	return l.store.All(ctx)
+func (s service) ListTodos(ctx context.Context) ([]Todo, error) {
+	return s.store.All(ctx)
 }
 
-// MarkAsDone marks a todo as done.
-func (l *List) MarkAsDone(ctx context.Context, id string) error {
-	todo, err := l.store.Get(ctx, id)
+func (s service) MarkAsDone(ctx context.Context, id string) error {
+	todo, err := s.store.Get(ctx, id)
 	if err != nil {
 		return errors.WithMessage(err, "failed to mark todo as done")
 	}
 
 	todo.Done = true
 
-	err = l.store.Store(ctx, todo)
+	err = s.store.Store(ctx, todo)
 	if err != nil {
 		return errors.WithMessage(err, "failed to mark todo as done")
 	}
@@ -122,7 +130,7 @@ func (l *List) MarkAsDone(ctx context.Context, id string) error {
 		ID: todo.ID,
 	}
 
-	err = l.events.MarkedAsDone(ctx, event)
+	err = s.events.MarkedAsDone(ctx, event)
 	if err != nil {
 		return errors.WithMessage(err, "failed to mark todo as done")
 	}

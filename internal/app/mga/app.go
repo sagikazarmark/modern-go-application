@@ -63,14 +63,14 @@ func NewApp(
 ) (http.Handler, func(*grpc.Server)) {
 	commonLogger := commonadapter.NewContextAwareLogger(logger, ContextExtractor{})
 
-	var todoList tododriver.TodoList
+	var todoList todo.Service
 	{
 		eventBus, _ := cqrs.NewEventBus(
 			publisher,
 			func(eventName string) string { return todoTopic },
 			cqrs.JSONMarshaler{GenerateName: cqrs.StructName},
 		)
-		todoList = todo.NewList(
+		todoList = todo.NewService(
 			ulidgen.NewGenerator(),
 			todo.NewInmemoryStore(),
 			todogen.NewEventDispatcher(eventBus),

@@ -26,7 +26,7 @@ func TestList_CreatesATodo(t *testing.T) {
 	const expectedID = "id"
 	const text = "My first todo"
 
-	todoList := NewList(idgen.NewConstantGenerator(expectedID), todoStore, nil)
+	todoList := NewService(idgen.NewConstantGenerator(expectedID), todoStore, nil)
 
 	id, err := todoList.CreateTodo(context.Background(), text)
 	require.NoError(t, err)
@@ -45,7 +45,7 @@ func TestList_CreatesATodo(t *testing.T) {
 }
 
 func TestList_CannotCreateATodo(t *testing.T) {
-	todoList := NewList(idgen.NewConstantGenerator("id"), NewReadOnlyStore(NewInmemoryStore()), nil)
+	todoList := NewService(idgen.NewConstantGenerator("id"), NewReadOnlyStore(NewInmemoryStore()), nil)
 
 	_, err := todoList.CreateTodo(context.Background(), "My first todo")
 	require.Error(t, err)
@@ -60,7 +60,7 @@ func TestList_ListTodos(t *testing.T) {
 	}
 	require.NoError(t, todoStore.Store(context.Background(), todo))
 
-	todoList := NewList(idgen.NewConstantGenerator("id"), todoStore, nil)
+	todoList := NewService(idgen.NewConstantGenerator("id"), todoStore, nil)
 
 	todos, err := todoList.ListTodos(context.Background())
 	require.NoError(t, err)
@@ -82,7 +82,7 @@ func TestList_MarkAsDone(t *testing.T) {
 	require.NoError(t, todoStore.Store(context.Background(), todo))
 
 	events := &todoEventsStub{}
-	todoList := NewList(nil, todoStore, events)
+	todoList := NewService(nil, todoStore, events)
 
 	err := todoList.MarkAsDone(context.Background(), id)
 	require.NoError(t, err)
@@ -106,7 +106,7 @@ func TestList_CannotMarkANonExistingTodoDone(t *testing.T) {
 	todoStore := NewInmemoryStore()
 
 	events := &todoEventsStub{}
-	todoList := NewList(nil, todoStore, events)
+	todoList := NewService(nil, todoStore, events)
 
 	const id = "id"
 
@@ -130,7 +130,7 @@ func TestList_StoringDoneTodoFails(t *testing.T) {
 	}
 	require.NoError(t, inmemTodoStore.Store(context.Background(), todo))
 
-	todoList := NewList(nil, NewReadOnlyStore(inmemTodoStore), &todoEventsStub{})
+	todoList := NewService(nil, NewReadOnlyStore(inmemTodoStore), &todoEventsStub{})
 
 	err := todoList.MarkAsDone(context.Background(), "id")
 	require.Error(t, err)
