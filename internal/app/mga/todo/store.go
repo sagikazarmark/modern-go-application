@@ -13,8 +13,8 @@ type InMemoryStore struct {
 	todos map[string]Todo
 }
 
-// NewInmemoryStore returns a new inmemory todo store.
-func NewInmemoryStore() *InMemoryStore {
+// NewInMemoryStore returns a new inmemory todo store.
+func NewInMemoryStore() *InMemoryStore {
 	return &InMemoryStore{
 		todos: make(map[string]Todo),
 	}

@@ -97,7 +97,7 @@ func NewApp(
 		)
 		todoService := todo.NewService(
 			ulidgen.NewGenerator(),
-			todo.NewInmemoryStore(),
+			todo.NewInMemoryStore(),
 			todogen.NewEventDispatcher(eventBus),
 		)
 		logger := commonLogger.WithFields(map[string]interface{}{"module": "todo"})

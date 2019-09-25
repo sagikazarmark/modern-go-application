@@ -21,7 +21,7 @@ func (s *todoEventsStub) MarkedAsDone(ctx context.Context, event MarkedAsDone) e
 }
 
 func TestList_CreatesATodo(t *testing.T) {
-	todoStore := NewInmemoryStore()
+	todoStore := NewInMemoryStore()
 
 	const expectedID = "id"
 	const text = "My first todo"
@@ -45,14 +45,14 @@ func TestList_CreatesATodo(t *testing.T) {
 }
 
 func TestList_CannotCreateATodo(t *testing.T) {
-	todoList := NewService(idgen.NewConstantGenerator("id"), NewReadOnlyStore(NewInmemoryStore()), nil)
+	todoList := NewService(idgen.NewConstantGenerator("id"), NewReadOnlyStore(NewInMemoryStore()), nil)
 
 	_, err := todoList.CreateTodo(context.Background(), "My first todo")
 	require.Error(t, err)
 }
 
 func TestList_ListTodos(t *testing.T) {
-	todoStore := NewInmemoryStore()
+	todoStore := NewInMemoryStore()
 
 	todo := Todo{
 		ID:   "id",
@@ -71,7 +71,7 @@ func TestList_ListTodos(t *testing.T) {
 }
 
 func TestList_MarkAsDone(t *testing.T) {
-	todoStore := NewInmemoryStore()
+	todoStore := NewInMemoryStore()
 
 	const id = "id"
 
@@ -103,7 +103,7 @@ func TestList_MarkAsDone(t *testing.T) {
 }
 
 func TestList_CannotMarkANonExistingTodoDone(t *testing.T) {
-	todoStore := NewInmemoryStore()
+	todoStore := NewInMemoryStore()
 
 	events := &todoEventsStub{}
 	todoList := NewService(nil, todoStore, events)
@@ -122,7 +122,7 @@ func TestList_CannotMarkANonExistingTodoDone(t *testing.T) {
 }
 
 func TestList_StoringDoneTodoFails(t *testing.T) {
-	inmemTodoStore := NewInmemoryStore()
+	inmemTodoStore := NewInMemoryStore()
 
 	todo := Todo{
 		ID:   "id",
