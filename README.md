@@ -38,7 +38,7 @@ To help adopting these practices, this repository also serves as a boilerplate f
 - support for multiple server/daemon instances (using [oklog/run](https://github.com/oklog/run))
 - messaging (using [ThreeDotsLabs/watermill](https://github.com/ThreeDotsLabs/watermill))
 - MySQL database connection (using [go-sql-driver/mysql](https://github.com/go-sql-driver/mysql))
-- Redis connection (using [gomodule/redigo](https://github.com/gomodule/redigo))
+- ~~Redis connection (using [gomodule/redigo](https://github.com/gomodule/redigo))~~ removed due to lack of usage (see [#120](../../issues/120))
 
 
 ## First steps

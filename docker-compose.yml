@@ -8,9 +8,6 @@ services:
             MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
             MYSQL_DATABASE: app
 
-    redis:
-        image: redis:5.0
-
     dockerhost:
         image: qoomon/docker-host:2.3.0
         cap_add: [ 'NET_ADMIN', 'NET_RAW' ]

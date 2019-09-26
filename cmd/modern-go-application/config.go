@@ -13,7 +13,6 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/opencensus"
-	"github.com/sagikazarmark/modern-go-application/internal/platform/redis"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/watermill"
 )
 
@@ -63,9 +62,6 @@ type configuration struct {
 	// Database connection information
 	Database database.Config
 
-	// Redis configuration
-	Redis redis.Config
-
 	// Watermill configuration
 	Watermill struct {
 		RouterConfig watermill.RouterConfig
@@ -93,11 +89,6 @@ func (c configuration) Validate() error {
 	if err := c.Database.Validate(); err != nil {
 		return err
 	}
-
-	// Uncomment to enable redis config validation
-	// if err := c.Redis.Validate(); err != nil {
-	// 	return err
-	// }
 
 	return nil
 }
@@ -176,11 +167,6 @@ func configure(v *viper.Viper, p *pflag.FlagSet) {
 	v.SetDefault("database.params", map[string]string{
 		"collation": "utf8mb4_general_ci",
 	})
-
-	// Redis configuration
-	_ = v.BindEnv("redis.host")
-	v.SetDefault("redis.port", 6379)
-	_ = v.BindEnv("redis.password")
 
 	// Watermill configuration
 	v.RegisterAlias("watermill.routerConfig.closeTimeout", "shutdownTimeout")
