@@ -4,5 +4,6 @@
     <plugin id="name.kropp.intellij.makefile" />
     <plugin id="org.editorconfig.editorconfigjetbrains" />
     <plugin id="org.jetbrains.plugins.go" />
+    <plugin id="ru.adelf.idea.dotenv" min-version="2019.3" />
   </component>
 </project>

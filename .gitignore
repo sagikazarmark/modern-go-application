@@ -3,6 +3,8 @@
 /config.*
 !config.toml.dist
 /docker-compose.override.yml
+/.env
+/.env.test
 /var/
 /vendor/
 

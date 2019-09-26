@@ -8,6 +8,18 @@
       <env name="CGO_ENABLED" value="0" />
       <env name="CLICOLOR_FORCE" value="1" />
     </envs>
+    <EXTENSION ID="net.ashald.envfile">
+      <option name="IS_ENABLED" value="true" />
+      <option name="IS_SUBST" value="true" />
+      <option name="IS_PATH_MACRO_SUPPORTED" value="true" />
+      <option name="IS_IGNORE_MISSING_FILES" value="true" />
+      <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+      <ENTRIES>
+        <ENTRY IS_ENABLED="true" PARSER="env" PATH=".env.dist" />
+        <ENTRY IS_ENABLED="true" PARSER="env" PATH=".env" />
+        <ENTRY IS_ENABLED="true" PARSER="runconfig" />
+      </ENTRIES>
+    </EXTENSION>
     <kind value="DIRECTORY" />
     <filePath value="$PROJECT_DIR$/" />
     <directory value="$PROJECT_DIR$/cmd/modern-go-application/" />
