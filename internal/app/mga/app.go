@@ -87,8 +87,8 @@ func InitializeApp(
 
 		tododriver.RegisterHTTPHandlers(
 			endpoints,
-			httpServerFactory(errorHandler),
 			httpRouter.PathPrefix("/todos").Subrouter(),
+			httpServerFactory(errorHandler),
 		)
 
 		todov1beta1.RegisterTodoListServer(
