@@ -17,7 +17,6 @@ require (
 	github.com/go-kit/kit v0.9.0
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/golang/protobuf v1.3.2
-	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/goph/idgen v0.3.0
 	github.com/gorilla/mux v1.7.3
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect

@@ -33,8 +33,3 @@ user = "root"
 pass = ""
 name = "app"
 params = { collation = "utf8mb4_general_ci" }
-
-[redis]
-host = "127.0.0.1"
-port = 6379
-password = []
