@@ -1,7 +1,6 @@
 package mga
 
 import (
-	"context"
 	"net/http"
 
 	"emperror.dev/emperror"
@@ -17,7 +16,6 @@ import (
 	kitxendpoint "github.com/sagikazarmark/kitx/endpoint"
 	kitxgrpc "github.com/sagikazarmark/kitx/transport/grpc"
 	kitxhttp "github.com/sagikazarmark/kitx/transport/http"
-	"go.opencensus.io/trace"
 	"google.golang.org/grpc"
 	watermilllog "logur.dev/integration/watermill"
 	"logur.dev/logur"
@@ -35,26 +33,6 @@ import (
 
 const todoTopic = "todo"
 
-// ContextExtractor extracts values from a context.
-type ContextExtractor struct{}
-
-// Extract extracts values from a context.
-func (ContextExtractor) Extract(ctx context.Context) map[string]interface{} {
-	fields := make(map[string]interface{})
-
-	if correlationID, ok := correlation.FromContext(ctx); ok {
-		fields["correlation_id"] = correlationID
-	}
-
-	if span := trace.FromContext(ctx); span != nil {
-		spanCtx := span.SpanContext()
-		fields["trace_id"] = spanCtx.TraceID.String()
-		fields["span_id"] = spanCtx.SpanID.String()
-	}
-
-	return fields
-}
-
 // InitializeApp initializes a new HTTP and a new gRPC application.
 func InitializeApp(
 	httpRouter *mux.Router,
@@ -63,7 +41,7 @@ func InitializeApp(
 	logger logur.Logger,
 	errorHandler emperror.Handler,
 ) {
-	commonLogger := commonadapter.NewContextAwareLogger(logger, ContextExtractor{})
+	commonLogger := commonadapter.NewContextAwareLogger(logger, appkit.ContextExtractor{})
 
 	endpointFactory := func(logger common.Logger) kitxendpoint.Factory {
 		return kitxendpoint.NewFactory(
@@ -130,7 +108,7 @@ func InitializeApp(
 
 // RegisterEventHandlers registers event handlers in a message router.
 func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber, logger logur.Logger) error {
-	commonLogger := commonadapter.NewContextAwareLogger(logger, ContextExtractor{})
+	commonLogger := commonadapter.NewContextAwareLogger(logger, appkit.ContextExtractor{})
 	todoEventProcessor, _ := cqrs.NewEventProcessor(
 		[]cqrs.EventHandler{
 			todogen.NewMarkedAsDoneEventHandler(todo.NewLogEventHandler(commonLogger), "marked_as_done"),
