@@ -3,19 +3,12 @@ package tododriver
 import (
 	"context"
 
-	"emperror.dev/errors"
 	"github.com/go-kit/kit/endpoint"
 	kitoc "github.com/go-kit/kit/tracing/opencensus"
 	kitxendpoint "github.com/sagikazarmark/kitx/endpoint"
 
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
 )
-
-type businessError interface {
-	// IsBusinessError tells the transport layer whether this error should be translated into the transport format
-	// or an internal error should be returned instead.
-	IsBusinessError() bool
-}
 
 // Endpoints collects all of the endpoints that compose a todo list service. It's
 // meant to be used as a helper struct, to collect all of the endpoints into a
@@ -33,7 +26,7 @@ func MakeEndpoints(service todo.Service, middleware ...endpoint.Middleware) Endp
 	return Endpoints{
 		CreateTodo: mw(MakeCreateEndpoint(service)),
 		ListTodos:  mw(MakeListEndpoint(service)),
-		MarkAsDone: mw(MakeMarkAsDoneEndpoint(service)),
+		MarkAsDone: kitxendpoint.BusinessErrorMiddleware(mw(MakeMarkAsDoneEndpoint(service))),
 	}
 }
 
@@ -89,28 +82,11 @@ type markAsDoneRequest struct {
 	ID string
 }
 
-type markAsDoneResponse struct {
-	Err error
-}
-
-func (r markAsDoneResponse) Failed() error {
-	return r.Err
-}
-
 // MakeMarkAsDoneEndpoint returns an endpoint for the matching method of the underlying service.
 func MakeMarkAsDoneEndpoint(service todo.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(markAsDoneRequest)
 
-		err := service.MarkAsDone(ctx, req.ID)
-
-		var berr businessError
-		if errors.As(err, &berr) && berr.IsBusinessError() {
-			return markAsDoneResponse{
-				Err: err,
-			}, nil
-		}
-
-		return nil, err
+		return nil, service.MarkAsDone(ctx, req.ID)
 	}
 }
