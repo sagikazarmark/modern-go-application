@@ -7,7 +7,6 @@ import (
 	"github.com/ThreeDotsLabs/watermill/components/cqrs"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/go-kit/kit/endpoint"
-	kitoc "github.com/go-kit/kit/tracing/opencensus"
 	kitgrpc "github.com/go-kit/kit/transport/grpc"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/goph/idgen/ulidgen"
@@ -26,7 +25,6 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/tododriver"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todogen"
-	"github.com/sagikazarmark/modern-go-application/internal/common"
 	"github.com/sagikazarmark/modern-go-application/internal/common/commonadapter"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/appkit"
 )
@@ -43,26 +41,19 @@ func InitializeApp(
 ) {
 	commonLogger := commonadapter.NewContextAwareLogger(logger, appkit.ContextExtractor{})
 
-	endpointFactory := func(logger common.Logger) kitxendpoint.Factory {
-		return kitxendpoint.NewFactory(
-			kitxendpoint.Middleware(correlation.Middleware()),
-			func(name string) endpoint.Middleware { return kitoc.TraceEndpoint(name) },
-			appkit.EndpointLoggerFactory(logger),
-		)
+	endpointMiddleware := []endpoint.Middleware{
+		correlation.Middleware(),
 	}
 
-	httpServerFactory := func(errorHandler common.ErrorHandler) kitxhttp.ServerFactory {
-		return kitxhttp.NewServerFactory(
-			kithttp.ServerErrorHandler(errorHandler),
-			kithttp.ServerBefore(correlation.HTTPToContext()),
-		)
+	httpServerOptions := []kithttp.ServerOption{
+		kithttp.ServerErrorHandler(emperror.MakeContextAware(errorHandler)),
+		kithttp.ServerErrorEncoder(kitxhttp.ProblemErrorEncoder),
+		kithttp.ServerBefore(correlation.HTTPToContext()),
 	}
 
-	grpcServerFactory := func(errorHandler common.ErrorHandler) kitxgrpc.ServerFactory {
-		return kitxgrpc.NewServerFactory(
-			kitgrpc.ServerErrorHandler(errorHandler),
-			kitgrpc.ServerBefore(correlation.GRPCToContext()),
-		)
+	grpcServerOptions := []kitgrpc.ServerOption{
+		kitgrpc.ServerErrorHandler(emperror.MakeContextAware(errorHandler)),
+		kitgrpc.ServerBefore(correlation.GRPCToContext()),
 	}
 
 	{
@@ -83,17 +74,26 @@ func InitializeApp(
 		service = tododriver.LoggingMiddleware(logger)(service)
 		service = tododriver.InstrumentationMiddleware()(service)
 
-		endpoints := tododriver.MakeEndpoints(service, endpointFactory(logger))
+		endpoints := tododriver.TraceEndpoints(tododriver.MakeEndpoints(
+			service,
+			kitxendpoint.Chain(endpointMiddleware...),
+			appkit.EndpointLogger(logger),
+		))
 
 		tododriver.RegisterHTTPHandlers(
 			endpoints,
 			httpRouter.PathPrefix("/todos").Subrouter(),
-			httpServerFactory(errorHandler),
+			kitxhttp.ServerOptions(httpServerOptions),
+			kithttp.ServerErrorHandler(errorHandler),
 		)
 
 		todov1beta1.RegisterTodoListServer(
 			grpcServer,
-			tododriver.MakeGRPCServer(endpoints, grpcServerFactory(errorHandler)),
+			tododriver.MakeGRPCServer(
+				endpoints,
+				kitxgrpc.ServerOptions(grpcServerOptions),
+				kitgrpc.ServerErrorHandler(errorHandler),
+			),
 		)
 
 		httpRouter.PathPrefix("/graphql").Handler(tododriver.MakeGraphQLHandler(endpoints, errorHandler))
