@@ -23,6 +23,7 @@ type Endpoints struct {
 // the corresponding method on the provided service.
 func MakeEndpoints(service todo.Service, middleware ...endpoint.Middleware) Endpoints {
 	mw := kitxendpoint.Chain(middleware...)
+
 	return Endpoints{
 		CreateTodo: mw(MakeCreateEndpoint(service)),
 		ListTodos:  mw(MakeListEndpoint(service)),
