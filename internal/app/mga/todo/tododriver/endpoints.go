@@ -10,7 +10,7 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
 )
 
-// Endpoints collects all of the endpoints that compose a todo list service. It's
+// Endpoints collects all of the endpoints that compose the underlying service. It's
 // meant to be used as a helper struct, to collect all of the endpoints into a
 // single parameter.
 type Endpoints struct {
@@ -30,8 +30,7 @@ func MakeEndpoints(service todo.Service, middleware ...endpoint.Middleware) Endp
 	}
 }
 
-// TraceEndpoints returns an Endpoints struct where each endpoint invokes
-// the corresponding method on the provided service.
+// TraceEndpoints returns an Endpoints struct where each endpoint is wrapped with a tracing middleware.
 func TraceEndpoints(endpoints Endpoints) Endpoints {
 	return Endpoints{
 		CreateTodo: kitoc.TraceEndpoint("todo.CreateTodo")(endpoints.CreateTodo),
