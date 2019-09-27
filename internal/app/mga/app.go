@@ -47,6 +47,7 @@ func InitializeApp(
 
 	httpServerOptions := []kithttp.ServerOption{
 		kithttp.ServerErrorHandler(emperror.MakeContextAware(errorHandler)),
+		kithttp.ServerErrorEncoder(kitxhttp.ProblemErrorEncoder),
 		kithttp.ServerBefore(correlation.HTTPToContext()),
 	}
 
