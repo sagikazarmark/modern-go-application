@@ -5,8 +5,7 @@ import (
 
 	"emperror.dev/errors"
 	"github.com/go-kit/kit/endpoint"
-	grpctransport "github.com/go-kit/kit/transport/grpc"
-	kitxgrpc "github.com/sagikazarmark/kitx/transport/grpc"
+	kitgrpc "github.com/go-kit/kit/transport/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -17,28 +16,31 @@ import (
 type grpcServer struct {
 	*todov1beta1.UnimplementedTodoListServer
 
-	createTodo grpctransport.Handler
-	listTodos  grpctransport.Handler
-	markAsDone grpctransport.Handler
+	createTodo kitgrpc.Handler
+	listTodos  kitgrpc.Handler
+	markAsDone kitgrpc.Handler
 }
 
 // MakeGRPCServer makes a set of endpoints available as a gRPC server.
-func MakeGRPCServer(endpoints Endpoints, factory kitxgrpc.ServerFactory) todov1beta1.TodoListServer {
+func MakeGRPCServer(endpoints Endpoints, options ...kitgrpc.ServerOption) todov1beta1.TodoListServer {
 	return &grpcServer{
-		createTodo: factory.NewServer(
+		createTodo: kitgrpc.NewServer(
 			endpoints.CreateTodo,
 			decodeCreateTodoGRPCRequest,
 			encodeCreateTodoGRPCResponse,
+			options...,
 		),
-		listTodos: factory.NewServer(
+		listTodos: kitgrpc.NewServer(
 			endpoints.ListTodos,
 			decodeListTodosGRPCRequest,
 			encodeListTodosGRPCResponse,
+			options...,
 		),
-		markAsDone: factory.NewServer(
+		markAsDone: kitgrpc.NewServer(
 			endpoints.MarkAsDone,
 			decodeMarkAsDoneGRPCRequest,
 			encodeMarkAsDoneGRPCResponse,
+			options...,
 		),
 	}
 }

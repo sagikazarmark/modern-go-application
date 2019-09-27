@@ -5,6 +5,7 @@ import (
 
 	"emperror.dev/errors"
 	"github.com/go-kit/kit/endpoint"
+	kitoc "github.com/go-kit/kit/tracing/opencensus"
 	kitxendpoint "github.com/sagikazarmark/kitx/endpoint"
 
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
@@ -27,11 +28,22 @@ type Endpoints struct {
 
 // MakeEndpoints returns an Endpoints struct where each endpoint invokes
 // the corresponding method on the provided service.
-func MakeEndpoints(service todo.Service, factory kitxendpoint.Factory) Endpoints {
+func MakeEndpoints(service todo.Service, middleware ...endpoint.Middleware) Endpoints {
+	mw := kitxendpoint.Chain(middleware...)
 	return Endpoints{
-		CreateTodo: factory.NewEndpoint("todo.CreateTodo", MakeCreateEndpoint(service)),
-		ListTodos:  factory.NewEndpoint("todo.ListTodos", MakeListEndpoint(service)),
-		MarkAsDone: factory.NewEndpoint("todo.MarkAsDone", MakeMarkAsDoneEndpoint(service)),
+		CreateTodo: mw(MakeCreateEndpoint(service)),
+		ListTodos:  mw(MakeListEndpoint(service)),
+		MarkAsDone: mw(MakeMarkAsDoneEndpoint(service)),
+	}
+}
+
+// TraceEndpoints returns an Endpoints struct where each endpoint invokes
+// the corresponding method on the provided service.
+func TraceEndpoints(endpoints Endpoints) Endpoints {
+	return Endpoints{
+		CreateTodo: kitoc.TraceEndpoint("todo.CreateTodo")(endpoints.CreateTodo),
+		ListTodos:  kitoc.TraceEndpoint("todo.ListTodos")(endpoints.ListTodos),
+		MarkAsDone: kitoc.TraceEndpoint("todo.MarkAsDone")(endpoints.MarkAsDone),
 	}
 }
 
