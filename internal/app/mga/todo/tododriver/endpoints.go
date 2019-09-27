@@ -26,7 +26,7 @@ func MakeEndpoints(service todo.Service, middleware ...endpoint.Middleware) Endp
 	return Endpoints{
 		CreateTodo: mw(MakeCreateEndpoint(service)),
 		ListTodos:  mw(MakeListEndpoint(service)),
-		MarkAsDone: kitxendpoint.BusinessErrorMiddleware(mw(MakeMarkAsDoneEndpoint(service))),
+		MarkAsDone: mw(kitxendpoint.BusinessErrorMiddleware(MakeMarkAsDoneEndpoint(service))),
 	}
 }
 
