@@ -70,6 +70,7 @@ func (NotFoundError) IsBusinessError() bool {
 	return true
 }
 
+//go:generate sh -c "test -x ${MGA} && ${MGA} gen kit endpoint --outdir tododriver --with-oc Service"
 //go:generate sh -c "test -x ${MGA} && ${MGA} gen ev dispatcher Events"
 //go:generate sh -c "test -x ${MGA} && ${MGA} gen ev handler MarkedAsDone"
 
