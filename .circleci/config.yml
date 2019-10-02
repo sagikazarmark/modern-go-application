@@ -15,7 +15,6 @@ executors:
             -   image: << parameters.build_image >>:<< parameters.go_version >>
                 environment:
                     GOFLAGS: -mod=readonly
-                    GOPROXY: https://proxy.golang.org
 
 jobs:
     unit-tests:
