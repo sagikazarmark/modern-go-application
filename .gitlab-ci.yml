@@ -23,9 +23,10 @@ test-integration:
         reports:
             junit: build/test_results/integration/results.xml
 
-lint:
-    stage: test
-    script: make lint
+# Disabled for now because the linter times out on Gitlab
+#lint:
+#    stage: test
+#    script: make lint
 
 .build: &build_definition
     stage: build
