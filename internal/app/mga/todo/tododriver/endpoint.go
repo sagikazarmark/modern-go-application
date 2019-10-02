@@ -10,11 +10,11 @@ import (
 )
 
 type createTodoRequest struct {
-	Text string
+	Text string `json:"text"`
 }
 
 type createTodoResponse struct {
-	ID string
+	ID string `json:"id"`
 }
 
 // MakeCreateTodoEndpoint returns an endpoint for the matching method of the underlying service.
@@ -31,7 +31,7 @@ func MakeCreateTodoEndpoint(service todo.Service) endpoint.Endpoint {
 }
 
 type listTodosResponse struct {
-	Todos []todo.Todo
+	Todos []todo.Todo `json:"todos"`
 }
 
 // MakeListTodosEndpoint returns an endpoint for the matching method of the underlying service.
