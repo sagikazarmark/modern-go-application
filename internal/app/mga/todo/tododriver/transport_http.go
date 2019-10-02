@@ -11,7 +11,6 @@ import (
 	"github.com/moogar0880/problems"
 	kitxhttp "github.com/sagikazarmark/kitx/transport/http"
 
-	api "github.com/sagikazarmark/modern-go-application/.gen/api/openapi/todo/go"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
 )
 
@@ -27,7 +26,7 @@ func RegisterHTTPHandlers(endpoints Endpoints, router *mux.Router, options ...ki
 	router.Methods(http.MethodGet).Path("").Handler(kithttp.NewServer(
 		endpoints.ListTodos,
 		kithttp.NopRequestDecoder,
-		encodeListTodosHTTPResponse,
+		kitxhttp.JSONResponseEncoder,
 		options...,
 	))
 
@@ -42,52 +41,16 @@ func RegisterHTTPHandlers(endpoints Endpoints, router *mux.Router, options ...ki
 func decodeCreateTodoHTTPRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var req createTodoRequest
 
-	var apiReq api.CreateTodoRequest
-	err := json.NewDecoder(r.Body).Decode(&apiReq)
+	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		return req, errors.Wrap(err, "failed to decode request")
-	}
-
-	req = createTodoRequest{
-		Text: apiReq.Text,
 	}
 
 	return req, nil
 }
 
-func encodeCreateTodoHTTPResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
-	resp := response.(createTodoResponse)
-
-	apiResp := api.CreateTodoResponse{
-		Id: resp.ID,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	err := json.NewEncoder(w).Encode(apiResp)
-
-	return errors.Wrap(err, "failed to send response")
-}
-
-func encodeListTodosHTTPResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
-	resp := response.(listTodosResponse)
-
-	apiResp := api.TodoList{
-		Todos: make([]api.Todo, len(resp.Todos)),
-	}
-
-	for i, t := range resp.Todos {
-		apiResp.Todos[i] = api.Todo{
-			Id:   t.ID,
-			Text: t.Text,
-			Done: t.Done,
-		}
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	err := json.NewEncoder(w).Encode(apiResp)
-
-	return errors.Wrap(err, "failed to send response")
+func encodeCreateTodoHTTPResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+	return kitxhttp.JSONResponseEncoder(ctx, w, kitxhttp.WithStatusCode(response, http.StatusCreated))
 }
 
 func decodeMarkAsDoneHTTPRequest(_ context.Context, r *http.Request) (interface{}, error) {
@@ -107,8 +70,8 @@ func errorEncoder(_ context.Context, w http.ResponseWriter, err error) error {
 	status := http.StatusInternalServerError
 
 	// nolint: gocritic
-	switch errors.Cause(err).(type) {
-	case todo.NotFoundError:
+	switch {
+	case errors.As(err, &todo.NotFoundError{}):
 		status = http.StatusNotFound
 	}
 
