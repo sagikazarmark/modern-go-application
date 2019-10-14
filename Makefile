@@ -13,6 +13,7 @@ COMMIT_HASH ?= $(shell git rev-parse --short HEAD 2>/dev/null)
 BUILD_DATE ?= $(shell date +%FT%T%z)
 LDFLAGS += -X main.version=${VERSION} -X main.commitHash=${COMMIT_HASH} -X main.buildDate=${BUILD_DATE}
 export CGO_ENABLED ?= 0
+export PATH := $(abspath bin/):${PATH}
 ifeq (${VERBOSE}, 1)
 ifeq ($(filter -v,${GOARGS}),)
 	GOARGS += -v
@@ -31,7 +32,7 @@ GOBIN_VERSION = 0.0.12
 PROTOC_GEN_GO_VERSION = 1.3.2
 PROTOTOOL_VERSION = 1.8.0
 GQLGEN_VERSION = 0.9.3
-MGA_VERSION = 0.0.5
+MGA_VERSION = 0.0.8
 
 GOLANG_VERSION = 1.13
 
@@ -171,12 +172,12 @@ bin/mga: bin/mga-${MGA_VERSION}
 	@ln -sf mga-${MGA_VERSION} bin/mga
 bin/mga-${MGA_VERSION}:
 	@mkdir -p bin
-	curl -sfL https://raw.githubusercontent.com/sagikazarmark/mga/master/install.sh | bash -s v${MGA_VERSION}
+	curl -sfL https://git.io/mgatool | bash -s v${MGA_VERSION}
 	@mv bin/mga $@
 
 .PHONY: generate
 generate: bin/mga ## Generate code
-	MGA=$(abspath bin/mga) go generate ./...
+	go generate -x ./...
 
 .PHONY: validate-openapi
 validate-openapi: ## Validate the OpenAPI descriptor
