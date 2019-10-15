@@ -1,6 +1,7 @@
 # A Self-Documenting Makefile: http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 
 OS = $(shell uname | tr A-Z a-z)
+export PATH := $(abspath bin/):${PATH}
 
 # Project variables
 DOCKER_IMAGE = sagikazarmark/modern-go-application
@@ -13,7 +14,6 @@ COMMIT_HASH ?= $(shell git rev-parse --short HEAD 2>/dev/null)
 BUILD_DATE ?= $(shell date +%FT%T%z)
 LDFLAGS += -X main.version=${VERSION} -X main.commitHash=${COMMIT_HASH} -X main.buildDate=${BUILD_DATE}
 export CGO_ENABLED ?= 0
-export PATH := $(abspath bin/):${PATH}
 ifeq (${VERBOSE}, 1)
 ifeq ($(filter -v,${GOARGS}),)
 	GOARGS += -v
