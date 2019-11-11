@@ -82,6 +82,9 @@ func main() {
 	err = v.Unmarshal(&config)
 	emperror.Panic(errors.Wrap(err, "failed to unmarshal configuration"))
 
+	err = config.Process()
+	emperror.Panic(errors.WithMessage(err, "failed to process configuration"))
+
 	// Create logger (first thing after configuration loading)
 	logger := log.NewLogger(config.Log)
 

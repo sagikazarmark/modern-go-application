@@ -37,7 +37,8 @@ type configuration struct {
 	// OpenCensus configuration
 	Opencensus struct {
 		Exporter struct {
-			Enabled                   bool
+			Enabled bool
+
 			opencensus.ExporterConfig `mapstructure:",squash"`
 		}
 
@@ -66,6 +67,14 @@ type configuration struct {
 	Watermill struct {
 		RouterConfig watermill.RouterConfig
 	}
+}
+
+// Process post-processes configuration after loading it.
+// nolint: unparam
+func (c configuration) Process() error {
+	c.Watermill.RouterConfig.CloseTimeout = c.ShutdownTimeout
+
+	return nil
 }
 
 // Validate validates the configuration.
@@ -167,7 +176,4 @@ func configure(v *viper.Viper, p *pflag.FlagSet) {
 	v.SetDefault("database.params", map[string]string{
 		"collation": "utf8mb4_general_ci",
 	})
-
-	// Watermill configuration
-	v.RegisterAlias("watermill.routerConfig.closeTimeout", "shutdownTimeout")
 }
