@@ -89,7 +89,7 @@ func main() {
 	logger := log.NewLogger(config.Log)
 
 	// Provide some basic context to all log lines
-	logger = log.WithFields(logger, map[string]interface{}{"environment": config.Environment, "application": appName})
+	logger = logur.WithFields(logger, map[string]interface{}{"environment": config.Environment, "application": appName})
 
 	log.SetStandardLogger(logger)
 
@@ -183,7 +183,7 @@ func main() {
 	// Set up telemetry server
 	{
 		const name = "telemetry"
-		logger := log.WithFields(logger, map[string]interface{}{"server": name})
+		logger := logur.WithFields(logger, map[string]interface{}{"server": name})
 
 		logger.Info("listening on address", map[string]interface{}{"address": config.Telemetry.Addr})
 
@@ -294,7 +294,7 @@ func main() {
 	// Set up app server
 	{
 		const name = "app"
-		logger := log.WithFields(logger, map[string]interface{}{"server": name})
+		logger := logur.WithFields(logger, map[string]interface{}{"server": name})
 
 		httpRouter := mux.NewRouter()
 		httpRouter.Use(ocmux.Middleware())
