@@ -116,7 +116,7 @@ func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber
 		func(eventName string) string { return todoTopic },
 		func(handlerName string) (message.Subscriber, error) { return subscriber, nil },
 		cqrs.JSONMarshaler{GenerateName: cqrs.StructName},
-		watermilllog.New(logur.WithFields(logger, map[string]interface{}{"component": "watermill"})),
+		watermilllog.New(logur.WithField(logger, "component", "watermill")),
 	)
 
 	err := todoEventProcessor.AddHandlersToRouter(router)

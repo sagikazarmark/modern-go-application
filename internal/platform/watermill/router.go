@@ -21,7 +21,7 @@ func NewRouter(config RouterConfig, logger logur.Logger) (*message.Router, error
 		message.RouterConfig{
 			CloseTimeout: config.CloseTimeout,
 		},
-		watermilllog.New(logur.WithFields(logger, map[string]interface{}{"component": "watermill"})),
+		watermilllog.New(logur.WithField(logger, "component", "watermill")),
 	)
 	if err != nil {
 		return nil, errors.WithMessage(err, "failed to create message router")

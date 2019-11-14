@@ -396,5 +396,7 @@ logur.dev/integration/watermill v0.3.0 h1:iLRpA1awzxQ87Ay74AubvkBTaiy6J/0ynwoorc
 logur.dev/integration/watermill v0.3.0/go.mod h1:G48PpgIiLTv9wdEWiqaIMbXMl7dH8qDOEdup18MdiN0=
 logur.dev/logur v0.15.0 h1:LGFzpPGsV9kVuE2V+HUyIbtYb2F1Vyp54gSp7ixLQHI=
 logur.dev/logur v0.15.0/go.mod h1:DyA5B+b6WjjCcnpE1+HGtTLh2lXooxRq+JmAwXMRK08=
+logur.dev/logur v0.15.1 h1:u3KnhfkC4BSbyf/vqEY8J/XY5FAdlSa0Vyyoki2dUM8=
+logur.dev/logur v0.15.1/go.mod h1:DyA5B+b6WjjCcnpE1+HGtTLh2lXooxRq+JmAwXMRK08=
 sourcegraph.com/sourcegraph/appdash v0.0.0-20180110180208-2cc67fd64755/go.mod h1:hI742Nqp5OhwiqlzhgfbWU4mW4yO10fP+LoT9WOswdU=
 sourcegraph.com/sourcegraph/appdash-data v0.0.0-20151005221446-73f23eafcf67/go.mod h1:L5q+DGLGOQFpo1snNEkLOJT2d1YTW66rWNzatr3He1k=

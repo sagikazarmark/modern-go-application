@@ -7,7 +7,7 @@ import (
 
 // SetLogger configures the global database logger.
 func SetLogger(logger logur.Logger) {
-	logger = logur.WithFields(logger, map[string]interface{}{"component": "mysql"})
+	logger = logur.WithField(logger, "component", "mysql")
 
 	_ = mysql.SetLogger(logur.NewErrorPrintLogger(logger))
 }

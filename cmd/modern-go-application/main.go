@@ -117,7 +117,7 @@ func main() {
 
 	// Configure health checker
 	healthChecker := health.New()
-	healthChecker.WithLogger(invisionlog.New(logur.WithFields(logger, map[string]interface{}{"component": "healthcheck"})))
+	healthChecker.WithLogger(invisionlog.New(logur.WithField(logger, "component", "healthcheck")))
 	{
 		handler := healthhttp.HandleHealthJSON(healthChecker)
 		telemetryRouter.Handle("/healthz", handler)
@@ -183,7 +183,7 @@ func main() {
 	// Set up telemetry server
 	{
 		const name = "telemetry"
-		logger := logur.WithFields(logger, map[string]interface{}{"server": name})
+		logger := logur.WithField(logger, "server", name)
 
 		logger.Info("listening on address", map[string]interface{}{"address": config.Telemetry.Addr})
 
@@ -294,7 +294,7 @@ func main() {
 	// Set up app server
 	{
 		const name = "app"
-		logger := logur.WithFields(logger, map[string]interface{}{"server": name})
+		logger := logur.WithField(logger, "server", name)
 
 		httpRouter := mux.NewRouter()
 		httpRouter.Use(ocmux.Middleware())

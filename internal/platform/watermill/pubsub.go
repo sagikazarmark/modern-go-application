@@ -11,7 +11,7 @@ import (
 func NewPubSub(logger logur.Logger) (message.Publisher, message.Subscriber) {
 	pubsub := gochannel.NewGoChannel(
 		gochannel.Config{},
-		watermilllog.New(logur.WithFields(logger, map[string]interface{}{"component": "watermill"})),
+		watermilllog.New(logur.WithField(logger, "component", "watermill")),
 	)
 
 	return pubsub, pubsub
