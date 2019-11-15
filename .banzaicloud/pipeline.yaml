@@ -50,7 +50,7 @@ pipeline:
       # namespace:
       merge: true
       spec:
-        {{{{- if .deploy_application.deployment.values.mysql.enabled }}}}
+        {{{{- if .pipeline.deploy_application.deployment.values.mysql.enabled }}}}
         - name: mysql-username
           value: app
         {{{{ else }}}}
@@ -60,7 +60,7 @@ pipeline:
         - name: mysql-password
           source: password
 
-  {{{{- if .deploy_application.deployment.values.mysql.enabled }}}}
+  {{{{- if .pipeline.deploy_application.deployment.values.mysql.enabled }}}}
   install_mysql_root_password_secret:
     when:
       branch:
