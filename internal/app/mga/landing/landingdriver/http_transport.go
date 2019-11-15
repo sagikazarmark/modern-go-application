@@ -10,7 +10,7 @@ import (
 
 // RegisterHTTPHandlers mounts the HTTP handler for the landing page in a router.
 func RegisterHTTPHandlers(router *mux.Router) {
-	router.Path("").Methods(http.MethodGet).HandlerFunc(Landing)
+	router.Path("/").Methods(http.MethodGet).HandlerFunc(Landing)
 }
 
 // Landing is the landing page for Modern Go Application.
