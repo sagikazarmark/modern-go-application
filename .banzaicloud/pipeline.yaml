@@ -3,7 +3,7 @@ workspace:
 
 pipeline:
   create_cluster:
-    image: banzaicloud/ci-pipeline-client:0.11
+    image: banzaicloud/ci-pipeline-client:0.12
     action: EnsureCluster
 
   test:
@@ -29,9 +29,9 @@ pipeline:
     when:
       branch:
         include: [master]
-    image: lachlanevenson/k8s-helm:latest
+    image: alpine/helm:3.0.0
     commands:
-      - helm init -c
+      - helm repo add stable https://kubernetes-charts.storage.googleapis.com
       - helm repo add banzaicloud-stable http://kubernetes-charts.banzaicloud.com/branch/master
       - helm package ./.banzaicloud/charts/spotguide-modern-go-application
 
@@ -39,7 +39,7 @@ pipeline:
     when:
       branch:
         include: [master]
-    image: banzaicloud/ci-pipeline-client:0.11
+    image: banzaicloud/ci-pipeline-client:0.12
     action: InstallSecret
     clusterSecret:
       name: '{{ .CICD_REPO_NAME }}-mysql-user'
@@ -57,7 +57,7 @@ pipeline:
     when:
       branch:
         include: [master]
-    image: banzaicloud/ci-pipeline-client:0.11
+    image: banzaicloud/ci-pipeline-client:0.12
     action: InstallSecret
     clusterSecret:
       name: '{{ .CICD_REPO_NAME }}-mysql-root-password'
@@ -73,7 +73,7 @@ pipeline:
     when:
       branch:
         include: [master]
-    image: banzaicloud/ci-pipeline-client:0.11
+    image: banzaicloud/ci-pipeline-client:0.12
     action: EnsureDeployment
     deployment:
       name: './spotguide-modern-go-application-0.3.0.tgz'
