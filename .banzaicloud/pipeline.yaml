@@ -92,31 +92,30 @@ pipeline:
       timeout: 900
       values:
         nameOverride: '{{ .CICD_REPO_NAME }}'
-        application:
-          image:
-            {{{{- if .pipeline.build_image.enabled }}}}
-            repository: '{{ .CICD_REPO }}'
-            tag: '{{ trunc 7 .CICD_COMMIT_SHA }}'
-            {{{{- end }}}}
-            pullPolicy: Always
-          config:
-            opencensus:
-              prometheus:
-                enabled: true
-          {{{{- if .platform.AutoDNSEnabled }}}}
-          ingress:
-            enabled: true
-            annotations:
-              kubernetes.io/ingress.class: traefik
-              traefik.ingress.kubernetes.io/redirect-regex: ^http://(.*)
-              traefik.ingress.kubernetes.io/redirect-replacement: https://$1
-              traefik.ingress.kubernetes.io/redirect-permanent: "true"
-            hosts:
-              - 'app-{{ .CICD_REPO_NAME }}.{{ .CLUSTER_NAME }}.{{ .ORG_NAME }}.{{ .DOMAIN_NAME }}'
-          {{{{ else }}}}
-          service:
-            type: LoadBalancer
+        image:
+          {{{{- if .pipeline.build_image.enabled }}}}
+          repository: '{{ .CICD_REPO }}'
+          tag: '{{ trunc 7 .CICD_COMMIT_SHA }}'
           {{{{- end }}}}
+          pullPolicy: Always
+        config:
+          opencensus:
+            prometheus:
+              enabled: true
+        {{{{- if .platform.AutoDNSEnabled }}}}
+        ingress:
+          enabled: true
+          annotations:
+            kubernetes.io/ingress.class: traefik
+            traefik.ingress.kubernetes.io/redirect-regex: ^http://(.*)
+            traefik.ingress.kubernetes.io/redirect-replacement: https://$1
+            traefik.ingress.kubernetes.io/redirect-permanent: "true"
+          hosts:
+            - 'app-{{ .CICD_REPO_NAME }}.{{ .CLUSTER_NAME }}.{{ .ORG_NAME }}.{{ .DOMAIN_NAME }}'
+        {{{{ else }}}}
+        service:
+          type: LoadBalancer
+        {{{{- end }}}}
 
         mysql:
           existingSecret: '{{ .CICD_REPO_NAME }}-mysql'
