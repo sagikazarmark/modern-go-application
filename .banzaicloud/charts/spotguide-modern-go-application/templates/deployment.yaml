@@ -11,10 +11,10 @@ metadata:
     app.kubernetes.io/component: application
     app.kubernetes.io/part-of: {{ include "spotguide-modern-go-application.name" . }}
 spec:
-{{- if .Values.application.autoscaling.enabled }}
-  replicas: {{ .Values.application.autoscaling.minReplicas }}
+{{- if .Values.autoscaling.enabled }}
+  replicas: {{ .Values.autoscaling.minReplicas }}
 {{- else }}
-  replicas: {{ .Values.application.replicaCount }}
+  replicas: {{ .Values.replicaCount }}
 {{- end }}
   selector:
     matchLabels:
@@ -43,15 +43,15 @@ spec:
             name: {{ include "spotguide-modern-go-application.fullname" . }}
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ required "An application image name is required!" .Values.application.image.repository }}:{{ required "An application image tag is required!" .Values.application.image.tag }}"
-          imagePullPolicy: {{ .Values.application.image.pullPolicy }}
+          image: "{{ required "An application image name is required!" .Values.image.repository }}:{{ required "An application image tag is required!" .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            - name: {{ .Values.application.envPrefix }}_DATABASE_USER
+            - name: {{ .Values.envPrefix }}_DATABASE_USER
               valueFrom:
                 secretKeyRef:
                   name: {{ include "spotguide-modern-go-application.mysql.userSecretName" . }}
                   key: mysql-username
-            - name: {{ .Values.application.envPrefix }}_DATABASE_PASS
+            - name: {{ .Values.envPrefix }}_DATABASE_PASS
               valueFrom:
                 secretKeyRef:
                   name: {{ include "spotguide-modern-go-application.mysql.userSecretName" . }}
@@ -79,16 +79,16 @@ spec:
               path: /healthz/ready
               port: telemetry
           resources:
-{{ toYaml .Values.application.resources | indent 12 }}
-    {{- with .Values.application.nodeSelector }}
+{{ toYaml .Values.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.application.affinity }}
+    {{- with .Values.affinity }}
       affinity:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.application.tolerations }}
+    {{- with .Values.tolerations }}
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}

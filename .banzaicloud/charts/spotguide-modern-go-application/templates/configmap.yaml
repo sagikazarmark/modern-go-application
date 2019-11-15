@@ -12,7 +12,7 @@ metadata:
     app.kubernetes.io/part-of: {{ include "spotguide-modern-go-application.name" . }}
 data:
   config.yaml: |
-{{ toYaml .Values.application.config | indent 4 }}
+{{ toYaml .Values.config | indent 4 }}
 
 ---
 apiVersion: v1
@@ -28,6 +28,6 @@ metadata:
     app.kubernetes.io/component: application
     app.kubernetes.io/part-of: {{ include "spotguide-modern-go-application.name" . }}
 data:
-  {{ .Values.application.envPrefix }}_DATABASE_HOST: {{ include "spotguide-modern-go-application.mysql.host" . | quote }}
-  {{ .Values.application.envPrefix }}_DATABASE_PORT: {{ include "spotguide-modern-go-application.mysql.port" . | quote }}
-  {{ .Values.application.envPrefix }}_DATABASE_NAME: {{ required "MySQL database is required!" .Values.mysql.database | quote }}
+  {{ .Values.envPrefix }}_DATABASE_HOST: {{ include "spotguide-modern-go-application.mysql.host" . | quote }}
+  {{ .Values.envPrefix }}_DATABASE_PORT: {{ include "spotguide-modern-go-application.mysql.port" . | quote }}
+  {{ .Values.envPrefix }}_DATABASE_NAME: {{ required "MySQL database is required!" .Values.mysql.database | quote }}

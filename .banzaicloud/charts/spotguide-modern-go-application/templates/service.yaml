@@ -11,9 +11,9 @@ metadata:
     app.kubernetes.io/component: application
     app.kubernetes.io/part-of: {{ include "spotguide-modern-go-application.name" . }}
 spec:
-  type: {{ .Values.application.service.type }}
+  type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.application.service.port }}
+    - port: {{ .Values.service.port }}
       targetPort: app
       protocol: TCP
       name: app

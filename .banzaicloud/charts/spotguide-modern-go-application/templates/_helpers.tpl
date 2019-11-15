@@ -54,17 +54,6 @@ MySQL secret name based on whether an existing secret is provided.
 {{- end -}}
 
 {{/*
-MySQL root password secret name based on whether MySQL is being installed or not.
-*/}}
-{{- define "spotguide-modern-go-application.mysql.rootSecretName" -}}
-{{- if .Values.mysql.enabled -}}
-{{- include "call-nested" (list . "mysql" "mysql.secretName") -}}
-{{- else -}}
-{{- required "MySQL (root password) secret is required" .Values.mysql.existingSecret -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
 MySQL host based on whether MySQL is being installed or not.
 */}}
 {{- define "spotguide-modern-go-application.mysql.host" -}}
