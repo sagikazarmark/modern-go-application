@@ -45,17 +45,22 @@ pipeline:
     image: banzaicloud/ci-pipeline-client:0.12
     action: InstallSecret
     clusterSecret:
-      name: '{{ .CICD_REPO_NAME }}-mysql-user'
+      name: '{{ .CICD_REPO_NAME }}-mysql'
       # sourceSecretName:
       # namespace:
       merge: true
       spec:
+        {{{{- if deploy_application.deployment.values.mysql.enabled }}}}
+        - name: mysql-username
+          value: app
+        {{{{ else }}}}
         - name: mysql-username
           source: username
+        {{{{- end }}}}
         - name: mysql-password
           source: password
 
-  {{{{- if .pipeline.install_mysql_root_password_secret.clusterSecret.sourceSecretName }}}}
+  {{{{- if deploy_application.deployment.values.mysql.enabled }}}}
   install_mysql_root_password_secret:
     when:
       branch:
@@ -63,7 +68,7 @@ pipeline:
     image: banzaicloud/ci-pipeline-client:0.12
     action: InstallSecret
     clusterSecret:
-      name: '{{ .CICD_REPO_NAME }}-mysql-root-password'
+      name: '{{ .CICD_REPO_NAME }}-mysql'
       # sourceSecretName:
       # namespace:
       merge: true
@@ -114,9 +119,12 @@ pipeline:
           {{{{- end }}}}
 
         mysql:
-          {{{{- if .pipeline.install_mysql_root_password_secret.clusterSecret.sourceSecretName }}}}
-          existingSecret: '{{ .CICD_REPO_NAME }}-mysql-root-password'
-          {{{{- end }}}}
-          existingUserSecret: '{{ .CICD_REPO_NAME }}-mysql-user'
+          existingSecret: '{{ .CICD_REPO_NAME }}-mysql'
+          mysqlUser: app
           metrics:
             enabled: true
+            annotations:
+              prometheus.io/scrape: "true"
+              prometheus.io/port: "9104"
+            livenessProbe:
+              initialDelaySeconds: 200

@@ -131,6 +131,8 @@ questions:
       username: true
     default:
       username: app
+    disabled:
+      username: true
     tags:
       - app:mysql
     targets:
@@ -149,23 +151,13 @@ questions:
     order: 5
     targets:
       - deploy_application.deployment.values.mysql.database
-  - type: pipeline
-    dataType: boolean
-    key: mysql-root-password
-    group: 2. MySQL database
-    label: Configure MySQL root password
-    default: false
-    order: 6
-    showIf:
-      properties:
-        mysql-install:
-          const: true
+      - deploy_application.deployment.values.mysql.mysqlDatabase
   - type: secret
     dataType: password
     name: mysql-root-password
     label: Root password
     group: 2. MySQL database
-    order: 7
+    order: 6
     required:
       username: root
     default:
@@ -179,8 +171,6 @@ questions:
     showIf:
       properties:
         mysql-install:
-          const: true
-        mysql-root-password:
           const: true
   - type: pipeline
     dataType: string
