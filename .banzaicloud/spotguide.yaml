@@ -11,19 +11,61 @@ resources:
   minNodes: 1
   maxNodes: 1
 questions:
+  - type: pipeline
+    dataType: boolean
+    key: build-image
+    group: 1. Image details
+    label: Build container image
+    default: true
+    order: 1
+    targets:
+      - build_image.enabled
+  - type: pipeline
+    dataType: string
+    group: 1. Image details
+    label: Repository
+    required: true
+    default: sagikazarmark/modern-go-application
+    minLength: 1
+    order: 2
+    targets:
+      - deploy_application.deployment.values.application.image.repository
+    showIf:
+      properties:
+        build-image:
+          const: false
+  - type: pipeline
+    dataType: string
+    group: 1. Image details
+    label: Tag
+    required: true
+    default: latest
+    minLength: 1
+    order: 3
+    targets:
+      - deploy_application.deployment.values.application.image.tag
+    showIf:
+      properties:
+        build-image:
+          const: false
   - type: secret
     dataType: password
     name: docker-hub
-    group: 1. Docker Hub credentials
+    group: 1. Image details
     required:
       input: true
       username: true
       password: true
     tags:
       - app:docker
+    order: 4
     targets:
       - build_image.secretFrom.DOCKER_USERNAME.name
       - build_image.secretFrom.DOCKER_PASSWORD.name
+    showIf:
+      properties:
+        build-image:
+          const: true
   - type: pipeline
     dataType: boolean
     key: mysql-install

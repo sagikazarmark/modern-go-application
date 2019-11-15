@@ -12,6 +12,7 @@ pipeline:
     environment:
       GOFLAGS: -mod=readonly
 
+  {{{{- if .pipeline.build_image.enabled }}}}
   build_image:
     image: plugins/docker
     dockerfile: Dockerfile
@@ -24,13 +25,15 @@ pipeline:
       DOCKER_PASSWORD:
         # name:
         keyRef: password
+  {{{{- end }}}}
 
   package_application:
     when:
       branch:
         include: [master]
-    image: alpine/helm:3.0.0
+    image: alpine/helm:2.14.2
     commands:
+      - helm init --client-only
       - helm repo add stable https://kubernetes-charts.storage.googleapis.com
       - helm repo add banzaicloud-stable http://kubernetes-charts.banzaicloud.com/branch/master
       - helm package ./.banzaicloud/charts/spotguide-modern-go-application
@@ -86,8 +89,10 @@ pipeline:
         nameOverride: '{{ .CICD_REPO_NAME }}'
         application:
           image:
+            {{{{- if .pipeline.build_image.enabled }}}}
             repository: '{{ .CICD_REPO }}'
             tag: '{{ trunc 7 .CICD_COMMIT_SHA }}'
+            {{{{- end }}}}
             pullPolicy: Always
           config:
             opencensus:
