@@ -29,7 +29,7 @@ questions:
     minLength: 1
     order: 2
     targets:
-      - deploy_application.deployment.values.application.image.repository
+      - deploy_application.deployment.values.image.repository
     showIf:
       properties:
         build-image:
@@ -43,7 +43,7 @@ questions:
     minLength: 1
     order: 3
     targets:
-      - deploy_application.deployment.values.application.image.tag
+      - deploy_application.deployment.values.image.tag
     showIf:
       properties:
         build-image:
