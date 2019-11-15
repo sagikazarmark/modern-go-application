@@ -68,14 +68,14 @@ application:
 
   affinity: {}
 
+# MySQL configuration
+mysql:
+  enabled: false
+
 # Monitoring configuration
-monitor:
+pipeline-monitor:
   enabled: false
 
 # Ingress configuration
-ingress:
-  enabled: false
-
-# MySQL configuration
-mysql:
+pipeline-ingress:
   enabled: false
