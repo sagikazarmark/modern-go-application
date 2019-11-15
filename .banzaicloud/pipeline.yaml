@@ -6,13 +6,13 @@ pipeline:
     image: banzaicloud/ci-pipeline-client:0.12
     action: EnsureCluster
 
+  {{{{- if .pipeline.build_image.enabled }}}}
   test:
     image: golang:1.13
     commands: make check
     environment:
       GOFLAGS: -mod=readonly
 
-  {{{{- if .pipeline.build_image.enabled }}}}
   build_image:
     image: plugins/docker
     dockerfile: Dockerfile
