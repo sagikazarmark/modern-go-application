@@ -33,13 +33,13 @@ import (
 	"go.opencensus.io/trace"
 	"go.opencensus.io/zpages"
 	"google.golang.org/grpc"
-	invisionlog "logur.dev/integration/invision"
 	"logur.dev/logur"
 
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/tododriver"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/buildinfo"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
+	"github.com/sagikazarmark/modern-go-application/internal/platform/gosundheit"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/watermill"
 )
@@ -117,7 +117,7 @@ func main() {
 
 	// Configure health checker
 	healthChecker := health.New()
-	healthChecker.WithLogger(invisionlog.New(logur.WithField(logger, "component", "healthcheck")))
+	healthChecker.WithCheckListener(gosundheit.NewLogger(logur.WithField(logger, "component", "healthcheck")))
 	{
 		handler := healthhttp.HandleHealthJSON(healthChecker)
 		telemetryRouter.Handle("/healthz", handler)
