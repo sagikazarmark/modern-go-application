@@ -64,9 +64,9 @@ func (e NotFoundError) Details() []interface{} {
 	return []interface{}{"todo_id", e.ID}
 }
 
-// IsBusinessError tells the transport layer whether this error should be translated into the transport format
+// IsClientError tells the transport layer whether this error should be translated into the transport format
 // or an internal error should be returned instead.
-func (NotFoundError) IsBusinessError() bool {
+func (NotFoundError) IsClientError() bool {
 	return true
 }
 

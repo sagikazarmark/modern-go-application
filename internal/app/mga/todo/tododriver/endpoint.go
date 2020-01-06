@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/go-kit/kit/endpoint"
-	kitxendpoint "github.com/sagikazarmark/kitx/endpoint"
 
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
+	"github.com/sagikazarmark/modern-go-application/internal/platform/appkit"
 )
 
 type createTodoRequest struct {
@@ -53,7 +53,7 @@ type markAsDoneRequest struct {
 
 // MakeMarkAsDoneEndpoint returns an endpoint for the matching method of the underlying service.
 func MakeMarkAsDoneEndpoint(service todo.Service) endpoint.Endpoint {
-	return kitxendpoint.BusinessErrorMiddleware(func(ctx context.Context, request interface{}) (interface{}, error) {
+	return appkit.ClientErrorMiddleware(func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(markAsDoneRequest)
 
 		return nil, service.MarkAsDone(ctx, req.ID)

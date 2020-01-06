@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"emperror.dev/emperror"
+	"emperror.dev/errors/match"
 	"github.com/ThreeDotsLabs/watermill/components/cqrs"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/go-kit/kit/endpoint"
@@ -45,14 +46,19 @@ func InitializeApp(
 		correlation.Middleware(),
 	}
 
+	contextualErrorHandler := emperror.MakeContextAware(emperror.WithFilter(
+		errorHandler,
+		match.ErrorMatcherFunc(appkit.IsClientError), // filter out client errors
+	))
+
 	httpServerOptions := []kithttp.ServerOption{
-		kithttp.ServerErrorHandler(emperror.MakeContextAware(errorHandler)),
+		kithttp.ServerErrorHandler(contextualErrorHandler),
 		kithttp.ServerErrorEncoder(kitxhttp.ProblemErrorEncoder),
 		kithttp.ServerBefore(correlation.HTTPToContext()),
 	}
 
 	grpcServerOptions := []kitgrpc.ServerOption{
-		kitgrpc.ServerErrorHandler(emperror.MakeContextAware(errorHandler)),
+		kitgrpc.ServerErrorHandler(contextualErrorHandler),
 		kitgrpc.ServerBefore(correlation.GRPCToContext()),
 	}
 
