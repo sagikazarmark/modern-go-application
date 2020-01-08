@@ -21,6 +21,8 @@ emperror.dev/handler/logur v0.2.0 h1:C99npUtgvW14Rj7MTRHIIfwk9bkGEFdTYck1NTi0tQ8
 emperror.dev/handler/logur v0.2.0/go.mod h1:V/yAcgQeYOXzbZOWmkF0YzcWxmbMXPSSfqwLEwBXA3g=
 github.com/99designs/gqlgen v0.9.3 h1:BWOMuDFhpuvzbuUFgCL1OSfAM2lvnYgpoCXetDvbnHY=
 github.com/99designs/gqlgen v0.9.3/go.mod h1:HrrG7ic9EgLPsULxsZh/Ti+p0HNWgR3XRuvnD0pb5KY=
+github.com/99designs/gqlgen v0.10.2 h1:FfjCqIWejHDJeLpQTI0neoZo5vDO3sdo5oNCucet3A0=
+github.com/99designs/gqlgen v0.10.2/go.mod h1:aDB7oabSAyZ4kUHLEySsLxnWrBy3lA0A2gWKU+qoHwI=
 github.com/99designs/gqlgen-contrib v0.0.0-20190222015228-c654377d611c h1:6PhFf4boI9ICEsb57Y8GNs+Yhk/y8x8sRvLcc1QTpYc=
 github.com/99designs/gqlgen-contrib v0.0.0-20190222015228-c654377d611c/go.mod h1:YBpBdxshfUEBRQzGDvYsWGKUnbnh+aYyOKwtzJajAq4=
 github.com/AppsFlyer/go-sundheit v0.1.1 h1:5dUBFa74FUFqWWqk3ZdxPTCTL3It8f9ShSfUpJR5zAc=
@@ -281,9 +283,11 @@ github.com/ugorji/go v1.1.4/go.mod h1:uQMGLiO92mf5W77hV/PUCpI3pbzQx3CRekS0kk+RGr
 github.com/ugorji/go/codec v0.0.0-20181204163529-d75b2dcb6bc8/go.mod h1:VFNgLljTbGfSG7qAOspJ7OScBnGdDN/yBr0sguwnwf0=
 github.com/urfave/cli v1.20.0 h1:fDqGv3UG/4jbVl/QkFwEdddtEDjh/5Ov6X+0B/3bPaw=
 github.com/urfave/cli v1.20.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijbERA=
+github.com/vektah/dataloaden v0.2.1-0.20190515034641-a19b9a6e7c9e h1:+w0Zm/9gaWpEAyDlU1eKOuk5twTjAjuevXqcJJw8hrg=
 github.com/vektah/dataloaden v0.2.1-0.20190515034641-a19b9a6e7c9e/go.mod h1:/HUdMve7rvxZma+2ZELQeNh88+003LL7Pf/CZ089j8U=
 github.com/vektah/gqlparser v1.1.2 h1:ZsyLGn7/7jDNI+y4SEhI4yAxRChlv15pUHMjijT+e68=
 github.com/vektah/gqlparser v1.1.2/go.mod h1:1ycwN7Ij5njmMkPPAOaRFY4rET2Enx7IkVv3vaXspKw=
+github.com/vektah/gqlparser v1.2.0/go.mod h1:bkVf0FX+Stjg/MHnm8mEyubuaArhNEqfQhF+OTiAL74=
 github.com/vektah/gqlparser v1.2.1 h1:C+L7Go/eUbN0w6Y0kaiq2W6p2wN5j8wU82EdDXxDivc=
 github.com/vektah/gqlparser v1.2.1/go.mod h1:bkVf0FX+Stjg/MHnm8mEyubuaArhNEqfQhF+OTiAL74=
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=
