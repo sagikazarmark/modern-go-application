@@ -13,6 +13,8 @@ import (
 type grpcServer struct {
 	*todov1beta1.UnimplementedTodoListServer
 
+	errorEncoder kitxgrpc.EncodeErrorResponseFunc
+
 	createTodo kitgrpc.Handler
 	listTodos  kitgrpc.Handler
 	markAsDone kitgrpc.Handler
@@ -23,6 +25,8 @@ func MakeGRPCServer(endpoints Endpoints, options ...kitgrpc.ServerOption) todov1
 	errorEncoder := kitxgrpc.NewStatusErrorResponseEncoder(appkit.NewStatusConverter())
 
 	return &grpcServer{
+		errorEncoder: errorEncoder,
+
 		createTodo: kitgrpc.NewServer(
 			endpoints.CreateTodo,
 			decodeCreateTodoGRPCRequest,
@@ -50,7 +54,7 @@ func (s *grpcServer) CreateTodo(
 ) (*todov1beta1.CreateTodoResponse, error) {
 	_, rep, err := s.createTodo.ServeGRPC(ctx, req)
 	if err != nil {
-		return nil, err
+		return nil, s.errorEncoder(ctx, err)
 	}
 	return rep.(*todov1beta1.CreateTodoResponse), nil
 }
@@ -77,7 +81,7 @@ func (s *grpcServer) ListTodos(
 ) (*todov1beta1.ListTodosResponse, error) {
 	_, rep, err := s.listTodos.ServeGRPC(ctx, req)
 	if err != nil {
-		return nil, err
+		return nil, s.errorEncoder(ctx, err)
 	}
 	return rep.(*todov1beta1.ListTodosResponse), nil
 }
@@ -110,7 +114,7 @@ func (s *grpcServer) MarkAsDone(
 ) (*todov1beta1.MarkAsDoneResponse, error) {
 	_, rep, err := s.markAsDone.ServeGRPC(ctx, req)
 	if err != nil {
-		return nil, err
+		return nil, s.errorEncoder(ctx, err)
 	}
 	return rep.(*todov1beta1.MarkAsDoneResponse), nil
 }
