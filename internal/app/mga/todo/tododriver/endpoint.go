@@ -19,7 +19,7 @@ type createTodoResponse struct {
 
 // MakeCreateTodoEndpoint returns an endpoint for the matching method of the underlying service.
 func MakeCreateTodoEndpoint(service todo.Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
+	return appkit.ClientErrorMiddleware(func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(createTodoRequest)
 
 		id, err := service.CreateTodo(ctx, req.Text)
@@ -27,7 +27,7 @@ func MakeCreateTodoEndpoint(service todo.Service) endpoint.Endpoint {
 		return createTodoResponse{
 			ID: id,
 		}, err
-	}
+	})
 }
 
 type listTodosResponse struct {

@@ -26,7 +26,7 @@ func MakeGRPCServer(endpoints Endpoints, options ...kitgrpc.ServerOption) todov1
 		createTodo: kitgrpc.NewServer(
 			endpoints.CreateTodo,
 			decodeCreateTodoGRPCRequest,
-			encodeCreateTodoGRPCResponse,
+			kitxgrpc.ErrorResponseEncoder(encodeCreateTodoGRPCResponse, errorEncoder),
 			options...,
 		),
 		listTodos: kitgrpc.NewServer(
