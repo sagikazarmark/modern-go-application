@@ -20,7 +20,7 @@ func RegisterHTTPHandlers(endpoints Endpoints, router *mux.Router, options ...ki
 	router.Methods(http.MethodPost).Path("").Handler(kithttp.NewServer(
 		endpoints.CreateTodo,
 		decodeCreateTodoHTTPRequest,
-		encodeCreateTodoHTTPResponse,
+		kitxhttp.ErrorResponseEncoder(encodeCreateTodoHTTPResponse, errorEncoder),
 		options...,
 	))
 

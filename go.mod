@@ -20,9 +20,10 @@ require (
 	github.com/goph/idgen v0.4.0
 	github.com/gorilla/mux v1.7.3
 	github.com/mccutchen/go-httpbin v0.0.0-20190116014521-c5cb2f4802fa
+	github.com/moogar0880/problems v0.1.1
 	github.com/oklog/run v1.0.0
 	github.com/olekukonko/tablewriter v0.0.4
-	github.com/sagikazarmark/kitx v0.7.0
+	github.com/sagikazarmark/kitx v0.7.1
 	github.com/sagikazarmark/ocmux v0.2.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cobra v0.0.5
@@ -31,6 +32,7 @@ require (
 	github.com/stretchr/testify v1.4.0
 	github.com/vektah/gqlparser v1.2.1
 	go.opencensus.io v0.22.2
+	google.golang.org/genproto v0.0.0-20190819201941-24fa4b261c55
 	google.golang.org/grpc v1.26.0
 	logur.dev/adapter/logrus v0.2.0
 	logur.dev/integration/watermill v0.3.0

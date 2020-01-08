@@ -29,3 +29,16 @@ func IsNotFoundError(err error) bool {
 
 	return false
 }
+
+// IsValidationError checks if an error is related to a resource being invalid.
+func IsValidationError(err error) bool {
+	var e interface {
+		Validation() bool
+	}
+
+	if errors.As(err, &e) {
+		return e.Validation()
+	}
+
+	return false
+}

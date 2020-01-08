@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
+	"google.golang.org/grpc/status"
 
 	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1beta1"
 )
@@ -48,6 +50,19 @@ func runCreate(options createOptions) error {
 
 	resp, err := options.client.CreateTodo(ctx, req)
 	if err != nil {
+		st := status.Convert(err)
+		for _, detail := range st.Details() {
+			// nolint: gocritic
+			switch t := detail.(type) {
+			case *errdetails.BadRequest:
+				fmt.Println("Oops! Your request was rejected by the server.")
+				for _, violation := range t.GetFieldViolations() {
+					fmt.Printf("The %q field was wrong:\n", violation.GetField())
+					fmt.Printf("\t%s\n", violation.GetDescription())
+				}
+			}
+		}
+
 		return err
 	}
 
