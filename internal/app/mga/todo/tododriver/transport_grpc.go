@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"emperror.dev/errors"
-	"github.com/go-kit/kit/endpoint"
 	kitgrpc "github.com/go-kit/kit/transport/grpc"
+	kitxgrpc "github.com/sagikazarmark/kitx/transport/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -39,7 +39,7 @@ func MakeGRPCServer(endpoints Endpoints, options ...kitgrpc.ServerOption) todov1
 		markAsDone: kitgrpc.NewServer(
 			endpoints.MarkAsDone,
 			decodeMarkAsDoneGRPCRequest,
-			encodeMarkAsDoneGRPCResponse,
+			kitxgrpc.ErrorResponseEncoder(encodeMarkAsDoneGRPCResponse, errorEncoder),
 			options...,
 		),
 	}
@@ -124,14 +124,12 @@ func decodeMarkAsDoneGRPCRequest(_ context.Context, grpcReq interface{}) (interf
 	}, nil
 }
 
-func encodeMarkAsDoneGRPCResponse(_ context.Context, response interface{}) (interface{}, error) {
-	if f, ok := response.(endpoint.Failer); ok && f.Failed() != nil {
-		err := f.Failed()
-
-		return nil, status.Error(getErrorCode(err), err.Error())
-	}
-
+func encodeMarkAsDoneGRPCResponse(_ context.Context, _ interface{}) (interface{}, error) {
 	return &todov1beta1.MarkAsDoneResponse{}, nil
+}
+
+func errorEncoder(_ context.Context, err error) error {
+	return status.Error(getErrorCode(err), err.Error())
 }
 
 func getErrorCode(err error) codes.Code {

@@ -220,6 +220,8 @@ github.com/rogpeppe/fastuuid v0.0.0-20150106093220-6724a57986af/go.mod h1:XWv6So
 github.com/rs/cors v1.6.0/go.mod h1:gFx+x8UowdsKA9AchylcLynDq+nNFfI8FkUZdN/jGCU=
 github.com/sagikazarmark/kitx v0.4.0 h1:RtMXg+/6210Y/Xm0YfNc/TZwz1lGodZ4lGCWNMhFWT0=
 github.com/sagikazarmark/kitx v0.4.0/go.mod h1:QI+xavbP14atHgyITGnaIBMBshaknyMka2UNRY2TY2Q=
+github.com/sagikazarmark/kitx v0.6.0 h1:kZI++/Q+H/5wn6Mdgpw+m2t0W7MaFdM/v9H3sYxj1bw=
+github.com/sagikazarmark/kitx v0.6.0/go.mod h1:QI+xavbP14atHgyITGnaIBMBshaknyMka2UNRY2TY2Q=
 github.com/sagikazarmark/ocmux v0.2.0 h1:YmxEdmIFCeM9NO99U3DBvLRq+cIy2gQJ4zDyifhOqWU=
 github.com/sagikazarmark/ocmux v0.2.0/go.mod h1:dfZKvuirvFMBLtqSo17KBM5cYWNFDLTqOtB3CRZVDqI=
 github.com/sergi/go-diff v1.0.0 h1:Kpca3qRNrduNnOQeazBd0ysaKrUJiIuISHxogkT9RPQ=

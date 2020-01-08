@@ -91,6 +91,7 @@ func InitializeApp(
 			httpRouter.PathPrefix("/todos").Subrouter(),
 			kitxhttp.ServerOptions(httpServerOptions),
 			kithttp.ServerErrorHandler(errorHandler),
+			kithttp.ServerErrorEncoder(kitxhttp.NewJSONProblemErrorEncoder(appkit.NewProblemConverter())),
 		)
 
 		todov1beta1.RegisterTodoListServer(

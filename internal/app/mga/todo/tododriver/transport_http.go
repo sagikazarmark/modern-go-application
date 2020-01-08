@@ -8,14 +8,15 @@ import (
 	"emperror.dev/errors"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
-	"github.com/moogar0880/problems"
 	kitxhttp "github.com/sagikazarmark/kitx/transport/http"
 
-	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
+	"github.com/sagikazarmark/modern-go-application/internal/platform/appkit"
 )
 
 // RegisterHTTPHandlers mounts all of the service endpoints into a router.
 func RegisterHTTPHandlers(endpoints Endpoints, router *mux.Router, options ...kithttp.ServerOption) {
+	errorEncoder := kitxhttp.NewJSONProblemErrorResponseEncoder(appkit.NewProblemConverter())
+
 	router.Methods(http.MethodPost).Path("").Handler(kithttp.NewServer(
 		endpoints.CreateTodo,
 		decodeCreateTodoHTTPRequest,
@@ -64,22 +65,4 @@ func decodeMarkAsDoneHTTPRequest(_ context.Context, r *http.Request) (interface{
 	return markAsDoneRequest{
 		ID: id,
 	}, nil
-}
-
-func errorEncoder(_ context.Context, w http.ResponseWriter, err error) error {
-	status := http.StatusInternalServerError
-
-	// nolint: gocritic
-	switch {
-	case errors.As(err, &todo.NotFoundError{}):
-		status = http.StatusNotFound
-	}
-
-	problem := problems.NewDetailedProblem(status, err.Error())
-
-	w.Header().Set("Content-Type", problems.ProblemMediaType)
-	w.WriteHeader(status)
-	e := json.NewEncoder(w).Encode(problem)
-
-	return e
 }
