@@ -19,4 +19,4 @@ linters:
         - godox
 
 service:
-    golangci-lint-version: 1.19.x
+    golangci-lint-version: 1.21.x
