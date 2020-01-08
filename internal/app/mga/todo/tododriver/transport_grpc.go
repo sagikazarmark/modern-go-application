@@ -3,14 +3,11 @@ package tododriver
 import (
 	"context"
 
-	"emperror.dev/errors"
 	kitgrpc "github.com/go-kit/kit/transport/grpc"
 	kitxgrpc "github.com/sagikazarmark/kitx/transport/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
 	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1beta1"
-	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
+	"github.com/sagikazarmark/modern-go-application/internal/platform/appkit"
 )
 
 type grpcServer struct {
@@ -23,6 +20,8 @@ type grpcServer struct {
 
 // MakeGRPCServer makes a set of endpoints available as a gRPC server.
 func MakeGRPCServer(endpoints Endpoints, options ...kitgrpc.ServerOption) todov1beta1.TodoListServer {
+	errorEncoder := kitxgrpc.NewStatusErrorResponseEncoder(appkit.NewStatusConverter())
+
 	return &grpcServer{
 		createTodo: kitgrpc.NewServer(
 			endpoints.CreateTodo,
@@ -126,20 +125,4 @@ func decodeMarkAsDoneGRPCRequest(_ context.Context, grpcReq interface{}) (interf
 
 func encodeMarkAsDoneGRPCResponse(_ context.Context, _ interface{}) (interface{}, error) {
 	return &todov1beta1.MarkAsDoneResponse{}, nil
-}
-
-func errorEncoder(_ context.Context, err error) error {
-	return status.Error(getErrorCode(err), err.Error())
-}
-
-func getErrorCode(err error) codes.Code {
-	code := codes.Internal
-
-	// nolint: gocritic
-	switch errors.Cause(err).(type) {
-	case todo.NotFoundError:
-		code = codes.NotFound
-	}
-
-	return code
 }

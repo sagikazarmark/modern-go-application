@@ -222,6 +222,8 @@ github.com/sagikazarmark/kitx v0.4.0 h1:RtMXg+/6210Y/Xm0YfNc/TZwz1lGodZ4lGCWNMhF
 github.com/sagikazarmark/kitx v0.4.0/go.mod h1:QI+xavbP14atHgyITGnaIBMBshaknyMka2UNRY2TY2Q=
 github.com/sagikazarmark/kitx v0.6.0 h1:kZI++/Q+H/5wn6Mdgpw+m2t0W7MaFdM/v9H3sYxj1bw=
 github.com/sagikazarmark/kitx v0.6.0/go.mod h1:QI+xavbP14atHgyITGnaIBMBshaknyMka2UNRY2TY2Q=
+github.com/sagikazarmark/kitx v0.7.0 h1:V/t4aF/QZSdWESCKXKAtXeab7aSBIAFjc/Wi8V4oCIs=
+github.com/sagikazarmark/kitx v0.7.0/go.mod h1:QI+xavbP14atHgyITGnaIBMBshaknyMka2UNRY2TY2Q=
 github.com/sagikazarmark/ocmux v0.2.0 h1:YmxEdmIFCeM9NO99U3DBvLRq+cIy2gQJ4zDyifhOqWU=
 github.com/sagikazarmark/ocmux v0.2.0/go.mod h1:dfZKvuirvFMBLtqSo17KBM5cYWNFDLTqOtB3CRZVDqI=
 github.com/sergi/go-diff v1.0.0 h1:Kpca3qRNrduNnOQeazBd0ysaKrUJiIuISHxogkT9RPQ=
