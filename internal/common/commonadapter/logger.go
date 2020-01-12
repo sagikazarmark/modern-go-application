@@ -60,6 +60,31 @@ func (l *Logger) Error(msg string, fields ...map[string]interface{}) {
 	l.logger.Error(msg, fields...)
 }
 
+// Trace logs a trace event with a context.
+func (l *Logger) TraceContext(_ context.Context, msg string, fields ...map[string]interface{}) {
+	l.logger.Trace(msg, fields...)
+}
+
+// Debug logs a debug event with a context.
+func (l *Logger) DebugContext(_ context.Context, msg string, fields ...map[string]interface{}) {
+	l.logger.Debug(msg, fields...)
+}
+
+// Info logs an info event with a context.
+func (l *Logger) InfoContext(_ context.Context, msg string, fields ...map[string]interface{}) {
+	l.logger.Info(msg, fields...)
+}
+
+// Warn logs a warning event with a context.
+func (l *Logger) WarnContext(_ context.Context, msg string, fields ...map[string]interface{}) {
+	l.logger.Warn(msg, fields...)
+}
+
+// Error logs an error event with a context.
+func (l *Logger) ErrorContext(_ context.Context, msg string, fields ...map[string]interface{}) {
+	l.logger.Error(msg, fields...)
+}
+
 // WithFields annotates a logger with key-value pairs.
 func (l *Logger) WithFields(fields map[string]interface{}) common.Logger {
 	return &Logger{

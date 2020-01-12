@@ -51,6 +51,48 @@ func TestLogger_Levels(t *testing.T) {
 	}
 }
 
+func TestLogger_Levels_Context(t *testing.T) {
+	tests := map[string]struct {
+		logFunc func(logger *Logger, ctx context.Context, msg string, fields ...map[string]interface{})
+	}{
+		"trace": {
+			logFunc: (*Logger).TraceContext,
+		},
+		"debug": {
+			logFunc: (*Logger).DebugContext,
+		},
+		"info": {
+			logFunc: (*Logger).InfoContext,
+		},
+		"warn": {
+			logFunc: (*Logger).WarnContext,
+		},
+		"error": {
+			logFunc: (*Logger).ErrorContext,
+		},
+	}
+
+	for name, test := range tests {
+		name, test := name, test
+
+		t.Run(name, func(t *testing.T) {
+			testLogger := logur.NewTestLogger()
+			logger := NewLogger(testLogger)
+
+			test.logFunc(logger, context.Background(), fmt.Sprintf("message: %s", name))
+
+			level, _ := logur.ParseLevel(name)
+
+			event := logur.LogEvent{
+				Level: level,
+				Line:  "message: " + name,
+			}
+
+			logtesting.AssertLogEventsEqual(t, event, *(testLogger.LastEvent()))
+		})
+	}
+}
+
 func TestLogger_WithFields(t *testing.T) {
 	testLogger := logur.NewTestLogger()
 

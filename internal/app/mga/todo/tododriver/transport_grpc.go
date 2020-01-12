@@ -4,10 +4,10 @@ import (
 	"context"
 
 	kitgrpc "github.com/go-kit/kit/transport/grpc"
+	appkitgrpc "github.com/sagikazarmark/appkit/transport/grpc"
 	kitxgrpc "github.com/sagikazarmark/kitx/transport/grpc"
 
 	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1beta1"
-	"github.com/sagikazarmark/modern-go-application/internal/platform/appkit"
 )
 
 type grpcServer struct {
@@ -22,7 +22,9 @@ type grpcServer struct {
 
 // MakeGRPCServer makes a set of endpoints available as a gRPC server.
 func MakeGRPCServer(endpoints Endpoints, options ...kitgrpc.ServerOption) todov1beta1.TodoListServer {
-	errorEncoder := kitxgrpc.NewStatusErrorResponseEncoder(appkit.NewStatusConverter())
+	errorEncoder := kitxgrpc.NewStatusErrorResponseEncoder(appkitgrpc.NewStatusConverter(
+		appkitgrpc.WithStatusMatchers(appkitgrpc.DefaultStatusMatchers...),
+	))
 
 	return &grpcServer{
 		errorEncoder: errorEncoder,

@@ -6,7 +6,6 @@ import (
 	"github.com/go-kit/kit/endpoint"
 
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
-	"github.com/sagikazarmark/modern-go-application/internal/platform/appkit"
 )
 
 type createTodoRequest struct {
@@ -19,7 +18,7 @@ type createTodoResponse struct {
 
 // MakeCreateTodoEndpoint returns an endpoint for the matching method of the underlying service.
 func MakeCreateTodoEndpoint(service todo.Service) endpoint.Endpoint {
-	return appkit.ClientErrorMiddleware(func(ctx context.Context, request interface{}) (interface{}, error) {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(createTodoRequest)
 
 		id, err := service.CreateTodo(ctx, req.Text)
@@ -27,7 +26,7 @@ func MakeCreateTodoEndpoint(service todo.Service) endpoint.Endpoint {
 		return createTodoResponse{
 			ID: id,
 		}, err
-	})
+	}
 }
 
 type listTodosResponse struct {
@@ -53,9 +52,9 @@ type markAsDoneRequest struct {
 
 // MakeMarkAsDoneEndpoint returns an endpoint for the matching method of the underlying service.
 func MakeMarkAsDoneEndpoint(service todo.Service) endpoint.Endpoint {
-	return appkit.ClientErrorMiddleware(func(ctx context.Context, request interface{}) (interface{}, error) {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(markAsDoneRequest)
 
 		return nil, service.MarkAsDone(ctx, req.ID)
-	})
+	}
 }

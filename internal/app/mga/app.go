@@ -12,6 +12,9 @@ import (
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/goph/idgen/ulidgen"
 	"github.com/gorilla/mux"
+	appkitendpoint "github.com/sagikazarmark/appkit/endpoint"
+	appkiterrors "github.com/sagikazarmark/appkit/errors"
+	appkithttp "github.com/sagikazarmark/appkit/transport/http"
 	"github.com/sagikazarmark/kitx/correlation"
 	kitxendpoint "github.com/sagikazarmark/kitx/endpoint"
 	kitxgrpc "github.com/sagikazarmark/kitx/transport/grpc"
@@ -27,7 +30,7 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/tododriver"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todogen"
 	"github.com/sagikazarmark/modern-go-application/internal/common/commonadapter"
-	"github.com/sagikazarmark/modern-go-application/internal/platform/appkit"
+	platformappkit "github.com/sagikazarmark/modern-go-application/internal/platform/appkit"
 )
 
 const todoTopic = "todo"
@@ -40,20 +43,23 @@ func InitializeApp(
 	logger logur.Logger,
 	errorHandler emperror.Handler,
 ) {
-	commonLogger := commonadapter.NewContextAwareLogger(logger, appkit.ContextExtractor{})
+	commonLogger := commonadapter.NewContextAwareLogger(logger, platformappkit.ContextExtractor{})
 
 	endpointMiddleware := []endpoint.Middleware{
 		correlation.Middleware(),
+		appkitendpoint.ClientErrorMiddleware,
 	}
 
 	contextualErrorHandler := emperror.MakeContextAware(emperror.WithFilter(
 		errorHandler,
-		match.ErrorMatcherFunc(appkit.IsClientError), // filter out client errors
+		match.ErrorMatcherFunc(appkiterrors.IsClientError), // filter out client errors
 	))
 
 	httpServerOptions := []kithttp.ServerOption{
 		kithttp.ServerErrorHandler(contextualErrorHandler),
-		kithttp.ServerErrorEncoder(kitxhttp.ProblemErrorEncoder),
+		kithttp.ServerErrorEncoder(kitxhttp.NewJSONProblemErrorEncoder(appkithttp.NewProblemConverter(
+			appkithttp.WithProblemMatchers(appkithttp.DefaultProblemMatchers...),
+		))),
 		kithttp.ServerBefore(correlation.HTTPToContext()),
 	}
 
@@ -83,7 +89,7 @@ func InitializeApp(
 		endpoints := tododriver.TraceEndpoints(tododriver.MakeEndpoints(
 			service,
 			kitxendpoint.Chain(endpointMiddleware...),
-			appkit.EndpointLogger(logger),
+			appkitendpoint.LoggingMiddleware(logger),
 		))
 
 		tododriver.RegisterHTTPHandlers(
@@ -91,7 +97,6 @@ func InitializeApp(
 			httpRouter.PathPrefix("/todos").Subrouter(),
 			kitxhttp.ServerOptions(httpServerOptions),
 			kithttp.ServerErrorHandler(errorHandler),
-			kithttp.ServerErrorEncoder(kitxhttp.NewJSONProblemErrorEncoder(appkit.NewProblemConverter())),
 		)
 
 		todov1beta1.RegisterTodoListServer(
@@ -115,7 +120,7 @@ func InitializeApp(
 
 // RegisterEventHandlers registers event handlers in a message router.
 func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber, logger logur.Logger) error {
-	commonLogger := commonadapter.NewContextAwareLogger(logger, appkit.ContextExtractor{})
+	commonLogger := commonadapter.NewContextAwareLogger(logger, platformappkit.ContextExtractor{})
 	todoEventProcessor, _ := cqrs.NewEventProcessor(
 		[]cqrs.EventHandler{
 			todogen.NewMarkedAsDoneEventHandler(todo.NewLogEventHandler(commonLogger), "marked_as_done"),

@@ -8,14 +8,15 @@ import (
 	"emperror.dev/errors"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
+	appkithttp "github.com/sagikazarmark/appkit/transport/http"
 	kitxhttp "github.com/sagikazarmark/kitx/transport/http"
-
-	"github.com/sagikazarmark/modern-go-application/internal/platform/appkit"
 )
 
 // RegisterHTTPHandlers mounts all of the service endpoints into a router.
 func RegisterHTTPHandlers(endpoints Endpoints, router *mux.Router, options ...kithttp.ServerOption) {
-	errorEncoder := kitxhttp.NewJSONProblemErrorResponseEncoder(appkit.NewProblemConverter())
+	errorEncoder := kitxhttp.NewJSONProblemErrorResponseEncoder(appkithttp.NewProblemConverter(
+		appkithttp.WithProblemMatchers(appkithttp.DefaultProblemMatchers...),
+	))
 
 	router.Methods(http.MethodPost).Path("").Handler(kithttp.NewServer(
 		endpoints.CreateTodo,
