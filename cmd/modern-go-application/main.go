@@ -334,18 +334,6 @@ func main() {
 		grpcLn, err := upg.Fds.Listen("tcp", config.App.GrpcAddr)
 		emperror.Panic(err)
 
-		runLog := func(execute func() error, interrupt func(error)) (func() error, func(error)) {
-			return func() error {
-					logger.Info("starting server")
-
-					return execute()
-				}, func(err error) {
-					logger.Info("shutting server down")
-
-					interrupt(err)
-				}
-		}
-
 		group.Add(
 			func() error {
 				logger.Info("starting server")
@@ -367,7 +355,17 @@ func main() {
 			},
 		)
 
-		group.Add(runLog(appkitrun.GRPCServe(grpcServer, grpcLn)))
+		group.Add(
+			func() error {
+				logger.Info("starting server")
+
+				return grpcServer.Serve(grpcLn)
+			}, func(error) {
+				logger.Info("shutting server down")
+
+				grpcServer.GracefulStop()
+			},
+		)
 	}
 
 	// Setup signal handler
