@@ -196,6 +196,7 @@ func main() {
 			Handler:  telemetryRouter,
 			ErrorLog: log.NewErrorStandardLogger(logger),
 		}
+		defer server.Close()
 
 		group.Add(
 			func() error {
@@ -215,8 +216,6 @@ func main() {
 
 				err := server.Shutdown(ctx)
 				errorHandler.Handle(errors.WithDetails(err, "server", name))
-
-				_ = server.Close()
 			},
 		)
 	}
