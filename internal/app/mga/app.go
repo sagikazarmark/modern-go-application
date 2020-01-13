@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"emperror.dev/emperror"
-	"emperror.dev/errors/match"
 	"github.com/ThreeDotsLabs/watermill/components/cqrs"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/go-kit/kit/endpoint"
@@ -17,6 +16,7 @@ import (
 	appkithttp "github.com/sagikazarmark/appkit/transport/http"
 	"github.com/sagikazarmark/kitx/correlation"
 	kitxendpoint "github.com/sagikazarmark/kitx/endpoint"
+	kitxtransport "github.com/sagikazarmark/kitx/transport"
 	kitxgrpc "github.com/sagikazarmark/kitx/transport/grpc"
 	kitxhttp "github.com/sagikazarmark/kitx/transport/http"
 	"google.golang.org/grpc"
@@ -41,7 +41,7 @@ func InitializeApp(
 	grpcServer *grpc.Server,
 	publisher message.Publisher,
 	logger logur.Logger,
-	errorHandler emperror.Handler,
+	errorHandler emperror.ErrorHandler,
 ) {
 	commonLogger := commonadapter.NewContextAwareLogger(logger, platformappkit.ContextExtractor{})
 
@@ -50,27 +50,25 @@ func InitializeApp(
 		appkitendpoint.ClientErrorMiddleware,
 	}
 
-	contextualErrorHandler := emperror.MakeContextAware(emperror.WithFilter(
+	transportErrorHandler := kitxtransport.NewErrorHandler(emperror.WithFilter(
 		errorHandler,
-		match.ErrorMatcherFunc(appkiterrors.IsClientError), // filter out client errors
+		appkiterrors.IsClientError, // filter out client errors
 	))
 
 	httpServerOptions := []kithttp.ServerOption{
-		kithttp.ServerErrorHandler(contextualErrorHandler),
-		kithttp.ServerErrorEncoder(kitxhttp.NewJSONProblemErrorEncoder(appkithttp.NewProblemConverter(
-			appkithttp.WithProblemMatchers(appkithttp.DefaultProblemMatchers...),
-		))),
+		kithttp.ServerErrorHandler(transportErrorHandler),
+		kithttp.ServerErrorEncoder(kitxhttp.NewJSONProblemErrorEncoder(appkithttp.NewDefaultProblemConverter())),
 		kithttp.ServerBefore(correlation.HTTPToContext()),
 	}
 
 	grpcServerOptions := []kitgrpc.ServerOption{
-		kitgrpc.ServerErrorHandler(contextualErrorHandler),
+		kitgrpc.ServerErrorHandler(transportErrorHandler),
 		kitgrpc.ServerBefore(correlation.GRPCToContext()),
 	}
 
 	{
 		logger := commonLogger.WithFields(map[string]interface{}{"module": "todo"})
-		errorHandler := emperror.MakeContextAware(emperror.WithDetails(errorHandler, "module", "todo"))
+		errorHandler := kitxtransport.NewErrorHandler(emperror.WithDetails(errorHandler, "module", "todo"))
 
 		eventBus, _ := cqrs.NewEventBus(
 			publisher,
@@ -88,7 +86,7 @@ func InitializeApp(
 
 		endpoints := tododriver.TraceEndpoints(tododriver.MakeEndpoints(
 			service,
-			kitxendpoint.Chain(endpointMiddleware...),
+			kitxendpoint.Combine(endpointMiddleware...),
 			appkitendpoint.LoggingMiddleware(logger),
 		))
 

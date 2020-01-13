@@ -14,9 +14,7 @@ import (
 
 // RegisterHTTPHandlers mounts all of the service endpoints into a router.
 func RegisterHTTPHandlers(endpoints Endpoints, router *mux.Router, options ...kithttp.ServerOption) {
-	errorEncoder := kitxhttp.NewJSONProblemErrorResponseEncoder(appkithttp.NewProblemConverter(
-		appkithttp.WithProblemMatchers(appkithttp.DefaultProblemMatchers...),
-	))
+	errorEncoder := kitxhttp.NewJSONProblemErrorResponseEncoder(appkithttp.NewDefaultProblemConverter())
 
 	router.Methods(http.MethodPost).Path("").Handler(kithttp.NewServer(
 		endpoints.CreateTodo,

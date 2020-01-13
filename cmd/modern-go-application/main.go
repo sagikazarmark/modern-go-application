@@ -14,6 +14,7 @@ import (
 	"contrib.go.opencensus.io/integrations/ocsql"
 	"emperror.dev/emperror"
 	"emperror.dev/errors"
+	"emperror.dev/errors/match"
 	logurhandler "emperror.dev/handler/logur"
 	health "github.com/AppsFlyer/go-sundheit"
 	"github.com/AppsFlyer/go-sundheit/checks"
@@ -23,6 +24,7 @@ import (
 	"github.com/cloudflare/tableflip"
 	"github.com/gorilla/mux"
 	"github.com/oklog/run"
+	appkitrun "github.com/sagikazarmark/appkit/run"
 	"github.com/sagikazarmark/kitx/correlation"
 	"github.com/sagikazarmark/ocmux"
 	"github.com/spf13/pflag"
@@ -212,7 +214,7 @@ func main() {
 				}
 
 				err := server.Shutdown(ctx)
-				emperror.Handle(errorHandler, errors.WithDetails(err, "server", name))
+				errorHandler.Handle(errors.WithDetails(err, "server", name))
 
 				_ = server.Close()
 			},
@@ -309,6 +311,7 @@ func main() {
 			},
 			ErrorLog: log.NewErrorStandardLogger(logger),
 		}
+		defer httpServer.Close()
 
 		grpcServer := grpc.NewServer(grpc.StatsHandler(&ocgrpc.ServerHandler{
 			StartOptions: trace.StartOptions{
@@ -316,6 +319,7 @@ func main() {
 				SpanKind: trace.SpanKindServer,
 			},
 		}))
+		defer grpcServer.Stop()
 
 		// In larger apps, this should be split up into smaller functions
 		mga.InitializeApp(httpRouter, grpcServer, publisher, logger, errorHandler)
@@ -329,6 +333,18 @@ func main() {
 
 		grpcLn, err := upg.Fds.Listen("tcp", config.App.GrpcAddr)
 		emperror.Panic(err)
+
+		runLog := func(execute func() error, interrupt func(error)) (func() error, func(error)) {
+			return func() error {
+					logger.Info("starting server")
+
+					return execute()
+				}, func(err error) {
+					logger.Info("shutting server down")
+
+					interrupt(err)
+				}
+		}
 
 		group.Add(
 			func() error {
@@ -347,72 +363,19 @@ func main() {
 				}
 
 				err := httpServer.Shutdown(ctx)
-				emperror.Handle(errorHandler, errors.WithDetails(err, "server", name))
-
-				_ = httpServer.Close()
+				errorHandler.Handle(errors.WithDetails(err, "server", name))
 			},
 		)
 
-		group.Add(
-			func() error {
-				logger.Info("starting server")
-
-				return grpcServer.Serve(grpcLn)
-			},
-			func(e error) {
-				logger.Info("shutting server down")
-
-				defer grpcServer.Stop()
-				grpcServer.GracefulStop()
-			},
-		)
+		group.Add(runLog(appkitrun.GRPCServe(grpcServer, grpcLn)))
 	}
 
 	// Setup signal handler
-	{
-		var (
-			cancelInterrupt = make(chan struct{})
-			ch              = make(chan os.Signal, 2)
-		)
-		defer close(ch)
+	group.Add(run.SignalHandler(context.Background(), syscall.SIGINT, syscall.SIGTERM))
 
-		group.Add(
-			func() error {
-				signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
-
-				select {
-				case sig := <-ch:
-					logger.Info("captured signal", map[string]interface{}{"signal": sig})
-				case <-cancelInterrupt:
-				}
-
-				return nil
-			},
-			func(e error) {
-				close(cancelInterrupt)
-				signal.Stop(ch)
-			},
-		)
-	}
-
-	{
-		group.Add(
-			func() error {
-				// Tell the parent we are ready
-				_ = upg.Ready()
-
-				// Wait for children to be ready
-				// (or application shutdown)
-				<-upg.Exit()
-
-				return nil
-			},
-			func(e error) {
-				upg.Stop()
-			},
-		)
-	}
+	// Setup graceful restart
+	group.Add(appkitrun.GracefulRestart(context.Background(), upg))
 
 	err = group.Run()
-	emperror.Handle(errorHandler, err)
+	emperror.WithFilter(errorHandler, match.As(&run.SignalError{}).MatchError).Handle(err)
 }

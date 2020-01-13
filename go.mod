@@ -6,9 +6,9 @@ require (
 	contrib.go.opencensus.io/exporter/ocagent v0.6.0
 	contrib.go.opencensus.io/exporter/prometheus v0.1.0
 	contrib.go.opencensus.io/integrations/ocsql v0.1.5
-	emperror.dev/emperror v0.23.0
-	emperror.dev/errors v0.6.0
-	emperror.dev/handler/logur v0.2.0
+	emperror.dev/emperror v0.30.0
+	emperror.dev/errors v0.7.0
+	emperror.dev/handler/logur v0.3.0
 	github.com/99designs/gqlgen v0.10.2
 	github.com/99designs/gqlgen-contrib v0.0.0-20190222015228-c654377d611c
 	github.com/AppsFlyer/go-sundheit v0.1.1
@@ -20,10 +20,10 @@ require (
 	github.com/goph/idgen v0.4.0
 	github.com/gorilla/mux v1.7.3
 	github.com/mccutchen/go-httpbin v0.0.0-20190116014521-c5cb2f4802fa
-	github.com/oklog/run v1.0.0
+	github.com/oklog/run v1.1.0
 	github.com/olekukonko/tablewriter v0.0.4
-	github.com/sagikazarmark/appkit v0.1.0
-	github.com/sagikazarmark/kitx v0.9.0
+	github.com/sagikazarmark/appkit v0.3.0
+	github.com/sagikazarmark/kitx v0.10.0
 	github.com/sagikazarmark/ocmux v0.2.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cobra v0.0.5

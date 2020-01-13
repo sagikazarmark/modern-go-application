@@ -22,9 +22,7 @@ type grpcServer struct {
 
 // MakeGRPCServer makes a set of endpoints available as a gRPC server.
 func MakeGRPCServer(endpoints Endpoints, options ...kitgrpc.ServerOption) todov1beta1.TodoListServer {
-	errorEncoder := kitxgrpc.NewStatusErrorResponseEncoder(appkitgrpc.NewStatusConverter(
-		appkitgrpc.WithStatusMatchers(appkitgrpc.DefaultStatusMatchers...),
-	))
+	errorEncoder := kitxgrpc.NewStatusErrorResponseEncoder(appkitgrpc.NewDefaultStatusConverter())
 
 	return &grpcServer{
 		errorEncoder: errorEncoder,
