@@ -38,6 +38,7 @@ PROTOC_GEN_GO_VERSION = 1.3.2
 PROTOTOOL_VERSION = 1.8.0
 GQLGEN_VERSION = 0.10.2
 MGA_VERSION = 0.0.8
+PKGER_VERSION = 0.14.0
 
 GOLANG_VERSION = 1.13
 
@@ -85,6 +86,7 @@ run: $(patsubst cmd/%,run-%,$(wildcard cmd/*)) ## Build and execute a binary
 .PHONY: clean
 clean: ## Clean builds
 	rm -rf ${BUILD_DIR}/
+	rm -rf cmd/*/pkged.go
 
 .PHONY: goversion
 goversion:
@@ -110,12 +112,21 @@ endif
 	go build ${GOARGS} -tags "${GOTAGS}" -ldflags "${LDFLAGS}" -o ${BUILD_DIR}/ ./cmd/...
 
 .PHONY: build-release
-build-release: ## Build all binaries without debug information
+build-release: $(patsubst cmd/%,cmd/%/pkged.go,$(wildcard cmd/*)) ## Build all binaries without debug information
 	@${MAKE} LDFLAGS="-w ${LDFLAGS}" GOARGS="${GOARGS} -trimpath" BUILD_DIR="${BUILD_DIR}/release" build
 
 .PHONY: build-debug
 build-debug: ## Build all binaries with remote debugging capabilities
 	@${MAKE} GOARGS="${GOARGS} -gcflags \"all=-N -l\"" BUILD_DIR="${BUILD_DIR}/debug" build
+
+cmd/%/pkged.go: bin/pkger ## Embed static files
+	bin/pkger -o cmd/$*
+
+bin/pkger: bin/pkger-${PKGER_VERSION}
+	@ln -sf pkger-${PKGER_VERSION} bin/pkger
+bin/pkger-${PKGER_VERSION}:
+	@mkdir -p bin
+	curl -L https://github.com/markbates/pkger/releases/download/v${PKGER_VERSION}/pkger_${PKGER_VERSION}_$(shell uname)_x86_64.tar.gz | tar -zOxf - pkger > ./bin/pkger-${PKGER_VERSION} && chmod +x ./bin/pkger-${PKGER_VERSION}
 
 .PHONY: docker
 docker: ## Build a Docker image

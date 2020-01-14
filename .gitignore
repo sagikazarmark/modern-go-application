@@ -5,6 +5,7 @@
 /docker-compose.override.yml
 /.env
 /.env.test
+pkged.go
 /var/
 /vendor/
 
