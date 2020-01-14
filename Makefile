@@ -33,12 +33,9 @@ DOCKER_TAG ?= ${VERSION}
 GOTESTSUM_VERSION = 0.4.0
 GOLANGCI_VERSION = 1.21.0
 OPENAPI_GENERATOR_VERSION = 4.1.1
-GOBIN_VERSION = 0.0.12
-PROTOC_GEN_GO_VERSION = 1.3.2
 PROTOTOOL_VERSION = 1.8.0
 GQLGEN_VERSION = 0.10.2
 MGA_VERSION = 0.0.8
-PKGER_VERSION = 0.14.0
 
 GOLANG_VERSION = 1.13
 
@@ -119,14 +116,12 @@ build-release: $(patsubst cmd/%,cmd/%/pkged.go,$(wildcard cmd/*)) ## Build all b
 build-debug: ## Build all binaries with remote debugging capabilities
 	@${MAKE} GOARGS="${GOARGS} -gcflags \"all=-N -l\"" BUILD_DIR="${BUILD_DIR}/debug" build
 
+bin/pkger:
+	@mkdir -p bin
+	go build -o bin/pkger github.com/markbates/pkger/cmd/pkger
+
 cmd/%/pkged.go: bin/pkger ## Embed static files
 	bin/pkger -o cmd/$*
-
-bin/pkger: bin/pkger-${PKGER_VERSION}
-	@ln -sf pkger-${PKGER_VERSION} bin/pkger
-bin/pkger-${PKGER_VERSION}:
-	@mkdir -p bin
-	curl -L https://github.com/markbates/pkger/releases/download/v${PKGER_VERSION}/pkger_${PKGER_VERSION}_$(shell uname)_x86_64.tar.gz | tar -zOxf - pkger > ./bin/pkger-${PKGER_VERSION} && chmod +x ./bin/pkger-${PKGER_VERSION}
 
 .PHONY: docker
 docker: ## Build a Docker image
@@ -213,18 +208,9 @@ openapi: ## Generate client and server stubs from the OpenAPI definition
 	-o /local/.gen/${OPENAPI_DESCRIPTOR_DIR}/$$api; \
 	done
 
-bin/gobin: bin/gobin-${GOBIN_VERSION}
-	@ln -sf gobin-${GOBIN_VERSION} bin/gobin
-bin/gobin-${GOBIN_VERSION}:
+bin/protoc-gen-go:
 	@mkdir -p bin
-	curl -L https://github.com/myitcv/gobin/releases/download/v${GOBIN_VERSION}/${OS}-amd64 > ./bin/gobin-${GOBIN_VERSION} && chmod +x ./bin/gobin-${GOBIN_VERSION}
-
-bin/protoc-gen-go: bin/protoc-gen-go-${PROTOC_GEN_GO_VERSION}
-	@ln -sf protoc-gen-go-${PROTOC_GEN_GO_VERSION} bin/protoc-gen-go
-bin/protoc-gen-go-${PROTOC_GEN_GO_VERSION}: bin/gobin
-	@mkdir -p bin
-	GOBIN=bin/ bin/gobin github.com/golang/protobuf/protoc-gen-go@v${PROTOC_GEN_GO_VERSION}
-	@mv bin/protoc-gen-go bin/protoc-gen-go-${PROTOC_GEN_GO_VERSION}
+	go build -o bin/protoc-gen-go github.com/golang/protobuf/protoc-gen-go
 
 bin/prototool: bin/prototool-${PROTOTOOL_VERSION}
 	@ln -sf prototool-${PROTOTOOL_VERSION} bin/prototool
@@ -242,12 +228,9 @@ validate-proto: bin/prototool bin/protoc-gen-go ## Validate protobuf definition
 proto: bin/prototool bin/protoc-gen-go ## Generate client and server stubs from the protobuf definition
 	bin/prototool $(if ${VERBOSE},--debug ,)all
 
-bin/gqlgen: bin/gqlgen-${GQLGEN_VERSION}
-	@ln -sf gqlgen-${GQLGEN_VERSION} bin/gqlgen
-bin/gqlgen-${GQLGEN_VERSION}: bin/gobin
+bin/gqlgen:
 	@mkdir -p bin
-	GOBIN=bin/ bin/gobin github.com/99designs/gqlgen@v${GQLGEN_VERSION}
-	@mv bin/gqlgen bin/gqlgen-${GQLGEN_VERSION}
+	go build -o bin/gqlgen github.com/99designs/gqlgen
 
 .PHONY: graphql
 graphql: bin/gqlgen ## Generate GraphQL code
