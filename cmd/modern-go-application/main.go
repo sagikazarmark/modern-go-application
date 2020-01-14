@@ -115,7 +115,7 @@ func main() {
 	logger.Info("starting application", buildInfo.Fields())
 
 	telemetryRouter := http.NewServeMux()
-	telemetryRouter.Handle("/version", buildinfo.Handler(buildInfo))
+	telemetryRouter.Handle("/buildinfo", buildinfo.Handler(buildInfo))
 
 	// Configure health checker
 	healthChecker := health.New()
