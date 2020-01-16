@@ -8,6 +8,13 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
 )
 
+// Endpoint name constants
+const (
+	CreateTodoEndpoint = "todo.CreateTodo"
+	ListTodosEndpoint  = "todo.ListTodos"
+	MarkAsDoneEndpoint = "todo.MarkAsDone"
+)
+
 // Endpoints collects all of the endpoints that compose the underlying service. It's
 // meant to be used as a helper struct, to collect all of the endpoints into a
 // single parameter.
@@ -17,19 +24,19 @@ type Endpoints struct {
 	MarkAsDone endpoint.Endpoint
 }
 
-// MakeEndpoints returns an Endpoints struct where each endpoint invokes
+// MakeEndpoints returns a(n) Endpoints struct where each endpoint invokes
 // the corresponding method on the provided service.
 func MakeEndpoints(service todo.Service, middleware ...endpoint.Middleware) Endpoints {
-	mw := kitxendpoint.Chain(middleware...)
+	mw := kitxendpoint.Combine(middleware...)
 
 	return Endpoints{
-		CreateTodo: mw(MakeCreateTodoEndpoint(service)),
-		ListTodos:  mw(MakeListTodosEndpoint(service)),
-		MarkAsDone: mw(MakeMarkAsDoneEndpoint(service)),
+		CreateTodo: kitxendpoint.OperationNameMiddleware(CreateTodoEndpoint)(mw(MakeCreateTodoEndpoint(service))),
+		ListTodos:  kitxendpoint.OperationNameMiddleware(ListTodosEndpoint)(mw(MakeListTodosEndpoint(service))),
+		MarkAsDone: kitxendpoint.OperationNameMiddleware(MarkAsDoneEndpoint)(mw(MakeMarkAsDoneEndpoint(service))),
 	}
 }
 
-// TraceEndpoints returns an Endpoints struct where each endpoint is wrapped with a tracing middleware.
+// TraceEndpoints returns a(n) Endpoints struct where each endpoint is wrapped with a tracing middleware.
 func TraceEndpoints(endpoints Endpoints) Endpoints {
 	return Endpoints{
 		CreateTodo: kitoc.TraceEndpoint("todo.CreateTodo")(endpoints.CreateTodo),
