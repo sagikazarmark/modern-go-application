@@ -2,98 +2,46 @@ package commonadapter
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"logur.dev/logur"
+	"logur.dev/logur/conformance"
 	"logur.dev/logur/logtesting"
 )
 
-func TestLogger_Levels(t *testing.T) {
-	tests := map[string]struct {
-		logFunc func(logger *Logger, msg string, fields ...map[string]interface{})
-	}{
-		"trace": {
-			logFunc: (*Logger).Trace,
-		},
-		"debug": {
-			logFunc: (*Logger).Debug,
-		},
-		"info": {
-			logFunc: (*Logger).Info,
-		},
-		"warn": {
-			logFunc: (*Logger).Warn,
-		},
-		"error": {
-			logFunc: (*Logger).Error,
-		},
-	}
+func TestLogger(t *testing.T) {
+	t.Run("WithFields", testLoggerWithFields)
+	t.Run("WithContext", testLoggerWithContext)
 
-	for name, test := range tests {
-		name, test := name, test
-
-		t.Run(name, func(t *testing.T) {
+	suite := conformance.TestSuite{
+		LoggerFactory: func(level logur.Level) (logur.Logger, conformance.TestLogger) {
 			testLogger := &logur.TestLoggerFacade{}
-			logger := NewLogger(testLogger)
 
-			test.logFunc(logger, fmt.Sprintf("message: %s", name))
-
-			level, _ := logur.ParseLevel(name)
-
-			event := logur.LogEvent{
-				Level: level,
-				Line:  "message: " + name,
-			}
-
-			logtesting.AssertLogEventsEqual(t, event, *(testLogger.LastEvent()))
-		})
+			return NewLogger(testLogger), testLogger
+		},
 	}
+	t.Run("Conformance", suite.Run)
 }
 
-func TestLogger_Levels_Context(t *testing.T) {
-	tests := map[string]struct {
-		logFunc func(logger *Logger, ctx context.Context, msg string, fields ...map[string]interface{})
-	}{
-		"trace": {
-			logFunc: (*Logger).TraceContext,
-		},
-		"debug": {
-			logFunc: (*Logger).DebugContext,
-		},
-		"info": {
-			logFunc: (*Logger).InfoContext,
-		},
-		"warn": {
-			logFunc: (*Logger).WarnContext,
-		},
-		"error": {
-			logFunc: (*Logger).ErrorContext,
-		},
-	}
+func TestContextAwareLogger(t *testing.T) {
+	t.Run("WithContext", testContextAwareLoggerWithContext)
 
-	for name, test := range tests {
-		name, test := name, test
-
-		t.Run(name, func(t *testing.T) {
+	suite := conformance.TestSuite{
+		LoggerFactory: func(level logur.Level) (logur.Logger, conformance.TestLogger) {
 			testLogger := &logur.TestLoggerFacade{}
-			logger := NewLogger(testLogger)
 
-			test.logFunc(logger, context.Background(), fmt.Sprintf("message: %s", name))
-
-			level, _ := logur.ParseLevel(name)
-
-			event := logur.LogEvent{
-				Level: level,
-				Line:  "message: " + name,
-			}
-
-			logtesting.AssertLogEventsEqual(t, event, *(testLogger.LastEvent()))
-		})
+			return NewContextAwareLogger(
+				testLogger,
+				func(ctx context.Context) map[string]interface{} {
+					return nil
+				},
+			), testLogger
+		},
 	}
+	t.Run("Conformance", suite.Run)
 }
 
-func TestLogger_WithFields(t *testing.T) {
+func testLoggerWithFields(t *testing.T) {
 	testLogger := &logur.TestLoggerFacade{}
 
 	fields := map[string]interface{}{
@@ -114,7 +62,7 @@ func TestLogger_WithFields(t *testing.T) {
 	logtesting.AssertLogEventsEqual(t, event, *(testLogger.LastEvent()))
 }
 
-func TestLogger_WithContext(t *testing.T) {
+func testLoggerWithContext(t *testing.T) {
 	testLogger := &logur.TestLoggerFacade{}
 
 	logger := NewLogger(testLogger).WithContext(context.Background())
@@ -129,7 +77,7 @@ func TestLogger_WithContext(t *testing.T) {
 	logtesting.AssertLogEventsEqual(t, event, *(testLogger.LastEvent()))
 }
 
-func TestContextAwareLogger_WithContext(t *testing.T) {
+func testContextAwareLoggerWithContext(t *testing.T) {
 	testLogger := &logur.TestLoggerFacade{}
 
 	logger := NewContextAwareLogger(
