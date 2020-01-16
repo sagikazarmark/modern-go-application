@@ -1,6 +1,7 @@
 package mga
 
 import (
+	"context"
 	"net/http"
 
 	"emperror.dev/emperror"
@@ -19,6 +20,7 @@ import (
 	kitxtransport "github.com/sagikazarmark/kitx/transport"
 	kitxgrpc "github.com/sagikazarmark/kitx/transport/grpc"
 	kitxhttp "github.com/sagikazarmark/kitx/transport/http"
+	"go.opencensus.io/trace"
 	"google.golang.org/grpc"
 	watermilllog "logur.dev/integration/watermill"
 	"logur.dev/logur"
@@ -30,7 +32,6 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/tododriver"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todogen"
 	"github.com/sagikazarmark/modern-go-application/internal/common/commonadapter"
-	platformappkit "github.com/sagikazarmark/modern-go-application/internal/platform/appkit"
 )
 
 const todoTopic = "todo"
@@ -40,13 +41,17 @@ func InitializeApp(
 	httpRouter *mux.Router,
 	grpcServer *grpc.Server,
 	publisher message.Publisher,
-	logger logur.Logger,
-	errorHandler emperror.ErrorHandler,
+	logger logur.LoggerFacade,
+	errorHandler emperror.ErrorHandlerFacade,
 ) {
-	commonLogger := commonadapter.NewContextAwareLogger(logger, platformappkit.ContextExtractor{})
+	logger = logur.WithContextExtractor(logger, contextExtractor)
+	errorHandler = emperror.WithContextExtractor(errorHandler, contextExtractor)
+
+	commonLogger := commonadapter.NewContextAwareLogger(logger, contextExtractor)
 
 	endpointMiddleware := []endpoint.Middleware{
 		correlation.Middleware(),
+		appkitendpoint.LoggingMiddleware(logger),
 		appkitendpoint.ClientErrorMiddleware,
 	}
 
@@ -67,9 +72,6 @@ func InitializeApp(
 	}
 
 	{
-		logger := commonLogger.WithFields(map[string]interface{}{"module": "todo"})
-		errorHandler := kitxtransport.NewErrorHandler(emperror.WithDetails(errorHandler, "module", "todo"))
-
 		eventBus, _ := cqrs.NewEventBus(
 			publisher,
 			func(eventName string) string { return todoTopic },
@@ -81,20 +83,18 @@ func InitializeApp(
 			todo.NewInMemoryStore(),
 			todogen.NewEventDispatcher(eventBus),
 		)
-		service = tododriver.LoggingMiddleware(logger)(service)
+		service = tododriver.LoggingMiddleware(commonLogger)(service)
 		service = tododriver.InstrumentationMiddleware()(service)
 
 		endpoints := tododriver.TraceEndpoints(tododriver.MakeEndpoints(
 			service,
 			kitxendpoint.Combine(endpointMiddleware...),
-			appkitendpoint.LoggingMiddleware(logger),
 		))
 
 		tododriver.RegisterHTTPHandlers(
 			endpoints,
 			httpRouter.PathPrefix("/todos").Subrouter(),
 			kitxhttp.ServerOptions(httpServerOptions),
-			kithttp.ServerErrorHandler(errorHandler),
 		)
 
 		todov1beta1.RegisterTodoListServer(
@@ -102,7 +102,7 @@ func InitializeApp(
 			tododriver.MakeGRPCServer(
 				endpoints,
 				kitxgrpc.ServerOptions(grpcServerOptions),
-				kitgrpc.ServerErrorHandler(errorHandler),
+				kitgrpc.ServerErrorHandler(kitxtransport.NewErrorHandler(errorHandler)),
 			),
 		)
 
@@ -117,8 +117,10 @@ func InitializeApp(
 }
 
 // RegisterEventHandlers registers event handlers in a message router.
-func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber, logger logur.Logger) error {
-	commonLogger := commonadapter.NewContextAwareLogger(logger, platformappkit.ContextExtractor{})
+func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber, logger logur.LoggerFacade) error {
+	logger = logur.WithContextExtractor(logger, contextExtractor)
+	commonLogger := commonadapter.NewContextAwareLogger(logger, contextExtractor)
+
 	todoEventProcessor, _ := cqrs.NewEventProcessor(
 		[]cqrs.EventHandler{
 			todogen.NewMarkedAsDoneEventHandler(todo.NewLogEventHandler(commonLogger), "marked_as_done"),
@@ -135,4 +137,25 @@ func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber
 	}
 
 	return nil
+}
+
+func contextExtractor(ctx context.Context) map[string]interface{} {
+	fields := make(map[string]interface{})
+
+	if correlationID, ok := correlation.FromContext(ctx); ok {
+		fields["correlation_id"] = correlationID
+	}
+
+	if operationName, ok := kitxendpoint.OperationName(ctx); ok {
+		fields["operation_name"] = operationName
+	}
+
+	if span := trace.FromContext(ctx); span != nil {
+		spanCtx := span.SpanContext()
+
+		fields["trace_id"] = spanCtx.TraceID.String()
+		fields["span_id"] = spanCtx.SpanID.String()
+	}
+
+	return fields
 }

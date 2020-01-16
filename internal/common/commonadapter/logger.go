@@ -10,28 +10,25 @@ import (
 
 // Logger wraps a logur logger and exposes it under a custom interface.
 type Logger struct {
-	logger       logur.Logger
-	ctxExtractor ContextExtractor
+	logger    logur.LoggerFacade
+	extractor ContextExtractor
 }
 
 // ContextExtractor extracts log fields from a context.
-type ContextExtractor interface {
-	// Extract extracts log fields from a context.
-	Extract(ctx context.Context) map[string]interface{}
-}
+type ContextExtractor func(ctx context.Context) map[string]interface{}
 
 // NewLogger returns a new Logger instance.
-func NewLogger(logger logur.Logger) *Logger {
+func NewLogger(logger logur.LoggerFacade) *Logger {
 	return &Logger{
 		logger: logger,
 	}
 }
 
 // NewContextAwareLogger returns a new Logger instance that can extract information from a context.
-func NewContextAwareLogger(logger logur.Logger, ctxExtractor ContextExtractor) *Logger {
+func NewContextAwareLogger(logger logur.LoggerFacade, extractor ContextExtractor) *Logger {
 	return &Logger{
-		logger:       logger,
-		ctxExtractor: ctxExtractor,
+		logger:    logur.WithContextExtractor(logger, logur.ContextExtractor(extractor)),
+		extractor: extractor,
 	}
 }
 
@@ -61,43 +58,43 @@ func (l *Logger) Error(msg string, fields ...map[string]interface{}) {
 }
 
 // Trace logs a trace event with a context.
-func (l *Logger) TraceContext(_ context.Context, msg string, fields ...map[string]interface{}) {
-	l.logger.Trace(msg, fields...)
+func (l *Logger) TraceContext(ctx context.Context, msg string, fields ...map[string]interface{}) {
+	l.logger.TraceContext(ctx, msg, fields...)
 }
 
 // Debug logs a debug event with a context.
-func (l *Logger) DebugContext(_ context.Context, msg string, fields ...map[string]interface{}) {
-	l.logger.Debug(msg, fields...)
+func (l *Logger) DebugContext(ctx context.Context, msg string, fields ...map[string]interface{}) {
+	l.logger.DebugContext(ctx, msg, fields...)
 }
 
 // Info logs an info event with a context.
-func (l *Logger) InfoContext(_ context.Context, msg string, fields ...map[string]interface{}) {
-	l.logger.Info(msg, fields...)
+func (l *Logger) InfoContext(ctx context.Context, msg string, fields ...map[string]interface{}) {
+	l.logger.InfoContext(ctx, msg, fields...)
 }
 
 // Warn logs a warning event with a context.
-func (l *Logger) WarnContext(_ context.Context, msg string, fields ...map[string]interface{}) {
-	l.logger.Warn(msg, fields...)
+func (l *Logger) WarnContext(ctx context.Context, msg string, fields ...map[string]interface{}) {
+	l.logger.WarnContext(ctx, msg, fields...)
 }
 
 // Error logs an error event with a context.
-func (l *Logger) ErrorContext(_ context.Context, msg string, fields ...map[string]interface{}) {
-	l.logger.Error(msg, fields...)
+func (l *Logger) ErrorContext(ctx context.Context, msg string, fields ...map[string]interface{}) {
+	l.logger.ErrorContext(ctx, msg, fields...)
 }
 
 // WithFields annotates a logger with key-value pairs.
 func (l *Logger) WithFields(fields map[string]interface{}) common.Logger {
 	return &Logger{
-		logger:       logur.WithFields(l.logger, fields),
-		ctxExtractor: l.ctxExtractor,
+		logger:    logur.WithFields(l.logger, fields),
+		extractor: l.extractor,
 	}
 }
 
 // WithContext annotates a logger with a context.
 func (l *Logger) WithContext(ctx context.Context) common.Logger {
-	if l.ctxExtractor == nil {
+	if l.extractor == nil {
 		return l
 	}
 
-	return l.WithFields(l.ctxExtractor.Extract(ctx))
+	return l.WithFields(l.extractor(ctx))
 }

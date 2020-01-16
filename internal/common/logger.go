@@ -43,22 +43,20 @@ type Logger interface {
 	WithContext(ctx context.Context) Logger
 }
 
-type noopLogger struct{}
+// NoopLogger is a logger that discards every log event.
+type NoopLogger struct{}
 
-// NewNoopLogger returns a logger that discards every log event.
-func NewNoopLogger() Logger { return noopLogger{} }
+func (NoopLogger) Trace(_ string, _ ...map[string]interface{}) {}
+func (NoopLogger) Debug(_ string, _ ...map[string]interface{}) {}
+func (NoopLogger) Info(_ string, _ ...map[string]interface{})  {}
+func (NoopLogger) Warn(_ string, _ ...map[string]interface{})  {}
+func (NoopLogger) Error(_ string, _ ...map[string]interface{}) {}
 
-func (noopLogger) Trace(_ string, _ ...map[string]interface{}) {}
-func (noopLogger) Debug(_ string, _ ...map[string]interface{}) {}
-func (noopLogger) Info(_ string, _ ...map[string]interface{})  {}
-func (noopLogger) Warn(_ string, _ ...map[string]interface{})  {}
-func (noopLogger) Error(_ string, _ ...map[string]interface{}) {}
+func (NoopLogger) TraceContext(_ context.Context, _ string, _ ...map[string]interface{}) {}
+func (NoopLogger) DebugContext(_ context.Context, _ string, _ ...map[string]interface{}) {}
+func (NoopLogger) InfoContext(_ context.Context, _ string, _ ...map[string]interface{})  {}
+func (NoopLogger) WarnContext(_ context.Context, _ string, _ ...map[string]interface{})  {}
+func (NoopLogger) ErrorContext(_ context.Context, _ string, _ ...map[string]interface{}) {}
 
-func (noopLogger) TraceContext(_ context.Context, _ string, _ ...map[string]interface{}) {}
-func (noopLogger) DebugContext(_ context.Context, _ string, _ ...map[string]interface{}) {}
-func (noopLogger) InfoContext(_ context.Context, _ string, _ ...map[string]interface{})  {}
-func (noopLogger) WarnContext(_ context.Context, _ string, _ ...map[string]interface{})  {}
-func (noopLogger) ErrorContext(_ context.Context, _ string, _ ...map[string]interface{}) {}
-
-func (n noopLogger) WithFields(_ map[string]interface{}) Logger { return n }
-func (n noopLogger) WithContext(_ context.Context) Logger       { return n }
+func (n NoopLogger) WithFields(_ map[string]interface{}) Logger { return n }
+func (n NoopLogger) WithContext(_ context.Context) Logger       { return n }

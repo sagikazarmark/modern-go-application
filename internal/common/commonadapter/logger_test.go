@@ -34,7 +34,7 @@ func TestLogger_Levels(t *testing.T) {
 		name, test := name, test
 
 		t.Run(name, func(t *testing.T) {
-			testLogger := &logur.TestLogger{}
+			testLogger := &logur.TestLoggerFacade{}
 			logger := NewLogger(testLogger)
 
 			test.logFunc(logger, fmt.Sprintf("message: %s", name))
@@ -76,7 +76,7 @@ func TestLogger_Levels_Context(t *testing.T) {
 		name, test := name, test
 
 		t.Run(name, func(t *testing.T) {
-			testLogger := &logur.TestLogger{}
+			testLogger := &logur.TestLoggerFacade{}
 			logger := NewLogger(testLogger)
 
 			test.logFunc(logger, context.Background(), fmt.Sprintf("message: %s", name))
@@ -94,7 +94,7 @@ func TestLogger_Levels_Context(t *testing.T) {
 }
 
 func TestLogger_WithFields(t *testing.T) {
-	testLogger := &logur.TestLogger{}
+	testLogger := &logur.TestLoggerFacade{}
 
 	fields := map[string]interface{}{
 		"key1": "value1",
@@ -114,17 +114,8 @@ func TestLogger_WithFields(t *testing.T) {
 	logtesting.AssertLogEventsEqual(t, event, *(testLogger.LastEvent()))
 }
 
-type contextExtractor struct{}
-
-func (*contextExtractor) Extract(ctx context.Context) map[string]interface{} {
-	return map[string]interface{}{
-		"key1": "value1",
-		"key2": "value2",
-	}
-}
-
 func TestLogger_WithContext(t *testing.T) {
-	testLogger := &logur.TestLogger{}
+	testLogger := &logur.TestLoggerFacade{}
 
 	logger := NewLogger(testLogger).WithContext(context.Background())
 
@@ -139,9 +130,17 @@ func TestLogger_WithContext(t *testing.T) {
 }
 
 func TestContextAwareLogger_WithContext(t *testing.T) {
-	testLogger := &logur.TestLogger{}
+	testLogger := &logur.TestLoggerFacade{}
 
-	logger := NewContextAwareLogger(testLogger, &contextExtractor{}).WithContext(context.Background())
+	logger := NewContextAwareLogger(
+		testLogger,
+		func(_ context.Context) map[string]interface{} {
+			return map[string]interface{}{
+				"key1": "value1",
+				"key2": "value2",
+			}
+		},
+	).WithContext(context.Background())
 
 	logger.Debug("message", nil)
 

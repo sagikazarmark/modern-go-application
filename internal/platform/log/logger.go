@@ -10,7 +10,7 @@ import (
 )
 
 // NewLogger creates a new logger.
-func NewLogger(config Config) logur.Logger {
+func NewLogger(config Config) logur.LoggerFacade {
 	logger := logrus.New()
 
 	logger.SetOutput(os.Stdout)
