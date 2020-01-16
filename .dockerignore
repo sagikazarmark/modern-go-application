@@ -7,5 +7,6 @@
 !go.*
 !internal/
 !pkg/
+!static/
 !Makefile
 **/pkged.go
