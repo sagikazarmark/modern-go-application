@@ -13,7 +13,7 @@ import (
 )
 
 func TestLogEventHandler_MarkedAsDone(t *testing.T) {
-	logger := logur.NewTestLogger()
+	logger := &logur.TestLogger{}
 
 	eventHandler := NewLogEventHandler(commonadapter.NewLogger(logger))
 

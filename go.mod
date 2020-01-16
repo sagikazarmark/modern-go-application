@@ -6,11 +6,11 @@ require (
 	contrib.go.opencensus.io/exporter/ocagent v0.6.0
 	contrib.go.opencensus.io/exporter/prometheus v0.1.0
 	contrib.go.opencensus.io/integrations/ocsql v0.1.5
-	emperror.dev/emperror v0.30.0
+	emperror.dev/emperror v0.32.0
 	emperror.dev/errors v0.7.0
-	emperror.dev/handler/logur v0.3.0
+	emperror.dev/handler/logur v0.4.0
 	github.com/99designs/gqlgen v0.10.2
-	github.com/99designs/gqlgen-contrib v0.0.0-20190222015228-c654377d611c
+	github.com/99designs/gqlgen-contrib v0.0.0-20191030030013-7aa27db3321a
 	github.com/AppsFlyer/go-sundheit v0.1.1
 	github.com/ThreeDotsLabs/watermill v1.1.0
 	github.com/cloudflare/tableflip v1.0.0
@@ -33,9 +33,9 @@ require (
 	github.com/stretchr/testify v1.4.0
 	github.com/vektah/gqlparser v1.2.1
 	go.opencensus.io v0.22.2
-	google.golang.org/genproto v0.0.0-20200108215221-bd8f9a0ef82f
+	google.golang.org/genproto v0.0.0-20200115191322-ca5a22157cba
 	google.golang.org/grpc v1.26.0
-	logur.dev/adapter/logrus v0.3.0
+	logur.dev/adapter/logrus v0.4.1
 	logur.dev/integration/watermill v0.4.0
-	logur.dev/logur v0.15.1
+	logur.dev/logur v0.16.1
 )

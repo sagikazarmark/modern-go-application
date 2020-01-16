@@ -1,1 +1,1 @@
-package main
+package modern_go_application

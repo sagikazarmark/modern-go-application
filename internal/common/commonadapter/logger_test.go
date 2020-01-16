@@ -34,7 +34,7 @@ func TestLogger_Levels(t *testing.T) {
 		name, test := name, test
 
 		t.Run(name, func(t *testing.T) {
-			testLogger := logur.NewTestLogger()
+			testLogger := &logur.TestLogger{}
 			logger := NewLogger(testLogger)
 
 			test.logFunc(logger, fmt.Sprintf("message: %s", name))
@@ -76,7 +76,7 @@ func TestLogger_Levels_Context(t *testing.T) {
 		name, test := name, test
 
 		t.Run(name, func(t *testing.T) {
-			testLogger := logur.NewTestLogger()
+			testLogger := &logur.TestLogger{}
 			logger := NewLogger(testLogger)
 
 			test.logFunc(logger, context.Background(), fmt.Sprintf("message: %s", name))
@@ -94,7 +94,7 @@ func TestLogger_Levels_Context(t *testing.T) {
 }
 
 func TestLogger_WithFields(t *testing.T) {
-	testLogger := logur.NewTestLogger()
+	testLogger := &logur.TestLogger{}
 
 	fields := map[string]interface{}{
 		"key1": "value1",
@@ -124,7 +124,7 @@ func (*contextExtractor) Extract(ctx context.Context) map[string]interface{} {
 }
 
 func TestLogger_WithContext(t *testing.T) {
-	testLogger := logur.NewTestLogger()
+	testLogger := &logur.TestLogger{}
 
 	logger := NewLogger(testLogger).WithContext(context.Background())
 
@@ -139,7 +139,7 @@ func TestLogger_WithContext(t *testing.T) {
 }
 
 func TestContextAwareLogger_WithContext(t *testing.T) {
-	testLogger := logur.NewTestLogger()
+	testLogger := &logur.TestLogger{}
 
 	logger := NewContextAwareLogger(testLogger, &contextExtractor{}).WithContext(context.Background())
 
