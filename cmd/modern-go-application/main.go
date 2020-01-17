@@ -24,6 +24,7 @@ import (
 	"github.com/cloudflare/tableflip"
 	"github.com/gorilla/mux"
 	"github.com/oklog/run"
+	appkiterrors "github.com/sagikazarmark/appkit/errors"
 	appkitrun "github.com/sagikazarmark/appkit/run"
 	"github.com/sagikazarmark/kitx/correlation"
 	"github.com/sagikazarmark/ocmux"
@@ -39,6 +40,8 @@ import (
 
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/tododriver"
+	"github.com/sagikazarmark/modern-go-application/internal/common/commonadapter"
+	"github.com/sagikazarmark/modern-go-application/internal/platform/appkit"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/buildinfo"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/gosundheit"
@@ -255,16 +258,6 @@ func main() {
 		}
 	})(subscriber)
 
-	{
-		h, err := watermill.NewRouter(config.Watermill.RouterConfig, logger)
-		emperror.Panic(err)
-
-		err = mga.RegisterEventHandlers(h, subscriber, logger)
-		emperror.Panic(err)
-
-		group.Add(func() error { return h.Run(context.Background()) }, func(e error) { _ = h.Close() })
-	}
-
 	// Register stat views
 	err = view.Register(
 		// Health checks
@@ -321,7 +314,23 @@ func main() {
 		defer grpcServer.Stop()
 
 		// In larger apps, this should be split up into smaller functions
-		mga.InitializeApp(httpRouter, grpcServer, publisher, logger, errorHandler)
+		{
+			logger := commonadapter.NewContextAwareLogger(logger, appkit.ContextExtractor)
+			errorHandler := emperror.WithFilter(
+				emperror.WithContextExtractor(errorHandler, appkit.ContextExtractor),
+				appkiterrors.IsClientError, // filter out client errors
+			)
+
+			mga.InitializeApp(httpRouter, grpcServer, publisher, logger, errorHandler)
+
+			h, err := watermill.NewRouter(config.Watermill.RouterConfig, logger)
+			emperror.Panic(err)
+
+			err = mga.RegisterEventHandlers(h, subscriber, logger)
+			emperror.Panic(err)
+
+			group.Add(func() error { return h.Run(context.Background()) }, func(e error) { _ = h.Close() })
+		}
 
 		logger.Info("listening on address", map[string]interface{}{"address": config.App.HttpAddr})
 

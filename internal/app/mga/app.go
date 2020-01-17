@@ -1,7 +1,6 @@
 package mga
 
 import (
-	"context"
 	"net/http"
 
 	"emperror.dev/emperror"
@@ -20,10 +19,8 @@ import (
 	kitxtransport "github.com/sagikazarmark/kitx/transport"
 	kitxgrpc "github.com/sagikazarmark/kitx/transport/grpc"
 	kitxhttp "github.com/sagikazarmark/kitx/transport/http"
-	"go.opencensus.io/trace"
 	"google.golang.org/grpc"
 	watermilllog "logur.dev/integration/watermill"
-	"logur.dev/logur"
 
 	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1beta1"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/httpbin"
@@ -31,7 +28,6 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/tododriver"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todogen"
-	"github.com/sagikazarmark/modern-go-application/internal/common/commonadapter"
 )
 
 const todoTopic = "todo"
@@ -41,14 +37,9 @@ func InitializeApp(
 	httpRouter *mux.Router,
 	grpcServer *grpc.Server,
 	publisher message.Publisher,
-	logger logur.LoggerFacade,
-	errorHandler emperror.ErrorHandlerFacade,
+	logger Logger,
+	errorHandler ErrorHandler,
 ) {
-	logger = logur.WithContextExtractor(logger, contextExtractor)
-	errorHandler = emperror.WithContextExtractor(errorHandler, contextExtractor)
-
-	commonLogger := commonadapter.NewContextAwareLogger(logger, contextExtractor)
-
 	endpointMiddleware := []endpoint.Middleware{
 		correlation.Middleware(),
 		appkitendpoint.LoggingMiddleware(logger),
@@ -83,7 +74,7 @@ func InitializeApp(
 			todo.NewInMemoryStore(),
 			todogen.NewEventDispatcher(eventBus),
 		)
-		service = tododriver.LoggingMiddleware(commonLogger)(service)
+		service = tododriver.LoggingMiddleware(logger)(service)
 		service = tododriver.InstrumentationMiddleware()(service)
 
 		endpoints := tododriver.TraceEndpoints(tododriver.MakeEndpoints(
@@ -112,23 +103,20 @@ func InitializeApp(
 	landingdriver.RegisterHTTPHandlers(httpRouter)
 	httpRouter.PathPrefix("/httpbin").Handler(http.StripPrefix(
 		"/httpbin",
-		httpbin.MakeHTTPHandler(commonLogger.WithFields(map[string]interface{}{"module": "httpbin"})),
+		httpbin.MakeHTTPHandler(logger.WithFields(map[string]interface{}{"module": "httpbin"})),
 	))
 }
 
 // RegisterEventHandlers registers event handlers in a message router.
-func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber, logger logur.LoggerFacade) error {
-	logger = logur.WithContextExtractor(logger, contextExtractor)
-	commonLogger := commonadapter.NewContextAwareLogger(logger, contextExtractor)
-
+func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber, logger Logger) error {
 	todoEventProcessor, _ := cqrs.NewEventProcessor(
 		[]cqrs.EventHandler{
-			todogen.NewMarkedAsDoneEventHandler(todo.NewLogEventHandler(commonLogger), "marked_as_done"),
+			todogen.NewMarkedAsDoneEventHandler(todo.NewLogEventHandler(logger), "marked_as_done"),
 		},
 		func(eventName string) string { return todoTopic },
 		func(handlerName string) (message.Subscriber, error) { return subscriber, nil },
 		cqrs.JSONMarshaler{GenerateName: cqrs.StructName},
-		watermilllog.New(logur.WithField(logger, "component", "watermill")),
+		watermilllog.New(logger.WithFields(map[string]interface{}{"component": "watermill"})),
 	)
 
 	err := todoEventProcessor.AddHandlersToRouter(router)
@@ -137,25 +125,4 @@ func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber
 	}
 
 	return nil
-}
-
-func contextExtractor(ctx context.Context) map[string]interface{} {
-	fields := make(map[string]interface{})
-
-	if correlationID, ok := correlation.FromContext(ctx); ok {
-		fields["correlation_id"] = correlationID
-	}
-
-	if operationName, ok := kitxendpoint.OperationName(ctx); ok {
-		fields["operation_name"] = operationName
-	}
-
-	if span := trace.FromContext(ctx); span != nil {
-		spanCtx := span.SpanContext()
-
-		fields["trace_id"] = spanCtx.TraceID.String()
-		fields["span_id"] = spanCtx.SpanID.String()
-	}
-
-	return fields
 }
