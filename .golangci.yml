@@ -2,6 +2,9 @@ run:
     skip-dirs:
         - .gen
 
+    skip-files:
+        - ".*_gen\\.go$"
+
 linters-settings:
     golint:
         min-confidence: 0.1
