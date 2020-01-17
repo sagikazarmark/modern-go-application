@@ -3,7 +3,6 @@ package mga
 import (
 	"net/http"
 
-	"emperror.dev/emperror"
 	"github.com/ThreeDotsLabs/watermill/components/cqrs"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/go-kit/kit/endpoint"
@@ -12,7 +11,6 @@ import (
 	"github.com/goph/idgen/ulidgen"
 	"github.com/gorilla/mux"
 	appkitendpoint "github.com/sagikazarmark/appkit/endpoint"
-	appkiterrors "github.com/sagikazarmark/appkit/errors"
 	appkithttp "github.com/sagikazarmark/appkit/transport/http"
 	"github.com/sagikazarmark/kitx/correlation"
 	kitxendpoint "github.com/sagikazarmark/kitx/endpoint"
@@ -46,10 +44,7 @@ func InitializeApp(
 		appkitendpoint.ClientErrorMiddleware,
 	}
 
-	transportErrorHandler := kitxtransport.NewErrorHandler(emperror.WithFilter(
-		errorHandler,
-		appkiterrors.IsClientError, // filter out client errors
-	))
+	transportErrorHandler := kitxtransport.NewErrorHandler(errorHandler)
 
 	httpServerOptions := []kithttp.ServerOption{
 		kithttp.ServerErrorHandler(transportErrorHandler),
