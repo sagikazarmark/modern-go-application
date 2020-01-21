@@ -2,10 +2,14 @@ package todo
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"emperror.dev/errors"
+	"github.com/go-bdd/gobdd"
+	bddcontext "github.com/go-bdd/gobdd/context"
 	"github.com/goph/idgen"
+	"github.com/goph/idgen/ulidgen"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -134,4 +138,103 @@ func TestList_StoringDoneTodoFails(t *testing.T) {
 
 	err := todoList.MarkAsDone(context.Background(), "id")
 	require.Error(t, err)
+}
+
+type FeatureContext struct {
+	Store   Store
+	Service Service
+}
+
+func TestList(t *testing.T) {
+	options := gobdd.NewSuiteOptions()
+
+	suite := gobdd.NewSuite(t, options)
+
+	suite.AddStep(`there is an empty todo list`, func(ctx bddcontext.Context) error {
+		store := NewInMemoryStore()
+		service := NewService(ulidgen.NewGenerator(), store, nil)
+
+		ctx.Set("ctx", FeatureContext{
+			Store:   store,
+			Service: service,
+		})
+
+		return nil
+	})
+
+	suite.AddStep(`I add entry "(.*)"`, func(ctx bddcontext.Context, text string) error {
+		fctx := ctx.Get("ctx").(FeatureContext)
+
+		id, err := fctx.Service.CreateTodo(context.Background(), text)
+		if err != nil {
+			var cerr interface{ ClientError() bool }
+
+			if errors.As(err, &cerr) && cerr.ClientError() {
+				ctx.Set("error", err)
+
+				return nil
+			}
+
+			return err
+		}
+
+		ctx.Set("id", id)
+
+		return nil
+	})
+
+	suite.AddStep(`I should have a todo to "(.+)"`, func(ctx bddcontext.Context, text string) error {
+		if err := ctx.Get("error", nil); err != nil {
+			return err.(error)
+		}
+
+		fctx := ctx.Get("ctx").(FeatureContext)
+
+		todo, err := fctx.Store.Get(context.Background(), ctx.GetString("id"))
+		if err != nil {
+			return err
+		}
+
+		if todo.Text != text {
+			return fmt.Errorf("cannot find %q todo entry", text)
+		}
+
+		if todo.Done {
+			return fmt.Errorf("%q should not be done", text)
+		}
+
+		return nil
+	})
+
+	suite.AddStep(`I should see a validation error for the "(.+)" field saying that "(.+)"`,
+		func(ctx bddcontext.Context, field string, violation string) error {
+			err, _ := ctx.Get("error", nil).(error)
+			if err == nil {
+				return errors.New("a validation error was expected, but received none")
+			}
+
+			var verr interface {
+				Validation() bool
+				Violations() map[string][]string
+			}
+
+			if !errors.As(err, &verr) {
+				return fmt.Errorf("a validation error was expected, the received error is not one: %w", err)
+			}
+
+			violations := verr.Violations()
+
+			fieldViolations, ok := violations[field]
+			if !ok || len(fieldViolations) == 0 {
+				return fmt.Errorf("the returned validation error does not have violations for %q field", field)
+			}
+
+			if fieldViolations[0] != violation {
+				return fmt.Errorf("the %q field does not have a(n) %q violation", field, violation)
+			}
+
+			return nil
+		})
+
+	suite.Run()
 }
