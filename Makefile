@@ -4,7 +4,6 @@ OS = $(shell uname | tr A-Z a-z)
 export PATH := $(abspath bin/):${PATH}
 
 # Project variables
-DOCKER_IMAGE = sagikazarmark/modern-go-application
 OPENAPI_DESCRIPTOR_DIR = api/openapi
 
 # Build variables
@@ -25,9 +24,6 @@ ifeq ($(filter -v,${GOARGS}),)
 endif
 TEST_FORMAT = short-verbose
 endif
-
-# Docker variables
-DOCKER_TAG ?= ${VERSION}
 
 # Dependency versions
 GOTESTSUM_VERSION = 0.4.0
@@ -122,20 +118,6 @@ bin/pkger:
 
 cmd/%/pkged.go: bin/pkger ## Embed static files
 	bin/pkger -o cmd/$*
-
-.PHONY: docker
-docker: ## Build a Docker image
-	docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
-ifeq (${DOCKER_LATEST}, 1)
-	docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
-endif
-
-.PHONY: docker-debug
-docker-debug: ## Build a Docker image with remote debugging capabilities
-	docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG}-debug --build-arg BUILD_TARGET=debug .
-ifeq (${DOCKER_LATEST}, 1)
-	docker tag ${DOCKER_IMAGE}:${DOCKER_TAG}-debug ${DOCKER_IMAGE}:latest-debug
-endif
 
 .PHONY: check
 check: test-all lint ## Run tests and linters

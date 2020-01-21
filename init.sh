@@ -104,9 +104,6 @@ move cmd/${originalBinaryName} cmd/${binaryName}
 replace "s|${originalAppName}|${appName}|; s|${originalFriendlyAppName}|${friendlyAppName}|" ${DEST}/cmd/${binaryName}/vars.go
 find ${DEST}/cmd -type f | while read file; do replace "s|${originalPackageName}|${packageName}|" "$file"; done
 
-# Makefile
-replace "s|^DOCKER_IMAGE = .*|DOCKER_IMAGE = ${packageName#'github.com/'}|" Makefile
-
 # Other project files
 declare -a files=("CHANGELOG.md" "prototool.yaml" "go.mod" ".golangci.yml" "gqlgen.yml")
 for file in "${files[@]}"; do
