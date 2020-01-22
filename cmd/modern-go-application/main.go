@@ -201,26 +201,7 @@ func main() {
 		}
 		defer server.Close()
 
-		group.Add(
-			func() error {
-				logger.Info("starting server")
-
-				return server.Serve(ln)
-			},
-			func(e error) {
-				logger.Info("shutting server down")
-
-				ctx := context.Background()
-				if config.ShutdownTimeout > 0 {
-					var cancel context.CancelFunc
-					ctx, cancel = context.WithTimeout(ctx, config.ShutdownTimeout)
-					defer cancel()
-				}
-
-				err := server.Shutdown(ctx)
-				errorHandler.Handle(errors.WithDetails(err, "server", name))
-			},
-		)
+		group.Add(appkitrun.LogServe(logger)(appkitrun.HTTPServe(server, ln, config.ShutdownTimeout)))
 	}
 
 	// Register SQL stat views
@@ -342,38 +323,8 @@ func main() {
 		grpcLn, err := upg.Fds.Listen("tcp", config.App.GrpcAddr)
 		emperror.Panic(err)
 
-		group.Add(
-			func() error {
-				logger.Info("starting server")
-
-				return httpServer.Serve(httpLn)
-			},
-			func(e error) {
-				logger.Info("shutting server down")
-
-				ctx := context.Background()
-				if config.ShutdownTimeout > 0 {
-					var cancel context.CancelFunc
-					ctx, cancel = context.WithTimeout(ctx, config.ShutdownTimeout)
-					defer cancel()
-				}
-
-				err := httpServer.Shutdown(ctx)
-				errorHandler.Handle(errors.WithDetails(err, "server", name))
-			},
-		)
-
-		group.Add(
-			func() error {
-				logger.Info("starting server")
-
-				return grpcServer.Serve(grpcLn)
-			}, func(error) {
-				logger.Info("shutting server down")
-
-				grpcServer.GracefulStop()
-			},
-		)
+		group.Add(appkitrun.LogServe(logger)(appkitrun.HTTPServe(httpServer, httpLn, config.ShutdownTimeout)))
+		group.Add(appkitrun.LogServe(logger)(appkitrun.GRPCServe(grpcServer, grpcLn)))
 	}
 
 	// Setup signal handler
