@@ -24,7 +24,7 @@ require (
 	github.com/oklog/run v1.1.0
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/sagikazarmark/appkit v0.5.0
-	github.com/sagikazarmark/kitx v0.10.0
+	github.com/sagikazarmark/kitx v0.11.0
 	github.com/sagikazarmark/ocmux v0.2.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cobra v0.0.5

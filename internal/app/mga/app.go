@@ -41,7 +41,6 @@ func InitializeApp(
 	endpointMiddleware := []endpoint.Middleware{
 		correlation.Middleware(),
 		appkitendpoint.LoggingMiddleware(logger),
-		appkitendpoint.ClientErrorMiddleware,
 	}
 
 	transportErrorHandler := kitxtransport.NewErrorHandler(errorHandler)
@@ -88,7 +87,6 @@ func InitializeApp(
 			tododriver.MakeGRPCServer(
 				endpoints,
 				kitxgrpc.ServerOptions(grpcServerOptions),
-				kitgrpc.ServerErrorHandler(kitxtransport.NewErrorHandler(errorHandler)),
 			),
 		)
 

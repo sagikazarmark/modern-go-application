@@ -13,13 +13,15 @@ type Todo struct {
 	Done bool
 }
 
+// +kit:endpoint:withOpenCensus=true,errorStrategy=service
+
 // Service manages a list of todos.
 type Service interface {
 	// CreateTodo adds a new todo to the todo list.
-	CreateTodo(ctx context.Context, text string) (string, error)
+	CreateTodo(ctx context.Context, text string) (id string, err error)
 
 	// ListTodos returns the list of todos.
-	ListTodos(ctx context.Context) ([]Todo, error)
+	ListTodos(ctx context.Context) (todos []Todo, err error)
 
 	// MarkAsDone marks a todo as done.
 	MarkAsDone(ctx context.Context, id string) error
@@ -70,21 +72,21 @@ func (NotFoundError) NotFound() bool {
 	return true
 }
 
-// ClientError tells the transport layer whether this error should be translated into the transport format
+// ServiceError tells the transport layer whether this error should be translated into the transport format
 // or an internal error should be returned instead.
-func (NotFoundError) ClientError() bool {
+func (NotFoundError) ServiceError() bool {
 	return true
 }
 
-//go:generate mga gen kit endpoint --outdir tododriver --with-oc Service
-//go:generate mga gen ev dispatcher Events
-//go:generate mga gen ev handler MarkedAsDone
+// +mga:event:dispatcher
 
 // Events dispatches todo events.
 type Events interface {
 	// MarkedAsDone dispatches a MarkedAsDone event.
 	MarkedAsDone(ctx context.Context, event MarkedAsDone) error
 }
+
+// +mga:event:handler
 
 // MarkedAsDone event is triggered when a todo gets marked as done.
 type MarkedAsDone struct {
@@ -118,9 +120,9 @@ func (validationError) Validation() bool {
 	return true
 }
 
-// ClientError tells the transport layer whether this error should be translated into the transport format
+// ServiceError tells the transport layer whether this error should be translated into the transport format
 // or an internal error should be returned instead.
-func (validationError) ClientError() bool {
+func (validationError) ServiceError() bool {
 	return true
 }
 

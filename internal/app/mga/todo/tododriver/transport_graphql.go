@@ -41,7 +41,7 @@ func (r *resolver) Query() graphql.QueryResolver {
 type mutationResolver struct{ *resolver }
 
 func (r *mutationResolver) CreateTodo(ctx context.Context, input graphql.NewTodo) (string, error) {
-	req := createTodoRequest{
+	req := CreateTodoRequest{
 		Text: input.Text,
 	}
 
@@ -56,12 +56,12 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input graphql.NewTodo
 		return "", f.Failed()
 	}
 
-	return resp.(createTodoResponse).ID, nil
+	return resp.(CreateTodoResponse).Id, nil
 }
 
 func (r *mutationResolver) MarkTodoAsDone(ctx context.Context, input string) (bool, error) {
-	req := markAsDoneRequest{
-		ID: input,
+	req := MarkAsDoneRequest{
+		Id: input,
 	}
 
 	resp, err := r.endpoints.MarkAsDone(ctx, req)
@@ -88,9 +88,9 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*todo.Todo, error) {
 		return nil, errors.New("internal server error")
 	}
 
-	todos := make([]*todo.Todo, len(resp.(listTodosResponse).Todos))
+	todos := make([]*todo.Todo, len(resp.(ListTodosResponse).Todos))
 
-	for i, todo := range resp.(listTodosResponse).Todos {
+	for i, todo := range resp.(ListTodosResponse).Todos {
 		todo := todo
 		todos[i] = &todo
 	}

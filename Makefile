@@ -3,9 +3,6 @@
 OS = $(shell uname | tr A-Z a-z)
 export PATH := $(abspath bin/):${PATH}
 
-# Project variables
-OPENAPI_DESCRIPTOR_DIR = api/openapi
-
 # Build variables
 BUILD_DIR ?= build
 VERSION ?= $(shell git describe --tags --exact-match 2>/dev/null || git symbolic-ref -q --short HEAD)
@@ -25,13 +22,17 @@ endif
 TEST_FORMAT = short-verbose
 endif
 
+# Project variables
+OPENAPI_DESCRIPTOR_DIR = api/openapi
+
 # Dependency versions
 GOTESTSUM_VERSION = 0.4.0
 GOLANGCI_VERSION = 1.21.0
 OPENAPI_GENERATOR_VERSION = 4.1.1
 PROTOTOOL_VERSION = 1.8.0
 GQLGEN_VERSION = 0.10.2
-MGA_VERSION = 0.0.13
+MGA_VERSION = 0.1.2
+PROTOC_GEN_KIT_VERSION = 0.0.1
 
 GOLANG_VERSION = 1.13
 
@@ -171,6 +172,9 @@ bin/mga-${MGA_VERSION}:
 .PHONY: generate
 generate: bin/mga ## Generate code
 	go generate -x ./...
+	bin/mga generate kit endpoint ./internal/app/mga/todo/...
+	bin/mga generate event handler --output subpkg:suffix=gen ./internal/app/mga/todo/...
+	bin/mga generate event dispatcher --output subpkg:suffix=gen ./internal/app/mga/todo/...
 
 .PHONY: validate-openapi
 validate-openapi: ## Validate the OpenAPI descriptor
@@ -194,6 +198,12 @@ bin/protoc-gen-go:
 	@mkdir -p bin
 	go build -o bin/protoc-gen-go github.com/golang/protobuf/protoc-gen-go
 
+bin/protoc-gen-kit: bin/protoc-gen-kit-${PROTOC_GEN_KIT_VERSION}
+	@ln -sf protoc-gen-kit-${PROTOC_GEN_KIT_VERSION} bin/protoc-gen-kit
+bin/protoc-gen-kit-${PROTOC_GEN_KIT_VERSION}:
+	@mkdir -p bin
+	curl -L https://github.com/sagikazarmark/protoc-gen-kit/releases/download/v${PROTOC_GEN_KIT_VERSION}/protoc-gen-kit_${OS}_amd64.tar.gz | tar -zOxf - protoc-gen-kit > ./bin/protoc-gen-kit-${PROTOC_GEN_KIT_VERSION} && chmod +x ./bin/protoc-gen-kit-${PROTOC_GEN_KIT_VERSION}
+
 bin/prototool: bin/prototool-${PROTOTOOL_VERSION}
 	@ln -sf prototool-${PROTOTOOL_VERSION} bin/prototool
 bin/prototool-${PROTOTOOL_VERSION}:
@@ -201,13 +211,13 @@ bin/prototool-${PROTOTOOL_VERSION}:
 	curl -L https://github.com/uber/prototool/releases/download/v${PROTOTOOL_VERSION}/prototool-${OS}-x86_64 > ./bin/prototool-${PROTOTOOL_VERSION} && chmod +x ./bin/prototool-${PROTOTOOL_VERSION}
 
 .PHONY: validate-proto
-validate-proto: bin/prototool bin/protoc-gen-go ## Validate protobuf definition
+validate-proto: bin/prototool bin/protoc-gen-go bin/protoc-gen-kit ## Validate protobuf definition
 	bin/prototool $(if ${VERBOSE},--debug ,)compile
 	bin/prototool $(if ${VERBOSE},--debug ,)lint
 	bin/prototool $(if ${VERBOSE},--debug ,)break check
 
 .PHONY: proto
-proto: bin/prototool bin/protoc-gen-go ## Generate client and server stubs from the protobuf definition
+proto: bin/prototool bin/protoc-gen-go bin/protoc-gen-kit ## Generate client and server stubs from the protobuf definition
 	bin/prototool $(if ${VERBOSE},--debug ,)all
 
 bin/gqlgen:

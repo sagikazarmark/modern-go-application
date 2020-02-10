@@ -10,6 +10,8 @@ import (
 	"github.com/gorilla/mux"
 	appkithttp "github.com/sagikazarmark/appkit/transport/http"
 	kitxhttp "github.com/sagikazarmark/kitx/transport/http"
+
+	api "github.com/sagikazarmark/modern-go-application/.gen/api/openapi/todo/go"
 )
 
 // RegisterHTTPHandlers mounts all of the service endpoints into a router.
@@ -26,7 +28,7 @@ func RegisterHTTPHandlers(endpoints Endpoints, router *mux.Router, options ...ki
 	router.Methods(http.MethodGet).Path("").Handler(kithttp.NewServer(
 		endpoints.ListTodos,
 		kithttp.NopRequestDecoder,
-		kitxhttp.JSONResponseEncoder,
+		kitxhttp.ErrorResponseEncoder(encodeListTodosHTTPResponse, errorEncoder),
 		options...,
 	))
 
@@ -39,18 +41,42 @@ func RegisterHTTPHandlers(endpoints Endpoints, router *mux.Router, options ...ki
 }
 
 func decodeCreateTodoHTTPRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var req createTodoRequest
+	var apiRequest api.CreateTodoRequest
 
-	err := json.NewDecoder(r.Body).Decode(&req)
+	err := json.NewDecoder(r.Body).Decode(&apiRequest)
 	if err != nil {
-		return req, errors.Wrap(err, "failed to decode request")
+		return nil, errors.Wrap(err, "failed to decode request")
 	}
 
-	return req, nil
+	return CreateTodoRequest{
+		Text: apiRequest.Text,
+	}, nil
 }
 
 func encodeCreateTodoHTTPResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	return kitxhttp.JSONResponseEncoder(ctx, w, kitxhttp.WithStatusCode(response, http.StatusCreated))
+	resp := response.(CreateTodoResponse)
+
+	apiResponse := api.CreateTodoResponse{
+		Id: resp.Id,
+	}
+
+	return kitxhttp.JSONResponseEncoder(ctx, w, kitxhttp.WithStatusCode(apiResponse, http.StatusCreated))
+}
+
+func encodeListTodosHTTPResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+	resp := response.(ListTodosResponse)
+
+	apiResponse := api.TodoList{}
+
+	for _, todo := range resp.Todos {
+		apiResponse.Todos = append(apiResponse.Todos, api.Todo{
+			Id:   todo.ID,
+			Text: todo.Text,
+			Done: todo.Done,
+		})
+	}
+
+	return kitxhttp.JSONResponseEncoder(ctx, w, apiResponse)
 }
 
 func decodeMarkAsDoneHTTPRequest(_ context.Context, r *http.Request) (interface{}, error) {
@@ -61,7 +87,7 @@ func decodeMarkAsDoneHTTPRequest(_ context.Context, r *http.Request) (interface{
 		return nil, errors.NewWithDetails("missing parameter from the URL", "param", "id")
 	}
 
-	return markAsDoneRequest{
-		ID: id,
+	return MarkAsDoneRequest{
+		Id: id,
 	}, nil
 }
