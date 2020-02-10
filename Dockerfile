@@ -1,5 +1,5 @@
 # Build image
-FROM golang:1.13.0-alpine AS builder
+FROM golang:1.13-alpine AS builder
 
 ENV GOFLAGS="-mod=readonly"
 
@@ -29,7 +29,7 @@ RUN set -xe && \
 
 
 # Final image
-FROM alpine:3.10.1
+FROM alpine:3.11
 
 RUN apk add --update --no-cache ca-certificates tzdata bash curl
 
