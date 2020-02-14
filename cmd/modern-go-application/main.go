@@ -299,7 +299,7 @@ func main() {
 			logger := commonadapter.NewContextAwareLogger(logger, appkit.ContextExtractor)
 			errorHandler := emperror.WithFilter(
 				emperror.WithContextExtractor(errorHandler, appkit.ContextExtractor),
-				appkiterrors.IsClientError, // filter out client errors
+				appkiterrors.IsServiceError, // filter out service errors
 			)
 
 			mga.InitializeApp(httpRouter, grpcServer, publisher, logger, errorHandler)

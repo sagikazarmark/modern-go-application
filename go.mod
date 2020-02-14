@@ -23,7 +23,7 @@ require (
 	github.com/mccutchen/go-httpbin v0.0.0-20190116014521-c5cb2f4802fa
 	github.com/oklog/run v1.1.0
 	github.com/olekukonko/tablewriter v0.0.4
-	github.com/sagikazarmark/appkit v0.5.0
+	github.com/sagikazarmark/appkit v0.6.0
 	github.com/sagikazarmark/kitx v0.11.0
 	github.com/sagikazarmark/ocmux v0.2.0
 	github.com/sirupsen/logrus v1.4.2
