@@ -1,10 +1,13 @@
 package mga
 
 import (
+	"context"
+	"database/sql"
 	"net/http"
 
 	"github.com/ThreeDotsLabs/watermill/components/cqrs"
 	"github.com/ThreeDotsLabs/watermill/message"
+	entsql "github.com/facebookincubator/ent/dialect/sql"
 	"github.com/go-kit/kit/endpoint"
 	kitgrpc "github.com/go-kit/kit/transport/grpc"
 	kithttp "github.com/go-kit/kit/transport/http"
@@ -24,6 +27,9 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/httpbin"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/landing/landingdriver"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
+	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter"
+	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent"
+	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/migrate"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/tododriver"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todogen"
 )
@@ -35,6 +41,8 @@ func InitializeApp(
 	httpRouter *mux.Router,
 	grpcServer *grpc.Server,
 	publisher message.Publisher,
+	storage string,
+	db *sql.DB,
 	logger Logger,
 	errorHandler ErrorHandler,
 ) {
@@ -63,9 +71,24 @@ func InitializeApp(
 			cqrs.JSONMarshaler{GenerateName: cqrs.StructName},
 		)
 
+		var store todo.Store = todo.NewInMemoryStore()
+		if storage == "database" {
+			client := ent.NewClient(ent.Driver(entsql.OpenDB("mysql", db)))
+			err := client.Schema.Create(
+				context.Background(),
+				migrate.WithDropIndex(true),
+				migrate.WithDropColumn(true),
+			)
+			if err != nil {
+				panic(err)
+			}
+
+			store = todoadapter.NewEntStore(client)
+		}
+
 		service := todo.NewService(
 			ulidgen.NewGenerator(),
-			todo.NewInMemoryStore(),
+			store,
 			todogen.NewEventDispatcher(eventBus),
 		)
 		service = tododriver.LoggingMiddleware(logger)(service)

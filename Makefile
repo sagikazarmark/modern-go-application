@@ -120,6 +120,10 @@ bin/pkger:
 cmd/%/pkged.go: bin/pkger ## Embed static files
 	bin/pkger -o cmd/$*
 
+bin/entc:
+	@mkdir -p bin
+	go build -o bin/entc github.com/facebookincubator/ent/cmd/entc
+
 .PHONY: check
 check: test-all lint ## Run tests and linters
 
@@ -170,11 +174,12 @@ bin/mga-${MGA_VERSION}:
 	@mv bin/mga $@
 
 .PHONY: generate
-generate: bin/mga ## Generate code
+generate: bin/mga bin/entc ## Generate code
 	go generate -x ./...
-	bin/mga generate kit endpoint ./internal/app/mga/todo/...
-	bin/mga generate event handler --output subpkg:suffix=gen ./internal/app/mga/todo/...
-	bin/mga generate event dispatcher --output subpkg:suffix=gen ./internal/app/mga/todo/...
+	mga generate kit endpoint ./internal/app/mga/todo/...
+	mga generate event handler --output subpkg:suffix=gen ./internal/app/mga/todo/...
+	mga generate event dispatcher --output subpkg:suffix=gen ./internal/app/mga/todo/...
+	entc generate ./internal/app/mga/todo/todoadapter/ent/schema
 
 .PHONY: validate-openapi
 validate-openapi: ## Validate the OpenAPI descriptor

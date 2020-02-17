@@ -14,6 +14,7 @@ require (
 	github.com/AppsFlyer/go-sundheit v0.1.1
 	github.com/ThreeDotsLabs/watermill v1.1.0
 	github.com/cloudflare/tableflip v1.0.0
+	github.com/facebookincubator/ent v0.1.2
 	github.com/go-kit/kit v0.9.0
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/golang/protobuf v1.3.2
@@ -33,6 +34,7 @@ require (
 	github.com/stretchr/testify v1.4.0
 	github.com/vektah/gqlparser v1.2.1
 	go.opencensus.io v0.22.2
+	golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7
 	google.golang.org/genproto v0.0.0-20200115191322-ca5a22157cba
 	google.golang.org/grpc v1.26.0
 	logur.dev/adapter/logrus v0.4.1

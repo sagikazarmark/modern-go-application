@@ -302,7 +302,7 @@ func main() {
 				appkiterrors.IsServiceError, // filter out service errors
 			)
 
-			mga.InitializeApp(httpRouter, grpcServer, publisher, logger, errorHandler)
+			mga.InitializeApp(httpRouter, grpcServer, publisher, config.App.Storage, db, logger, errorHandler)
 
 			h, err := watermill.NewRouter(config.Watermill.RouterConfig, logger)
 			emperror.Panic(err)
