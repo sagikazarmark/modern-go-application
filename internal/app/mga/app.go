@@ -49,8 +49,8 @@ func InitializeApp(
 ) {
 	endpointMiddleware := []endpoint.Middleware{
 		correlation.Middleware(),
-		opencensus.TraceEndpoint("", opencensus.WithSpanName(func(ctx context.Context, name string) string {
-			name, _ = kitxendpoint.OperationName(ctx)
+		opencensus.TraceEndpoint("", opencensus.WithSpanName(func(ctx context.Context, _ string) string {
+			name, _ := kitxendpoint.OperationName(ctx)
 
 			return name
 		})),
