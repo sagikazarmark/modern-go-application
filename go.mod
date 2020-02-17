@@ -15,7 +15,7 @@ require (
 	github.com/ThreeDotsLabs/watermill v1.1.0
 	github.com/cloudflare/tableflip v1.0.0
 	github.com/facebookincubator/ent v0.1.2
-	github.com/go-kit/kit v0.9.0
+	github.com/go-kit/kit v0.10.0
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/golang/protobuf v1.3.2
 	github.com/goph/idgen v0.4.0
@@ -24,8 +24,8 @@ require (
 	github.com/mccutchen/go-httpbin v0.0.0-20190116014521-c5cb2f4802fa
 	github.com/oklog/run v1.1.0
 	github.com/olekukonko/tablewriter v0.0.4
-	github.com/sagikazarmark/appkit v0.6.0
-	github.com/sagikazarmark/kitx v0.11.0
+	github.com/sagikazarmark/appkit v0.7.0
+	github.com/sagikazarmark/kitx v0.12.0
 	github.com/sagikazarmark/ocmux v0.2.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cobra v0.0.5
@@ -33,10 +33,10 @@ require (
 	github.com/spf13/viper v1.6.1
 	github.com/stretchr/testify v1.4.0
 	github.com/vektah/gqlparser v1.2.1
-	go.opencensus.io v0.22.2
-	golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7
+	go.opencensus.io v0.22.3
+	golang.org/x/xerrors v0.0.0-20191011141410-1b5146add898
 	google.golang.org/genproto v0.0.0-20200115191322-ca5a22157cba
-	google.golang.org/grpc v1.26.0
+	google.golang.org/grpc v1.27.1
 	logur.dev/adapter/logrus v0.4.1
 	logur.dev/integration/watermill v0.4.0
 	logur.dev/logur v0.16.2
