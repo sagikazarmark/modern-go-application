@@ -58,6 +58,9 @@ type configuration struct {
 
 		// GRPC server address
 		GrpcAddr string
+
+		// Storage is the storage backend of the application
+		Storage string
 	}
 
 	// Database connection information
@@ -93,6 +96,10 @@ func (c configuration) Validate() error {
 
 	if c.App.GrpcAddr == "" {
 		return errors.New("grpc app server address is required")
+	}
+
+	if c.App.Storage != "inmemory" && c.App.Storage != "database" {
+		return errors.New("app storage must be inmemory or database")
 	}
 
 	if err := c.Database.Validate(); err != nil {
@@ -166,6 +173,8 @@ func configure(v *viper.Viper, p *pflag.FlagSet) {
 	p.String("grpc-addr", ":8001", "App GRPC server address")
 	_ = v.BindPFlag("app.grpcAddr", p.Lookup("grpc-addr"))
 	v.SetDefault("app.grpcAddr", ":8001")
+
+	v.SetDefault("app.storage", "inmemory")
 
 	// Database configuration
 	_ = v.BindEnv("database.host")

@@ -26,6 +26,8 @@ enabled = false
 httpAddr = ":8000"
 grpcAddr = ":8001"
 
+storage = "inmemory"
+
 [database]
 host = "localhost"
 port = 3306
