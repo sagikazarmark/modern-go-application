@@ -281,6 +281,7 @@ func main() {
 					Sampler:  trace.AlwaysSample(),
 					SpanKind: trace.SpanKindServer,
 				},
+				IsPublicEndpoint: true,
 			},
 			ErrorLog: log.NewErrorStandardLogger(logger),
 		}
@@ -291,6 +292,7 @@ func main() {
 				Sampler:  trace.AlwaysSample(),
 				SpanKind: trace.SpanKindServer,
 			},
+			IsPublicEndpoint: true,
 		}))
 		defer grpcServer.Stop()
 

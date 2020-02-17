@@ -41,7 +41,7 @@ func Configure(rootCmd *cobra.Command) {
 		}
 
 		// Configure OpenCensus exporter
-		exporter, err := ocagent.NewExporter(ocagent.WithServiceName("todocli"))
+		exporter, err := ocagent.NewExporter(ocagent.WithServiceName("todocli"), ocagent.WithInsecure())
 		if err != nil {
 			return errors.WrapIf(err, "failed to create exporter")
 		}

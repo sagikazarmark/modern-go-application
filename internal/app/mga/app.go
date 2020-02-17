@@ -9,6 +9,7 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message"
 	entsql "github.com/facebookincubator/ent/dialect/sql"
 	"github.com/go-kit/kit/endpoint"
+	"github.com/go-kit/kit/tracing/opencensus"
 	kitgrpc "github.com/go-kit/kit/transport/grpc"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/goph/idgen/ulidgen"
@@ -48,6 +49,11 @@ func InitializeApp(
 ) {
 	endpointMiddleware := []endpoint.Middleware{
 		correlation.Middleware(),
+		opencensus.TraceEndpoint("", opencensus.WithSpanName(func(ctx context.Context, name string) string {
+			name, _ = kitxendpoint.OperationName(ctx)
+
+			return name
+		})),
 		appkitendpoint.LoggingMiddleware(logger),
 	}
 
@@ -94,10 +100,10 @@ func InitializeApp(
 		service = tododriver.LoggingMiddleware(logger)(service)
 		service = tododriver.InstrumentationMiddleware()(service)
 
-		endpoints := tododriver.TraceEndpoints(tododriver.MakeEndpoints(
+		endpoints := tododriver.MakeEndpoints(
 			service,
 			kitxendpoint.Combine(endpointMiddleware...),
-		))
+		)
 
 		tododriver.RegisterHTTPHandlers(
 			endpoints,

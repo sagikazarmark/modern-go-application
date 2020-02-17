@@ -8,7 +8,6 @@ import (
 	"context"
 	"errors"
 	"github.com/go-kit/kit/endpoint"
-	kitoc "github.com/go-kit/kit/tracing/opencensus"
 	kitxendpoint "github.com/sagikazarmark/kitx/endpoint"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
 )
@@ -41,15 +40,6 @@ func MakeEndpoints(service todo.Service, middleware ...endpoint.Middleware) Endp
 		CreateTodo: kitxendpoint.OperationNameMiddleware("todo.CreateTodo")(mw(MakeCreateTodoEndpoint(service))),
 		ListTodos:  kitxendpoint.OperationNameMiddleware("todo.ListTodos")(mw(MakeListTodosEndpoint(service))),
 		MarkAsDone: kitxendpoint.OperationNameMiddleware("todo.MarkAsDone")(mw(MakeMarkAsDoneEndpoint(service))),
-	}
-}
-
-// TraceEndpoints returns a(n) Endpoints struct where each endpoint is wrapped with a tracing middleware.
-func TraceEndpoints(endpoints Endpoints) Endpoints {
-	return Endpoints{
-		CreateTodo: kitoc.TraceEndpoint("todo.CreateTodo")(endpoints.CreateTodo),
-		ListTodos:  kitoc.TraceEndpoint("todo.ListTodos")(endpoints.ListTodos),
-		MarkAsDone: kitoc.TraceEndpoint("todo.MarkAsDone")(endpoints.MarkAsDone),
 	}
 }
 

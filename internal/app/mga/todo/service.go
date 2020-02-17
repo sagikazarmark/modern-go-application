@@ -13,7 +13,7 @@ type Todo struct {
 	Done bool
 }
 
-// +kit:endpoint:withOpenCensus=true,errorStrategy=service
+// +kit:endpoint:errorStrategy=service
 
 // Service manages a list of todos.
 type Service interface {
