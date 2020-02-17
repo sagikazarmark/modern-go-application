@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"net/http"
 	"os"
@@ -209,10 +210,13 @@ func main() {
 
 	// Connect to the database
 	logger.Info("connecting to database")
-	db, err := database.NewConnection(config.Database)
+	dbConnector, err := database.NewConnector(config.Database)
 	emperror.Panic(err)
-	defer db.Close()
+
 	database.SetLogger(logger)
+
+	db := sql.OpenDB(dbConnector)
+	defer db.Close()
 
 	// Record DB stats every 5 seconds until we exit
 	defer ocsql.RecordStats(db, 5*time.Second)()

@@ -1,17 +1,32 @@
 package database
 
 import (
-	"database/sql"
+	"database/sql/driver"
 
 	"contrib.go.opencensus.io/integrations/ocsql"
 	"emperror.dev/errors"
-	_ "github.com/go-sql-driver/mysql" // Importing mysql driver here
+	"github.com/go-sql-driver/mysql"
 )
 
-// NewConnection returns a new database connection for the application.
-func NewConnection(config Config) (*sql.DB, error) {
-	driverName, err := ocsql.Register(
-		"mysql",
+// NewConnector returns a new database connector for the application.
+func NewConnector(config Config) (driver.Connector, error) {
+	// Set some mandatory parameters
+	config.Params["parseTime"] = "true"
+	config.Params["rejectReadOnly"] = "true"
+
+	// TODO: fill in the config instead of playing with DSN
+	conf, err := mysql.ParseDSN(config.DSN())
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	connector, err := mysql.NewConnector(conf)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return ocsql.WrapConnector(
+		connector,
 		ocsql.WithOptions(ocsql.TraceOptions{
 			AllowRoot:    false,
 			Ping:         true,
@@ -22,16 +37,5 @@ func NewConnection(config Config) (*sql.DB, error) {
 			Query:        true,
 			QueryParams:  false,
 		}),
-	)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to register ocsql driver")
-	}
-
-	// Set some mandatory parameters
-	config.Params["parseTime"] = "true"
-	config.Params["rejectReadOnly"] = "true"
-
-	db, err := sql.Open(driverName, config.DSN())
-
-	return db, errors.WithStack(err)
+	), nil
 }
