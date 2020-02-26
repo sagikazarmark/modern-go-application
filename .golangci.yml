@@ -17,9 +17,10 @@ linters:
         - funlen
         - maligned
         - wsl
+        - gomnd
 
         # Drives todos nuts
         - godox
 
 service:
-    golangci-lint-version: 1.21.x
+    golangci-lint-version: 1.23.x

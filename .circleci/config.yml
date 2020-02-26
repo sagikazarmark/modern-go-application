@@ -9,7 +9,7 @@ executors:
                 description: Go build image
             go_version:
                 type: string
-                default: "1.13"
+                default: "1.14"
                 description: Go build image version
         docker:
             -   image: << parameters.build_image >>:<< parameters.go_version >>
