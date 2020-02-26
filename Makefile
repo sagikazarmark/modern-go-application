@@ -29,10 +29,11 @@ OPENAPI_DESCRIPTOR_DIR = api/openapi
 GOTESTSUM_VERSION = 0.4.0
 GOLANGCI_VERSION = 1.23.6
 OPENAPI_GENERATOR_VERSION = 4.1.1
-PROTOTOOL_VERSION = 1.8.0
+PROTOC_VERSION = 3.11.4
+BUF_VERSION = 0.7.0
+PROTOC_GEN_KIT_VERSION = 0.0.2
 GQLGEN_VERSION = 0.10.2
 MGA_VERSION = 0.1.2
-PROTOC_GEN_KIT_VERSION = 0.0.1
 
 GOLANG_VERSION = 1.14
 
@@ -199,6 +200,20 @@ openapi: ## Generate client and server stubs from the OpenAPI definition
 	-o /local/.gen/${OPENAPI_DESCRIPTOR_DIR}/$$api; \
 	done
 
+bin/protoc: bin/protoc-${PROTOC_VERSION}
+	@ln -sf protoc-${PROTOC_VERSION} bin/protoc
+bin/protoc-${PROTOC_VERSION}:
+	@mkdir -p bin
+ifeq (${OS}, darwin)
+	curl -L https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-osx-x86_64.zip > bin/protoc.zip
+endif
+ifeq (${OS}, linux)
+	curl -L https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-x86_64.zip > bin/protoc.zip
+endif
+	unzip -p bin/protoc.zip bin/protoc > bin/protoc-${PROTOC_VERSION}
+	chmod +x bin/protoc-${PROTOC_VERSION}
+	rm bin/protoc.zip
+
 bin/protoc-gen-go:
 	@mkdir -p bin
 	go build -o bin/protoc-gen-go github.com/golang/protobuf/protoc-gen-go
@@ -209,21 +224,22 @@ bin/protoc-gen-kit-${PROTOC_GEN_KIT_VERSION}:
 	@mkdir -p bin
 	curl -L https://github.com/sagikazarmark/protoc-gen-kit/releases/download/v${PROTOC_GEN_KIT_VERSION}/protoc-gen-kit_${OS}_amd64.tar.gz | tar -zOxf - protoc-gen-kit > ./bin/protoc-gen-kit-${PROTOC_GEN_KIT_VERSION} && chmod +x ./bin/protoc-gen-kit-${PROTOC_GEN_KIT_VERSION}
 
-bin/prototool: bin/prototool-${PROTOTOOL_VERSION}
-	@ln -sf prototool-${PROTOTOOL_VERSION} bin/prototool
-bin/prototool-${PROTOTOOL_VERSION}:
+bin/buf: bin/buf-${BUF_VERSION}
+	@ln -sf buf-${BUF_VERSION} bin/buf
+bin/buf-${BUF_VERSION}:
 	@mkdir -p bin
-	curl -L https://github.com/uber/prototool/releases/download/v${PROTOTOOL_VERSION}/prototool-${OS}-x86_64 > ./bin/prototool-${PROTOTOOL_VERSION} && chmod +x ./bin/prototool-${PROTOTOOL_VERSION}
+	curl -L https://github.com/bufbuild/buf/releases/download/v${BUF_VERSION}/buf-${OS}-x86_64 -o ./bin/buf-${BUF_VERSION} && chmod +x ./bin/buf-${BUF_VERSION}
 
-.PHONY: validate-proto
-validate-proto: bin/prototool bin/protoc-gen-go bin/protoc-gen-kit ## Validate protobuf definition
-	bin/prototool $(if ${VERBOSE},--debug ,)compile
-	bin/prototool $(if ${VERBOSE},--debug ,)lint
-	bin/prototool $(if ${VERBOSE},--debug ,)break check
+.PHONY: buf
+buf: bin/buf ## Generate client and server stubs from the protobuf definition
+	bin/buf image build -o /dev/null
+	bin/buf check lint
 
 .PHONY: proto
-proto: bin/prototool bin/protoc-gen-go bin/protoc-gen-kit ## Generate client and server stubs from the protobuf definition
-	bin/prototool $(if ${VERBOSE},--debug ,)all
+proto: bin/protoc bin/protoc-gen-go bin/protoc-gen-kit ## Generate client and server stubs from the protobuf definition
+	mkdir -p .gen/proto
+
+	protoc -I api/proto --go_out=plugins=grpc,import_path=$(shell go list .):.gen/api/proto --kit_out=.gen/api/proto $(shell find api/proto -name '*.proto')
 
 bin/gqlgen:
 	@mkdir -p bin

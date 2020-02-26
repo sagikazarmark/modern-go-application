@@ -1,0 +1,9 @@
+build:
+    roots:
+        - api/proto
+
+lint:
+    use:
+        - DEFAULT
+    except:
+        - SERVICE_SUFFIX
