@@ -11,13 +11,13 @@ paths:
     get:
       operationId: listTodos
       responses:
-        201:
+        "201":
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TodoList'
           description: created
-        500:
+        "500":
           content:
             application/json:
               schema:
@@ -33,19 +33,19 @@ paths:
               $ref: '#/components/schemas/CreateTodoRequest'
         required: true
       responses:
-        200:
+        "200":
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateTodoResponse'
           description: successful operation
-        400:
+        "400":
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/GenericError'
           description: invalid request
-        500:
+        "500":
           content:
             application/json:
               schema:
@@ -64,19 +64,19 @@ paths:
         schema:
           type: integer
       responses:
-        200:
+        "200":
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateTodoResponse'
           description: successful operation
-        404:
+        "404":
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/GenericError'
           description: not found
-        500:
+        "500":
           content:
             application/json:
               schema:

@@ -26,14 +26,14 @@ endif
 OPENAPI_DESCRIPTOR_DIR = api/openapi
 
 # Dependency versions
-GOTESTSUM_VERSION = 0.4.0
+GOTESTSUM_VERSION = 0.4.1
 GOLANGCI_VERSION = 1.23.6
-OPENAPI_GENERATOR_VERSION = 4.1.1
+OPENAPI_GENERATOR_VERSION = 4.2.3
 PROTOC_VERSION = 3.11.4
 BUF_VERSION = 0.7.0
 PROTOC_GEN_KIT_VERSION = 0.0.2
 GQLGEN_VERSION = 0.10.2
-MGA_VERSION = 0.1.2
+MGA_VERSION = 0.2.0
 
 GOLANG_VERSION = 1.14
 
@@ -198,6 +198,7 @@ openapi: ## Generate client and server stubs from the OpenAPI definition
 	-i /local/${OPENAPI_DESCRIPTOR_DIR}/$$api/swagger.yaml \
 	-g go-server \
 	-o /local/.gen/${OPENAPI_DESCRIPTOR_DIR}/$$api; \
+	rm -rf .gen/${OPENAPI_DESCRIPTOR_DIR}/$$api/{go.*,main.go,Dockerfile,README.md,go/routers.go,go/logger.go,go/api*.go}; \
 	done
 
 bin/protoc: bin/protoc-${PROTOC_VERSION}
