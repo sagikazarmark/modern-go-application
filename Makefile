@@ -198,7 +198,7 @@ openapi: ## Generate client and server stubs from the OpenAPI definition
 	-i /local/${OPENAPI_DESCRIPTOR_DIR}/$$api/swagger.yaml \
 	-g go-server \
 	-o /local/.gen/${OPENAPI_DESCRIPTOR_DIR}/$$api; \
-	rm -rf .gen/${OPENAPI_DESCRIPTOR_DIR}/$$api/{go.*,main.go,Dockerfile,README.md,go/routers.go,go/logger.go,go/api*.go}; \
+	rm -rf .gen/${OPENAPI_DESCRIPTOR_DIR}/$$api/{Dockerfile,go.*,README.md,main.go,go/api*.go,go/logger.go,go/routers.go}; \
 	done
 
 bin/protoc: bin/protoc-${PROTOC_VERSION}
