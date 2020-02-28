@@ -202,17 +202,16 @@ openapi: ## Generate client and server stubs from the OpenAPI definition
 	done
 
 bin/protoc: bin/protoc-${PROTOC_VERSION}
-	@ln -sf protoc-${PROTOC_VERSION} bin/protoc
+	@ln -sf protoc-${PROTOC_VERSION}/bin/protoc bin/protoc
 bin/protoc-${PROTOC_VERSION}:
-	@mkdir -p bin
+	@mkdir -p bin/protoc-${PROTOC_VERSION}
 ifeq (${OS}, darwin)
 	curl -L https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-osx-x86_64.zip > bin/protoc.zip
 endif
 ifeq (${OS}, linux)
 	curl -L https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-x86_64.zip > bin/protoc.zip
 endif
-	unzip -p bin/protoc.zip bin/protoc > bin/protoc-${PROTOC_VERSION}
-	chmod +x bin/protoc-${PROTOC_VERSION}
+	unzip bin/protoc.zip -d bin/protoc-${PROTOC_VERSION}
 	rm bin/protoc.zip
 
 bin/protoc-gen-go: go.mod
@@ -240,7 +239,7 @@ buf: bin/buf ## Generate client and server stubs from the protobuf definition
 proto: bin/protoc bin/protoc-gen-go bin/protoc-gen-kit buf ## Generate client and server stubs from the protobuf definition
 	mkdir -p .gen/proto
 
-	protoc -I api/proto --go_out=plugins=grpc,import_path=$(shell go list .):.gen/api/proto --kit_out=.gen/api/proto $(shell find api/proto -name '*.proto')
+	protoc -I bin/protoc-${PROTOC_VERSION} -I api/proto --go_out=plugins=grpc,import_path=$(shell go list .):.gen/api/proto --kit_out=.gen/api/proto $(shell find api/proto -name '*.proto')
 
 bin/gqlgen: go.mod
 	@mkdir -p bin
