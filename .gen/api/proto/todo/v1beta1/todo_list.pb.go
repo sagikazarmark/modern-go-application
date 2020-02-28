@@ -251,7 +251,9 @@ func init() {
 	proto.RegisterType((*MarkAsDoneResponse)(nil), "todo.v1beta1.MarkAsDoneResponse")
 }
 
-func init() { proto.RegisterFile("todo/v1beta1/todo_list.proto", fileDescriptor_6fd164c9ed9f675e) }
+func init() {
+	proto.RegisterFile("todo/v1beta1/todo_list.proto", fileDescriptor_6fd164c9ed9f675e)
+}
 
 var fileDescriptor_6fd164c9ed9f675e = []byte{
 	// 310 bytes of a gzipped FileDescriptorProto
@@ -279,11 +281,11 @@ var fileDescriptor_6fd164c9ed9f675e = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
 // TodoListClient is the client API for TodoList service.
 //
@@ -298,10 +300,10 @@ type TodoListClient interface {
 }
 
 type todoListClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewTodoListClient(cc *grpc.ClientConn) TodoListClient {
+func NewTodoListClient(cc grpc.ClientConnInterface) TodoListClient {
 	return &todoListClient{cc}
 }
 

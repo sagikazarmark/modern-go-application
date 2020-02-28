@@ -80,7 +80,9 @@ func init() {
 	proto.RegisterType((*Todo)(nil), "todo.v1beta1.Todo")
 }
 
-func init() { proto.RegisterFile("todo/v1beta1/todo.proto", fileDescriptor_35cc472031576912) }
+func init() {
+	proto.RegisterFile("todo/v1beta1/todo.proto", fileDescriptor_35cc472031576912)
+}
 
 var fileDescriptor_35cc472031576912 = []byte{
 	// 158 bytes of a gzipped FileDescriptorProto

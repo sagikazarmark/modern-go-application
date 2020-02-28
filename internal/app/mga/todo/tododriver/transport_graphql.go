@@ -5,8 +5,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/99designs/gqlgen-contrib/gqlopencensus"
-	"github.com/99designs/gqlgen/handler"
+	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/go-kit/kit/endpoint"
 
 	"github.com/sagikazarmark/modern-go-application/.gen/api/graphql"
@@ -15,14 +14,13 @@ import (
 
 // MakeGraphQLHandler mounts all of the service endpoints into a GraphQL handler.
 func MakeGraphQLHandler(endpoints Endpoints, errorHandler todo.ErrorHandler) http.Handler {
-	return handler.GraphQL(
+	return handler.New(
 		graphql.NewExecutableSchema(graphql.Config{
 			Resolvers: &resolver{
 				endpoints:    endpoints,
 				errorHandler: errorHandler,
 			},
 		}),
-		handler.Tracer(gqlopencensus.New()),
 	)
 }
 

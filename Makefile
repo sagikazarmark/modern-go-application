@@ -215,7 +215,7 @@ endif
 	chmod +x bin/protoc-${PROTOC_VERSION}
 	rm bin/protoc.zip
 
-bin/protoc-gen-go:
+bin/protoc-gen-go: go.mod
 	@mkdir -p bin
 	go build -o bin/protoc-gen-go github.com/golang/protobuf/protoc-gen-go
 
@@ -242,7 +242,7 @@ proto: bin/protoc bin/protoc-gen-go bin/protoc-gen-kit buf ## Generate client an
 
 	protoc -I api/proto --go_out=plugins=grpc,import_path=$(shell go list .):.gen/api/proto --kit_out=.gen/api/proto $(shell find api/proto -name '*.proto')
 
-bin/gqlgen:
+bin/gqlgen: go.mod
 	@mkdir -p bin
 	go build -o bin/gqlgen github.com/99designs/gqlgen
 
