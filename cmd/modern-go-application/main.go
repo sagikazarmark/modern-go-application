@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"os/signal"
 	"syscall"
 	"time"
 
@@ -22,7 +21,6 @@ import (
 	healthhttp "github.com/AppsFlyer/go-sundheit/http"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
-	"github.com/cloudflare/tableflip"
 	"github.com/gorilla/mux"
 	"github.com/oklog/run"
 	appkiterrors "github.com/sagikazarmark/appkit/errors"
@@ -47,6 +45,7 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/gosundheit"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
+	"github.com/sagikazarmark/modern-go-application/internal/platform/reloader"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/watermill"
 )
 
@@ -171,18 +170,7 @@ func main() {
 	}
 
 	// configure graceful restart
-	upg, _ := tableflip.New(tableflip.Options{})
-
-	// Do an upgrade on SIGHUP
-	go func() {
-		ch := make(chan os.Signal, 1)
-		signal.Notify(ch, syscall.SIGHUP)
-		for range ch {
-			logger.Info("graceful reloading")
-
-			_ = upg.Upgrade()
-		}
-	}()
+	upg := reloader.Create(logger)
 
 	var group run.Group
 
@@ -193,7 +181,7 @@ func main() {
 
 		logger.Info("listening on address", map[string]interface{}{"address": config.Telemetry.Addr})
 
-		ln, err := upg.Fds.Listen("tcp", config.Telemetry.Addr)
+		ln, err := upg.Listen("tcp", config.Telemetry.Addr)
 		emperror.Panic(err)
 
 		server := &http.Server{
@@ -321,12 +309,12 @@ func main() {
 
 		logger.Info("listening on address", map[string]interface{}{"address": config.App.HttpAddr})
 
-		httpLn, err := upg.Fds.Listen("tcp", config.App.HttpAddr)
+		httpLn, err := upg.Listen("tcp", config.App.HttpAddr)
 		emperror.Panic(err)
 
 		logger.Info("listening on address", map[string]interface{}{"address": config.App.GrpcAddr})
 
-		grpcLn, err := upg.Fds.Listen("tcp", config.App.GrpcAddr)
+		grpcLn, err := upg.Listen("tcp", config.App.GrpcAddr)
 		emperror.Panic(err)
 
 		group.Add(appkitrun.LogServe(logger)(appkitrun.HTTPServe(httpServer, httpLn, config.ShutdownTimeout)))
@@ -337,7 +325,7 @@ func main() {
 	group.Add(run.SignalHandler(context.Background(), syscall.SIGINT, syscall.SIGTERM))
 
 	// Setup graceful restart
-	group.Add(appkitrun.GracefulRestart(context.Background(), upg))
+	upg.SetupGracefulRestart(group, context.Background())
 
 	err = group.Run()
 	emperror.WithFilter(errorHandler, match.As(&run.SignalError{}).MatchError).Handle(err)
