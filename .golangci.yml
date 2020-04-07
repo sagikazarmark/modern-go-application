@@ -21,6 +21,3 @@ linters:
 
         # Drives todos nuts
         - godox
-
-service:
-    golangci-lint-version: 1.23.x
