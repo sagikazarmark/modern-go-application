@@ -25,6 +25,7 @@ import (
 	"github.com/cloudflare/tableflip"
 	"github.com/gorilla/mux"
 	"github.com/oklog/run"
+	"github.com/sagikazarmark/appkit/buildinfo"
 	appkiterrors "github.com/sagikazarmark/appkit/errors"
 	appkitrun "github.com/sagikazarmark/appkit/run"
 	"github.com/sagikazarmark/kitx/correlation"
@@ -43,7 +44,6 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/tododriver"
 	"github.com/sagikazarmark/modern-go-application/internal/common/commonadapter"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/appkit"
-	"github.com/sagikazarmark/modern-go-application/internal/platform/buildinfo"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/gosundheit"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
@@ -119,7 +119,7 @@ func main() {
 	logger.Info("starting application", buildInfo.Fields())
 
 	telemetryRouter := http.NewServeMux()
-	telemetryRouter.Handle("/buildinfo", buildinfo.Handler(buildInfo))
+	telemetryRouter.Handle("/buildinfo", buildinfo.HTTPHandler(buildInfo))
 
 	// Configure health checker
 	healthChecker := health.New()

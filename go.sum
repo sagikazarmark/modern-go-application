@@ -404,6 +404,8 @@ github.com/russross/blackfriday/v2 v2.0.1/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQD
 github.com/ryanuber/columnize v0.0.0-20160712163229-9b3edd62028f/go.mod h1:sm1tb6uqfes/u+d4ooFouqFdy9/2g9QGwK3SQygK0Ts=
 github.com/sagikazarmark/appkit v0.8.0 h1:/Nv3L9SfbAa/2uM1+jWBPAnfo52Ei/ylwm/Ow1moHkA=
 github.com/sagikazarmark/appkit v0.8.0/go.mod h1:DMgRZDr0jH5eJeQ1/EyUgcWGR6i1iwLlB5NAtjJ8jAs=
+github.com/sagikazarmark/appkit v0.9.0 h1:AogtWXnzzcduHq3eo2GKeVpK7ymUE02CQRdnLYc+rq8=
+github.com/sagikazarmark/appkit v0.9.0/go.mod h1:DMgRZDr0jH5eJeQ1/EyUgcWGR6i1iwLlB5NAtjJ8jAs=
 github.com/sagikazarmark/kitx v0.12.0 h1:19phhwBe4iVOy1Kam4dqGuxFT59/Wlp0xI239PhpaiQ=
 github.com/sagikazarmark/kitx v0.12.0/go.mod h1:gH+IRgcnGQqDz2fdL8E+0fRME/GNitQ9l4L5x5jV7mg=
 github.com/sagikazarmark/ocmux v0.2.0 h1:YmxEdmIFCeM9NO99U3DBvLRq+cIy2gQJ4zDyifhOqWU=
