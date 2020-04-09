@@ -134,9 +134,6 @@ func configure(v *viper.Viper, p *pflag.FlagSet) {
 	v.AllowEmptyEnv(true)
 	v.AutomaticEnv()
 
-	// Application constants
-	v.Set("appName", appName)
-
 	// Global configuration
 	v.SetDefault("environment", "production")
 	v.SetDefault("debug", false)
