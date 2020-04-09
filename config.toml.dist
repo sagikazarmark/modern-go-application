@@ -1,4 +1,3 @@
-environment = "production"
 debug = false
 shutdownTimeout = "15s"
 

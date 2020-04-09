@@ -18,9 +18,6 @@ import (
 // configuration holds any kind of configuration that comes from the outside world and
 // is necessary for running the application.
 type configuration struct {
-	// Meaningful values are recommended (eg. production, development, staging, release/123, etc)
-	Environment string
-
 	// Turns on some debug functionality
 	Debug bool
 
@@ -81,10 +78,6 @@ func (c configuration) Process() error {
 
 // Validate validates the configuration.
 func (c configuration) Validate() error {
-	if c.Environment == "" {
-		return errors.New("environment is required")
-	}
-
 	if err := c.Telemetry.Validate(); err != nil {
 		return err
 	}

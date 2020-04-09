@@ -106,7 +106,7 @@ func main() {
 	logger := log.NewLogger(config.Log)
 
 	// Provide some basic context to all log lines
-	logger = logur.WithFields(logger, map[string]interface{}{"environment": config.Environment, "application": appName})
+	logger = logur.WithFields(logger, map[string]interface{}{"application": appName})
 
 	log.SetStandardLogger(logger)
 
