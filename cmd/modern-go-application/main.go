@@ -105,9 +105,7 @@ func main() {
 	// Create logger (first thing after configuration loading)
 	logger := log.NewLogger(config.Log)
 
-	// Provide some basic context to all log lines
-	logger = logur.WithFields(logger, map[string]interface{}{"application": appName})
-
+	// Override the global standard library logger to make sure everything uses our logger
 	log.SetStandardLogger(logger)
 
 	if configFileNotFound {
@@ -121,7 +119,7 @@ func main() {
 		os.Exit(3)
 	}
 
-	// configure error handler
+	// Configure error handler
 	errorHandler := logurhandler.New(logger)
 	defer emperror.HandleRecover(errorHandler)
 
