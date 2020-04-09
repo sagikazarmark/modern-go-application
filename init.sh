@@ -101,7 +101,7 @@ replace "s|${originalBinaryName}|${binaryName}|" .vscode/launch.json
 #   - source code
 #   - variables
 move cmd/${originalBinaryName} cmd/${binaryName}
-replace "s|${originalAppName}|${appName}|; s|${originalFriendlyAppName}|${friendlyAppName}|" ${DEST}/cmd/${binaryName}/vars.go
+replace "s|${originalAppName}|${appName}|; s|${originalFriendlyAppName}|${friendlyAppName}|" ${DEST}/cmd/${binaryName}/main.go
 find ${DEST}/cmd -type f | while read file; do replace "s|${originalPackageName}|${packageName}|" "$file"; done
 
 # Other project files

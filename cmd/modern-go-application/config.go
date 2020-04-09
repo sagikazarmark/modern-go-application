@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -128,16 +127,12 @@ func (c telemetryConfig) Validate() error {
 func configure(v *viper.Viper, p *pflag.FlagSet) {
 	// Viper settings
 	v.AddConfigPath(".")
-	v.AddConfigPath(fmt.Sprintf("$%s_CONFIG_DIR/", strings.ToUpper(envPrefix)))
+	v.AddConfigPath("$CONFIG_DIR/")
 
 	// Environment variable settings
-	v.SetEnvPrefix(envPrefix)
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 	v.AllowEmptyEnv(true)
 	v.AutomaticEnv()
-
-	// Application constants
-	v.Set("appName", appName)
 
 	// Global configuration
 	v.SetDefault("environment", "production")
