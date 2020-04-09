@@ -20,15 +20,12 @@ import (
 	health "github.com/AppsFlyer/go-sundheit"
 	"github.com/AppsFlyer/go-sundheit/checks"
 	healthhttp "github.com/AppsFlyer/go-sundheit/http"
-	"github.com/ThreeDotsLabs/watermill/message"
-	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
 	"github.com/cloudflare/tableflip"
 	"github.com/gorilla/mux"
 	"github.com/oklog/run"
 	"github.com/sagikazarmark/appkit/buildinfo"
 	appkiterrors "github.com/sagikazarmark/appkit/errors"
 	appkitrun "github.com/sagikazarmark/appkit/run"
-	"github.com/sagikazarmark/kitx/correlation"
 	"github.com/sagikazarmark/ocmux"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -236,17 +233,8 @@ func main() {
 	defer publisher.Close()
 	defer subscriber.Close()
 
-	publisher, _ = message.MessageTransformPublisherDecorator(func(msg *message.Message) {
-		if cid, ok := correlation.FromContext(msg.Context()); ok {
-			middleware.SetCorrelationID(cid, msg)
-		}
-	})(publisher)
-
-	subscriber, _ = message.MessageTransformSubscriberDecorator(func(msg *message.Message) {
-		if cid := middleware.MessageCorrelationID(msg); cid != "" {
-			msg.SetContext(correlation.ToContext(msg.Context(), cid))
-		}
-	})(subscriber)
+	publisher = watermill.PublisherCorrelationID(publisher)
+	subscriber = watermill.SubscriberCorrelationID(subscriber)
 
 	// Register stat views
 	err = view.Register(
