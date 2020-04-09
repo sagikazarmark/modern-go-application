@@ -150,8 +150,6 @@ func main() {
 
 	// Configure OpenCensus exporter
 	if config.Opencensus.Exporter.Enabled {
-		logger.Info("opencensus exporter enabled")
-
 		exporter, err := ocagent.NewExporter(append(
 			config.Opencensus.Exporter.Options(),
 			ocagent.WithServiceName(appName),
@@ -164,8 +162,6 @@ func main() {
 
 	// Configure Prometheus exporter
 	if config.Opencensus.Prometheus.Enabled {
-		logger.Info("prometheus exporter enabled")
-
 		exporter, err := prometheus.NewExporter(prometheus.Options{
 			OnError: emperror.WithDetails(
 				errorHandler,
@@ -211,7 +207,7 @@ func main() {
 		}
 		defer server.Close()
 
-		group.Add(appkitrun.LogServe(logger)(appkitrun.HTTPServe(server, ln, config.ShutdownTimeout)))
+		group.Add(appkitrun.HTTPServe(server, ln, config.ShutdownTimeout))
 	}
 
 	// Register SQL stat views
@@ -338,8 +334,8 @@ func main() {
 		grpcLn, err := upg.Fds.Listen("tcp", config.App.GrpcAddr)
 		emperror.Panic(err)
 
-		group.Add(appkitrun.LogServe(logger)(appkitrun.HTTPServe(httpServer, httpLn, config.ShutdownTimeout)))
-		group.Add(appkitrun.LogServe(logger)(appkitrun.GRPCServe(grpcServer, grpcLn)))
+		group.Add(appkitrun.HTTPServe(httpServer, httpLn, config.ShutdownTimeout))
+		group.Add(appkitrun.GRPCServe(grpcServer, grpcLn))
 	}
 
 	// Setup signal handler
