@@ -125,8 +125,6 @@ func configure(v *viper.Viper, p *pflag.FlagSet) {
 	v.AutomaticEnv()
 
 	// Global configuration
-	v.SetDefault("environment", "production")
-	v.SetDefault("debug", false)
 	v.SetDefault("shutdownTimeout", 15*time.Second)
 	if _, ok := os.LookupEnv("NO_COLOR"); ok {
 		v.SetDefault("no_color", true)
