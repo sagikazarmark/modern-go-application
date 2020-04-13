@@ -25,7 +25,10 @@ type configuration struct {
 	Log log.Config
 
 	// Telemetry configuration
-	Telemetry telemetryConfig
+	Telemetry struct {
+		// Telemetry HTTP server address
+		Addr string
+	}
 
 	// OpenCensus configuration
 	Opencensus struct {
@@ -44,17 +47,7 @@ type configuration struct {
 	}
 
 	// App configuration
-	App struct {
-		// HTTP server address
-		// nolint: golint, stylecheck
-		HttpAddr string
-
-		// GRPC server address
-		GrpcAddr string
-
-		// Storage is the storage backend of the application
-		Storage string
-	}
+	App appConfig
 
 	// Database connection information
 	Database database.Config
@@ -75,20 +68,12 @@ func (c configuration) Process() error {
 
 // Validate validates the configuration.
 func (c configuration) Validate() error {
-	if err := c.Telemetry.Validate(); err != nil {
+	if c.Telemetry.Addr == "" {
+		return errors.New("telemetry http server address is required")
+	}
+
+	if err := c.App.Validate(); err != nil {
 		return err
-	}
-
-	if c.App.HttpAddr == "" {
-		return errors.New("http app server address is required")
-	}
-
-	if c.App.GrpcAddr == "" {
-		return errors.New("grpc app server address is required")
-	}
-
-	if c.App.Storage != "inmemory" && c.App.Storage != "database" {
-		return errors.New("app storage must be inmemory or database")
 	}
 
 	if err := c.Database.Validate(); err != nil {
@@ -98,16 +83,31 @@ func (c configuration) Validate() error {
 	return nil
 }
 
-// telemetryConfig represents the telemetry related configuration.
-type telemetryConfig struct {
-	// Telemetry HTTP server address
-	Addr string
+// appConfig represents the application related configuration.
+type appConfig struct {
+	// HTTP server address
+	// nolint: golint, stylecheck
+	HttpAddr string
+
+	// GRPC server address
+	GrpcAddr string
+
+	// Storage is the storage backend of the application
+	Storage string
 }
 
 // Validate validates the configuration.
-func (c telemetryConfig) Validate() error {
-	if c.Addr == "" {
-		return errors.New("telemetry http server address is required")
+func (c appConfig) Validate() error {
+	if c.HttpAddr == "" {
+		return errors.New("http app server address is required")
+	}
+
+	if c.GrpcAddr == "" {
+		return errors.New("grpc app server address is required")
+	}
+
+	if c.Storage != "inmemory" && c.Storage != "database" {
+		return errors.New("app storage must be inmemory or database")
 	}
 
 	return nil
