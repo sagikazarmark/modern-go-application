@@ -18,9 +18,6 @@ import (
 // configuration holds any kind of configuration that comes from the outside world and
 // is necessary for running the application.
 type configuration struct {
-	// Turns on some debug functionality
-	Debug bool
-
 	// Timeout for graceful shutdown
 	ShutdownTimeout time.Duration
 
