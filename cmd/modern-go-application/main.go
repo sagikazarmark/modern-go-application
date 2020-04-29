@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"net/http/pprof"
 	"os"
 	"os/signal"
 	"syscall"
@@ -126,6 +127,13 @@ func main() {
 
 	telemetryRouter := http.NewServeMux()
 	telemetryRouter.Handle("/buildinfo", buildinfo.HTTPHandler(buildInfo))
+
+	// Register pprof endpoints
+	telemetryRouter.HandleFunc("/debug/pprof/", pprof.Index)
+	telemetryRouter.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+	telemetryRouter.HandleFunc("/debug/pprof/profile", pprof.Profile)
+	telemetryRouter.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+	telemetryRouter.HandleFunc("/debug/pprof/trace", pprof.Trace)
 
 	// Configure health checker
 	healthChecker := health.New()
