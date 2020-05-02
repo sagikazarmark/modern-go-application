@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
-	_ "net/http/pprof" // register pprof HTTP handlers
+	_ "net/http/pprof" // register pprof HTTP handlers #nosec
 	"os"
 	"os/signal"
 	"syscall"
