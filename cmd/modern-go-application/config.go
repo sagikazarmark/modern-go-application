@@ -12,15 +12,11 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/opencensus"
-	"github.com/sagikazarmark/modern-go-application/internal/platform/watermill"
 )
 
 // configuration holds any kind of configuration that comes from the outside world and
 // is necessary for running the application.
 type configuration struct {
-	// Timeout for graceful shutdown
-	ShutdownTimeout time.Duration
-
 	// Log configuration
 	Log log.Config
 
@@ -51,18 +47,10 @@ type configuration struct {
 
 	// Database connection information
 	Database database.Config
-
-	// Watermill configuration
-	Watermill struct {
-		RouterConfig watermill.RouterConfig
-	}
 }
 
 // Process post-processes configuration after loading it.
-// nolint: unparam
-func (c configuration) Process() error {
-	c.Watermill.RouterConfig.CloseTimeout = c.ShutdownTimeout
-
+func (configuration) Process() error {
 	return nil
 }
 

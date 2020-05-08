@@ -208,7 +208,10 @@ func main() {
 		}
 		defer server.Close()
 
-		group.Add(appkitrun.HTTPServe(server, ln, config.ShutdownTimeout))
+		group.Add(
+			func() error { return server.Serve(ln) },
+			func(err error) { _ = server.Shutdown(context.Background()) },
+		)
 	}
 
 	// Register SQL stat views
@@ -307,7 +310,7 @@ func main() {
 
 			mga.InitializeApp(httpRouter, grpcServer, publisher, config.App.Storage, db, logger, errorHandler)
 
-			h, err := watermill.NewRouter(config.Watermill.RouterConfig, logger)
+			h, err := watermill.NewRouter(logger)
 			emperror.Panic(err)
 
 			err = mga.RegisterEventHandlers(h, subscriber, logger)
@@ -326,8 +329,14 @@ func main() {
 		grpcLn, err := upg.Fds.Listen("tcp", config.App.GrpcAddr)
 		emperror.Panic(err)
 
-		group.Add(appkitrun.HTTPServe(httpServer, httpLn, config.ShutdownTimeout))
-		group.Add(appkitrun.GRPCServe(grpcServer, grpcLn))
+		group.Add(
+			func() error { return httpServer.Serve(httpLn) },
+			func(err error) { _ = httpServer.Shutdown(context.Background()) },
+		)
+		group.Add(
+			func() error { return grpcServer.Serve(grpcLn) },
+			func(err error) { grpcServer.GracefulStop() },
+		)
 	}
 
 	// Setup signal handler
