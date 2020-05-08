@@ -1,5 +1,3 @@
-shutdownTimeout = "15s"
-
 [log]
 format = "json"
 level = "info"

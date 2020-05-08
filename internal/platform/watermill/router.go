@@ -10,17 +10,10 @@ import (
 	"logur.dev/logur"
 )
 
-// RouterConfig holds information for configuring Watermill router.
-type RouterConfig struct {
-	CloseTimeout time.Duration
-}
-
 // NewRouter returns a new message router for message subscription logic.
-func NewRouter(config RouterConfig, logger logur.Logger) (*message.Router, error) {
+func NewRouter(logger logur.Logger) (*message.Router, error) {
 	h, err := message.NewRouter(
-		message.RouterConfig{
-			CloseTimeout: config.CloseTimeout,
-		},
+		message.RouterConfig{},
 		watermilllog.New(logur.WithField(logger, "component", "watermill")),
 	)
 	if err != nil {
