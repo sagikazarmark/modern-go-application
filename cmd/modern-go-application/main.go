@@ -162,19 +162,17 @@ func main() {
 	}
 
 	// Configure Prometheus exporter
-	if config.Opencensus.Prometheus.Enabled {
-		exporter, err := prometheus.NewExporter(prometheus.Options{
-			OnError: emperror.WithDetails(
-				errorHandler,
-				"component", "opencensus",
-				"exporter", "prometheus",
-			).Handle,
-		})
-		emperror.Panic(err)
+	exporter, err := prometheus.NewExporter(prometheus.Options{
+		OnError: emperror.WithDetails(
+			errorHandler,
+			"component", "opencensus",
+			"exporter", "prometheus",
+		).Handle,
+	})
+	emperror.Panic(err)
 
-		view.RegisterExporter(exporter)
-		telemetryRouter.Handle("/metrics", exporter)
-	}
+	view.RegisterExporter(exporter)
+	telemetryRouter.Handle("/metrics", exporter)
 
 	// configure graceful restart
 	upg, _ := tableflip.New(tableflip.Options{})

@@ -35,11 +35,6 @@ type configuration struct {
 		}
 
 		Trace opencensus.TraceConfig
-
-		// Prometheus configuration
-		Prometheus struct {
-			Enabled bool
-		}
 	}
 
 	// App configuration
