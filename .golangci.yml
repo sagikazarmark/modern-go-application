@@ -1,6 +1,7 @@
 run:
     skip-dirs:
         - .gen
+        - pkg/kitx/tracing/opentelemetry
 
     skip-files:
         - ".*_gen\\.go$"
