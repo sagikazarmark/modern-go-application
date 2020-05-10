@@ -18,6 +18,8 @@ linters:
         - maligned
         - wsl
         - gomnd
+        - testpackage
+        - goerr113
 
         # Drives todos nuts
         - godox
