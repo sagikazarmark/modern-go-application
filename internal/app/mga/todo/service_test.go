@@ -2,7 +2,6 @@ package todo
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"emperror.dev/errors"
@@ -145,72 +144,104 @@ type FeatureContext struct {
 	Service Service
 }
 
+func getFeatureContext(t gobdd.StepTest, ctx bddcontext.Context) (FeatureContext, bool) {
+	v, err := ctx.Get("ctx")
+	if err != nil {
+		t.Fatal(err)
+
+		return FeatureContext{}, false
+	}
+
+	return v.(FeatureContext), true
+}
+
 func TestList(t *testing.T) {
-	options := gobdd.NewSuiteOptions()
+	suite := gobdd.NewSuite(t)
 
-	suite := gobdd.NewSuite(t, options)
+	suite.AddStep(`there is an empty todo list`,
+		func(_ gobdd.StepTest, ctx bddcontext.Context) bddcontext.Context {
+			store := NewInMemoryStore()
+			service := NewService(ulidgen.NewGenerator(), store, nil)
 
-	suite.AddStep(`there is an empty todo list`, func(ctx bddcontext.Context) error {
-		store := NewInMemoryStore()
-		service := NewService(ulidgen.NewGenerator(), store, nil)
+			ctx.Set("ctx", FeatureContext{
+				Store:   store,
+				Service: service,
+			})
 
-		ctx.Set("ctx", FeatureContext{
-			Store:   store,
-			Service: service,
+			return ctx
 		})
 
-		return nil
-	})
-
-	suite.AddStep(`I add entry "(.*)"`, func(ctx bddcontext.Context, text string) error {
-		fctx := ctx.Get("ctx").(FeatureContext)
-
-		id, err := fctx.Service.CreateTodo(context.Background(), text)
-		if err != nil {
-			var cerr interface{ ClientError() bool }
-
-			if errors.As(err, &cerr) && cerr.ClientError() {
-				ctx.Set("error", err)
-
-				return nil
+	suite.AddStep(`I add entry "(.*)"`,
+		func(t gobdd.StepTest, ctx bddcontext.Context, text string) bddcontext.Context {
+			fctx, ok := getFeatureContext(t, ctx)
+			if !ok {
+				return ctx
 			}
 
-			return err
-		}
+			id, err := fctx.Service.CreateTodo(context.Background(), text)
+			if err != nil {
+				var cerr interface{ ServiceError() bool }
 
-		ctx.Set("id", id)
+				if errors.As(err, &cerr) && cerr.ServiceError() {
+					ctx.Set("error", err)
 
-		return nil
-	})
+					return ctx
+				}
 
-	suite.AddStep(`I should have a todo to "(.+)"`, func(ctx bddcontext.Context, text string) error {
-		if err := ctx.Get("error", nil); err != nil {
-			return err.(error)
-		}
+				t.Fatal(err)
 
-		fctx := ctx.Get("ctx").(FeatureContext)
+				return ctx
+			}
 
-		todo, err := fctx.Store.Get(context.Background(), ctx.GetString("id"))
-		if err != nil {
-			return err
-		}
+			ctx.Set("id", id)
 
-		if todo.Text != text {
-			return fmt.Errorf("cannot find %q todo entry", text)
-		}
+			return ctx
+		})
 
-		if todo.Done {
-			return fmt.Errorf("%q should not be done", text)
-		}
+	suite.AddStep(`I should have a todo to "(.+)"`,
+		func(t gobdd.StepTest, ctx bddcontext.Context, text string) bddcontext.Context {
+			if err, _ := ctx.GetError("error", nil); err != nil {
+				t.Fatal(err)
 
-		return nil
-	})
+				return ctx
+			}
+
+			fctx, ok := getFeatureContext(t, ctx)
+			if !ok {
+				return ctx
+			}
+
+			id, _ := ctx.GetString("id")
+			todo, err := fctx.Store.Get(context.Background(), id)
+			if err != nil {
+				t.Fatal(err)
+
+				return ctx
+			}
+
+			if todo.Text != text {
+				t.Errorf("cannot find %q todo entry", text)
+			}
+
+			if todo.Done {
+				t.Errorf("%q should not be done", text)
+			}
+
+			return ctx
+		})
 
 	suite.AddStep(`I should see a validation error for the "(.+)" field saying that "(.+)"`,
-		func(ctx bddcontext.Context, field string, violation string) error {
-			err, _ := ctx.Get("error", nil).(error)
-			if err == nil {
-				return errors.New("a validation error was expected, but received none")
+		func(t gobdd.StepTest, ctx bddcontext.Context, field string, violation string) bddcontext.Context {
+			var err error
+			{ // See https://github.com/go-bdd/gobdd/pull/95
+				v, _ := ctx.GetError("error", nil)
+				if v == nil {
+					t.Fatal("a validation error was expected, but received none")
+
+					return ctx
+				}
+
+				err = v.(error)
 			}
 
 			var verr interface {
@@ -219,21 +250,27 @@ func TestList(t *testing.T) {
 			}
 
 			if !errors.As(err, &verr) {
-				return fmt.Errorf("a validation error was expected, the received error is not one: %w", err)
+				t.Errorf("a validation error was expected, the received error is not one: %s", err)
+
+				return ctx
 			}
 
 			violations := verr.Violations()
 
 			fieldViolations, ok := violations[field]
 			if !ok || len(fieldViolations) == 0 {
-				return fmt.Errorf("the returned validation error does not have violations for %q field", field)
+				t.Errorf("the returned validation error does not have violations for %q field", field)
+
+				return ctx
 			}
 
 			if fieldViolations[0] != violation {
-				return fmt.Errorf("the %q field does not have a(n) %q violation", field, violation)
+				t.Errorf("the %q field does not have a(n) %q violation", field, violation)
+
+				return ctx
 			}
 
-			return nil
+			return ctx
 		})
 
 	suite.Run()
