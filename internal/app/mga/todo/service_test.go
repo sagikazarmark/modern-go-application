@@ -152,10 +152,11 @@ func getFeatureContext(t gobdd.StepTest, ctx gobdd.Context) FeatureContext {
 	return v.(FeatureContext)
 }
 
+// nolint: gocognit
 func TestList(t *testing.T) {
 	suite := gobdd.NewSuite(t, gobdd.WithBeforeScenario(func(ctx gobdd.Context) {
 		store := NewInMemoryStore()
-		service := NewService(ulidgen.NewGenerator(), store, nil)
+		service := NewService(ulidgen.NewGenerator(), store, &todoEventsStub{})
 
 		ctx.Set("ctx", FeatureContext{
 			Store:   store,
@@ -163,26 +164,27 @@ func TestList(t *testing.T) {
 		})
 	}))
 
-	suite.AddStep(`I add entry "(.*)"`, func(t gobdd.StepTest, ctx gobdd.Context, text string) {
-		fctx := getFeatureContext(t, ctx)
+	suite.AddStep(`(?:I|the user) adds? a new todo "(.*)" to the list`,
+		func(t gobdd.StepTest, ctx gobdd.Context, text string) {
+			fctx := getFeatureContext(t, ctx)
 
-		id, err := fctx.Service.CreateTodo(context.Background(), text)
-		if err != nil {
-			var cerr interface{ ServiceError() bool }
+			id, err := fctx.Service.CreateTodo(context.Background(), text)
+			if err != nil {
+				var cerr interface{ ServiceError() bool }
 
-			if !errors.As(err, &cerr) || !cerr.ServiceError() {
-				t.Fatal(err)
+				if !errors.As(err, &cerr) || !cerr.ServiceError() {
+					t.Fatal(err)
+				}
+
+				ctx.Set("error", err)
+
+				return
 			}
 
-			ctx.Set("error", err)
+			ctx.Set("id", id)
+		})
 
-			return
-		}
-
-		ctx.Set("id", id)
-	})
-
-	suite.AddStep(`I should have a todo to "(.+)"`, func(t gobdd.StepTest, ctx gobdd.Context, text string) {
+	suite.AddStep(`"(.+)" should be on the list`, func(t gobdd.StepTest, ctx gobdd.Context, text string) {
 		if err, _ := ctx.GetError("error", nil); err != nil {
 			t.Fatal(err)
 		}
@@ -198,13 +200,9 @@ func TestList(t *testing.T) {
 		if todo.Text != text {
 			t.Errorf("cannot find %q todo entry", text)
 		}
-
-		if todo.Done {
-			t.Errorf("%q should not be done", text)
-		}
 	})
 
-	suite.AddStep(`I should see a validation error for the "(.+)" field saying that "(.+)"`,
+	suite.AddStep(`it should fail with a validation error for the "(.+)" field saying that "(.+)"`,
 		func(t gobdd.StepTest, ctx gobdd.Context, field string, violation string) {
 			var err error
 			{ // See https://github.com/go-bdd/gobdd/pull/95
@@ -236,6 +234,61 @@ func TestList(t *testing.T) {
 				t.Errorf("the %q field does not have a(n) %q violation", field, violation)
 			}
 		})
+
+	suite.AddStep(`there is a todo "(.*)"`, func(t gobdd.StepTest, ctx gobdd.Context, text string) {
+		fctx := getFeatureContext(t, ctx)
+
+		const id = "todo"
+
+		err := fctx.Store.Store(context.Background(), Todo{
+			ID:   id,
+			Text: text,
+			Done: false,
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		ctx.Set("id", id)
+	})
+
+	suite.AddStep(`(?:I|the user) marks? it as done`, func(t gobdd.StepTest, ctx gobdd.Context) {
+		fctx := getFeatureContext(t, ctx)
+
+		id, _ := ctx.GetString("id")
+
+		err := fctx.Service.MarkAsDone(context.Background(), id)
+		if err != nil {
+			var cerr interface{ ServiceError() bool }
+
+			if !errors.As(err, &cerr) || !cerr.ServiceError() {
+				t.Fatal(err)
+			}
+
+			ctx.Set("error", err)
+
+			return
+		}
+	})
+
+	suite.AddStep(`it should be done`, func(t gobdd.StepTest, ctx gobdd.Context) {
+		if err, _ := ctx.GetError("error", nil); err != nil {
+			t.Fatal(err)
+		}
+
+		fctx := getFeatureContext(t, ctx)
+
+		id, _ := ctx.GetString("id")
+
+		todo, err := fctx.Store.Get(context.Background(), id)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if !todo.Done {
+			t.Error("todo is expected to be done")
+		}
+	})
 
 	suite.Run()
 }
