@@ -50,8 +50,8 @@ type CreateTodoRequest struct {
 
 // CreateTodoResponse is a response struct for CreateTodo endpoint.
 type CreateTodoResponse struct {
-	Id  string
-	Err error
+	Todo todo.Todo
+	Err  error
 }
 
 func (r CreateTodoResponse) Failed() error {
@@ -63,23 +63,23 @@ func MakeCreateTodoEndpoint(service todo.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(CreateTodoRequest)
 
-		id, err := service.CreateTodo(ctx, req.Title)
+		todo, err := service.CreateTodo(ctx, req.Title)
 
 		if err != nil {
 			if serviceErr := serviceError(nil); errors.As(err, &serviceErr) && serviceErr.ServiceError() {
 				return CreateTodoResponse{
-					Err: err,
-					Id:  id,
+					Err:  err,
+					Todo: todo,
 				}, nil
 			}
 
 			return CreateTodoResponse{
-				Err: err,
-				Id:  id,
+				Err:  err,
+				Todo: todo,
 			}, err
 		}
 
-		return CreateTodoResponse{Id: id}, nil
+		return CreateTodoResponse{Todo: todo}, nil
 	}
 }
 

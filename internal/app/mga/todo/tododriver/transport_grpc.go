@@ -48,7 +48,7 @@ func encodeCreateTodoGRPCResponse(_ context.Context, response interface{}) (inte
 	resp := response.(CreateTodoResponse)
 
 	return &todov1beta1.CreateTodoResponse{
-		Id: resp.Id,
+		Id: resp.Todo.ID,
 	}, nil
 }
 

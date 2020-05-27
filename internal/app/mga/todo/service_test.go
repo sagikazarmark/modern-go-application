@@ -30,20 +30,20 @@ func TestList_CreatesATodo(t *testing.T) {
 
 	todoList := NewService(idgen.NewConstantGenerator(expectedID), todoStore, nil)
 
-	id, err := todoList.CreateTodo(context.Background(), text)
+	todo, err := todoList.CreateTodo(context.Background(), text)
 	require.NoError(t, err)
-
-	assert.Equal(t, expectedID, id)
 
 	expectedTodo := Todo{
 		ID:    expectedID,
 		Title: text,
 	}
 
-	todo, err := todoStore.Get(context.Background(), id)
+	assert.Equal(t, expectedTodo, todo)
+
+	actualTodo, err := todoStore.Get(context.Background(), todo.ID)
 	require.NoError(t, err)
 
-	assert.Equal(t, expectedTodo, todo)
+	assert.Equal(t, expectedTodo, actualTodo)
 }
 
 func TestList_CannotCreateATodo(t *testing.T) {
@@ -168,7 +168,7 @@ func TestList(t *testing.T) {
 		func(t gobdd.StepTest, ctx gobdd.Context, text string) {
 			fctx := getFeatureContext(t, ctx)
 
-			id, err := fctx.Service.CreateTodo(context.Background(), text)
+			todo, err := fctx.Service.CreateTodo(context.Background(), text)
 			if err != nil {
 				var cerr interface{ ServiceError() bool }
 
@@ -181,7 +181,7 @@ func TestList(t *testing.T) {
 				return
 			}
 
-			ctx.Set("id", id)
+			ctx.Set("id", todo.ID)
 		})
 
 	suite.AddStep(`"(.+)" should be on the list`, func(t gobdd.StepTest, ctx gobdd.Context, text string) {

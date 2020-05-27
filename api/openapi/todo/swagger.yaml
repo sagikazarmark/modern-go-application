@@ -33,10 +33,10 @@ paths:
                     schema:
                         $ref: "#/definitions/CreateTodoRequest"
             responses:
-                200:
+                201:
                     description: "successful operation"
                     schema:
-                        $ref: "#/definitions/CreateTodoResponse"
+                        $ref: "#/definitions/Todo"
                 400:
                     description: "invalid request"
                     schema:

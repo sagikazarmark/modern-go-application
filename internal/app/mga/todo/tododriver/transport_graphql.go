@@ -54,7 +54,7 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input graphql.NewTodo
 		return "", f.Failed()
 	}
 
-	return resp.(CreateTodoResponse).Id, nil
+	return resp.(CreateTodoResponse).Todo.ID, nil
 }
 
 func (r *mutationResolver) MarkTodoAsComplete(ctx context.Context, input string) (bool, error) {

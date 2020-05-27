@@ -56,8 +56,10 @@ func decodeCreateTodoHTTPRequest(_ context.Context, r *http.Request) (interface{
 func encodeCreateTodoHTTPResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	resp := response.(CreateTodoResponse)
 
-	apiResponse := api.CreateTodoResponse{
-		Id: resp.Id,
+	apiResponse := api.Todo{
+		Id:        resp.Todo.ID,
+		Title:     resp.Todo.Title,
+		Completed: resp.Todo.Completed,
 	}
 
 	return kitxhttp.JSONResponseEncoder(ctx, w, kitxhttp.WithStatusCode(apiResponse, http.StatusCreated))

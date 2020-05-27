@@ -33,11 +33,11 @@ paths:
               $ref: '#/components/schemas/CreateTodoRequest'
         required: true
       responses:
-        "200":
+        "201":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateTodoResponse'
+                $ref: '#/components/schemas/Todo'
           description: successful operation
         "400":
           content:

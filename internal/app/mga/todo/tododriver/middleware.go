@@ -28,7 +28,7 @@ type loggingMiddleware struct {
 	logger todo.Logger
 }
 
-func (mw loggingMiddleware) CreateTodo(ctx context.Context, text string) (string, error) {
+func (mw loggingMiddleware) CreateTodo(ctx context.Context, text string) (todo.Todo, error) {
 	logger := mw.logger.WithContext(ctx)
 
 	logger.Info("creating todo")
@@ -100,16 +100,16 @@ type instrumentationMiddleware struct {
 	next todo.Service
 }
 
-func (mw instrumentationMiddleware) CreateTodo(ctx context.Context, text string) (string, error) {
-	id, err := mw.next.CreateTodo(ctx, text)
+func (mw instrumentationMiddleware) CreateTodo(ctx context.Context, text string) (todo.Todo, error) {
+	todo, err := mw.next.CreateTodo(ctx, text)
 
 	if span := trace.FromContext(ctx); span != nil {
-		span.AddAttributes(trace.StringAttribute("todo_id", id))
+		span.AddAttributes(trace.StringAttribute("todo_id", todo.ID))
 	}
 
 	stats.Record(ctx, CreatedTodoCount.M(1))
 
-	return id, err
+	return todo, err
 }
 
 func (mw instrumentationMiddleware) ListTodos(ctx context.Context) ([]todo.Todo, error) {

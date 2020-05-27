@@ -18,7 +18,7 @@ type Todo struct {
 // Service manages a list of todos.
 type Service interface {
 	// CreateTodo adds a new todo to the todo list.
-	CreateTodo(ctx context.Context, title string) (id string, err error)
+	CreateTodo(ctx context.Context, title string) (todo Todo, err error)
 
 	// ListTodos returns the list of todos.
 	ListTodos(ctx context.Context) (todos []Todo, err error)
@@ -126,14 +126,14 @@ func (validationError) ServiceError() bool {
 	return true
 }
 
-func (s service) CreateTodo(ctx context.Context, text string) (string, error) {
+func (s service) CreateTodo(ctx context.Context, text string) (Todo, error) {
 	id, err := s.idgenerator.Generate()
 	if err != nil {
-		return "", err
+		return Todo{}, err
 	}
 
 	if text == "" {
-		return "", errors.WithStack(validationError{violations: map[string][]string{
+		return Todo{}, errors.WithStack(validationError{violations: map[string][]string{
 			"text": {
 				"text cannot be empty",
 			},
@@ -146,8 +146,11 @@ func (s service) CreateTodo(ctx context.Context, text string) (string, error) {
 	}
 
 	err = s.store.Store(ctx, todo)
+	if err != nil {
+		return Todo{}, err
+	}
 
-	return id, err
+	return todo, nil
 }
 
 func (s service) ListTodos(ctx context.Context) ([]Todo, error) {
