@@ -25,6 +25,9 @@ type Service interface {
 
 	// MarkAsComplete marks an item as complete.
 	MarkAsComplete(ctx context.Context, id string) error
+
+	// DeleteAll deletes all items from the list.
+	DeleteAll(ctx context.Context) error
 }
 
 // NewService returns a new Service.
@@ -58,6 +61,9 @@ type Store interface {
 
 	// Get returns a single item by its ID.
 	Get(ctx context.Context, id string) (Todo, error)
+
+	// DeleteAll deletes all items in the store.
+	DeleteAll(ctx context.Context) error
 }
 
 // NotFoundError is returned if an item cannot be found.
@@ -180,4 +186,8 @@ func (s service) MarkAsComplete(ctx context.Context, id string) error {
 	}
 
 	return nil
+}
+
+func (s service) DeleteAll(ctx context.Context) error {
+	return s.store.DeleteAll(ctx)
 }

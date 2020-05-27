@@ -64,6 +64,20 @@ paths:
                     schema:
                         $ref: "#/definitions/GenericError"
 
+        delete:
+            summary: "Delete an item"
+            description: ""
+            operationId: "deleteItem"
+            tags:
+                - todos
+            responses:
+                204:
+                    description: "successful operation"
+                500:
+                    description: "unexpected error"
+                    schema:
+                        $ref: "#/definitions/GenericError"
+
     /todos/{id}/complete:
         patch:
             summary: "Mark a TODO as complete"

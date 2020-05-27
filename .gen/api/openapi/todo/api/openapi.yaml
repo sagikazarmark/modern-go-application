@@ -8,6 +8,21 @@ servers:
 - url: http://todo.api/
 paths:
   /todos:
+    delete:
+      operationId: deleteItem
+      responses:
+        "204":
+          content: {}
+          description: successful operation
+        "500":
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/GenericError'
+          description: unexpected error
+      summary: Delete an item
+      tags:
+      - todos
     get:
       operationId: listTodos
       responses:

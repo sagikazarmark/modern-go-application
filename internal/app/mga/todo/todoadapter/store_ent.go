@@ -81,3 +81,13 @@ func (s entStore) Get(ctx context.Context, id string) (todo.Todo, error) {
 		Completed: todoModel.Completed,
 	}, nil
 }
+
+func (s entStore) DeleteAll(ctx context.Context) error {
+	_, err := s.client.Todo.Delete().Exec(ctx)
+
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	return nil
+}

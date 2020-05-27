@@ -32,6 +32,13 @@ func RegisterHTTPHandlers(endpoints Endpoints, router *mux.Router, options ...ki
 		options...,
 	))
 
+	router.Methods(http.MethodDelete).Path("").Handler(kithttp.NewServer(
+		endpoints.DeleteAll,
+		kithttp.NopRequestDecoder,
+		kitxhttp.ErrorResponseEncoder(kitxhttp.StatusCodeResponseEncoder(http.StatusNoContent), errorEncoder),
+		options...,
+	))
+
 	router.Methods(http.MethodPost).Path("/{id}/complete").Handler(kithttp.NewServer(
 		endpoints.MarkAsComplete,
 		decodeMarkAsCompleteHTTPRequest,

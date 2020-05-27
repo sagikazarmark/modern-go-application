@@ -27,6 +27,7 @@ type serviceError interface {
 // single parameter.
 type Endpoints struct {
 	CreateTodo     endpoint.Endpoint
+	DeleteAll      endpoint.Endpoint
 	ListTodos      endpoint.Endpoint
 	MarkAsComplete endpoint.Endpoint
 }
@@ -38,6 +39,7 @@ func MakeEndpoints(service todo.Service, middleware ...endpoint.Middleware) Endp
 
 	return Endpoints{
 		CreateTodo:     kitxendpoint.OperationNameMiddleware("todo.CreateTodo")(mw(MakeCreateTodoEndpoint(service))),
+		DeleteAll:      kitxendpoint.OperationNameMiddleware("todo.DeleteAll")(mw(MakeDeleteAllEndpoint(service))),
 		ListTodos:      kitxendpoint.OperationNameMiddleware("todo.ListTodos")(mw(MakeListTodosEndpoint(service))),
 		MarkAsComplete: kitxendpoint.OperationNameMiddleware("todo.MarkAsComplete")(mw(MakeMarkAsCompleteEndpoint(service))),
 	}
@@ -80,6 +82,35 @@ func MakeCreateTodoEndpoint(service todo.Service) endpoint.Endpoint {
 		}
 
 		return CreateTodoResponse{Todo: todo}, nil
+	}
+}
+
+// DeleteAllRequest is a request struct for DeleteAll endpoint.
+type DeleteAllRequest struct{}
+
+// DeleteAllResponse is a response struct for DeleteAll endpoint.
+type DeleteAllResponse struct {
+	Err error
+}
+
+func (r DeleteAllResponse) Failed() error {
+	return r.Err
+}
+
+// MakeDeleteAllEndpoint returns an endpoint for the matching method of the underlying service.
+func MakeDeleteAllEndpoint(service todo.Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		err := service.DeleteAll(ctx)
+
+		if err != nil {
+			if serviceErr := serviceError(nil); errors.As(err, &serviceErr) && serviceErr.ServiceError() {
+				return DeleteAllResponse{Err: err}, nil
+			}
+
+			return DeleteAllResponse{Err: err}, err
+		}
+
+		return DeleteAllResponse{}, nil
 	}
 }
 
