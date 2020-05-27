@@ -15,5 +15,5 @@ type Todo struct {
 
 	Title string `json:"title"`
 
-	Completed bool `json:"completed,omitempty"`
+	Completed bool `json:"completed"`
 }

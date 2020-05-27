@@ -113,24 +113,14 @@ components:
         completed:
           type: boolean
       required:
+      - completed
       - id
       - title
       type: object
     TodoList:
-      example:
-        todos:
-        - id: id
-          completed: true
-          title: title
-        - id: id
-          completed: true
-          title: title
-      properties:
-        todos:
-          items:
-            $ref: '#/components/schemas/Todo'
-          type: array
-      type: object
+      items:
+        $ref: '#/components/schemas/Todo'
+      type: array
     CreateTodoRequest:
       example:
         title: title

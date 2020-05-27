@@ -121,15 +121,12 @@ definitions:
         required:
             - id
             - title
-            - done
+            - completed
 
     TodoList:
-        type: "object"
-        properties:
-            todos:
-                type: "array"
-                items:
-                    $ref: '#/definitions/Todo'
+        type: "array"
+        items:
+            $ref: '#/definitions/Todo'
 
     CreateTodoRequest:
         type: "object"

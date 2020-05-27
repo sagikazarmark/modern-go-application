@@ -75,17 +75,17 @@ func encodeCreateTodoHTTPResponse(ctx context.Context, w http.ResponseWriter, re
 func encodeListTodosHTTPResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	resp := response.(ListTodosResponse)
 
-	apiResponse := api.TodoList{}
+	todos := make([]api.Todo, 0, len(resp.Todos))
 
 	for _, todo := range resp.Todos {
-		apiResponse.Todos = append(apiResponse.Todos, api.Todo{
+		todos = append(todos, api.Todo{
 			Id:        todo.ID,
 			Title:     todo.Title,
 			Completed: todo.Completed,
 		})
 	}
 
-	return kitxhttp.JSONResponseEncoder(ctx, w, apiResponse)
+	return kitxhttp.JSONResponseEncoder(ctx, w, todos)
 }
 
 func decodeMarkAsCompleteHTTPRequest(_ context.Context, r *http.Request) (interface{}, error) {
