@@ -12,8 +12,8 @@ func TestInMemoryStore_StoresATodo(t *testing.T) {
 	store := NewInMemoryStore()
 
 	todo := Todo{
-		ID:   "id",
-		Text: "Store me!",
+		ID:    "id",
+		Title: "Store me!",
 	}
 
 	err := store.Store(context.Background(), todo)
@@ -27,7 +27,7 @@ func TestInMemoryStore_OverwritesAnExistingTodo(t *testing.T) {
 
 	todo := Todo{
 		ID:        "id",
-		Text:      "Store me first!",
+		Title:     "Store me first!",
 		Completed: true,
 	}
 
@@ -35,8 +35,8 @@ func TestInMemoryStore_OverwritesAnExistingTodo(t *testing.T) {
 	require.NoError(t, err)
 
 	todo = Todo{
-		ID:   "id",
-		Text: "Store me!",
+		ID:    "id",
+		Title: "Store me!",
 	}
 
 	err = store.Store(context.Background(), todo)
@@ -50,13 +50,13 @@ func TestInMemoryStore_ListsAllTodos(t *testing.T) {
 
 	store.todos["id"] = Todo{
 		ID:        "id",
-		Text:      "Store me first!",
+		Title:     "Store me first!",
 		Completed: true,
 	}
 
 	store.todos["id2"] = Todo{
 		ID:        "id2",
-		Text:      "Store me second!",
+		Title:     "Store me second!",
 		Completed: true,
 	}
 
@@ -74,8 +74,8 @@ func TestInMemoryStore_GetsATodo(t *testing.T) {
 	id := "id"
 
 	store.todos[id] = Todo{
-		ID:   id,
-		Text: "Store me!",
+		ID:    id,
+		Title: "Store me!",
 	}
 
 	todo, err := store.Get(context.Background(), id)
@@ -98,8 +98,8 @@ func TestInMemoryStore_CannotReturnANonExistingTodo(t *testing.T) {
 
 func TestReadOnlyStore_IsReadOnly(t *testing.T) {
 	todo := Todo{
-		ID:   "id",
-		Text: "Store me!",
+		ID:    "id",
+		Title: "Store me!",
 	}
 
 	store := NewReadOnlyStore(NewInMemoryStore())
@@ -114,13 +114,13 @@ func TestReadOnlyStore_ListsAllTodos(t *testing.T) {
 
 	inmemStore.todos["id"] = Todo{
 		ID:        "id",
-		Text:      "Store me first!",
+		Title:     "Store me first!",
 		Completed: true,
 	}
 
 	inmemStore.todos["id2"] = Todo{
 		ID:        "id2",
-		Text:      "Store me second!",
+		Title:     "Store me second!",
 		Completed: true,
 	}
 
@@ -139,8 +139,8 @@ func TestReadOnlyStore_GetsATodo(t *testing.T) {
 	id := "id"
 
 	inmemStore.todos[id] = Todo{
-		ID:   id,
-		Text: "Store me!",
+		ID:    id,
+		Title: "Store me!",
 	}
 
 	todo, err := store.Get(context.Background(), id)

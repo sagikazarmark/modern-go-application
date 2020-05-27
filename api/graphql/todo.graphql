@@ -1,6 +1,6 @@
 type Todo {
     id: ID!
-    text: String!
+    title: String!
     completed: Boolean!
 }
 
@@ -9,7 +9,7 @@ type Query {
 }
 
 input NewTodo {
-    text: String!
+    title: String!
 }
 
 type Mutation {

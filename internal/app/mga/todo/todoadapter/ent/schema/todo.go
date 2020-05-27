@@ -20,7 +20,7 @@ func (Todo) Fields() []ent.Field {
 			NotEmpty().
 			Unique().
 			Immutable(),
-		field.Text("text"),
+		field.Text("title"),
 		field.Bool("completed"),
 		field.Time("created_at").
 			Default(time.Now),

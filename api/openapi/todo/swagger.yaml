@@ -100,13 +100,13 @@ definitions:
         properties:
             id:
                 type: "string"
-            text:
+            title:
                 type: "string"
             completed:
                 type: "boolean"
         required:
             - id
-            - text
+            - title
             - done
 
     TodoList:
@@ -120,10 +120,10 @@ definitions:
     CreateTodoRequest:
         type: "object"
         properties:
-            text:
+            title:
                 type: "string"
         required:
-            - text
+            - title
 
     CreateTodoResponse:
         type: "object"

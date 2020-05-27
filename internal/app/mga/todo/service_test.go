@@ -36,8 +36,8 @@ func TestList_CreatesATodo(t *testing.T) {
 	assert.Equal(t, expectedID, id)
 
 	expectedTodo := Todo{
-		ID:   expectedID,
-		Text: text,
+		ID:    expectedID,
+		Title: text,
 	}
 
 	todo, err := todoStore.Get(context.Background(), id)
@@ -57,8 +57,8 @@ func TestList_ListTodos(t *testing.T) {
 	todoStore := NewInMemoryStore()
 
 	todo := Todo{
-		ID:   "id",
-		Text: "Make the listing work",
+		ID:    "id",
+		Title: "Make the listing work",
 	}
 	require.NoError(t, todoStore.Store(context.Background(), todo))
 
@@ -78,8 +78,8 @@ func TestList_MarkAsComplete(t *testing.T) {
 	const id = "id"
 
 	todo := Todo{
-		ID:   id,
-		Text: "Do me",
+		ID:    id,
+		Title: "Do me",
 	}
 	require.NoError(t, todoStore.Store(context.Background(), todo))
 
@@ -127,8 +127,8 @@ func TestList_StoringCompleteTodoFails(t *testing.T) {
 	inmemTodoStore := NewInMemoryStore()
 
 	todo := Todo{
-		ID:   "id",
-		Text: "Do me",
+		ID:    "id",
+		Title: "Do me",
 	}
 	require.NoError(t, inmemTodoStore.Store(context.Background(), todo))
 
@@ -197,7 +197,7 @@ func TestList(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if todo.Text != text {
+		if todo.Title != text {
 			t.Errorf("cannot find %q todo entry", text)
 		}
 	})
@@ -242,7 +242,7 @@ func TestList(t *testing.T) {
 
 		err := fctx.Store.Store(context.Background(), Todo{
 			ID:        id,
-			Text:      text,
+			Title:     text,
 			Completed: false,
 		})
 		if err != nil {

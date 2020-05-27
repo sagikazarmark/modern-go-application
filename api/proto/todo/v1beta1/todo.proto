@@ -13,6 +13,6 @@ option php_namespace = "Todo\\V1Beta1";
 // Todo is a note describing a task to be done.
 message Todo {
   string id = 1;
-  string text = 2;
+  string title = 2;
   bool completed = 3;
 }

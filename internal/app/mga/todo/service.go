@@ -9,7 +9,7 @@ import (
 // Todo is a note describing a task to be done.
 type Todo struct {
 	ID        string
-	Text      string
+	Title     string
 	Completed bool
 }
 
@@ -18,7 +18,7 @@ type Todo struct {
 // Service manages a list of todos.
 type Service interface {
 	// CreateTodo adds a new todo to the todo list.
-	CreateTodo(ctx context.Context, text string) (id string, err error)
+	CreateTodo(ctx context.Context, title string) (id string, err error)
 
 	// ListTodos returns the list of todos.
 	ListTodos(ctx context.Context) (todos []Todo, err error)
@@ -141,8 +141,8 @@ func (s service) CreateTodo(ctx context.Context, text string) (string, error) {
 	}
 
 	todo := Todo{
-		ID:   id,
-		Text: text,
+		ID:    id,
+		Title: text,
 	}
 
 	err = s.store.Store(ctx, todo)

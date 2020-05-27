@@ -40,7 +40,7 @@ func decodeCreateTodoGRPCRequest(_ context.Context, request interface{}) (interf
 	req := request.(*todov1beta1.CreateTodoRequest)
 
 	return CreateTodoRequest{
-		Text: req.GetText(),
+		Title: req.GetTitle(),
 	}, nil
 }
 
@@ -66,7 +66,7 @@ func encodeListTodosGRPCResponse(_ context.Context, response interface{}) (inter
 	for i, t := range resp.Todos {
 		grpcResp.Todos[i] = &todov1beta1.Todo{
 			Id:        t.ID,
-			Text:      t.Text,
+			Title:     t.Title,
 			Completed: t.Completed,
 		}
 	}

@@ -45,7 +45,7 @@ func MakeEndpoints(service todo.Service, middleware ...endpoint.Middleware) Endp
 
 // CreateTodoRequest is a request struct for CreateTodo endpoint.
 type CreateTodoRequest struct {
-	Text string
+	Title string
 }
 
 // CreateTodoResponse is a response struct for CreateTodo endpoint.
@@ -63,7 +63,7 @@ func MakeCreateTodoEndpoint(service todo.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(CreateTodoRequest)
 
-		id, err := service.CreateTodo(ctx, req.Text)
+		id, err := service.CreateTodo(ctx, req.Title)
 
 		if err != nil {
 			if serviceErr := serviceError(nil); errors.As(err, &serviceErr) && serviceErr.ServiceError() {

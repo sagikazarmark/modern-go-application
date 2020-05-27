@@ -18,8 +18,8 @@ type Todo struct {
 	ID int `json:"id,omitempty"`
 	// UID holds the value of the "uid" field.
 	UID string `json:"uid,omitempty"`
-	// Text holds the value of the "text" field.
-	Text string `json:"text,omitempty"`
+	// Title holds the value of the "title" field.
+	Title string `json:"title,omitempty"`
 	// Completed holds the value of the "completed" field.
 	Completed bool `json:"completed,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -33,7 +33,7 @@ func (*Todo) scanValues() []interface{} {
 	return []interface{}{
 		&sql.NullInt64{},  // id
 		&sql.NullString{}, // uid
-		&sql.NullString{}, // text
+		&sql.NullString{}, // title
 		&sql.NullBool{},   // completed
 		&sql.NullTime{},   // created_at
 		&sql.NullTime{},   // updated_at
@@ -58,9 +58,9 @@ func (t *Todo) assignValues(values ...interface{}) error {
 		t.UID = value.String
 	}
 	if value, ok := values[1].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field text", values[1])
+		return fmt.Errorf("unexpected type %T for field title", values[1])
 	} else if value.Valid {
-		t.Text = value.String
+		t.Title = value.String
 	}
 	if value, ok := values[2].(*sql.NullBool); !ok {
 		return fmt.Errorf("unexpected type %T for field completed", values[2])
@@ -105,8 +105,8 @@ func (t *Todo) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v", t.ID))
 	builder.WriteString(", uid=")
 	builder.WriteString(t.UID)
-	builder.WriteString(", text=")
-	builder.WriteString(t.Text)
+	builder.WriteString(", title=")
+	builder.WriteString(t.Title)
 	builder.WriteString(", completed=")
 	builder.WriteString(fmt.Sprintf("%v", t.Completed))
 	builder.WriteString(", created_at=")

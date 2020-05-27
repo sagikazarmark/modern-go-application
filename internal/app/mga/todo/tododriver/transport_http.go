@@ -49,7 +49,7 @@ func decodeCreateTodoHTTPRequest(_ context.Context, r *http.Request) (interface{
 	}
 
 	return CreateTodoRequest{
-		Text: apiRequest.Text,
+		Title: apiRequest.Title,
 	}, nil
 }
 
@@ -71,7 +71,7 @@ func encodeListTodosHTTPResponse(ctx context.Context, w http.ResponseWriter, res
 	for _, todo := range resp.Todos {
 		apiResponse.Todos = append(apiResponse.Todos, api.Todo{
 			Id:        todo.ID,
-			Text:      todo.Text,
+			Title:     todo.Title,
 			Completed: todo.Completed,
 		})
 	}

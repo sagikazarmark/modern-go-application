@@ -11,5 +11,5 @@ package api
 
 type CreateTodoRequest struct {
 
-	Text string `json:"text"`
+	Title string `json:"title"`
 }

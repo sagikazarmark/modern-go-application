@@ -11,8 +11,8 @@ const (
 	Label = "todo"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID        = "id"         // FieldUID holds the string denoting the uid vertex property in the database.
-	FieldUID       = "uid"        // FieldText holds the string denoting the text vertex property in the database.
-	FieldText      = "text"       // FieldCompleted holds the string denoting the completed vertex property in the database.
+	FieldUID       = "uid"        // FieldTitle holds the string denoting the title vertex property in the database.
+	FieldTitle     = "title"      // FieldCompleted holds the string denoting the completed vertex property in the database.
 	FieldCompleted = "completed"  // FieldCreatedAt holds the string denoting the created_at vertex property in the database.
 	FieldCreatedAt = "created_at" // FieldUpdatedAt holds the string denoting the updated_at vertex property in the database.
 	FieldUpdatedAt = "updated_at"
@@ -25,7 +25,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldUID,
-	FieldText,
+	FieldTitle,
 	FieldCompleted,
 	FieldCreatedAt,
 	FieldUpdatedAt,

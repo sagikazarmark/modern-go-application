@@ -26,9 +26,9 @@ func (tc *TodoCreate) SetUID(s string) *TodoCreate {
 	return tc
 }
 
-// SetText sets the text field.
-func (tc *TodoCreate) SetText(s string) *TodoCreate {
-	tc.mutation.SetText(s)
+// SetTitle sets the title field.
+func (tc *TodoCreate) SetTitle(s string) *TodoCreate {
+	tc.mutation.SetTitle(s)
 	return tc
 }
 
@@ -76,8 +76,8 @@ func (tc *TodoCreate) Save(ctx context.Context) (*Todo, error) {
 			return nil, fmt.Errorf("ent: validator failed for field \"uid\": %v", err)
 		}
 	}
-	if _, ok := tc.mutation.Text(); !ok {
-		return nil, errors.New("ent: missing required field \"text\"")
+	if _, ok := tc.mutation.Title(); !ok {
+		return nil, errors.New("ent: missing required field \"title\"")
 	}
 	if _, ok := tc.mutation.Completed(); !ok {
 		return nil, errors.New("ent: missing required field \"completed\"")
@@ -144,13 +144,13 @@ func (tc *TodoCreate) sqlSave(ctx context.Context) (*Todo, error) {
 		})
 		t.UID = value
 	}
-	if value, ok := tc.mutation.Text(); ok {
+	if value, ok := tc.mutation.Title(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: todo.FieldText,
+			Column: todo.FieldTitle,
 		})
-		t.Text = value
+		t.Title = value
 	}
 	if value, ok := tc.mutation.Completed(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

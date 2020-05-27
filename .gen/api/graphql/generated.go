@@ -3,5 +3,5 @@
 package graphql
 
 type NewTodo struct {
-	Text string `json:"text"`
+	Title string `json:"title"`
 }

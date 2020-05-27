@@ -13,7 +13,7 @@ import (
 )
 
 type createOptions struct {
-	text   string
+	title  string
 	client todov1beta1.TodoListClient
 }
 
@@ -27,7 +27,7 @@ func NewCreateCommand(c Context) *cobra.Command {
 		Short:   "Create a TODO",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			options.text = args[0]
+			options.title = args[0]
 			options.client = c.GetTodoClient()
 
 			cmd.SilenceErrors = true
@@ -42,7 +42,7 @@ func NewCreateCommand(c Context) *cobra.Command {
 
 func runCreate(options createOptions) error {
 	req := &todov1beta1.CreateTodoRequest{
-		Text: options.text,
+		Title: options.title,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -66,7 +66,7 @@ func runCreate(options createOptions) error {
 		return err
 	}
 
-	fmt.Printf("Todo %q with ID %s has been created.", options.text, resp.GetId())
+	fmt.Printf("Todo %q with ID %s has been created.", options.title, resp.GetId())
 
 	return nil
 }

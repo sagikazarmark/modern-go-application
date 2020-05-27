@@ -88,28 +88,28 @@ components:
     Todo:
       example:
         id: id
-        text: text
         completed: true
+        title: title
       properties:
         id:
           type: string
-        text:
+        title:
           type: string
         completed:
           type: boolean
       required:
       - id
-      - text
+      - title
       type: object
     TodoList:
       example:
         todos:
         - id: id
-          text: text
           completed: true
+          title: title
         - id: id
-          text: text
           completed: true
+          title: title
       properties:
         todos:
           items:
@@ -118,12 +118,12 @@ components:
       type: object
     CreateTodoRequest:
       example:
-        text: text
+        title: title
       properties:
-        text:
+        title:
           type: string
       required:
-      - text
+      - title
       type: object
     CreateTodoResponse:
       example:

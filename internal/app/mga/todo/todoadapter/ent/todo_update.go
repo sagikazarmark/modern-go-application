@@ -28,9 +28,9 @@ func (tu *TodoUpdate) Where(ps ...predicate.Todo) *TodoUpdate {
 	return tu
 }
 
-// SetText sets the text field.
-func (tu *TodoUpdate) SetText(s string) *TodoUpdate {
-	tu.mutation.SetText(s)
+// SetTitle sets the title field.
+func (tu *TodoUpdate) SetTitle(s string) *TodoUpdate {
+	tu.mutation.SetTitle(s)
 	return tu
 }
 
@@ -132,11 +132,11 @@ func (tu *TodoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := tu.mutation.Text(); ok {
+	if value, ok := tu.mutation.Title(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: todo.FieldText,
+			Column: todo.FieldTitle,
 		})
 	}
 	if value, ok := tu.mutation.Completed(); ok {
@@ -178,9 +178,9 @@ type TodoUpdateOne struct {
 	mutation *TodoMutation
 }
 
-// SetText sets the text field.
-func (tuo *TodoUpdateOne) SetText(s string) *TodoUpdateOne {
-	tuo.mutation.SetText(s)
+// SetTitle sets the title field.
+func (tuo *TodoUpdateOne) SetTitle(s string) *TodoUpdateOne {
+	tuo.mutation.SetTitle(s)
 	return tuo
 }
 
@@ -280,11 +280,11 @@ func (tuo *TodoUpdateOne) sqlSave(ctx context.Context) (t *Todo, err error) {
 		return nil, fmt.Errorf("missing Todo.ID for update")
 	}
 	_spec.Node.ID.Value = id
-	if value, ok := tuo.mutation.Text(); ok {
+	if value, ok := tuo.mutation.Title(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: todo.FieldText,
+			Column: todo.FieldTitle,
 		})
 	}
 	if value, ok := tuo.mutation.Completed(); ok {

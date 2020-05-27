@@ -31,7 +31,7 @@ type TodoMutation struct {
 	typ           string
 	id            *int
 	uid           *string
-	text          *string
+	title         *string
 	completed     *bool
 	created_at    *time.Time
 	updated_at    *time.Time
@@ -97,23 +97,23 @@ func (m *TodoMutation) ResetUID() {
 	m.uid = nil
 }
 
-// SetText sets the text field.
-func (m *TodoMutation) SetText(s string) {
-	m.text = &s
+// SetTitle sets the title field.
+func (m *TodoMutation) SetTitle(s string) {
+	m.title = &s
 }
 
-// Text returns the text value in the mutation.
-func (m *TodoMutation) Text() (r string, exists bool) {
-	v := m.text
+// Title returns the title value in the mutation.
+func (m *TodoMutation) Title() (r string, exists bool) {
+	v := m.title
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ResetText reset all changes of the text field.
-func (m *TodoMutation) ResetText() {
-	m.text = nil
+// ResetTitle reset all changes of the title field.
+func (m *TodoMutation) ResetTitle() {
+	m.title = nil
 }
 
 // SetCompleted sets the completed field.
@@ -191,8 +191,8 @@ func (m *TodoMutation) Fields() []string {
 	if m.uid != nil {
 		fields = append(fields, todo.FieldUID)
 	}
-	if m.text != nil {
-		fields = append(fields, todo.FieldText)
+	if m.title != nil {
+		fields = append(fields, todo.FieldTitle)
 	}
 	if m.completed != nil {
 		fields = append(fields, todo.FieldCompleted)
@@ -213,8 +213,8 @@ func (m *TodoMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case todo.FieldUID:
 		return m.UID()
-	case todo.FieldText:
-		return m.Text()
+	case todo.FieldTitle:
+		return m.Title()
 	case todo.FieldCompleted:
 		return m.Completed()
 	case todo.FieldCreatedAt:
@@ -237,12 +237,12 @@ func (m *TodoMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetUID(v)
 		return nil
-	case todo.FieldText:
+	case todo.FieldTitle:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetText(v)
+		m.SetTitle(v)
 		return nil
 	case todo.FieldCompleted:
 		v, ok := value.(bool)
@@ -318,8 +318,8 @@ func (m *TodoMutation) ResetField(name string) error {
 	case todo.FieldUID:
 		m.ResetUID()
 		return nil
-	case todo.FieldText:
-		m.ResetText()
+	case todo.FieldTitle:
+		m.ResetTitle()
 		return nil
 	case todo.FieldCompleted:
 		m.ResetCompleted()

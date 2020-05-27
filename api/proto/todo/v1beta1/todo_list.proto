@@ -23,7 +23,7 @@ service TodoList {
 }
 
 message CreateTodoRequest {
-  string text = 1;
+  string title = 1;
 }
 
 message CreateTodoResponse {
