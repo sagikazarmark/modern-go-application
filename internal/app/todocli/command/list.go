@@ -51,10 +51,10 @@ func runList(options listOptions) error {
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"ID", "Task", "Done"})
+	table.SetHeader([]string{"ID", "Task", "Completed"})
 
 	for _, t := range resp.GetTodos() {
-		table.Append([]string{t.GetId(), t.GetText(), strconv.FormatBool(t.GetDone())})
+		table.Append([]string{t.GetId(), t.GetText(), strconv.FormatBool(t.GetCompleted())})
 	}
 	table.Render()
 

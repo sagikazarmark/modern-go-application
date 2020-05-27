@@ -11,7 +11,7 @@ Feature: Todo list
         Then it should fail with a validation error for the "text" field saying that "text cannot be empty"
 
 
-    Scenario: Mark a todo as done
+    Scenario: Mark a todo as complete
         Given there is a todo "Call mom"
-        When the user marks it as done
-        Then it should be done
+        When the user marks it as complete
+        Then it should be complete

@@ -34,7 +34,6 @@ require (
 	github.com/stretchr/testify v1.5.1
 	github.com/vektah/gqlparser/v2 v2.0.1
 	go.opencensus.io v0.22.3
-	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	google.golang.org/genproto v0.0.0-20200507105951-43844f6eee31
 	google.golang.org/grpc v1.29.1
 	google.golang.org/protobuf v1.22.0

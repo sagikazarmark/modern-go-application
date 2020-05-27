@@ -64,11 +64,11 @@ paths:
                     schema:
                         $ref: "#/definitions/GenericError"
 
-    /todos/{id}/done:
+    /todos/{id}/complete:
         patch:
-            summary: "Mark a TODO as done"
+            summary: "Mark a TODO as complete"
             description: ""
-            operationId: "markAsDone"
+            operationId: "markAsComplete"
             parameters:
                 -
                     in: path
@@ -102,7 +102,7 @@ definitions:
                 type: "string"
             text:
                 type: "string"
-            done:
+            completed:
                 type: "boolean"
         required:
             - id

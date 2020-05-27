@@ -26,13 +26,16 @@ type Client struct {
 
 // NewClient creates a new client configured with the given options.
 func NewClient(opts ...Option) *Client {
-	c := config{log: log.Println}
-	c.options(opts...)
-	return &Client{
-		config: c,
-		Schema: migrate.NewSchema(c.driver),
-		Todo:   NewTodoClient(c),
-	}
+	cfg := config{log: log.Println, hooks: &hooks{}}
+	cfg.options(opts...)
+	client := &Client{config: cfg}
+	client.init()
+	return client
+}
+
+func (c *Client) init() {
+	c.Schema = migrate.NewSchema(c.driver)
+	c.Todo = NewTodoClient(c.config)
 }
 
 // Open opens a connection to the database specified by the driver name and a
@@ -60,7 +63,23 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	if err != nil {
 		return nil, fmt.Errorf("ent: starting a transaction: %v", err)
 	}
-	cfg := config{driver: tx, log: c.log, debug: c.debug}
+	cfg := config{driver: tx, log: c.log, debug: c.debug, hooks: c.hooks}
+	return &Tx{
+		config: cfg,
+		Todo:   NewTodoClient(cfg),
+	}, nil
+}
+
+// BeginTx returns a transactional client with options.
+func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) {
+	if _, ok := c.driver.(*txDriver); ok {
+		return nil, fmt.Errorf("ent: cannot start a transaction within a transaction")
+	}
+	tx, err := c.driver.(*sql.Driver).BeginTx(ctx, opts)
+	if err != nil {
+		return nil, fmt.Errorf("ent: starting a transaction: %v", err)
+	}
+	cfg := config{driver: &txDriver{tx: tx, drv: c.driver}, log: c.log, debug: c.debug, hooks: c.hooks}
 	return &Tx{
 		config: cfg,
 		Todo:   NewTodoClient(cfg),
@@ -78,17 +97,21 @@ func (c *Client) Debug() *Client {
 	if c.debug {
 		return c
 	}
-	cfg := config{driver: dialect.Debug(c.driver, c.log), log: c.log, debug: true}
-	return &Client{
-		config: cfg,
-		Schema: migrate.NewSchema(cfg.driver),
-		Todo:   NewTodoClient(cfg),
-	}
+	cfg := config{driver: dialect.Debug(c.driver, c.log), log: c.log, debug: true, hooks: c.hooks}
+	client := &Client{config: cfg}
+	client.init()
+	return client
 }
 
 // Close closes the database connection and prevents new queries from starting.
 func (c *Client) Close() error {
 	return c.driver.Close()
+}
+
+// Use adds the mutation hooks to all the entity clients.
+// In order to add hooks to a specific client, call: `client.Node.Use(...)`.
+func (c *Client) Use(hooks ...Hook) {
+	c.Todo.Use(hooks...)
 }
 
 // TodoClient is a client for the Todo schema.
@@ -101,14 +124,22 @@ func NewTodoClient(c config) *TodoClient {
 	return &TodoClient{config: c}
 }
 
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `todo.Hooks(f(g(h())))`.
+func (c *TodoClient) Use(hooks ...Hook) {
+	c.hooks.Todo = append(c.hooks.Todo, hooks...)
+}
+
 // Create returns a create builder for Todo.
 func (c *TodoClient) Create() *TodoCreate {
-	return &TodoCreate{config: c.config}
+	mutation := newTodoMutation(c.config, OpCreate)
+	return &TodoCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // Update returns an update builder for Todo.
 func (c *TodoClient) Update() *TodoUpdate {
-	return &TodoUpdate{config: c.config}
+	mutation := newTodoMutation(c.config, OpUpdate)
+	return &TodoUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
@@ -118,12 +149,15 @@ func (c *TodoClient) UpdateOne(t *Todo) *TodoUpdateOne {
 
 // UpdateOneID returns an update builder for the given id.
 func (c *TodoClient) UpdateOneID(id int) *TodoUpdateOne {
-	return &TodoUpdateOne{config: c.config, id: id}
+	mutation := newTodoMutation(c.config, OpUpdateOne)
+	mutation.id = &id
+	return &TodoUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // Delete returns a delete builder for Todo.
 func (c *TodoClient) Delete() *TodoDelete {
-	return &TodoDelete{config: c.config}
+	mutation := newTodoMutation(c.config, OpDelete)
+	return &TodoDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a delete builder for the given entity.
@@ -133,7 +167,10 @@ func (c *TodoClient) DeleteOne(t *Todo) *TodoDeleteOne {
 
 // DeleteOneID returns a delete builder for the given id.
 func (c *TodoClient) DeleteOneID(id int) *TodoDeleteOne {
-	return &TodoDeleteOne{c.Delete().Where(todo.ID(id))}
+	builder := c.Delete().Where(todo.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &TodoDeleteOne{builder}
 }
 
 // Create returns a query builder for Todo.
@@ -153,4 +190,9 @@ func (c *TodoClient) GetX(ctx context.Context, id int) *Todo {
 		panic(err)
 	}
 	return t
+}
+
+// Hooks returns the client hooks.
+func (c *TodoClient) Hooks() []Hook {
+	return c.hooks.Todo
 }

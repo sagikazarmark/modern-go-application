@@ -26,9 +26,9 @@ func TestInMemoryStore_OverwritesAnExistingTodo(t *testing.T) {
 	store := NewInMemoryStore()
 
 	todo := Todo{
-		ID:   "id",
-		Text: "Store me first!",
-		Done: true,
+		ID:        "id",
+		Text:      "Store me first!",
+		Completed: true,
 	}
 
 	err := store.Store(context.Background(), todo)
@@ -49,15 +49,15 @@ func TestInMemoryStore_ListsAllTodos(t *testing.T) {
 	store := NewInMemoryStore()
 
 	store.todos["id"] = Todo{
-		ID:   "id",
-		Text: "Store me first!",
-		Done: true,
+		ID:        "id",
+		Text:      "Store me first!",
+		Completed: true,
 	}
 
 	store.todos["id2"] = Todo{
-		ID:   "id2",
-		Text: "Store me second!",
-		Done: true,
+		ID:        "id2",
+		Text:      "Store me second!",
+		Completed: true,
 	}
 
 	todos, err := store.All(context.Background())
@@ -113,15 +113,15 @@ func TestReadOnlyStore_ListsAllTodos(t *testing.T) {
 	store := NewReadOnlyStore(inmemStore)
 
 	inmemStore.todos["id"] = Todo{
-		ID:   "id",
-		Text: "Store me first!",
-		Done: true,
+		ID:        "id",
+		Text:      "Store me first!",
+		Completed: true,
 	}
 
 	inmemStore.todos["id2"] = Todo{
-		ID:   "id2",
-		Text: "Store me second!",
-		Done: true,
+		ID:        "id2",
+		Text:      "Store me second!",
+		Completed: true,
 	}
 
 	todos, err := store.All(context.Background())

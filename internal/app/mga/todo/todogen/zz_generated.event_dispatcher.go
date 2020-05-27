@@ -26,11 +26,11 @@ func NewEventDispatcher(bus EventBus) EventDispatcher {
 	return EventDispatcher{bus: bus}
 }
 
-// MarkedAsDone dispatches a(n) MarkedAsDone event.
-func (d EventDispatcher) MarkedAsDone(ctx context.Context, event todo.MarkedAsDone) error {
+// MarkedAsComplete dispatches a(n) MarkedAsComplete event.
+func (d EventDispatcher) MarkedAsComplete(ctx context.Context, event todo.MarkedAsComplete) error {
 	err := d.bus.Publish(ctx, event)
 	if err != nil {
-		return errors.WithDetails(errors.WithMessage(err, "failed to dispatch event"), "event", "MarkedAsDone")
+		return errors.WithDetails(errors.WithMessage(err, "failed to dispatch event"), "event", "MarkedAsComplete")
 	}
 
 	return nil

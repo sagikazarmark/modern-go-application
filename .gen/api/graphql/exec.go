@@ -44,8 +44,8 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Mutation struct {
-		CreateTodo     func(childComplexity int, input NewTodo) int
-		MarkTodoAsDone func(childComplexity int, input string) int
+		CreateTodo         func(childComplexity int, input NewTodo) int
+		MarkTodoAsComplete func(childComplexity int, input string) int
 	}
 
 	Query struct {
@@ -53,15 +53,15 @@ type ComplexityRoot struct {
 	}
 
 	Todo struct {
-		Done func(childComplexity int) int
-		ID   func(childComplexity int) int
-		Text func(childComplexity int) int
+		Completed func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Text      func(childComplexity int) int
 	}
 }
 
 type MutationResolver interface {
 	CreateTodo(ctx context.Context, input NewTodo) (string, error)
-	MarkTodoAsDone(ctx context.Context, input string) (bool, error)
+	MarkTodoAsComplete(ctx context.Context, input string) (bool, error)
 }
 type QueryResolver interface {
 	Todos(ctx context.Context) ([]*todo.Todo, error)
@@ -94,17 +94,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateTodo(childComplexity, args["input"].(NewTodo)), true
 
-	case "Mutation.markTodoAsDone":
-		if e.complexity.Mutation.MarkTodoAsDone == nil {
+	case "Mutation.markTodoAsComplete":
+		if e.complexity.Mutation.MarkTodoAsComplete == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_markTodoAsDone_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_markTodoAsComplete_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.MarkTodoAsDone(childComplexity, args["input"].(string)), true
+		return e.complexity.Mutation.MarkTodoAsComplete(childComplexity, args["input"].(string)), true
 
 	case "Query.todos":
 		if e.complexity.Query.Todos == nil {
@@ -113,12 +113,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Todos(childComplexity), true
 
-	case "Todo.done":
-		if e.complexity.Todo.Done == nil {
+	case "Todo.completed":
+		if e.complexity.Todo.Completed == nil {
 			break
 		}
 
-		return e.complexity.Todo.Done(childComplexity), true
+		return e.complexity.Todo.Completed(childComplexity), true
 
 	case "Todo.id":
 		if e.complexity.Todo.ID == nil {
@@ -201,7 +201,7 @@ var sources = []*ast.Source{
 	&ast.Source{Name: "api/graphql/todo.graphql", Input: `type Todo {
     id: ID!
     text: String!
-    done: Boolean!
+    completed: Boolean!
 }
 
 type Query {
@@ -214,7 +214,7 @@ input NewTodo {
 
 type Mutation {
     createTodo(input: NewTodo!): ID!
-    markTodoAsDone(input: ID!): Boolean!
+    markTodoAsComplete(input: ID!): Boolean!
 }
 `, BuiltIn: false},
 }
@@ -238,7 +238,7 @@ func (ec *executionContext) field_Mutation_createTodo_args(ctx context.Context, 
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_markTodoAsDone_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_markTodoAsComplete_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -343,7 +343,7 @@ func (ec *executionContext) _Mutation_createTodo(ctx context.Context, field grap
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Mutation_markTodoAsDone(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Mutation_markTodoAsComplete(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -359,7 +359,7 @@ func (ec *executionContext) _Mutation_markTodoAsDone(ctx context.Context, field 
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_markTodoAsDone_args(ctx, rawArgs)
+	args, err := ec.field_Mutation_markTodoAsComplete_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -367,7 +367,7 @@ func (ec *executionContext) _Mutation_markTodoAsDone(ctx context.Context, field 
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().MarkTodoAsDone(rctx, args["input"].(string))
+		return ec.resolvers.Mutation().MarkTodoAsComplete(rctx, args["input"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -555,7 +555,7 @@ func (ec *executionContext) _Todo_text(ctx context.Context, field graphql.Collec
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Todo_done(ctx context.Context, field graphql.CollectedField, obj *todo.Todo) (ret graphql.Marshaler) {
+func (ec *executionContext) _Todo_completed(ctx context.Context, field graphql.CollectedField, obj *todo.Todo) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -572,7 +572,7 @@ func (ec *executionContext) _Todo_done(ctx context.Context, field graphql.Collec
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Done, nil
+		return obj.Completed, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1690,8 +1690,8 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "markTodoAsDone":
-			out.Values[i] = ec._Mutation_markTodoAsDone(ctx, field)
+		case "markTodoAsComplete":
+			out.Values[i] = ec._Mutation_markTodoAsComplete(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -1771,8 +1771,8 @@ func (ec *executionContext) _Todo(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "done":
-			out.Values[i] = ec._Todo_done(ctx, field, obj)
+		case "completed":
+			out.Values[i] = ec._Todo_completed(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

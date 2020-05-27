@@ -57,12 +57,12 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input graphql.NewTodo
 	return resp.(CreateTodoResponse).Id, nil
 }
 
-func (r *mutationResolver) MarkTodoAsDone(ctx context.Context, input string) (bool, error) {
-	req := MarkAsDoneRequest{
+func (r *mutationResolver) MarkTodoAsComplete(ctx context.Context, input string) (bool, error) {
+	req := MarkAsCompleteRequest{
 		Id: input,
 	}
 
-	resp, err := r.endpoints.MarkAsDone(ctx, req)
+	resp, err := r.endpoints.MarkAsComplete(ctx, req)
 	if err != nil {
 		r.errorHandler.HandleContext(ctx, err)
 

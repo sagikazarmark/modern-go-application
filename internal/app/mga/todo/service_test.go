@@ -13,11 +13,11 @@ import (
 )
 
 type todoEventsStub struct {
-	markedAsDone MarkedAsDone
+	markedAsComplete MarkedAsComplete
 }
 
-func (s *todoEventsStub) MarkedAsDone(ctx context.Context, event MarkedAsDone) error {
-	s.markedAsDone = event
+func (s *todoEventsStub) MarkedAsComplete(ctx context.Context, event MarkedAsComplete) error {
+	s.markedAsComplete = event
 
 	return nil
 }
@@ -72,7 +72,7 @@ func TestList_ListTodos(t *testing.T) {
 	assert.Equal(t, expectedTodos, todos)
 }
 
-func TestList_MarkAsDone(t *testing.T) {
+func TestList_MarkAsComplete(t *testing.T) {
 	todoStore := NewInMemoryStore()
 
 	const id = "id"
@@ -86,25 +86,25 @@ func TestList_MarkAsDone(t *testing.T) {
 	events := &todoEventsStub{}
 	todoList := NewService(nil, todoStore, events)
 
-	err := todoList.MarkAsDone(context.Background(), id)
+	err := todoList.MarkAsComplete(context.Background(), id)
 	require.NoError(t, err)
 
 	expectedTodo := todo
-	expectedTodo.Done = true
+	expectedTodo.Completed = true
 
 	actualTodo, err := todoStore.Get(context.Background(), todo.ID)
 	require.NoError(t, err)
 
 	assert.Equal(t, expectedTodo, actualTodo)
 
-	expectedEvent := MarkedAsDone{
+	expectedEvent := MarkedAsComplete{
 		ID: "id",
 	}
 
-	assert.Equal(t, expectedEvent, events.markedAsDone)
+	assert.Equal(t, expectedEvent, events.markedAsComplete)
 }
 
-func TestList_CannotMarkANonExistingTodoDone(t *testing.T) {
+func TestList_CannotMarkANonExistingTodoComplete(t *testing.T) {
 	todoStore := NewInMemoryStore()
 
 	events := &todoEventsStub{}
@@ -112,7 +112,7 @@ func TestList_CannotMarkANonExistingTodoDone(t *testing.T) {
 
 	const id = "id"
 
-	err := todoList.MarkAsDone(context.Background(), id)
+	err := todoList.MarkAsComplete(context.Background(), id)
 	require.Error(t, err)
 
 	cause := errors.Cause(err)
@@ -123,7 +123,7 @@ func TestList_CannotMarkANonExistingTodoDone(t *testing.T) {
 	assert.Equal(t, id, e.ID)
 }
 
-func TestList_StoringDoneTodoFails(t *testing.T) {
+func TestList_StoringCompleteTodoFails(t *testing.T) {
 	inmemTodoStore := NewInMemoryStore()
 
 	todo := Todo{
@@ -134,7 +134,7 @@ func TestList_StoringDoneTodoFails(t *testing.T) {
 
 	todoList := NewService(nil, NewReadOnlyStore(inmemTodoStore), &todoEventsStub{})
 
-	err := todoList.MarkAsDone(context.Background(), "id")
+	err := todoList.MarkAsComplete(context.Background(), "id")
 	require.Error(t, err)
 }
 
@@ -241,9 +241,9 @@ func TestList(t *testing.T) {
 		const id = "todo"
 
 		err := fctx.Store.Store(context.Background(), Todo{
-			ID:   id,
-			Text: text,
-			Done: false,
+			ID:        id,
+			Text:      text,
+			Completed: false,
 		})
 		if err != nil {
 			t.Fatal(err)
@@ -252,12 +252,12 @@ func TestList(t *testing.T) {
 		ctx.Set("id", id)
 	})
 
-	suite.AddStep(`(?:I|the user) marks? it as done`, func(t gobdd.StepTest, ctx gobdd.Context) {
+	suite.AddStep(`(?:I|the user) marks? it as complete`, func(t gobdd.StepTest, ctx gobdd.Context) {
 		fctx := getFeatureContext(t, ctx)
 
 		id, _ := ctx.GetString("id")
 
-		err := fctx.Service.MarkAsDone(context.Background(), id)
+		err := fctx.Service.MarkAsComplete(context.Background(), id)
 		if err != nil {
 			var cerr interface{ ServiceError() bool }
 
@@ -271,7 +271,7 @@ func TestList(t *testing.T) {
 		}
 	})
 
-	suite.AddStep(`it should be done`, func(t gobdd.StepTest, ctx gobdd.Context) {
+	suite.AddStep(`it should be complete`, func(t gobdd.StepTest, ctx gobdd.Context) {
 		if err, _ := ctx.GetError("error", nil); err != nil {
 			t.Fatal(err)
 		}
@@ -285,8 +285,8 @@ func TestList(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if !todo.Done {
-			t.Error("todo is expected to be done")
+		if !todo.Completed {
+			t.Error("todo is expected to be complete")
 		}
 	})
 

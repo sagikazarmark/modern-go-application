@@ -53,9 +53,9 @@ paths:
           description: unexpected error
       summary: Add a new TODO to the list
       x-codegen-request-body-name: body
-  /todos/{id}/done:
+  /todos/{id}/complete:
     patch:
-      operationId: markAsDone
+      operationId: markAsComplete
       parameters:
       - description: Numeric ID of the TODO
         in: path
@@ -82,23 +82,22 @@ paths:
               schema:
                 $ref: '#/components/schemas/GenericError'
           description: unexpected error
-      summary: Mark a TODO as done
+      summary: Mark a TODO as complete
 components:
   schemas:
     Todo:
       example:
         id: id
         text: text
-        done: true
+        completed: true
       properties:
         id:
           type: string
         text:
           type: string
-        done:
+        completed:
           type: boolean
       required:
-      - done
       - id
       - text
       type: object
@@ -107,10 +106,10 @@ components:
         todos:
         - id: id
           text: text
-          done: true
+          completed: true
         - id: id
           text: text
-          done: true
+          completed: true
       properties:
         todos:
           items:

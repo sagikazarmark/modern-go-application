@@ -27,7 +27,7 @@ func (s entStore) Store(ctx context.Context, todo todo.Todo) error {
 		_, err := s.client.Todo.Create().
 			SetUID(todo.ID).
 			SetText(todo.Text).
-			SetDone(todo.Done).
+			SetCompleted(todo.Completed).
 			Save(ctx)
 		if err != nil {
 			return err
@@ -41,7 +41,7 @@ func (s entStore) Store(ctx context.Context, todo todo.Todo) error {
 
 	_, err = s.client.Todo.UpdateOneID(existing.ID).
 		SetText(todo.Text).
-		SetDone(todo.Done).
+		SetCompleted(todo.Completed).
 		Save(ctx)
 	if err != nil {
 		return err
@@ -60,9 +60,9 @@ func (s entStore) All(ctx context.Context) ([]todo.Todo, error) {
 
 	for _, todoModel := range todoModels {
 		todos = append(todos, todo.Todo{
-			ID:   todoModel.UID,
-			Text: todoModel.Text,
-			Done: todoModel.Done,
+			ID:        todoModel.UID,
+			Text:      todoModel.Text,
+			Completed: todoModel.Completed,
 		})
 	}
 
@@ -76,8 +76,8 @@ func (s entStore) Get(ctx context.Context, id string) (todo.Todo, error) {
 	}
 
 	return todo.Todo{
-		ID:   todoModel.UID,
-		Text: todoModel.Text,
-		Done: todoModel.Done,
+		ID:        todoModel.UID,
+		Text:      todoModel.Text,
+		Completed: todoModel.Completed,
 	}, nil
 }

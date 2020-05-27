@@ -21,7 +21,7 @@ func (Todo) Fields() []ent.Field {
 			Unique().
 			Immutable(),
 		field.Text("text"),
-		field.Bool("done"),
+		field.Bool("completed"),
 		field.Time("created_at").
 			Default(time.Now),
 		field.Time("updated_at").

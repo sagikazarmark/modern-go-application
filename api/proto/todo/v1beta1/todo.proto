@@ -14,5 +14,5 @@ option php_namespace = "Todo\\V1Beta1";
 message Todo {
   string id = 1;
   string text = 2;
-  bool done = 3;
+  bool completed = 3;
 }

@@ -20,8 +20,8 @@ type Todo struct {
 	UID string `json:"uid,omitempty"`
 	// Text holds the value of the "text" field.
 	Text string `json:"text,omitempty"`
-	// Done holds the value of the "done" field.
-	Done bool `json:"done,omitempty"`
+	// Completed holds the value of the "completed" field.
+	Completed bool `json:"completed,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -34,7 +34,7 @@ func (*Todo) scanValues() []interface{} {
 		&sql.NullInt64{},  // id
 		&sql.NullString{}, // uid
 		&sql.NullString{}, // text
-		&sql.NullBool{},   // done
+		&sql.NullBool{},   // completed
 		&sql.NullTime{},   // created_at
 		&sql.NullTime{},   // updated_at
 	}
@@ -63,9 +63,9 @@ func (t *Todo) assignValues(values ...interface{}) error {
 		t.Text = value.String
 	}
 	if value, ok := values[2].(*sql.NullBool); !ok {
-		return fmt.Errorf("unexpected type %T for field done", values[2])
+		return fmt.Errorf("unexpected type %T for field completed", values[2])
 	} else if value.Valid {
-		t.Done = value.Bool
+		t.Completed = value.Bool
 	}
 	if value, ok := values[3].(*sql.NullTime); !ok {
 		return fmt.Errorf("unexpected type %T for field created_at", values[3])
@@ -84,7 +84,7 @@ func (t *Todo) assignValues(values ...interface{}) error {
 // Note that, you need to call Todo.Unwrap() before calling this method, if this Todo
 // was returned from a transaction, and the transaction was committed or rolled back.
 func (t *Todo) Update() *TodoUpdateOne {
-	return (&TodoClient{t.config}).UpdateOne(t)
+	return (&TodoClient{config: t.config}).UpdateOne(t)
 }
 
 // Unwrap unwraps the entity that was returned from a transaction after it was closed,
@@ -107,8 +107,8 @@ func (t *Todo) String() string {
 	builder.WriteString(t.UID)
 	builder.WriteString(", text=")
 	builder.WriteString(t.Text)
-	builder.WriteString(", done=")
-	builder.WriteString(fmt.Sprintf("%v", t.Done))
+	builder.WriteString(", completed=")
+	builder.WriteString(fmt.Sprintf("%v", t.Completed))
 	builder.WriteString(", created_at=")
 	builder.WriteString(t.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", updated_at=")

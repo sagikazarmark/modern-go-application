@@ -2,6 +2,6 @@
     todos {
         id
         text
-        done
+        completed
     }
 }

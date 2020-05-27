@@ -78,7 +78,7 @@
                     "refId": "A"
                 },
                 {
-                    "expr": "increase(todo_done_count{app_kubernetes_io_instance=\"$app\"}[1m])",
+                    "expr": "increase(todo_complete_count{app_kubernetes_io_instance=\"$app\"}[1m])",
                     "format": "time_series",
                     "intervalFactor": 1,
                     "legendFormat": "Done",

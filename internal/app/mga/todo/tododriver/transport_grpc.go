@@ -27,10 +27,10 @@ func MakeGRPCServer(endpoints Endpoints, options ...kitgrpc.ServerOption) todov1
 			kitxgrpc.ErrorResponseEncoder(encodeListTodosGRPCResponse, errorEncoder),
 			options...,
 		), errorEncoder),
-		MarkAsDoneHandler: kitxgrpc.NewErrorEncoderHandler(kitgrpc.NewServer(
-			endpoints.MarkAsDone,
-			decodeMarkAsDoneGRPCRequest,
-			kitxgrpc.ErrorResponseEncoder(encodeMarkAsDoneGRPCResponse, errorEncoder),
+		MarkAsCompleteHandler: kitxgrpc.NewErrorEncoderHandler(kitgrpc.NewServer(
+			endpoints.MarkAsComplete,
+			decodeMarkAsCompleteGRPCRequest,
+			kitxgrpc.ErrorResponseEncoder(encodeMarkAsCompleteGRPCResponse, errorEncoder),
 			options...,
 		), errorEncoder),
 	}
@@ -65,23 +65,23 @@ func encodeListTodosGRPCResponse(_ context.Context, response interface{}) (inter
 
 	for i, t := range resp.Todos {
 		grpcResp.Todos[i] = &todov1beta1.Todo{
-			Id:   t.ID,
-			Text: t.Text,
-			Done: t.Done,
+			Id:        t.ID,
+			Text:      t.Text,
+			Completed: t.Completed,
 		}
 	}
 
 	return grpcResp, nil
 }
 
-func decodeMarkAsDoneGRPCRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
-	req := grpcReq.(*todov1beta1.MarkAsDoneRequest)
+func decodeMarkAsCompleteGRPCRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req := grpcReq.(*todov1beta1.MarkAsCompleteRequest)
 
-	return MarkAsDoneRequest{
+	return MarkAsCompleteRequest{
 		Id: req.GetId(),
 	}, nil
 }
 
-func encodeMarkAsDoneGRPCResponse(_ context.Context, _ interface{}) (interface{}, error) {
-	return &todov1beta1.MarkAsDoneResponse{}, nil
+func encodeMarkAsCompleteGRPCResponse(_ context.Context, _ interface{}) (interface{}, error) {
+	return &todov1beta1.MarkAsCompleteResponse{}, nil
 }

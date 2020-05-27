@@ -32,9 +32,9 @@ func RegisterHTTPHandlers(endpoints Endpoints, router *mux.Router, options ...ki
 		options...,
 	))
 
-	router.Methods(http.MethodPost).Path("/{id}/done").Handler(kithttp.NewServer(
-		endpoints.MarkAsDone,
-		decodeMarkAsDoneHTTPRequest,
+	router.Methods(http.MethodPost).Path("/{id}/complete").Handler(kithttp.NewServer(
+		endpoints.MarkAsComplete,
+		decodeMarkAsCompleteHTTPRequest,
 		kitxhttp.ErrorResponseEncoder(kitxhttp.NopResponseEncoder, errorEncoder),
 		options...,
 	))
@@ -70,16 +70,16 @@ func encodeListTodosHTTPResponse(ctx context.Context, w http.ResponseWriter, res
 
 	for _, todo := range resp.Todos {
 		apiResponse.Todos = append(apiResponse.Todos, api.Todo{
-			Id:   todo.ID,
-			Text: todo.Text,
-			Done: todo.Done,
+			Id:        todo.ID,
+			Text:      todo.Text,
+			Completed: todo.Completed,
 		})
 	}
 
 	return kitxhttp.JSONResponseEncoder(ctx, w, apiResponse)
 }
 
-func decodeMarkAsDoneHTTPRequest(_ context.Context, r *http.Request) (interface{}, error) {
+func decodeMarkAsCompleteHTTPRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	vars := mux.Vars(r)
 
 	id, ok := vars["id"]
@@ -87,7 +87,7 @@ func decodeMarkAsDoneHTTPRequest(_ context.Context, r *http.Request) (interface{
 		return nil, errors.NewWithDetails("missing parameter from the URL", "param", "id")
 	}
 
-	return MarkAsDoneRequest{
+	return MarkAsCompleteRequest{
 		Id: id,
 	}, nil
 }

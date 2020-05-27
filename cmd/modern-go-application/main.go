@@ -264,7 +264,7 @@ func main() {
 
 		// Todo
 		tododriver.CreatedTodoCountView,
-		tododriver.DoneTodoCountView,
+		tododriver.CompleteTodoCountView,
 	)
 	emperror.Panic(errors.Wrap(err, "failed to register stat views"))
 

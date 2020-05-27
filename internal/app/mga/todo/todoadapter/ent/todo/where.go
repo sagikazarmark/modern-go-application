@@ -106,10 +106,10 @@ func Text(v string) predicate.Todo {
 	})
 }
 
-// Done applies equality check predicate on the "done" field. It's identical to DoneEQ.
-func Done(v bool) predicate.Todo {
+// Completed applies equality check predicate on the "completed" field. It's identical to CompletedEQ.
+func Completed(v bool) predicate.Todo {
 	return predicate.Todo(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldDone), v))
+		s.Where(sql.EQ(s.C(FieldCompleted), v))
 	})
 }
 
@@ -349,17 +349,17 @@ func TextContainsFold(v string) predicate.Todo {
 	})
 }
 
-// DoneEQ applies the EQ predicate on the "done" field.
-func DoneEQ(v bool) predicate.Todo {
+// CompletedEQ applies the EQ predicate on the "completed" field.
+func CompletedEQ(v bool) predicate.Todo {
 	return predicate.Todo(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldDone), v))
+		s.Where(sql.EQ(s.C(FieldCompleted), v))
 	})
 }
 
-// DoneNEQ applies the NEQ predicate on the "done" field.
-func DoneNEQ(v bool) predicate.Todo {
+// CompletedNEQ applies the NEQ predicate on the "completed" field.
+func CompletedNEQ(v bool) predicate.Todo {
 	return predicate.Todo(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldDone), v))
+		s.Where(sql.NEQ(s.C(FieldCompleted), v))
 	})
 }
 

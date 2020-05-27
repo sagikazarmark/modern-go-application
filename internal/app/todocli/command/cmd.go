@@ -16,6 +16,6 @@ func AddCommands(cmd *cobra.Command, c Context) {
 	cmd.AddCommand(
 		NewCreateCommand(c),
 		NewListCommand(c),
-		NewMarkAsDoneCommand(c),
+		NewMarkAsCompleteCommand(c),
 	)
 }

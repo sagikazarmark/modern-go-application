@@ -26,9 +26,9 @@ type serviceError interface {
 // meant to be used as a helper struct, to collect all of the endpoints into a
 // single parameter.
 type Endpoints struct {
-	CreateTodo endpoint.Endpoint
-	ListTodos  endpoint.Endpoint
-	MarkAsDone endpoint.Endpoint
+	CreateTodo     endpoint.Endpoint
+	ListTodos      endpoint.Endpoint
+	MarkAsComplete endpoint.Endpoint
 }
 
 // MakeEndpoints returns a(n) Endpoints struct where each endpoint invokes
@@ -37,9 +37,9 @@ func MakeEndpoints(service todo.Service, middleware ...endpoint.Middleware) Endp
 	mw := kitxendpoint.Combine(middleware...)
 
 	return Endpoints{
-		CreateTodo: kitxendpoint.OperationNameMiddleware("todo.CreateTodo")(mw(MakeCreateTodoEndpoint(service))),
-		ListTodos:  kitxendpoint.OperationNameMiddleware("todo.ListTodos")(mw(MakeListTodosEndpoint(service))),
-		MarkAsDone: kitxendpoint.OperationNameMiddleware("todo.MarkAsDone")(mw(MakeMarkAsDoneEndpoint(service))),
+		CreateTodo:     kitxendpoint.OperationNameMiddleware("todo.CreateTodo")(mw(MakeCreateTodoEndpoint(service))),
+		ListTodos:      kitxendpoint.OperationNameMiddleware("todo.ListTodos")(mw(MakeListTodosEndpoint(service))),
+		MarkAsComplete: kitxendpoint.OperationNameMiddleware("todo.MarkAsComplete")(mw(MakeMarkAsCompleteEndpoint(service))),
 	}
 }
 
@@ -119,35 +119,35 @@ func MakeListTodosEndpoint(service todo.Service) endpoint.Endpoint {
 	}
 }
 
-// MarkAsDoneRequest is a request struct for MarkAsDone endpoint.
-type MarkAsDoneRequest struct {
+// MarkAsCompleteRequest is a request struct for MarkAsComplete endpoint.
+type MarkAsCompleteRequest struct {
 	Id string
 }
 
-// MarkAsDoneResponse is a response struct for MarkAsDone endpoint.
-type MarkAsDoneResponse struct {
+// MarkAsCompleteResponse is a response struct for MarkAsComplete endpoint.
+type MarkAsCompleteResponse struct {
 	Err error
 }
 
-func (r MarkAsDoneResponse) Failed() error {
+func (r MarkAsCompleteResponse) Failed() error {
 	return r.Err
 }
 
-// MakeMarkAsDoneEndpoint returns an endpoint for the matching method of the underlying service.
-func MakeMarkAsDoneEndpoint(service todo.Service) endpoint.Endpoint {
+// MakeMarkAsCompleteEndpoint returns an endpoint for the matching method of the underlying service.
+func MakeMarkAsCompleteEndpoint(service todo.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(MarkAsDoneRequest)
+		req := request.(MarkAsCompleteRequest)
 
-		err := service.MarkAsDone(ctx, req.Id)
+		err := service.MarkAsComplete(ctx, req.Id)
 
 		if err != nil {
 			if serviceErr := serviceError(nil); errors.As(err, &serviceErr) && serviceErr.ServiceError() {
-				return MarkAsDoneResponse{Err: err}, nil
+				return MarkAsCompleteResponse{Err: err}, nil
 			}
 
-			return MarkAsDoneResponse{Err: err}, err
+			return MarkAsCompleteResponse{Err: err}, err
 		}
 
-		return MarkAsDoneResponse{}, nil
+		return MarkAsCompleteResponse{}, nil
 	}
 }

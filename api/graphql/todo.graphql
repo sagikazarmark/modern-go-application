@@ -1,7 +1,7 @@
 type Todo {
     id: ID!
     text: String!
-    done: Boolean!
+    completed: Boolean!
 }
 
 type Query {
@@ -14,5 +14,5 @@ input NewTodo {
 
 type Mutation {
     createTodo(input: NewTodo!): ID!
-    markTodoAsDone(input: ID!): Boolean!
+    markTodoAsComplete(input: ID!): Boolean!
 }

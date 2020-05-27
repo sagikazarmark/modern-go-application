@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/facebookincubator/ent/dialect/sql"
@@ -16,11 +17,8 @@ import (
 // TodoUpdate is the builder for updating Todo entities.
 type TodoUpdate struct {
 	config
-
-	text       *string
-	done       *bool
-	created_at *time.Time
-	updated_at *time.Time
+	hooks      []Hook
+	mutation   *TodoMutation
 	predicates []predicate.Todo
 }
 
@@ -32,19 +30,19 @@ func (tu *TodoUpdate) Where(ps ...predicate.Todo) *TodoUpdate {
 
 // SetText sets the text field.
 func (tu *TodoUpdate) SetText(s string) *TodoUpdate {
-	tu.text = &s
+	tu.mutation.SetText(s)
 	return tu
 }
 
-// SetDone sets the done field.
-func (tu *TodoUpdate) SetDone(b bool) *TodoUpdate {
-	tu.done = &b
+// SetCompleted sets the completed field.
+func (tu *TodoUpdate) SetCompleted(b bool) *TodoUpdate {
+	tu.mutation.SetCompleted(b)
 	return tu
 }
 
 // SetCreatedAt sets the created_at field.
 func (tu *TodoUpdate) SetCreatedAt(t time.Time) *TodoUpdate {
-	tu.created_at = &t
+	tu.mutation.SetCreatedAt(t)
 	return tu
 }
 
@@ -58,17 +56,40 @@ func (tu *TodoUpdate) SetNillableCreatedAt(t *time.Time) *TodoUpdate {
 
 // SetUpdatedAt sets the updated_at field.
 func (tu *TodoUpdate) SetUpdatedAt(t time.Time) *TodoUpdate {
-	tu.updated_at = &t
+	tu.mutation.SetUpdatedAt(t)
 	return tu
 }
 
 // Save executes the query and returns the number of rows/vertices matched by this operation.
 func (tu *TodoUpdate) Save(ctx context.Context) (int, error) {
-	if tu.updated_at == nil {
+	if _, ok := tu.mutation.UpdatedAt(); !ok {
 		v := todo.UpdateDefaultUpdatedAt()
-		tu.updated_at = &v
+		tu.mutation.SetUpdatedAt(v)
 	}
-	return tu.sqlSave(ctx)
+	var (
+		err      error
+		affected int
+	)
+	if len(tu.hooks) == 0 {
+		affected, err = tu.sqlSave(ctx)
+	} else {
+		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
+			mutation, ok := m.(*TodoMutation)
+			if !ok {
+				return nil, fmt.Errorf("unexpected mutation type %T", m)
+			}
+			tu.mutation = mutation
+			affected, err = tu.sqlSave(ctx)
+			return affected, err
+		})
+		for i := len(tu.hooks) - 1; i >= 0; i-- {
+			mut = tu.hooks[i](mut)
+		}
+		if _, err := mut.Mutate(ctx, tu.mutation); err != nil {
+			return 0, err
+		}
+	}
+	return affected, err
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -111,36 +132,38 @@ func (tu *TodoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value := tu.text; value != nil {
+	if value, ok := tu.mutation.Text(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
-			Value:  *value,
+			Value:  value,
 			Column: todo.FieldText,
 		})
 	}
-	if value := tu.done; value != nil {
+	if value, ok := tu.mutation.Completed(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeBool,
-			Value:  *value,
-			Column: todo.FieldDone,
+			Value:  value,
+			Column: todo.FieldCompleted,
 		})
 	}
-	if value := tu.created_at; value != nil {
+	if value, ok := tu.mutation.CreatedAt(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
-			Value:  *value,
+			Value:  value,
 			Column: todo.FieldCreatedAt,
 		})
 	}
-	if value := tu.updated_at; value != nil {
+	if value, ok := tu.mutation.UpdatedAt(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
-			Value:  *value,
+			Value:  value,
 			Column: todo.FieldUpdatedAt,
 		})
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, tu.driver, _spec); err != nil {
-		if cerr, ok := isSQLConstraintError(err); ok {
+		if _, ok := err.(*sqlgraph.NotFoundError); ok {
+			err = &NotFoundError{todo.Label}
+		} else if cerr, ok := isSQLConstraintError(err); ok {
 			err = cerr
 		}
 		return 0, err
@@ -151,29 +174,25 @@ func (tu *TodoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 // TodoUpdateOne is the builder for updating a single Todo entity.
 type TodoUpdateOne struct {
 	config
-	id int
-
-	text       *string
-	done       *bool
-	created_at *time.Time
-	updated_at *time.Time
+	hooks    []Hook
+	mutation *TodoMutation
 }
 
 // SetText sets the text field.
 func (tuo *TodoUpdateOne) SetText(s string) *TodoUpdateOne {
-	tuo.text = &s
+	tuo.mutation.SetText(s)
 	return tuo
 }
 
-// SetDone sets the done field.
-func (tuo *TodoUpdateOne) SetDone(b bool) *TodoUpdateOne {
-	tuo.done = &b
+// SetCompleted sets the completed field.
+func (tuo *TodoUpdateOne) SetCompleted(b bool) *TodoUpdateOne {
+	tuo.mutation.SetCompleted(b)
 	return tuo
 }
 
 // SetCreatedAt sets the created_at field.
 func (tuo *TodoUpdateOne) SetCreatedAt(t time.Time) *TodoUpdateOne {
-	tuo.created_at = &t
+	tuo.mutation.SetCreatedAt(t)
 	return tuo
 }
 
@@ -187,17 +206,40 @@ func (tuo *TodoUpdateOne) SetNillableCreatedAt(t *time.Time) *TodoUpdateOne {
 
 // SetUpdatedAt sets the updated_at field.
 func (tuo *TodoUpdateOne) SetUpdatedAt(t time.Time) *TodoUpdateOne {
-	tuo.updated_at = &t
+	tuo.mutation.SetUpdatedAt(t)
 	return tuo
 }
 
 // Save executes the query and returns the updated entity.
 func (tuo *TodoUpdateOne) Save(ctx context.Context) (*Todo, error) {
-	if tuo.updated_at == nil {
+	if _, ok := tuo.mutation.UpdatedAt(); !ok {
 		v := todo.UpdateDefaultUpdatedAt()
-		tuo.updated_at = &v
+		tuo.mutation.SetUpdatedAt(v)
 	}
-	return tuo.sqlSave(ctx)
+	var (
+		err  error
+		node *Todo
+	)
+	if len(tuo.hooks) == 0 {
+		node, err = tuo.sqlSave(ctx)
+	} else {
+		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
+			mutation, ok := m.(*TodoMutation)
+			if !ok {
+				return nil, fmt.Errorf("unexpected mutation type %T", m)
+			}
+			tuo.mutation = mutation
+			node, err = tuo.sqlSave(ctx)
+			return node, err
+		})
+		for i := len(tuo.hooks) - 1; i >= 0; i-- {
+			mut = tuo.hooks[i](mut)
+		}
+		if _, err := mut.Mutate(ctx, tuo.mutation); err != nil {
+			return nil, err
+		}
+	}
+	return node, err
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -228,37 +270,41 @@ func (tuo *TodoUpdateOne) sqlSave(ctx context.Context) (t *Todo, err error) {
 			Table:   todo.Table,
 			Columns: todo.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Value:  tuo.id,
 				Type:   field.TypeInt,
 				Column: todo.FieldID,
 			},
 		},
 	}
-	if value := tuo.text; value != nil {
+	id, ok := tuo.mutation.ID()
+	if !ok {
+		return nil, fmt.Errorf("missing Todo.ID for update")
+	}
+	_spec.Node.ID.Value = id
+	if value, ok := tuo.mutation.Text(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
-			Value:  *value,
+			Value:  value,
 			Column: todo.FieldText,
 		})
 	}
-	if value := tuo.done; value != nil {
+	if value, ok := tuo.mutation.Completed(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeBool,
-			Value:  *value,
-			Column: todo.FieldDone,
+			Value:  value,
+			Column: todo.FieldCompleted,
 		})
 	}
-	if value := tuo.created_at; value != nil {
+	if value, ok := tuo.mutation.CreatedAt(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
-			Value:  *value,
+			Value:  value,
 			Column: todo.FieldCreatedAt,
 		})
 	}
-	if value := tuo.updated_at; value != nil {
+	if value, ok := tuo.mutation.UpdatedAt(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
-			Value:  *value,
+			Value:  value,
 			Column: todo.FieldUpdatedAt,
 		})
 	}
@@ -266,7 +312,9 @@ func (tuo *TodoUpdateOne) sqlSave(ctx context.Context) (t *Todo, err error) {
 	_spec.Assign = t.assignValues
 	_spec.ScanValues = t.scanValues()
 	if err = sqlgraph.UpdateNode(ctx, tuo.driver, _spec); err != nil {
-		if cerr, ok := isSQLConstraintError(err); ok {
+		if _, ok := err.(*sqlgraph.NotFoundError); ok {
+			err = &NotFoundError{todo.Label}
+		} else if cerr, ok := isSQLConstraintError(err); ok {
 			err = cerr
 		}
 		return nil, err

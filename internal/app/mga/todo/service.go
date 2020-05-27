@@ -8,9 +8,9 @@ import (
 
 // Todo is a note describing a task to be done.
 type Todo struct {
-	ID   string
-	Text string
-	Done bool
+	ID        string
+	Text      string
+	Completed bool
 }
 
 // +kit:endpoint:errorStrategy=service
@@ -23,8 +23,17 @@ type Service interface {
 	// ListTodos returns the list of todos.
 	ListTodos(ctx context.Context) (todos []Todo, err error)
 
-	// MarkAsDone marks a todo as done.
-	MarkAsDone(ctx context.Context, id string) error
+	// MarkAsComplete marks an item as complete.
+	MarkAsComplete(ctx context.Context, id string) error
+}
+
+// NewService returns a new Service.
+func NewService(idgenerator IDGenerator, store Store, events Events) Service {
+	return &service{
+		idgenerator: idgenerator,
+		store:       store,
+		events:      events,
+	}
 }
 
 type service struct {
@@ -41,17 +50,17 @@ type IDGenerator interface {
 
 // Store provides todo persistence.
 type Store interface {
-	// Store stores a todo.
+	// Store stores an item.
 	Store(ctx context.Context, todo Todo) error
 
-	// All returns all todos.
+	// All returns all items.
 	All(ctx context.Context) ([]Todo, error)
 
-	// Get returns a single todo by its ID.
+	// Get returns a single item by its ID.
 	Get(ctx context.Context, id string) (Todo, error)
 }
 
-// NotFoundError is returned if a todo cannot be found.
+// NotFoundError is returned if an item cannot be found.
 type NotFoundError struct {
 	ID string
 }
@@ -82,24 +91,15 @@ func (NotFoundError) ServiceError() bool {
 
 // Events dispatches todo events.
 type Events interface {
-	// MarkedAsDone dispatches a MarkedAsDone event.
-	MarkedAsDone(ctx context.Context, event MarkedAsDone) error
+	// MarkedAsComplete dispatches a MarkedAsComplete event.
+	MarkedAsComplete(ctx context.Context, event MarkedAsComplete) error
 }
 
 // +mga:event:handler
 
-// MarkedAsDone event is triggered when a todo gets marked as done.
-type MarkedAsDone struct {
+// MarkedAsComplete event is triggered when a todo gets marked as complete.
+type MarkedAsComplete struct {
 	ID string
-}
-
-// NewService returns a new Service.
-func NewService(idgenerator IDGenerator, store Store, events Events) Service {
-	return &service{
-		idgenerator: idgenerator,
-		store:       store,
-		events:      events,
-	}
 }
 
 type validationError struct {
@@ -154,26 +154,26 @@ func (s service) ListTodos(ctx context.Context) ([]Todo, error) {
 	return s.store.All(ctx)
 }
 
-func (s service) MarkAsDone(ctx context.Context, id string) error {
+func (s service) MarkAsComplete(ctx context.Context, id string) error {
 	todo, err := s.store.Get(ctx, id)
 	if err != nil {
-		return errors.WithMessage(err, "failed to mark todo as done")
+		return errors.WithMessage(err, "failed to mark todo as complete")
 	}
 
-	todo.Done = true
+	todo.Completed = true
 
 	err = s.store.Store(ctx, todo)
 	if err != nil {
-		return errors.WithMessage(err, "failed to mark todo as done")
+		return errors.WithMessage(err, "failed to mark todo as complete")
 	}
 
-	event := MarkedAsDone{
+	event := MarkedAsComplete{
 		ID: todo.ID,
 	}
 
-	err = s.events.MarkedAsDone(ctx, event)
+	err = s.events.MarkedAsComplete(ctx, event)
 	if err != nil {
-		return errors.WithMessage(err, "failed to mark todo as done")
+		return errors.WithMessage(err, "failed to mark todo as complete")
 	}
 
 	return nil

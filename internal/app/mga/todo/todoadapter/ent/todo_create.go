@@ -16,34 +16,31 @@ import (
 // TodoCreate is the builder for creating a Todo entity.
 type TodoCreate struct {
 	config
-	uid        *string
-	text       *string
-	done       *bool
-	created_at *time.Time
-	updated_at *time.Time
+	mutation *TodoMutation
+	hooks    []Hook
 }
 
 // SetUID sets the uid field.
 func (tc *TodoCreate) SetUID(s string) *TodoCreate {
-	tc.uid = &s
+	tc.mutation.SetUID(s)
 	return tc
 }
 
 // SetText sets the text field.
 func (tc *TodoCreate) SetText(s string) *TodoCreate {
-	tc.text = &s
+	tc.mutation.SetText(s)
 	return tc
 }
 
-// SetDone sets the done field.
-func (tc *TodoCreate) SetDone(b bool) *TodoCreate {
-	tc.done = &b
+// SetCompleted sets the completed field.
+func (tc *TodoCreate) SetCompleted(b bool) *TodoCreate {
+	tc.mutation.SetCompleted(b)
 	return tc
 }
 
 // SetCreatedAt sets the created_at field.
 func (tc *TodoCreate) SetCreatedAt(t time.Time) *TodoCreate {
-	tc.created_at = &t
+	tc.mutation.SetCreatedAt(t)
 	return tc
 }
 
@@ -57,7 +54,7 @@ func (tc *TodoCreate) SetNillableCreatedAt(t *time.Time) *TodoCreate {
 
 // SetUpdatedAt sets the updated_at field.
 func (tc *TodoCreate) SetUpdatedAt(t time.Time) *TodoCreate {
-	tc.updated_at = &t
+	tc.mutation.SetUpdatedAt(t)
 	return tc
 }
 
@@ -71,27 +68,52 @@ func (tc *TodoCreate) SetNillableUpdatedAt(t *time.Time) *TodoCreate {
 
 // Save creates the Todo in the database.
 func (tc *TodoCreate) Save(ctx context.Context) (*Todo, error) {
-	if tc.uid == nil {
+	if _, ok := tc.mutation.UID(); !ok {
 		return nil, errors.New("ent: missing required field \"uid\"")
 	}
-	if err := todo.UIDValidator(*tc.uid); err != nil {
-		return nil, fmt.Errorf("ent: validator failed for field \"uid\": %v", err)
+	if v, ok := tc.mutation.UID(); ok {
+		if err := todo.UIDValidator(v); err != nil {
+			return nil, fmt.Errorf("ent: validator failed for field \"uid\": %v", err)
+		}
 	}
-	if tc.text == nil {
+	if _, ok := tc.mutation.Text(); !ok {
 		return nil, errors.New("ent: missing required field \"text\"")
 	}
-	if tc.done == nil {
-		return nil, errors.New("ent: missing required field \"done\"")
+	if _, ok := tc.mutation.Completed(); !ok {
+		return nil, errors.New("ent: missing required field \"completed\"")
 	}
-	if tc.created_at == nil {
+	if _, ok := tc.mutation.CreatedAt(); !ok {
 		v := todo.DefaultCreatedAt()
-		tc.created_at = &v
+		tc.mutation.SetCreatedAt(v)
 	}
-	if tc.updated_at == nil {
+	if _, ok := tc.mutation.UpdatedAt(); !ok {
 		v := todo.DefaultUpdatedAt()
-		tc.updated_at = &v
+		tc.mutation.SetUpdatedAt(v)
 	}
-	return tc.sqlSave(ctx)
+	var (
+		err  error
+		node *Todo
+	)
+	if len(tc.hooks) == 0 {
+		node, err = tc.sqlSave(ctx)
+	} else {
+		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
+			mutation, ok := m.(*TodoMutation)
+			if !ok {
+				return nil, fmt.Errorf("unexpected mutation type %T", m)
+			}
+			tc.mutation = mutation
+			node, err = tc.sqlSave(ctx)
+			return node, err
+		})
+		for i := len(tc.hooks) - 1; i >= 0; i-- {
+			mut = tc.hooks[i](mut)
+		}
+		if _, err := mut.Mutate(ctx, tc.mutation); err != nil {
+			return nil, err
+		}
+	}
+	return node, err
 }
 
 // SaveX calls Save and panics if Save returns an error.
@@ -114,45 +136,45 @@ func (tc *TodoCreate) sqlSave(ctx context.Context) (*Todo, error) {
 			},
 		}
 	)
-	if value := tc.uid; value != nil {
+	if value, ok := tc.mutation.UID(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
-			Value:  *value,
+			Value:  value,
 			Column: todo.FieldUID,
 		})
-		t.UID = *value
+		t.UID = value
 	}
-	if value := tc.text; value != nil {
+	if value, ok := tc.mutation.Text(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
-			Value:  *value,
+			Value:  value,
 			Column: todo.FieldText,
 		})
-		t.Text = *value
+		t.Text = value
 	}
-	if value := tc.done; value != nil {
+	if value, ok := tc.mutation.Completed(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeBool,
-			Value:  *value,
-			Column: todo.FieldDone,
+			Value:  value,
+			Column: todo.FieldCompleted,
 		})
-		t.Done = *value
+		t.Completed = value
 	}
-	if value := tc.created_at; value != nil {
+	if value, ok := tc.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
-			Value:  *value,
+			Value:  value,
 			Column: todo.FieldCreatedAt,
 		})
-		t.CreatedAt = *value
+		t.CreatedAt = value
 	}
-	if value := tc.updated_at; value != nil {
+	if value, ok := tc.mutation.UpdatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
-			Value:  *value,
+			Value:  value,
 			Column: todo.FieldUpdatedAt,
 		})
-		t.UpdatedAt = *value
+		t.UpdatedAt = value
 	}
 	if err := sqlgraph.CreateNode(ctx, tc.driver, _spec); err != nil {
 		if cerr, ok := isSQLConstraintError(err); ok {

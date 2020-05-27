@@ -18,8 +18,8 @@ service TodoList {
   rpc CreateTodo(CreateTodoRequest) returns (CreateTodoResponse);
   // ListTodos returns the list of todos.
   rpc ListTodos(ListTodosRequest) returns (ListTodosResponse);
-  // MarkAsDone marks a todo as done.
-  rpc MarkAsDone(MarkAsDoneRequest) returns (MarkAsDoneResponse);
+  // MarkAsComplete marks a todo as complete.
+  rpc MarkAsComplete(MarkAsCompleteRequest) returns (MarkAsCompleteResponse);
 }
 
 message CreateTodoRequest {
@@ -36,8 +36,8 @@ message ListTodosResponse {
   repeated Todo todos = 1;
 }
 
-message MarkAsDoneRequest {
+message MarkAsCompleteRequest {
   string id = 1;
 }
 
-message MarkAsDoneResponse {}
+message MarkAsCompleteResponse {}

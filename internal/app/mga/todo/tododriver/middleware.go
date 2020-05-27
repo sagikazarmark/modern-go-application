@@ -53,14 +53,14 @@ func (mw loggingMiddleware) ListTodos(ctx context.Context) ([]todo.Todo, error) 
 	return mw.next.ListTodos(ctx)
 }
 
-func (mw loggingMiddleware) MarkAsDone(ctx context.Context, id string) error {
+func (mw loggingMiddleware) MarkAsComplete(ctx context.Context, id string) error {
 	logger := mw.logger.WithContext(ctx)
 
-	logger.Info("marking todo as done", map[string]interface{}{
+	logger.Info("marking todo as complete", map[string]interface{}{
 		"id": id,
 	})
 
-	return mw.next.MarkAsDone(ctx, id)
+	return mw.next.MarkAsComplete(ctx, id)
 }
 
 // InstrumentationMiddleware is a service level tracing middleware for TodoList.
@@ -75,8 +75,8 @@ func InstrumentationMiddleware() Middleware {
 // Todo business metrics
 // nolint: gochecknoglobals
 var (
-	CreatedTodoCount = stats.Int64("created_todo_count", "Number of TODOs created", stats.UnitDimensionless)
-	DoneTodoCount    = stats.Int64("done_todo_count", "Number of TODOs marked done", stats.UnitDimensionless)
+	CreatedTodoCount  = stats.Int64("created_todo_count", "Number of TODOs created", stats.UnitDimensionless)
+	CompleteTodoCount = stats.Int64("complete_todo_count", "Number of TODOs marked complete", stats.UnitDimensionless)
 )
 
 // nolint: gochecknoglobals
@@ -88,10 +88,10 @@ var (
 		Aggregation: view.Count(),
 	}
 
-	DoneTodoCountView = &view.View{
-		Name:        "todo_done_count",
-		Description: "Count of TODOs done",
-		Measure:     DoneTodoCount,
+	CompleteTodoCountView = &view.View{
+		Name:        "todo_complete_count",
+		Description: "Count of TODOs complete",
+		Measure:     CompleteTodoCount,
 		Aggregation: view.Count(),
 	}
 )
@@ -116,12 +116,12 @@ func (mw instrumentationMiddleware) ListTodos(ctx context.Context) ([]todo.Todo,
 	return mw.next.ListTodos(ctx)
 }
 
-func (mw instrumentationMiddleware) MarkAsDone(ctx context.Context, id string) error {
+func (mw instrumentationMiddleware) MarkAsComplete(ctx context.Context, id string) error {
 	if span := trace.FromContext(ctx); span != nil {
 		span.AddAttributes(trace.StringAttribute("todo_id", id))
 	}
 
-	stats.Record(ctx, DoneTodoCount.M(1))
+	stats.Record(ctx, CompleteTodoCount.M(1))
 
-	return mw.next.MarkAsDone(ctx, id)
+	return mw.next.MarkAsComplete(ctx, id)
 }

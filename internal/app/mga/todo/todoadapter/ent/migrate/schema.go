@@ -13,7 +13,7 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "uid", Type: field.TypeString, Unique: true, Size: 26},
 		{Name: "text", Type: field.TypeString, Size: 2147483647},
-		{Name: "done", Type: field.TypeBool},
+		{Name: "completed", Type: field.TypeBool},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 	}

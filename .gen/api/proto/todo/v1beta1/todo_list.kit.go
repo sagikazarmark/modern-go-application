@@ -10,9 +10,9 @@ import (
 type TodoListKitServer struct {
 	*UnimplementedTodoListServer
 
-	CreateTodoHandler kitgrpc.Handler
-	ListTodosHandler  kitgrpc.Handler
-	MarkAsDoneHandler kitgrpc.Handler
+	CreateTodoHandler     kitgrpc.Handler
+	ListTodosHandler      kitgrpc.Handler
+	MarkAsCompleteHandler kitgrpc.Handler
 }
 
 func (s TodoListKitServer) CreateTodo(ctx context.Context, req *CreateTodoRequest) (*CreateTodoResponse, error) {
@@ -31,11 +31,11 @@ func (s TodoListKitServer) ListTodos(ctx context.Context, req *ListTodosRequest)
 
 	return resp.(*ListTodosResponse), nil
 }
-func (s TodoListKitServer) MarkAsDone(ctx context.Context, req *MarkAsDoneRequest) (*MarkAsDoneResponse, error) {
-	_, resp, err := s.MarkAsDoneHandler.ServeGRPC(ctx, req)
+func (s TodoListKitServer) MarkAsComplete(ctx context.Context, req *MarkAsCompleteRequest) (*MarkAsCompleteResponse, error) {
+	_, resp, err := s.MarkAsCompleteHandler.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.(*MarkAsDoneResponse), nil
+	return resp.(*MarkAsCompleteResponse), nil
 }
