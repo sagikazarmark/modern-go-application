@@ -62,7 +62,7 @@ func InitializeApp(
 	httpServerOptions := []kithttp.ServerOption{
 		kithttp.ServerErrorHandler(transportErrorHandler),
 		kithttp.ServerErrorEncoder(kitxhttp.NewJSONProblemErrorEncoder(appkithttp.NewDefaultProblemConverter())),
-		kithttp.ServerBefore(correlation.HTTPToContext()),
+		kithttp.ServerBefore(correlation.HTTPToContext(), kithttp.PopulateRequestContext),
 	}
 
 	grpcServerOptions := []kitgrpc.ServerOption{

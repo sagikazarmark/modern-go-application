@@ -3,6 +3,7 @@ package tododriver
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"emperror.dev/errors"
@@ -63,10 +64,14 @@ func decodeCreateTodoHTTPRequest(_ context.Context, r *http.Request) (interface{
 func encodeCreateTodoHTTPResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	resp := response.(CreateTodoResponse)
 
+	host, _ := ctx.Value(kithttp.ContextKeyRequestHost).(string)
+	path, _ := ctx.Value(kithttp.ContextKeyRequestPath).(string)
+
 	apiResponse := api.Todo{
 		Id:        resp.Todo.ID,
 		Title:     resp.Todo.Title,
 		Completed: resp.Todo.Completed,
+		Url:       fmt.Sprintf("%s%s/%s", host, path, resp.Todo.ID),
 	}
 
 	return kitxhttp.JSONResponseEncoder(ctx, w, kitxhttp.WithStatusCode(apiResponse, http.StatusCreated))
@@ -75,6 +80,9 @@ func encodeCreateTodoHTTPResponse(ctx context.Context, w http.ResponseWriter, re
 func encodeListTodosHTTPResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	resp := response.(ListTodosResponse)
 
+	host, _ := ctx.Value(kithttp.ContextKeyRequestHost).(string)
+	path, _ := ctx.Value(kithttp.ContextKeyRequestPath).(string)
+
 	todos := make([]api.Todo, 0, len(resp.Todos))
 
 	for _, todo := range resp.Todos {
@@ -82,6 +90,7 @@ func encodeListTodosHTTPResponse(ctx context.Context, w http.ResponseWriter, res
 			Id:        todo.ID,
 			Title:     todo.Title,
 			Completed: todo.Completed,
+			Url:       fmt.Sprintf("%s%s/%s", host, path, todo.ID),
 		})
 	}
 

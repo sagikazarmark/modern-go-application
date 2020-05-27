@@ -16,4 +16,6 @@ type Todo struct {
 	Title string `json:"title"`
 
 	Completed bool `json:"completed"`
+
+	Url string `json:"url"`
 }

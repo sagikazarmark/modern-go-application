@@ -105,6 +105,7 @@ components:
         id: id
         completed: true
         title: title
+        url: https://openapi-generator.tech
       properties:
         id:
           type: string
@@ -112,10 +113,14 @@ components:
           type: string
         completed:
           type: boolean
+        url:
+          format: uri
+          type: string
       required:
       - completed
       - id
       - title
+      - url
       type: object
     TodoList:
       items:

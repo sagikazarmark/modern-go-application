@@ -118,10 +118,14 @@ definitions:
                 type: "string"
             completed:
                 type: "boolean"
+            url:
+                type: "string"
+                format: "uri"
         required:
             - id
             - title
             - completed
+            - url
 
     TodoList:
         type: "array"
