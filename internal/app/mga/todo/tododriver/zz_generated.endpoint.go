@@ -28,6 +28,7 @@ type serviceError interface {
 type Endpoints struct {
 	CreateTodo     endpoint.Endpoint
 	DeleteAll      endpoint.Endpoint
+	GetItem        endpoint.Endpoint
 	ListTodos      endpoint.Endpoint
 	MarkAsComplete endpoint.Endpoint
 }
@@ -40,6 +41,7 @@ func MakeEndpoints(service todo.Service, middleware ...endpoint.Middleware) Endp
 	return Endpoints{
 		CreateTodo:     kitxendpoint.OperationNameMiddleware("todo.CreateTodo")(mw(MakeCreateTodoEndpoint(service))),
 		DeleteAll:      kitxendpoint.OperationNameMiddleware("todo.DeleteAll")(mw(MakeDeleteAllEndpoint(service))),
+		GetItem:        kitxendpoint.OperationNameMiddleware("todo.GetItem")(mw(MakeGetItemEndpoint(service))),
 		ListTodos:      kitxendpoint.OperationNameMiddleware("todo.ListTodos")(mw(MakeListTodosEndpoint(service))),
 		MarkAsComplete: kitxendpoint.OperationNameMiddleware("todo.MarkAsComplete")(mw(MakeMarkAsCompleteEndpoint(service))),
 	}
@@ -111,6 +113,46 @@ func MakeDeleteAllEndpoint(service todo.Service) endpoint.Endpoint {
 		}
 
 		return DeleteAllResponse{}, nil
+	}
+}
+
+// GetItemRequest is a request struct for GetItem endpoint.
+type GetItemRequest struct {
+	Id string
+}
+
+// GetItemResponse is a response struct for GetItem endpoint.
+type GetItemResponse struct {
+	Todo todo.Todo
+	Err  error
+}
+
+func (r GetItemResponse) Failed() error {
+	return r.Err
+}
+
+// MakeGetItemEndpoint returns an endpoint for the matching method of the underlying service.
+func MakeGetItemEndpoint(service todo.Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(GetItemRequest)
+
+		todo, err := service.GetItem(ctx, req.Id)
+
+		if err != nil {
+			if serviceErr := serviceError(nil); errors.As(err, &serviceErr) && serviceErr.ServiceError() {
+				return GetItemResponse{
+					Err:  err,
+					Todo: todo,
+				}, nil
+			}
+
+			return GetItemResponse{
+				Err:  err,
+				Todo: todo,
+			}, err
+		}
+
+		return GetItemResponse{Todo: todo}, nil
 	}
 }
 

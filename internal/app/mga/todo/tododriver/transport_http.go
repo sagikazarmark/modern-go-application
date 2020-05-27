@@ -40,6 +40,13 @@ func RegisterHTTPHandlers(endpoints Endpoints, router *mux.Router, options ...ki
 		options...,
 	))
 
+	router.Methods(http.MethodGet).Path("/{id}").Handler(kithttp.NewServer(
+		endpoints.GetItem,
+		decodeGetItemHTTPRequest,
+		kitxhttp.ErrorResponseEncoder(encodeGetItemHTTPResponse, errorEncoder),
+		options...,
+	))
+
 	router.Methods(http.MethodPost).Path("/{id}/complete").Handler(kithttp.NewServer(
 		endpoints.MarkAsComplete,
 		decodeMarkAsCompleteHTTPRequest,
@@ -71,7 +78,7 @@ func encodeCreateTodoHTTPResponse(ctx context.Context, w http.ResponseWriter, re
 		Id:        resp.Todo.ID,
 		Title:     resp.Todo.Title,
 		Completed: resp.Todo.Completed,
-		Url:       fmt.Sprintf("%s%s/%s", host, path, resp.Todo.ID),
+		Url:       fmt.Sprintf("http://%s%s/%s", host, path, resp.Todo.ID),
 	}
 
 	return kitxhttp.JSONResponseEncoder(ctx, w, kitxhttp.WithStatusCode(apiResponse, http.StatusCreated))
@@ -90,11 +97,40 @@ func encodeListTodosHTTPResponse(ctx context.Context, w http.ResponseWriter, res
 			Id:        todo.ID,
 			Title:     todo.Title,
 			Completed: todo.Completed,
-			Url:       fmt.Sprintf("%s%s/%s", host, path, todo.ID),
+			Url:       fmt.Sprintf("http://%s%s/%s", host, path, todo.ID),
 		})
 	}
 
 	return kitxhttp.JSONResponseEncoder(ctx, w, todos)
+}
+
+func decodeGetItemHTTPRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	vars := mux.Vars(r)
+
+	id, ok := vars["id"]
+	if !ok || id == "" {
+		return nil, errors.NewWithDetails("missing parameter from the URL", "param", "id")
+	}
+
+	return GetItemRequest{
+		Id: id,
+	}, nil
+}
+
+func encodeGetItemHTTPResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+	resp := response.(GetItemResponse)
+
+	host, _ := ctx.Value(kithttp.ContextKeyRequestHost).(string)
+	path, _ := ctx.Value(kithttp.ContextKeyRequestPath).(string)
+
+	apiResponse := api.Todo{
+		Id:        resp.Todo.ID,
+		Title:     resp.Todo.Title,
+		Completed: resp.Todo.Completed,
+		Url:       fmt.Sprintf("http://%s%s", host, path),
+	}
+
+	return kitxhttp.JSONResponseEncoder(ctx, w, apiResponse)
 }
 
 func decodeMarkAsCompleteHTTPRequest(_ context.Context, r *http.Request) (interface{}, error) {

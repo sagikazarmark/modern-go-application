@@ -23,6 +23,9 @@ type Service interface {
 	// ListTodos returns the list of todos.
 	ListTodos(ctx context.Context) (todos []Todo, err error)
 
+	// GetItem returns the details of an item.
+	GetItem(ctx context.Context, id string) (todo Todo, err error)
+
 	// MarkAsComplete marks an item as complete.
 	MarkAsComplete(ctx context.Context, id string) error
 
@@ -161,6 +164,15 @@ func (s service) CreateTodo(ctx context.Context, text string) (Todo, error) {
 
 func (s service) ListTodos(ctx context.Context) ([]Todo, error) {
 	return s.store.All(ctx)
+}
+
+func (s service) GetItem(ctx context.Context, id string) (Todo, error) {
+	todo, err := s.store.Get(ctx, id)
+	if err != nil {
+		return Todo{}, err
+	}
+
+	return todo, nil
 }
 
 func (s service) MarkAsComplete(ctx context.Context, id string) error {

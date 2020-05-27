@@ -68,6 +68,38 @@ paths:
           description: unexpected error
       summary: Add a new TODO to the list
       x-codegen-request-body-name: body
+  /todos/{id}:
+    get:
+      operationId: getItem
+      parameters:
+      - description: Numeric ID of the TODO
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+          description: successful operation
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+          description: not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+          description: unexpected error
+      summary: Get an item
+      tags:
+      - todos
   /todos/{id}/complete:
     patch:
       operationId: markAsComplete
