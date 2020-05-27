@@ -31,6 +31,7 @@ type Endpoints struct {
 	GetItem        endpoint.Endpoint
 	ListTodos      endpoint.Endpoint
 	MarkAsComplete endpoint.Endpoint
+	UpdateItem     endpoint.Endpoint
 }
 
 // MakeEndpoints returns a(n) Endpoints struct where each endpoint invokes
@@ -44,6 +45,7 @@ func MakeEndpoints(service todo.Service, middleware ...endpoint.Middleware) Endp
 		GetItem:        kitxendpoint.OperationNameMiddleware("todo.GetItem")(mw(MakeGetItemEndpoint(service))),
 		ListTodos:      kitxendpoint.OperationNameMiddleware("todo.ListTodos")(mw(MakeListTodosEndpoint(service))),
 		MarkAsComplete: kitxendpoint.OperationNameMiddleware("todo.MarkAsComplete")(mw(MakeMarkAsCompleteEndpoint(service))),
+		UpdateItem:     kitxendpoint.OperationNameMiddleware("todo.UpdateItem")(mw(MakeUpdateItemEndpoint(service))),
 	}
 }
 
@@ -222,5 +224,47 @@ func MakeMarkAsCompleteEndpoint(service todo.Service) endpoint.Endpoint {
 		}
 
 		return MarkAsCompleteResponse{}, nil
+	}
+}
+
+// UpdateItemRequest is a request struct for UpdateItem endpoint.
+type UpdateItemRequest struct {
+	Id        string
+	Title     *string
+	Completed *bool
+}
+
+// UpdateItemResponse is a response struct for UpdateItem endpoint.
+type UpdateItemResponse struct {
+	Todo todo.Todo
+	Err  error
+}
+
+func (r UpdateItemResponse) Failed() error {
+	return r.Err
+}
+
+// MakeUpdateItemEndpoint returns an endpoint for the matching method of the underlying service.
+func MakeUpdateItemEndpoint(service todo.Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(UpdateItemRequest)
+
+		todo, err := service.UpdateItem(ctx, req.Id, req.Title, req.Completed)
+
+		if err != nil {
+			if serviceErr := serviceError(nil); errors.As(err, &serviceErr) && serviceErr.ServiceError() {
+				return UpdateItemResponse{
+					Err:  err,
+					Todo: todo,
+				}, nil
+			}
+
+			return UpdateItemResponse{
+				Err:  err,
+				Todo: todo,
+			}, err
+		}
+
+		return UpdateItemResponse{Todo: todo}, nil
 	}
 }

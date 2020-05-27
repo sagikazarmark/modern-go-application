@@ -47,6 +47,13 @@ func RegisterHTTPHandlers(endpoints Endpoints, router *mux.Router, options ...ki
 		options...,
 	))
 
+	router.Methods(http.MethodPatch).Path("/{id}").Handler(kithttp.NewServer(
+		endpoints.UpdateItem,
+		decodeUpdateItemHTTPRequest,
+		kitxhttp.ErrorResponseEncoder(encodeUpdateItemHTTPResponse, errorEncoder),
+		options...,
+	))
+
 	router.Methods(http.MethodPost).Path("/{id}/complete").Handler(kithttp.NewServer(
 		endpoints.MarkAsComplete,
 		decodeMarkAsCompleteHTTPRequest,
@@ -119,6 +126,44 @@ func decodeGetItemHTTPRequest(_ context.Context, r *http.Request) (interface{}, 
 
 func encodeGetItemHTTPResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	resp := response.(GetItemResponse)
+
+	host, _ := ctx.Value(kithttp.ContextKeyRequestHost).(string)
+	path, _ := ctx.Value(kithttp.ContextKeyRequestPath).(string)
+
+	apiResponse := api.Todo{
+		Id:        resp.Todo.ID,
+		Title:     resp.Todo.Title,
+		Completed: resp.Todo.Completed,
+		Url:       fmt.Sprintf("http://%s%s", host, path),
+	}
+
+	return kitxhttp.JSONResponseEncoder(ctx, w, apiResponse)
+}
+
+func decodeUpdateItemHTTPRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	vars := mux.Vars(r)
+
+	id, ok := vars["id"]
+	if !ok || id == "" {
+		return nil, errors.NewWithDetails("missing parameter from the URL", "param", "id")
+	}
+
+	var apiRequest api.UpdateTodoRequest
+
+	err := json.NewDecoder(r.Body).Decode(&apiRequest)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to decode request")
+	}
+
+	return UpdateItemRequest{
+		Id:        id,
+		Title:     apiRequest.Title,
+		Completed: apiRequest.Completed,
+	}, nil
+}
+
+func encodeUpdateItemHTTPResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+	resp := response.(UpdateItemResponse)
 
 	host, _ := ctx.Value(kithttp.ContextKeyRequestHost).(string)
 	path, _ := ctx.Value(kithttp.ContextKeyRequestPath).(string)

@@ -26,6 +26,9 @@ type Service interface {
 	// GetItem returns the details of an item.
 	GetItem(ctx context.Context, id string) (todo Todo, err error)
 
+	// UpdateItem updates an existing item.
+	UpdateItem(ctx context.Context, id string, title *string, completed *bool) (todo Todo, err error)
+
 	// MarkAsComplete marks an item as complete.
 	MarkAsComplete(ctx context.Context, id string) error
 
@@ -170,6 +173,32 @@ func (s service) GetItem(ctx context.Context, id string) (Todo, error) {
 	todo, err := s.store.Get(ctx, id)
 	if err != nil {
 		return Todo{}, err
+	}
+
+	return todo, nil
+}
+
+func (s service) UpdateItem(ctx context.Context, id string, title *string, completed *bool) (Todo, error) {
+	todo, err := s.store.Get(ctx, id)
+	if err != nil {
+		return Todo{}, err
+	}
+
+	if title == nil && completed == nil {
+		return todo, nil
+	}
+
+	if title != nil {
+		todo.Title = *title
+	}
+
+	if completed != nil {
+		todo.Completed = *completed
+	}
+
+	err = s.store.Store(ctx, todo)
+	if err != nil {
+		return Todo{}, errors.WithMessage(err, "failed to update item")
 	}
 
 	return todo, nil

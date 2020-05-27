@@ -184,7 +184,7 @@ generate: bin/mga bin/entc ## Generate code
 .PHONY: validate-openapi
 validate-openapi: ## Validate the OpenAPI descriptor
 	for api in `ls ${OPENAPI_DESCRIPTOR_DIR}`; do \
-	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli:v${OPENAPI_GENERATOR_VERSION} validate --recommend -i /local/${OPENAPI_DESCRIPTOR_DIR}/$$api/swagger.yaml; \
+	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli:v${OPENAPI_GENERATOR_VERSION} validate --recommend -i /local/${OPENAPI_DESCRIPTOR_DIR}/$$api/openapi.yaml; \
 	done
 
 .PHONY: openapi
@@ -194,7 +194,7 @@ openapi: ## Generate client and server stubs from the OpenAPI definition
 	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli:v${OPENAPI_GENERATOR_VERSION} generate \
 	--additional-properties packageName=api \
 	--additional-properties withGoCodegenComment=true \
-	-i /local/${OPENAPI_DESCRIPTOR_DIR}/$$api/swagger.yaml \
+	-i /local/${OPENAPI_DESCRIPTOR_DIR}/$$api/openapi.yaml \
 	-g go-server \
 	-o /local/.gen/${OPENAPI_DESCRIPTOR_DIR}/$$api; \
 	rm -rf .gen/${OPENAPI_DESCRIPTOR_DIR}/$$api/{Dockerfile,go.*,README.md,main.go,go/api*.go,go/logger.go,go/routers.go}; \

@@ -63,6 +63,16 @@ func (mw loggingMiddleware) GetItem(ctx context.Context, id string) (todo.Todo, 
 	return mw.next.GetItem(ctx, id)
 }
 
+func (mw loggingMiddleware) UpdateItem(ctx context.Context, id string, title *string, completed *bool) (todo.Todo, error) { // nolint: lll
+	logger := mw.logger.WithContext(ctx)
+
+	logger.Info("updating item", map[string]interface{}{
+		"id": id,
+	})
+
+	return mw.next.UpdateItem(ctx, id, title, completed)
+}
+
 func (mw loggingMiddleware) MarkAsComplete(ctx context.Context, id string) error {
 	logger := mw.logger.WithContext(ctx)
 
@@ -136,6 +146,10 @@ func (mw instrumentationMiddleware) ListTodos(ctx context.Context) ([]todo.Todo,
 
 func (mw instrumentationMiddleware) GetItem(ctx context.Context, id string) (todo.Todo, error) {
 	return mw.next.GetItem(ctx, id)
+}
+
+func (mw instrumentationMiddleware) UpdateItem(ctx context.Context, id string, title *string, completed *bool) (todo.Todo, error) { // nolint: lll
+	return mw.next.UpdateItem(ctx, id, title, completed)
 }
 
 func (mw instrumentationMiddleware) MarkAsComplete(ctx context.Context, id string) error {
