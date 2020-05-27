@@ -56,9 +56,9 @@ paths:
                                 $ref: "#/components/schemas/GenericError"
 
         delete:
-            summary: Delete an item
+            summary: Delete all items
             description: ""
-            operationId: deleteItem
+            operationId: deleteAllItems
             tags:
                 - todos
             responses:
@@ -131,6 +131,22 @@ paths:
                     description: unexpected error
                     content:
                         application/json:
+                            schema:
+                                $ref: "#/components/schemas/GenericError"
+
+        delete:
+            summary: Delete an item
+            description: ""
+            operationId: deleteItem
+            tags:
+                - todos
+            responses:
+                "204":
+                    description: successful operation
+                "500":
+                    description: unexpected error
+                    content:
+                        "*/*":
                             schema:
                                 $ref: "#/components/schemas/GenericError"
 

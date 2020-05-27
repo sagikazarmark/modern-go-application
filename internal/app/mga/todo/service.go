@@ -34,6 +34,9 @@ type Service interface {
 
 	// DeleteAll deletes all items from the list.
 	DeleteAll(ctx context.Context) error
+
+	// DeleteItem deletes an item.
+	DeleteItem(ctx context.Context, id string) error
 }
 
 // NewService returns a new Service.
@@ -70,6 +73,9 @@ type Store interface {
 
 	// DeleteAll deletes all items in the store.
 	DeleteAll(ctx context.Context) error
+
+	// DeleteOne deletes a single item by its ID.
+	DeleteOne(ctx context.Context, id string) error
 }
 
 // NotFoundError is returned if an item cannot be found.
@@ -231,4 +237,13 @@ func (s service) MarkAsComplete(ctx context.Context, id string) error {
 
 func (s service) DeleteAll(ctx context.Context) error {
 	return s.store.DeleteAll(ctx)
+}
+
+func (s service) DeleteItem(ctx context.Context, id string) error {
+	err := s.store.DeleteOne(ctx, id)
+	if err != nil {
+		return errors.WithMessage(err, "failed to delete item")
+	}
+
+	return nil
 }

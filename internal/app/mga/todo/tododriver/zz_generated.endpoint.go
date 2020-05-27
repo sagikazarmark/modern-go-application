@@ -28,6 +28,7 @@ type serviceError interface {
 type Endpoints struct {
 	CreateTodo     endpoint.Endpoint
 	DeleteAll      endpoint.Endpoint
+	DeleteItem     endpoint.Endpoint
 	GetItem        endpoint.Endpoint
 	ListTodos      endpoint.Endpoint
 	MarkAsComplete endpoint.Endpoint
@@ -42,6 +43,7 @@ func MakeEndpoints(service todo.Service, middleware ...endpoint.Middleware) Endp
 	return Endpoints{
 		CreateTodo:     kitxendpoint.OperationNameMiddleware("todo.CreateTodo")(mw(MakeCreateTodoEndpoint(service))),
 		DeleteAll:      kitxendpoint.OperationNameMiddleware("todo.DeleteAll")(mw(MakeDeleteAllEndpoint(service))),
+		DeleteItem:     kitxendpoint.OperationNameMiddleware("todo.DeleteItem")(mw(MakeDeleteItemEndpoint(service))),
 		GetItem:        kitxendpoint.OperationNameMiddleware("todo.GetItem")(mw(MakeGetItemEndpoint(service))),
 		ListTodos:      kitxendpoint.OperationNameMiddleware("todo.ListTodos")(mw(MakeListTodosEndpoint(service))),
 		MarkAsComplete: kitxendpoint.OperationNameMiddleware("todo.MarkAsComplete")(mw(MakeMarkAsCompleteEndpoint(service))),
@@ -115,6 +117,39 @@ func MakeDeleteAllEndpoint(service todo.Service) endpoint.Endpoint {
 		}
 
 		return DeleteAllResponse{}, nil
+	}
+}
+
+// DeleteItemRequest is a request struct for DeleteItem endpoint.
+type DeleteItemRequest struct {
+	Id string
+}
+
+// DeleteItemResponse is a response struct for DeleteItem endpoint.
+type DeleteItemResponse struct {
+	Err error
+}
+
+func (r DeleteItemResponse) Failed() error {
+	return r.Err
+}
+
+// MakeDeleteItemEndpoint returns an endpoint for the matching method of the underlying service.
+func MakeDeleteItemEndpoint(service todo.Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(DeleteItemRequest)
+
+		err := service.DeleteItem(ctx, req.Id)
+
+		if err != nil {
+			if serviceErr := serviceError(nil); errors.As(err, &serviceErr) && serviceErr.ServiceError() {
+				return DeleteItemResponse{Err: err}, nil
+			}
+
+			return DeleteItemResponse{Err: err}, err
+		}
+
+		return DeleteItemResponse{}, nil
 	}
 }
 

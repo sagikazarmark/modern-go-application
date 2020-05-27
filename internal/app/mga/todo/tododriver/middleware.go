@@ -91,6 +91,16 @@ func (mw loggingMiddleware) DeleteAll(ctx context.Context) error {
 	return mw.next.DeleteAll(ctx)
 }
 
+func (mw loggingMiddleware) DeleteItem(ctx context.Context, id string) error {
+	logger := mw.logger.WithContext(ctx)
+
+	logger.Info("deleting item", map[string]interface{}{
+		"id": id,
+	})
+
+	return mw.next.DeleteItem(ctx, id)
+}
+
 // InstrumentationMiddleware is a service level tracing middleware for TodoList.
 func InstrumentationMiddleware() Middleware {
 	return func(next todo.Service) todo.Service {
@@ -164,4 +174,8 @@ func (mw instrumentationMiddleware) MarkAsComplete(ctx context.Context, id strin
 
 func (mw instrumentationMiddleware) DeleteAll(ctx context.Context) error {
 	return mw.next.DeleteAll(ctx)
+}
+
+func (mw instrumentationMiddleware) DeleteItem(ctx context.Context, id string) error {
+	return mw.next.DeleteItem(ctx, id)
 }

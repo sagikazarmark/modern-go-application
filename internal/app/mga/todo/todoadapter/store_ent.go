@@ -91,3 +91,13 @@ func (s entStore) DeleteAll(ctx context.Context) error {
 
 	return nil
 }
+
+func (s entStore) DeleteOne(ctx context.Context, id string) error {
+	_, err := s.client.Todo.Delete().Where(todop.UID(id)).Exec(ctx)
+
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	return nil
+}

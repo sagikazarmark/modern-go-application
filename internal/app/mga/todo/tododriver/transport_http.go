@@ -54,6 +54,13 @@ func RegisterHTTPHandlers(endpoints Endpoints, router *mux.Router, options ...ki
 		options...,
 	))
 
+	router.Methods(http.MethodDelete).Path("/{id}").Handler(kithttp.NewServer(
+		endpoints.DeleteItem,
+		decodeDeleteItemHTTPRequest,
+		kitxhttp.ErrorResponseEncoder(kitxhttp.StatusCodeResponseEncoder(http.StatusNoContent), errorEncoder),
+		options...,
+	))
+
 	router.Methods(http.MethodPost).Path("/{id}/complete").Handler(kithttp.NewServer(
 		endpoints.MarkAsComplete,
 		decodeMarkAsCompleteHTTPRequest,
@@ -176,6 +183,19 @@ func encodeUpdateItemHTTPResponse(ctx context.Context, w http.ResponseWriter, re
 	}
 
 	return kitxhttp.JSONResponseEncoder(ctx, w, apiResponse)
+}
+
+func decodeDeleteItemHTTPRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	vars := mux.Vars(r)
+
+	id, ok := vars["id"]
+	if !ok || id == "" {
+		return nil, errors.NewWithDetails("missing parameter from the URL", "param", "id")
+	}
+
+	return DeleteItemRequest{
+		Id: id,
+	}, nil
 }
 
 func decodeMarkAsCompleteHTTPRequest(_ context.Context, r *http.Request) (interface{}, error) {

@@ -9,7 +9,7 @@ servers:
 paths:
   /todos:
     delete:
-      operationId: deleteItem
+      operationId: deleteAllItems
       responses:
         "204":
           description: successful operation
@@ -19,7 +19,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/GenericError'
           description: unexpected error
-      summary: Delete an item
+      summary: Delete all items
       tags:
       - todos
     get:
@@ -63,6 +63,29 @@ paths:
           description: unexpected error
       summary: Add a new TODO to the list
   /todos/{id}:
+    delete:
+      operationId: deleteItem
+      parameters:
+      - description: Numeric ID of the TODO
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        "204":
+          description: successful operation
+        "500":
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/GenericError'
+          description: unexpected error
+      summary: Delete an item
+      tags:
+      - todos
     get:
       operationId: getItem
       parameters:

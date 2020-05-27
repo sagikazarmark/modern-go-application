@@ -62,6 +62,18 @@ func (s *InMemoryStore) DeleteAll(_ context.Context) error {
 	return nil
 }
 
+// DeleteOne deletes a single item by its ID.
+func (s *InMemoryStore) DeleteOne(ctx context.Context, id string) error {
+	_, ok := s.todos[id]
+	if !ok {
+		return nil
+	}
+
+	delete(s.todos, id)
+
+	return nil
+}
+
 // ReadOnlyStore cannot be modified.
 type ReadOnlyStore struct {
 	store Store
@@ -91,5 +103,10 @@ func (s *ReadOnlyStore) Get(ctx context.Context, id string) (Todo, error) {
 
 // DeleteAll deletes all items in the store.
 func (s *ReadOnlyStore) DeleteAll(_ context.Context) error {
+	return errors.New("read-only todo store cannot be modified")
+}
+
+// DeleteOne deletes a single item by its ID.
+func (s *ReadOnlyStore) DeleteOne(ctx context.Context, id string) error {
 	return errors.New("read-only todo store cannot be modified")
 }
