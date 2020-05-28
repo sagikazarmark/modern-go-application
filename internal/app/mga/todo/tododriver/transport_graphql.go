@@ -38,60 +38,77 @@ func (r *resolver) Query() graphql.QueryResolver {
 
 type mutationResolver struct{ *resolver }
 
-func (r *mutationResolver) CreateTodo(ctx context.Context, input graphql.NewTodo) (string, error) {
-	req := CreateTodoRequest{
-		Text: input.Text,
+func (r *mutationResolver) AddTodoItem(ctx context.Context, input graphql.NewTodoItem) (*todo.Item, error) {
+	var order int
+	if input.Order != nil {
+		order = *input.Order
 	}
 
-	resp, err := r.endpoints.CreateTodo(ctx, req)
-	if err != nil {
-		r.errorHandler.HandleContext(ctx, err)
-
-		return "", errors.New("internal server error")
+	req := AddItemRequest{
+		NewItem: todo.NewItem{
+			Title: input.Title,
+			Order: order,
+		},
 	}
 
-	if f, ok := resp.(endpoint.Failer); ok {
-		return "", f.Failed()
-	}
-
-	return resp.(CreateTodoResponse).Id, nil
-}
-
-func (r *mutationResolver) MarkTodoAsDone(ctx context.Context, input string) (bool, error) {
-	req := MarkAsDoneRequest{
-		Id: input,
-	}
-
-	resp, err := r.endpoints.MarkAsDone(ctx, req)
-	if err != nil {
-		r.errorHandler.HandleContext(ctx, err)
-
-		return false, errors.New("internal server error")
-	}
-
-	if f, ok := resp.(endpoint.Failer); ok {
-		return false, f.Failed()
-	}
-
-	return true, nil
-}
-
-type queryResolver struct{ *resolver }
-
-func (r *queryResolver) Todos(ctx context.Context) ([]*todo.Todo, error) {
-	resp, err := r.endpoints.ListTodos(ctx, nil)
+	resp, err := r.endpoints.AddItem(ctx, req)
 	if err != nil {
 		r.errorHandler.HandleContext(ctx, err)
 
 		return nil, errors.New("internal server error")
 	}
 
-	todos := make([]*todo.Todo, len(resp.(ListTodosResponse).Todos))
-
-	for i, todo := range resp.(ListTodosResponse).Todos {
-		todo := todo
-		todos[i] = &todo
+	if f, ok := resp.(endpoint.Failer); ok {
+		return nil, f.Failed()
 	}
 
-	return todos, nil
+	item := resp.(AddItemResponse).Item
+
+	return &item, nil
+}
+
+func (r *mutationResolver) UpdateTodoItem(ctx context.Context, input graphql.TodoItemUpdate) (*todo.Item, error) {
+	req := UpdateItemRequest{
+		Id: input.ID,
+		ItemUpdate: todo.ItemUpdate{
+			Title:     input.Title,
+			Completed: input.Completed,
+			Order:     input.Order,
+		},
+	}
+
+	resp, err := r.endpoints.AddItem(ctx, req)
+	if err != nil {
+		r.errorHandler.HandleContext(ctx, err)
+
+		return nil, errors.New("internal server error")
+	}
+
+	if f, ok := resp.(endpoint.Failer); ok {
+		return nil, f.Failed()
+	}
+
+	item := resp.(AddItemResponse).Item
+
+	return &item, nil
+}
+
+type queryResolver struct{ *resolver }
+
+func (r *queryResolver) TodoItems(ctx context.Context) ([]*todo.Item, error) {
+	resp, err := r.endpoints.ListItems(ctx, nil)
+	if err != nil {
+		r.errorHandler.HandleContext(ctx, err)
+
+		return nil, errors.New("internal server error")
+	}
+
+	items := make([]*todo.Item, len(resp.(ListItemsResponse).Items))
+
+	for i, item := range resp.(ListItemsResponse).Items {
+		item := item
+		items[i] = &item
+	}
+
+	return items, nil
 }

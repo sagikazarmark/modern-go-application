@@ -10,10 +10,39 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
 )
 
-// Middleware describes a service middleware.
+// Middleware is a service middleware.
 type Middleware func(todo.Service) todo.Service
 
-// LoggingMiddleware is a service level logging middleware for TodoList.
+// defaultMiddleware helps implementing partial middleware.
+type defaultMiddleware struct {
+	service todo.Service
+}
+
+func (m defaultMiddleware) AddItem(ctx context.Context, newItem todo.NewItem) (todo.Item, error) {
+	return m.service.AddItem(ctx, newItem)
+}
+
+func (m defaultMiddleware) ListItems(ctx context.Context) ([]todo.Item, error) {
+	return m.service.ListItems(ctx)
+}
+
+func (m defaultMiddleware) DeleteItems(ctx context.Context) error {
+	return m.service.DeleteItems(ctx)
+}
+
+func (m defaultMiddleware) GetItem(ctx context.Context, id string) (todo.Item, error) {
+	return m.service.GetItem(ctx, id)
+}
+
+func (m defaultMiddleware) UpdateItem(ctx context.Context, id string, itemUpdate todo.ItemUpdate) (todo.Item, error) {
+	return m.service.UpdateItem(ctx, id, itemUpdate)
+}
+
+func (m defaultMiddleware) DeleteItem(ctx context.Context, id string) error {
+	return m.service.DeleteItem(ctx, id)
+}
+
+// LoggingMiddleware is a service level logging middleware.
 func LoggingMiddleware(logger todo.Logger) Middleware {
 	return func(next todo.Service) todo.Service {
 		return loggingMiddleware{
@@ -28,100 +57,123 @@ type loggingMiddleware struct {
 	logger todo.Logger
 }
 
-func (mw loggingMiddleware) CreateTodo(ctx context.Context, text string) (string, error) {
+func (mw loggingMiddleware) AddItem(ctx context.Context, newItem todo.NewItem) (todo.Item, error) {
 	logger := mw.logger.WithContext(ctx)
 
-	logger.Info("creating todo")
+	logger.Info("adding item")
 
-	id, err := mw.next.CreateTodo(ctx, text)
+	id, err := mw.next.AddItem(ctx, newItem)
 	if err != nil {
 		return id, err
 	}
 
-	logger.Info("created todo", map[string]interface{}{
-		"id": id,
-	})
+	logger.Info("added item", map[string]interface{}{"item_id": id})
 
 	return id, err
 }
 
-func (mw loggingMiddleware) ListTodos(ctx context.Context) ([]todo.Todo, error) {
+func (mw loggingMiddleware) ListItems(ctx context.Context) ([]todo.Item, error) {
 	logger := mw.logger.WithContext(ctx)
 
-	logger.Info("listing todos")
+	logger.Info("listing item")
 
-	return mw.next.ListTodos(ctx)
+	return mw.next.ListItems(ctx)
 }
 
-func (mw loggingMiddleware) MarkAsDone(ctx context.Context, id string) error {
+func (mw loggingMiddleware) DeleteItems(ctx context.Context) error {
 	logger := mw.logger.WithContext(ctx)
 
-	logger.Info("marking todo as done", map[string]interface{}{
-		"id": id,
-	})
+	logger.Info("deleting all items")
 
-	return mw.next.MarkAsDone(ctx, id)
+	return mw.next.DeleteItems(ctx)
 }
 
-// InstrumentationMiddleware is a service level tracing middleware for TodoList.
+func (mw loggingMiddleware) GetItem(ctx context.Context, id string) (todo.Item, error) {
+	logger := mw.logger.WithContext(ctx)
+
+	logger.Info("getting item details", map[string]interface{}{"item_id": id})
+
+	return mw.next.GetItem(ctx, id)
+}
+
+func (mw loggingMiddleware) UpdateItem(ctx context.Context, id string, itemUpdate todo.ItemUpdate) (todo.Item, error) { // nolint: lll
+	logger := mw.logger.WithContext(ctx)
+
+	logger.Info("updating item", map[string]interface{}{"item_id": id})
+
+	return mw.next.UpdateItem(ctx, id, itemUpdate)
+}
+
+func (mw loggingMiddleware) DeleteItem(ctx context.Context, id string) error {
+	logger := mw.logger.WithContext(ctx)
+
+	logger.Info("deleting item", map[string]interface{}{"item_id": id})
+
+	return mw.next.DeleteItem(ctx, id)
+}
+
+// Business metrics
+// nolint: gochecknoglobals,lll
+var (
+	CreatedTodoItemCount  = stats.Int64("created_todo_item_count", "Number of todo items created", stats.UnitDimensionless)
+	CompleteTodoItemCount = stats.Int64("complete_todo_item_count", "Number of todo items marked complete", stats.UnitDimensionless)
+)
+
+// nolint: gochecknoglobals
+var (
+	CreatedTodoItemCountView = &view.View{
+		Name:        "todo_item_created_count",
+		Description: "Count of todo items created",
+		Measure:     CreatedTodoItemCount,
+		Aggregation: view.Count(),
+	}
+
+	CompleteTodoItemCountView = &view.View{
+		Name:        "todo_item_complete_count",
+		Description: "Count of todo items complete",
+		Measure:     CompleteTodoItemCount,
+		Aggregation: view.Count(),
+	}
+)
+
+// InstrumentationMiddleware is a service level instrumentation middleware.
 func InstrumentationMiddleware() Middleware {
 	return func(next todo.Service) todo.Service {
 		return instrumentationMiddleware{
-			next: next,
+			Service: defaultMiddleware{next},
+			next:    next,
 		}
 	}
 }
 
-// Todo business metrics
-// nolint: gochecknoglobals
-var (
-	CreatedTodoCount = stats.Int64("created_todo_count", "Number of TODOs created", stats.UnitDimensionless)
-	DoneTodoCount    = stats.Int64("done_todo_count", "Number of TODOs marked done", stats.UnitDimensionless)
-)
-
-// nolint: gochecknoglobals
-var (
-	CreatedTodoCountView = &view.View{
-		Name:        "todo_created_count",
-		Description: "Count of TODOs created",
-		Measure:     CreatedTodoCount,
-		Aggregation: view.Count(),
-	}
-
-	DoneTodoCountView = &view.View{
-		Name:        "todo_done_count",
-		Description: "Count of TODOs done",
-		Measure:     DoneTodoCount,
-		Aggregation: view.Count(),
-	}
-)
-
 type instrumentationMiddleware struct {
+	todo.Service
 	next todo.Service
 }
 
-func (mw instrumentationMiddleware) CreateTodo(ctx context.Context, text string) (string, error) {
-	id, err := mw.next.CreateTodo(ctx, text)
-
-	if span := trace.FromContext(ctx); span != nil {
-		span.AddAttributes(trace.StringAttribute("todo_id", id))
+func (mw instrumentationMiddleware) AddItem(ctx context.Context, newItem todo.NewItem) (todo.Item, error) {
+	item, err := mw.next.AddItem(ctx, newItem)
+	if err != nil {
+		return item, err
 	}
 
-	stats.Record(ctx, CreatedTodoCount.M(1))
-
-	return id, err
-}
-
-func (mw instrumentationMiddleware) ListTodos(ctx context.Context) ([]todo.Todo, error) {
-	return mw.next.ListTodos(ctx)
-}
-
-func (mw instrumentationMiddleware) MarkAsDone(ctx context.Context, id string) error {
 	if span := trace.FromContext(ctx); span != nil {
-		span.AddAttributes(trace.StringAttribute("todo_id", id))
+		span.AddAttributes(trace.StringAttribute("item_id", item.ID))
 	}
 
-	stats.Record(ctx, DoneTodoCount.M(1))
+	stats.Record(ctx, CreatedTodoItemCount.M(1))
 
-	return mw.next.MarkAsDone(ctx, id)
+	return item, nil
+}
+
+func (mw instrumentationMiddleware) UpdateItem(ctx context.Context, id string, itemUpdate todo.ItemUpdate) (todo.Item, error) { // nolint: lll
+	if span := trace.FromContext(ctx); span != nil {
+		span.AddAttributes(trace.StringAttribute("item_id", id))
+	}
+
+	if itemUpdate.Completed != nil && *itemUpdate.Completed {
+		stats.Record(ctx, CompleteTodoItemCount.M(1))
+	}
+
+	return mw.next.UpdateItem(ctx, id, itemUpdate)
 }

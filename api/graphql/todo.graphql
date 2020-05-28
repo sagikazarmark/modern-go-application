@@ -1,18 +1,26 @@
-type Todo {
+type TodoItem {
     id: ID!
-    text: String!
-    done: Boolean!
+    title: String!
+    completed: Boolean!
 }
 
 type Query {
-    todos: [Todo!]!
+    todoItems: [TodoItem!]!
 }
 
-input NewTodo {
-    text: String!
+input NewTodoItem {
+    title: String!
+    order: Int
+}
+
+input TodoItemUpdate {
+    id: ID!
+    title: String
+    completed: Boolean
+    order: Int
 }
 
 type Mutation {
-    createTodo(input: NewTodo!): ID!
-    markTodoAsDone(input: ID!): Boolean!
+    addTodoItem(input: NewTodoItem!): TodoItem!
+    updateTodoItem(input: TodoItemUpdate!): TodoItem!
 }

@@ -26,9 +26,12 @@ type serviceError interface {
 // meant to be used as a helper struct, to collect all of the endpoints into a
 // single parameter.
 type Endpoints struct {
-	CreateTodo endpoint.Endpoint
-	ListTodos  endpoint.Endpoint
-	MarkAsDone endpoint.Endpoint
+	AddItem     endpoint.Endpoint
+	DeleteItem  endpoint.Endpoint
+	DeleteItems endpoint.Endpoint
+	GetItem     endpoint.Endpoint
+	ListItems   endpoint.Endpoint
+	UpdateItem  endpoint.Endpoint
 }
 
 // MakeEndpoints returns a(n) Endpoints struct where each endpoint invokes
@@ -37,117 +40,230 @@ func MakeEndpoints(service todo.Service, middleware ...endpoint.Middleware) Endp
 	mw := kitxendpoint.Combine(middleware...)
 
 	return Endpoints{
-		CreateTodo: kitxendpoint.OperationNameMiddleware("todo.CreateTodo")(mw(MakeCreateTodoEndpoint(service))),
-		ListTodos:  kitxendpoint.OperationNameMiddleware("todo.ListTodos")(mw(MakeListTodosEndpoint(service))),
-		MarkAsDone: kitxendpoint.OperationNameMiddleware("todo.MarkAsDone")(mw(MakeMarkAsDoneEndpoint(service))),
+		AddItem:     kitxendpoint.OperationNameMiddleware("todo.AddItem")(mw(MakeAddItemEndpoint(service))),
+		DeleteItem:  kitxendpoint.OperationNameMiddleware("todo.DeleteItem")(mw(MakeDeleteItemEndpoint(service))),
+		DeleteItems: kitxendpoint.OperationNameMiddleware("todo.DeleteItems")(mw(MakeDeleteItemsEndpoint(service))),
+		GetItem:     kitxendpoint.OperationNameMiddleware("todo.GetItem")(mw(MakeGetItemEndpoint(service))),
+		ListItems:   kitxendpoint.OperationNameMiddleware("todo.ListItems")(mw(MakeListItemsEndpoint(service))),
+		UpdateItem:  kitxendpoint.OperationNameMiddleware("todo.UpdateItem")(mw(MakeUpdateItemEndpoint(service))),
 	}
 }
 
-// CreateTodoRequest is a request struct for CreateTodo endpoint.
-type CreateTodoRequest struct {
-	Text string
+// AddItemRequest is a request struct for AddItem endpoint.
+type AddItemRequest struct {
+	NewItem todo.NewItem
 }
 
-// CreateTodoResponse is a response struct for CreateTodo endpoint.
-type CreateTodoResponse struct {
-	Id  string
-	Err error
+// AddItemResponse is a response struct for AddItem endpoint.
+type AddItemResponse struct {
+	Item todo.Item
+	Err  error
 }
 
-func (r CreateTodoResponse) Failed() error {
+func (r AddItemResponse) Failed() error {
 	return r.Err
 }
 
-// MakeCreateTodoEndpoint returns an endpoint for the matching method of the underlying service.
-func MakeCreateTodoEndpoint(service todo.Service) endpoint.Endpoint {
+// MakeAddItemEndpoint returns an endpoint for the matching method of the underlying service.
+func MakeAddItemEndpoint(service todo.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(CreateTodoRequest)
+		req := request.(AddItemRequest)
 
-		id, err := service.CreateTodo(ctx, req.Text)
+		item, err := service.AddItem(ctx, req.NewItem)
 
 		if err != nil {
 			if serviceErr := serviceError(nil); errors.As(err, &serviceErr) && serviceErr.ServiceError() {
-				return CreateTodoResponse{
-					Err: err,
-					Id:  id,
+				return AddItemResponse{
+					Err:  err,
+					Item: item,
 				}, nil
 			}
 
-			return CreateTodoResponse{
-				Err: err,
-				Id:  id,
+			return AddItemResponse{
+				Err:  err,
+				Item: item,
 			}, err
 		}
 
-		return CreateTodoResponse{Id: id}, nil
+		return AddItemResponse{Item: item}, nil
 	}
 }
 
-// ListTodosRequest is a request struct for ListTodos endpoint.
-type ListTodosRequest struct{}
-
-// ListTodosResponse is a response struct for ListTodos endpoint.
-type ListTodosResponse struct {
-	Todos []todo.Todo
-	Err   error
-}
-
-func (r ListTodosResponse) Failed() error {
-	return r.Err
-}
-
-// MakeListTodosEndpoint returns an endpoint for the matching method of the underlying service.
-func MakeListTodosEndpoint(service todo.Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		todos, err := service.ListTodos(ctx)
-
-		if err != nil {
-			if serviceErr := serviceError(nil); errors.As(err, &serviceErr) && serviceErr.ServiceError() {
-				return ListTodosResponse{
-					Err:   err,
-					Todos: todos,
-				}, nil
-			}
-
-			return ListTodosResponse{
-				Err:   err,
-				Todos: todos,
-			}, err
-		}
-
-		return ListTodosResponse{Todos: todos}, nil
-	}
-}
-
-// MarkAsDoneRequest is a request struct for MarkAsDone endpoint.
-type MarkAsDoneRequest struct {
+// DeleteItemRequest is a request struct for DeleteItem endpoint.
+type DeleteItemRequest struct {
 	Id string
 }
 
-// MarkAsDoneResponse is a response struct for MarkAsDone endpoint.
-type MarkAsDoneResponse struct {
+// DeleteItemResponse is a response struct for DeleteItem endpoint.
+type DeleteItemResponse struct {
 	Err error
 }
 
-func (r MarkAsDoneResponse) Failed() error {
+func (r DeleteItemResponse) Failed() error {
 	return r.Err
 }
 
-// MakeMarkAsDoneEndpoint returns an endpoint for the matching method of the underlying service.
-func MakeMarkAsDoneEndpoint(service todo.Service) endpoint.Endpoint {
+// MakeDeleteItemEndpoint returns an endpoint for the matching method of the underlying service.
+func MakeDeleteItemEndpoint(service todo.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(MarkAsDoneRequest)
+		req := request.(DeleteItemRequest)
 
-		err := service.MarkAsDone(ctx, req.Id)
+		err := service.DeleteItem(ctx, req.Id)
 
 		if err != nil {
 			if serviceErr := serviceError(nil); errors.As(err, &serviceErr) && serviceErr.ServiceError() {
-				return MarkAsDoneResponse{Err: err}, nil
+				return DeleteItemResponse{Err: err}, nil
 			}
 
-			return MarkAsDoneResponse{Err: err}, err
+			return DeleteItemResponse{Err: err}, err
 		}
 
-		return MarkAsDoneResponse{}, nil
+		return DeleteItemResponse{}, nil
+	}
+}
+
+// DeleteItemsRequest is a request struct for DeleteItems endpoint.
+type DeleteItemsRequest struct{}
+
+// DeleteItemsResponse is a response struct for DeleteItems endpoint.
+type DeleteItemsResponse struct {
+	Err error
+}
+
+func (r DeleteItemsResponse) Failed() error {
+	return r.Err
+}
+
+// MakeDeleteItemsEndpoint returns an endpoint for the matching method of the underlying service.
+func MakeDeleteItemsEndpoint(service todo.Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		err := service.DeleteItems(ctx)
+
+		if err != nil {
+			if serviceErr := serviceError(nil); errors.As(err, &serviceErr) && serviceErr.ServiceError() {
+				return DeleteItemsResponse{Err: err}, nil
+			}
+
+			return DeleteItemsResponse{Err: err}, err
+		}
+
+		return DeleteItemsResponse{}, nil
+	}
+}
+
+// GetItemRequest is a request struct for GetItem endpoint.
+type GetItemRequest struct {
+	Id string
+}
+
+// GetItemResponse is a response struct for GetItem endpoint.
+type GetItemResponse struct {
+	Item todo.Item
+	Err  error
+}
+
+func (r GetItemResponse) Failed() error {
+	return r.Err
+}
+
+// MakeGetItemEndpoint returns an endpoint for the matching method of the underlying service.
+func MakeGetItemEndpoint(service todo.Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(GetItemRequest)
+
+		item, err := service.GetItem(ctx, req.Id)
+
+		if err != nil {
+			if serviceErr := serviceError(nil); errors.As(err, &serviceErr) && serviceErr.ServiceError() {
+				return GetItemResponse{
+					Err:  err,
+					Item: item,
+				}, nil
+			}
+
+			return GetItemResponse{
+				Err:  err,
+				Item: item,
+			}, err
+		}
+
+		return GetItemResponse{Item: item}, nil
+	}
+}
+
+// ListItemsRequest is a request struct for ListItems endpoint.
+type ListItemsRequest struct{}
+
+// ListItemsResponse is a response struct for ListItems endpoint.
+type ListItemsResponse struct {
+	Items []todo.Item
+	Err   error
+}
+
+func (r ListItemsResponse) Failed() error {
+	return r.Err
+}
+
+// MakeListItemsEndpoint returns an endpoint for the matching method of the underlying service.
+func MakeListItemsEndpoint(service todo.Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		items, err := service.ListItems(ctx)
+
+		if err != nil {
+			if serviceErr := serviceError(nil); errors.As(err, &serviceErr) && serviceErr.ServiceError() {
+				return ListItemsResponse{
+					Err:   err,
+					Items: items,
+				}, nil
+			}
+
+			return ListItemsResponse{
+				Err:   err,
+				Items: items,
+			}, err
+		}
+
+		return ListItemsResponse{Items: items}, nil
+	}
+}
+
+// UpdateItemRequest is a request struct for UpdateItem endpoint.
+type UpdateItemRequest struct {
+	Id         string
+	ItemUpdate todo.ItemUpdate
+}
+
+// UpdateItemResponse is a response struct for UpdateItem endpoint.
+type UpdateItemResponse struct {
+	Item todo.Item
+	Err  error
+}
+
+func (r UpdateItemResponse) Failed() error {
+	return r.Err
+}
+
+// MakeUpdateItemEndpoint returns an endpoint for the matching method of the underlying service.
+func MakeUpdateItemEndpoint(service todo.Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(UpdateItemRequest)
+
+		item, err := service.UpdateItem(ctx, req.Id, req.ItemUpdate)
+
+		if err != nil {
+			if serviceErr := serviceError(nil); errors.As(err, &serviceErr) && serviceErr.ServiceError() {
+				return UpdateItemResponse{
+					Err:  err,
+					Item: item,
+				}, nil
+			}
+
+			return UpdateItemResponse{
+				Err:  err,
+				Item: item,
+			}, err
+		}
+
+		return UpdateItemResponse{Item: item}, nil
 	}
 }

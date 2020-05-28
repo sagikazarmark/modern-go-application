@@ -9,6 +9,7 @@ package todov1beta1
 import (
 	context "context"
 	proto "github.com/golang/protobuf/proto"
+	wrappers "github.com/golang/protobuf/ptypes/wrappers"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -29,16 +30,17 @@ const (
 // of the legacy proto package is being used.
 const _ = proto.ProtoPackageIsVersion4
 
-type CreateTodoRequest struct {
+type AddItemRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Text string `protobuf:"bytes,1,opt,name=text,proto3" json:"text,omitempty"`
+	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	Order int32  `protobuf:"varint,2,opt,name=order,proto3" json:"order,omitempty"`
 }
 
-func (x *CreateTodoRequest) Reset() {
-	*x = CreateTodoRequest{}
+func (x *AddItemRequest) Reset() {
+	*x = AddItemRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_todo_v1beta1_todo_list_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -46,13 +48,13 @@ func (x *CreateTodoRequest) Reset() {
 	}
 }
 
-func (x *CreateTodoRequest) String() string {
+func (x *AddItemRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CreateTodoRequest) ProtoMessage() {}
+func (*AddItemRequest) ProtoMessage() {}
 
-func (x *CreateTodoRequest) ProtoReflect() protoreflect.Message {
+func (x *AddItemRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_todo_v1beta1_todo_list_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -64,28 +66,35 @@ func (x *CreateTodoRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CreateTodoRequest.ProtoReflect.Descriptor instead.
-func (*CreateTodoRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use AddItemRequest.ProtoReflect.Descriptor instead.
+func (*AddItemRequest) Descriptor() ([]byte, []int) {
 	return file_todo_v1beta1_todo_list_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *CreateTodoRequest) GetText() string {
+func (x *AddItemRequest) GetTitle() string {
 	if x != nil {
-		return x.Text
+		return x.Title
 	}
 	return ""
 }
 
-type CreateTodoResponse struct {
+func (x *AddItemRequest) GetOrder() int32 {
+	if x != nil {
+		return x.Order
+	}
+	return 0
+}
+
+type AddItemResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Item *TodoItem `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
 }
 
-func (x *CreateTodoResponse) Reset() {
-	*x = CreateTodoResponse{}
+func (x *AddItemResponse) Reset() {
+	*x = AddItemResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_todo_v1beta1_todo_list_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -93,13 +102,13 @@ func (x *CreateTodoResponse) Reset() {
 	}
 }
 
-func (x *CreateTodoResponse) String() string {
+func (x *AddItemResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CreateTodoResponse) ProtoMessage() {}
+func (*AddItemResponse) ProtoMessage() {}
 
-func (x *CreateTodoResponse) ProtoReflect() protoreflect.Message {
+func (x *AddItemResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_todo_v1beta1_todo_list_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -111,26 +120,26 @@ func (x *CreateTodoResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CreateTodoResponse.ProtoReflect.Descriptor instead.
-func (*CreateTodoResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use AddItemResponse.ProtoReflect.Descriptor instead.
+func (*AddItemResponse) Descriptor() ([]byte, []int) {
 	return file_todo_v1beta1_todo_list_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *CreateTodoResponse) GetId() string {
+func (x *AddItemResponse) GetItem() *TodoItem {
 	if x != nil {
-		return x.Id
+		return x.Item
 	}
-	return ""
+	return nil
 }
 
-type ListTodosRequest struct {
+type ListItemsRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 }
 
-func (x *ListTodosRequest) Reset() {
-	*x = ListTodosRequest{}
+func (x *ListItemsRequest) Reset() {
+	*x = ListItemsRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_todo_v1beta1_todo_list_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -138,13 +147,13 @@ func (x *ListTodosRequest) Reset() {
 	}
 }
 
-func (x *ListTodosRequest) String() string {
+func (x *ListItemsRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListTodosRequest) ProtoMessage() {}
+func (*ListItemsRequest) ProtoMessage() {}
 
-func (x *ListTodosRequest) ProtoReflect() protoreflect.Message {
+func (x *ListItemsRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_todo_v1beta1_todo_list_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -156,21 +165,21 @@ func (x *ListTodosRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListTodosRequest.ProtoReflect.Descriptor instead.
-func (*ListTodosRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListItemsRequest.ProtoReflect.Descriptor instead.
+func (*ListItemsRequest) Descriptor() ([]byte, []int) {
 	return file_todo_v1beta1_todo_list_proto_rawDescGZIP(), []int{2}
 }
 
-type ListTodosResponse struct {
+type ListItemsResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Todos []*Todo `protobuf:"bytes,1,rep,name=todos,proto3" json:"todos,omitempty"`
+	Items []*TodoItem `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
 }
 
-func (x *ListTodosResponse) Reset() {
-	*x = ListTodosResponse{}
+func (x *ListItemsResponse) Reset() {
+	*x = ListItemsResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_todo_v1beta1_todo_list_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -178,13 +187,13 @@ func (x *ListTodosResponse) Reset() {
 	}
 }
 
-func (x *ListTodosResponse) String() string {
+func (x *ListItemsResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListTodosResponse) ProtoMessage() {}
+func (*ListItemsResponse) ProtoMessage() {}
 
-func (x *ListTodosResponse) ProtoReflect() protoreflect.Message {
+func (x *ListItemsResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_todo_v1beta1_todo_list_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -196,28 +205,26 @@ func (x *ListTodosResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListTodosResponse.ProtoReflect.Descriptor instead.
-func (*ListTodosResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListItemsResponse.ProtoReflect.Descriptor instead.
+func (*ListItemsResponse) Descriptor() ([]byte, []int) {
 	return file_todo_v1beta1_todo_list_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *ListTodosResponse) GetTodos() []*Todo {
+func (x *ListItemsResponse) GetItems() []*TodoItem {
 	if x != nil {
-		return x.Todos
+		return x.Items
 	}
 	return nil
 }
 
-type MarkAsDoneRequest struct {
+type DeleteItemsRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
-
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 }
 
-func (x *MarkAsDoneRequest) Reset() {
-	*x = MarkAsDoneRequest{}
+func (x *DeleteItemsRequest) Reset() {
+	*x = DeleteItemsRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_todo_v1beta1_todo_list_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -225,13 +232,13 @@ func (x *MarkAsDoneRequest) Reset() {
 	}
 }
 
-func (x *MarkAsDoneRequest) String() string {
+func (x *DeleteItemsRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*MarkAsDoneRequest) ProtoMessage() {}
+func (*DeleteItemsRequest) ProtoMessage() {}
 
-func (x *MarkAsDoneRequest) ProtoReflect() protoreflect.Message {
+func (x *DeleteItemsRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_todo_v1beta1_todo_list_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -243,26 +250,19 @@ func (x *MarkAsDoneRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use MarkAsDoneRequest.ProtoReflect.Descriptor instead.
-func (*MarkAsDoneRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use DeleteItemsRequest.ProtoReflect.Descriptor instead.
+func (*DeleteItemsRequest) Descriptor() ([]byte, []int) {
 	return file_todo_v1beta1_todo_list_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *MarkAsDoneRequest) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-type MarkAsDoneResponse struct {
+type DeleteItemsResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 }
 
-func (x *MarkAsDoneResponse) Reset() {
-	*x = MarkAsDoneResponse{}
+func (x *DeleteItemsResponse) Reset() {
+	*x = DeleteItemsResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_todo_v1beta1_todo_list_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -270,13 +270,13 @@ func (x *MarkAsDoneResponse) Reset() {
 	}
 }
 
-func (x *MarkAsDoneResponse) String() string {
+func (x *DeleteItemsResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*MarkAsDoneResponse) ProtoMessage() {}
+func (*DeleteItemsResponse) ProtoMessage() {}
 
-func (x *MarkAsDoneResponse) ProtoReflect() protoreflect.Message {
+func (x *DeleteItemsResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_todo_v1beta1_todo_list_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -288,9 +288,306 @@ func (x *MarkAsDoneResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use MarkAsDoneResponse.ProtoReflect.Descriptor instead.
-func (*MarkAsDoneResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use DeleteItemsResponse.ProtoReflect.Descriptor instead.
+func (*DeleteItemsResponse) Descriptor() ([]byte, []int) {
 	return file_todo_v1beta1_todo_list_proto_rawDescGZIP(), []int{5}
+}
+
+type GetItemRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+}
+
+func (x *GetItemRequest) Reset() {
+	*x = GetItemRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_todo_v1beta1_todo_list_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetItemRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetItemRequest) ProtoMessage() {}
+
+func (x *GetItemRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_todo_v1beta1_todo_list_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetItemRequest.ProtoReflect.Descriptor instead.
+func (*GetItemRequest) Descriptor() ([]byte, []int) {
+	return file_todo_v1beta1_todo_list_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetItemRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type GetItemResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Item *TodoItem `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
+}
+
+func (x *GetItemResponse) Reset() {
+	*x = GetItemResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_todo_v1beta1_todo_list_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetItemResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetItemResponse) ProtoMessage() {}
+
+func (x *GetItemResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_todo_v1beta1_todo_list_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetItemResponse.ProtoReflect.Descriptor instead.
+func (*GetItemResponse) Descriptor() ([]byte, []int) {
+	return file_todo_v1beta1_todo_list_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *GetItemResponse) GetItem() *TodoItem {
+	if x != nil {
+		return x.Item
+	}
+	return nil
+}
+
+type UpdateItemRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id        string                `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Title     *wrappers.StringValue `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	Completed *wrappers.BoolValue   `protobuf:"bytes,3,opt,name=completed,proto3" json:"completed,omitempty"`
+	Order     *wrappers.Int32Value  `protobuf:"bytes,4,opt,name=order,proto3" json:"order,omitempty"`
+}
+
+func (x *UpdateItemRequest) Reset() {
+	*x = UpdateItemRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_todo_v1beta1_todo_list_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UpdateItemRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateItemRequest) ProtoMessage() {}
+
+func (x *UpdateItemRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_todo_v1beta1_todo_list_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateItemRequest.ProtoReflect.Descriptor instead.
+func (*UpdateItemRequest) Descriptor() ([]byte, []int) {
+	return file_todo_v1beta1_todo_list_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *UpdateItemRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UpdateItemRequest) GetTitle() *wrappers.StringValue {
+	if x != nil {
+		return x.Title
+	}
+	return nil
+}
+
+func (x *UpdateItemRequest) GetCompleted() *wrappers.BoolValue {
+	if x != nil {
+		return x.Completed
+	}
+	return nil
+}
+
+func (x *UpdateItemRequest) GetOrder() *wrappers.Int32Value {
+	if x != nil {
+		return x.Order
+	}
+	return nil
+}
+
+type UpdateItemResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Item *TodoItem `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
+}
+
+func (x *UpdateItemResponse) Reset() {
+	*x = UpdateItemResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_todo_v1beta1_todo_list_proto_msgTypes[9]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UpdateItemResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateItemResponse) ProtoMessage() {}
+
+func (x *UpdateItemResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_todo_v1beta1_todo_list_proto_msgTypes[9]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateItemResponse.ProtoReflect.Descriptor instead.
+func (*UpdateItemResponse) Descriptor() ([]byte, []int) {
+	return file_todo_v1beta1_todo_list_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *UpdateItemResponse) GetItem() *TodoItem {
+	if x != nil {
+		return x.Item
+	}
+	return nil
+}
+
+type DeleteItemRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+}
+
+func (x *DeleteItemRequest) Reset() {
+	*x = DeleteItemRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_todo_v1beta1_todo_list_proto_msgTypes[10]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DeleteItemRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteItemRequest) ProtoMessage() {}
+
+func (x *DeleteItemRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_todo_v1beta1_todo_list_proto_msgTypes[10]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteItemRequest.ProtoReflect.Descriptor instead.
+func (*DeleteItemRequest) Descriptor() ([]byte, []int) {
+	return file_todo_v1beta1_todo_list_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *DeleteItemRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type DeleteItemResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *DeleteItemResponse) Reset() {
+	*x = DeleteItemResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_todo_v1beta1_todo_list_proto_msgTypes[11]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DeleteItemResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteItemResponse) ProtoMessage() {}
+
+func (x *DeleteItemResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_todo_v1beta1_todo_list_proto_msgTypes[11]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteItemResponse.ProtoReflect.Descriptor instead.
+func (*DeleteItemResponse) Descriptor() ([]byte, []int) {
+	return file_todo_v1beta1_todo_list_proto_rawDescGZIP(), []int{11}
 }
 
 var File_todo_v1beta1_todo_list_proto protoreflect.FileDescriptor
@@ -300,42 +597,87 @@ var file_todo_v1beta1_todo_list_proto_rawDesc = []byte{
 	0x6f, 0x64, 0x6f, 0x5f, 0x6c, 0x69, 0x73, 0x74, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x0c,
 	0x74, 0x6f, 0x64, 0x6f, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x1a, 0x17, 0x74, 0x6f,
 	0x64, 0x6f, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x74, 0x6f, 0x64, 0x6f, 0x2e,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x27, 0x0a, 0x11, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54,
-	0x6f, 0x64, 0x6f, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x74, 0x65,
-	0x78, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x74, 0x65, 0x78, 0x74, 0x22, 0x24,
-	0x0a, 0x12, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x6f, 0x64, 0x6f, 0x52, 0x65, 0x73, 0x70,
-	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
-	0x52, 0x02, 0x69, 0x64, 0x22, 0x12, 0x0a, 0x10, 0x4c, 0x69, 0x73, 0x74, 0x54, 0x6f, 0x64, 0x6f,
-	0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x3d, 0x0a, 0x11, 0x4c, 0x69, 0x73, 0x74,
-	0x54, 0x6f, 0x64, 0x6f, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x28, 0x0a,
-	0x05, 0x74, 0x6f, 0x64, 0x6f, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x12, 0x2e, 0x74,
-	0x6f, 0x64, 0x6f, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x54, 0x6f, 0x64, 0x6f,
-	0x52, 0x05, 0x74, 0x6f, 0x64, 0x6f, 0x73, 0x22, 0x23, 0x0a, 0x11, 0x4d, 0x61, 0x72, 0x6b, 0x41,
-	0x73, 0x44, 0x6f, 0x6e, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x0e, 0x0a, 0x02,
-	0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x22, 0x14, 0x0a, 0x12,
-	0x4d, 0x61, 0x72, 0x6b, 0x41, 0x73, 0x44, 0x6f, 0x6e, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
-	0x73, 0x65, 0x32, 0xfa, 0x01, 0x0a, 0x08, 0x54, 0x6f, 0x64, 0x6f, 0x4c, 0x69, 0x73, 0x74, 0x12,
-	0x4f, 0x0a, 0x0a, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x6f, 0x64, 0x6f, 0x12, 0x1f, 0x2e,
-	0x74, 0x6f, 0x64, 0x6f, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x43, 0x72, 0x65,
-	0x61, 0x74, 0x65, 0x54, 0x6f, 0x64, 0x6f, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x20,
-	0x2e, 0x74, 0x6f, 0x64, 0x6f, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x43, 0x72,
-	0x65, 0x61, 0x74, 0x65, 0x54, 0x6f, 0x64, 0x6f, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
-	0x12, 0x4c, 0x0a, 0x09, 0x4c, 0x69, 0x73, 0x74, 0x54, 0x6f, 0x64, 0x6f, 0x73, 0x12, 0x1e, 0x2e,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x77, 0x72, 0x61, 0x70, 0x70, 0x65, 0x72, 0x73, 0x2e,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x3c, 0x0a, 0x0e, 0x41, 0x64, 0x64, 0x49, 0x74, 0x65, 0x6d,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x14, 0x0a, 0x05, 0x74, 0x69, 0x74, 0x6c, 0x65,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x74, 0x69, 0x74, 0x6c, 0x65, 0x12, 0x14, 0x0a,
+	0x05, 0x6f, 0x72, 0x64, 0x65, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x05, 0x6f, 0x72,
+	0x64, 0x65, 0x72, 0x22, 0x3d, 0x0a, 0x0f, 0x41, 0x64, 0x64, 0x49, 0x74, 0x65, 0x6d, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2a, 0x0a, 0x04, 0x69, 0x74, 0x65, 0x6d, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x74, 0x6f, 0x64, 0x6f, 0x2e, 0x76, 0x31, 0x62, 0x65,
+	0x74, 0x61, 0x31, 0x2e, 0x54, 0x6f, 0x64, 0x6f, 0x49, 0x74, 0x65, 0x6d, 0x52, 0x04, 0x69, 0x74,
+	0x65, 0x6d, 0x22, 0x12, 0x0a, 0x10, 0x4c, 0x69, 0x73, 0x74, 0x49, 0x74, 0x65, 0x6d, 0x73, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x41, 0x0a, 0x11, 0x4c, 0x69, 0x73, 0x74, 0x49, 0x74,
+	0x65, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2c, 0x0a, 0x05, 0x69,
+	0x74, 0x65, 0x6d, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x74, 0x6f, 0x64,
+	0x6f, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x54, 0x6f, 0x64, 0x6f, 0x49, 0x74,
+	0x65, 0x6d, 0x52, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73, 0x22, 0x14, 0x0a, 0x12, 0x44, 0x65, 0x6c,
+	0x65, 0x74, 0x65, 0x49, 0x74, 0x65, 0x6d, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22,
+	0x15, 0x0a, 0x13, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x49, 0x74, 0x65, 0x6d, 0x73, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x20, 0x0a, 0x0e, 0x47, 0x65, 0x74, 0x49, 0x74, 0x65,
+	0x6d, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x22, 0x3d, 0x0a, 0x0f, 0x47, 0x65, 0x74, 0x49,
+	0x74, 0x65, 0x6d, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2a, 0x0a, 0x04, 0x69,
+	0x74, 0x65, 0x6d, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x74, 0x6f, 0x64, 0x6f,
+	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x54, 0x6f, 0x64, 0x6f, 0x49, 0x74, 0x65,
+	0x6d, 0x52, 0x04, 0x69, 0x74, 0x65, 0x6d, 0x22, 0xc4, 0x01, 0x0a, 0x11, 0x55, 0x70, 0x64, 0x61,
+	0x74, 0x65, 0x49, 0x74, 0x65, 0x6d, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x0e, 0x0a,
+	0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12, 0x32, 0x0a,
+	0x05, 0x74, 0x69, 0x74, 0x6c, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1c, 0x2e, 0x67,
+	0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x53,
+	0x74, 0x72, 0x69, 0x6e, 0x67, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x52, 0x05, 0x74, 0x69, 0x74, 0x6c,
+	0x65, 0x12, 0x38, 0x0a, 0x09, 0x63, 0x6f, 0x6d, 0x70, 0x6c, 0x65, 0x74, 0x65, 0x64, 0x18, 0x03,
+	0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x42, 0x6f, 0x6f, 0x6c, 0x56, 0x61, 0x6c, 0x75, 0x65,
+	0x52, 0x09, 0x63, 0x6f, 0x6d, 0x70, 0x6c, 0x65, 0x74, 0x65, 0x64, 0x12, 0x31, 0x0a, 0x05, 0x6f,
+	0x72, 0x64, 0x65, 0x72, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1b, 0x2e, 0x67, 0x6f, 0x6f,
+	0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x49, 0x6e, 0x74,
+	0x33, 0x32, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x52, 0x05, 0x6f, 0x72, 0x64, 0x65, 0x72, 0x22, 0x40,
+	0x0a, 0x12, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x49, 0x74, 0x65, 0x6d, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2a, 0x0a, 0x04, 0x69, 0x74, 0x65, 0x6d, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x0b, 0x32, 0x16, 0x2e, 0x74, 0x6f, 0x64, 0x6f, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
+	0x31, 0x2e, 0x54, 0x6f, 0x64, 0x6f, 0x49, 0x74, 0x65, 0x6d, 0x52, 0x04, 0x69, 0x74, 0x65, 0x6d,
+	0x22, 0x23, 0x0a, 0x11, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x49, 0x74, 0x65, 0x6d, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x02, 0x69, 0x64, 0x22, 0x14, 0x0a, 0x12, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x49,
+	0x74, 0x65, 0x6d, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0xde, 0x03, 0x0a, 0x08,
+	0x54, 0x6f, 0x64, 0x6f, 0x4c, 0x69, 0x73, 0x74, 0x12, 0x46, 0x0a, 0x07, 0x41, 0x64, 0x64, 0x49,
+	0x74, 0x65, 0x6d, 0x12, 0x1c, 0x2e, 0x74, 0x6f, 0x64, 0x6f, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0x2e, 0x41, 0x64, 0x64, 0x49, 0x74, 0x65, 0x6d, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x1a, 0x1d, 0x2e, 0x74, 0x6f, 0x64, 0x6f, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0x2e, 0x41, 0x64, 0x64, 0x49, 0x74, 0x65, 0x6d, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x12, 0x4c, 0x0a, 0x09, 0x4c, 0x69, 0x73, 0x74, 0x49, 0x74, 0x65, 0x6d, 0x73, 0x12, 0x1e, 0x2e,
 	0x74, 0x6f, 0x64, 0x6f, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4c, 0x69, 0x73,
-	0x74, 0x54, 0x6f, 0x64, 0x6f, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1f, 0x2e,
+	0x74, 0x49, 0x74, 0x65, 0x6d, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1f, 0x2e,
 	0x74, 0x6f, 0x64, 0x6f, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4c, 0x69, 0x73,
-	0x74, 0x54, 0x6f, 0x64, 0x6f, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4f,
-	0x0a, 0x0a, 0x4d, 0x61, 0x72, 0x6b, 0x41, 0x73, 0x44, 0x6f, 0x6e, 0x65, 0x12, 0x1f, 0x2e, 0x74,
-	0x6f, 0x64, 0x6f, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x61, 0x72, 0x6b,
-	0x41, 0x73, 0x44, 0x6f, 0x6e, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x20, 0x2e,
-	0x74, 0x6f, 0x64, 0x6f, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x61, 0x72,
-	0x6b, 0x41, 0x73, 0x44, 0x6f, 0x6e, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42,
-	0x54, 0x0a, 0x10, 0x63, 0x6f, 0x6d, 0x2e, 0x74, 0x6f, 0x64, 0x6f, 0x2e, 0x76, 0x31, 0x62, 0x65,
-	0x74, 0x61, 0x31, 0x42, 0x0d, 0x54, 0x6f, 0x64, 0x6f, 0x4c, 0x69, 0x73, 0x74, 0x50, 0x72, 0x6f,
-	0x74, 0x6f, 0x50, 0x01, 0x5a, 0x0b, 0x74, 0x6f, 0x64, 0x6f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
-	0x31, 0xa2, 0x02, 0x03, 0x54, 0x58, 0x58, 0xaa, 0x02, 0x0c, 0x54, 0x6f, 0x64, 0x6f, 0x2e, 0x56,
-	0x31, 0x42, 0x65, 0x74, 0x61, 0x31, 0xca, 0x02, 0x0c, 0x54, 0x6f, 0x64, 0x6f, 0x5c, 0x56, 0x31,
-	0x42, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x74, 0x49, 0x74, 0x65, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x52,
+	0x0a, 0x0b, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x49, 0x74, 0x65, 0x6d, 0x73, 0x12, 0x20, 0x2e,
+	0x74, 0x6f, 0x64, 0x6f, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x44, 0x65, 0x6c,
+	0x65, 0x74, 0x65, 0x49, 0x74, 0x65, 0x6d, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
+	0x21, 0x2e, 0x74, 0x6f, 0x64, 0x6f, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x44,
+	0x65, 0x6c, 0x65, 0x74, 0x65, 0x49, 0x74, 0x65, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x12, 0x46, 0x0a, 0x07, 0x47, 0x65, 0x74, 0x49, 0x74, 0x65, 0x6d, 0x12, 0x1c, 0x2e,
+	0x74, 0x6f, 0x64, 0x6f, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x47, 0x65, 0x74,
+	0x49, 0x74, 0x65, 0x6d, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1d, 0x2e, 0x74, 0x6f,
+	0x64, 0x6f, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x49, 0x74,
+	0x65, 0x6d, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4f, 0x0a, 0x0a, 0x55, 0x70,
+	0x64, 0x61, 0x74, 0x65, 0x49, 0x74, 0x65, 0x6d, 0x12, 0x1f, 0x2e, 0x74, 0x6f, 0x64, 0x6f, 0x2e,
+	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x49, 0x74,
+	0x65, 0x6d, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x20, 0x2e, 0x74, 0x6f, 0x64, 0x6f,
+	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x49,
+	0x74, 0x65, 0x6d, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4f, 0x0a, 0x0a, 0x44,
+	0x65, 0x6c, 0x65, 0x74, 0x65, 0x49, 0x74, 0x65, 0x6d, 0x12, 0x1f, 0x2e, 0x74, 0x6f, 0x64, 0x6f,
+	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x49,
+	0x74, 0x65, 0x6d, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x20, 0x2e, 0x74, 0x6f, 0x64,
+	0x6f, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65,
+	0x49, 0x74, 0x65, 0x6d, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x54, 0x0a, 0x10,
+	0x63, 0x6f, 0x6d, 0x2e, 0x74, 0x6f, 0x64, 0x6f, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0x42, 0x0d, 0x54, 0x6f, 0x64, 0x6f, 0x4c, 0x69, 0x73, 0x74, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50,
+	0x01, 0x5a, 0x0b, 0x74, 0x6f, 0x64, 0x6f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02,
+	0x03, 0x54, 0x58, 0x58, 0xaa, 0x02, 0x0c, 0x54, 0x6f, 0x64, 0x6f, 0x2e, 0x56, 0x31, 0x42, 0x65,
+	0x74, 0x61, 0x31, 0xca, 0x02, 0x0c, 0x54, 0x6f, 0x64, 0x6f, 0x5c, 0x56, 0x31, 0x42, 0x65, 0x74,
+	0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -350,29 +692,50 @@ func file_todo_v1beta1_todo_list_proto_rawDescGZIP() []byte {
 	return file_todo_v1beta1_todo_list_proto_rawDescData
 }
 
-var file_todo_v1beta1_todo_list_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_todo_v1beta1_todo_list_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_todo_v1beta1_todo_list_proto_goTypes = []interface{}{
-	(*CreateTodoRequest)(nil),  // 0: todo.v1beta1.CreateTodoRequest
-	(*CreateTodoResponse)(nil), // 1: todo.v1beta1.CreateTodoResponse
-	(*ListTodosRequest)(nil),   // 2: todo.v1beta1.ListTodosRequest
-	(*ListTodosResponse)(nil),  // 3: todo.v1beta1.ListTodosResponse
-	(*MarkAsDoneRequest)(nil),  // 4: todo.v1beta1.MarkAsDoneRequest
-	(*MarkAsDoneResponse)(nil), // 5: todo.v1beta1.MarkAsDoneResponse
-	(*Todo)(nil),               // 6: todo.v1beta1.Todo
+	(*AddItemRequest)(nil),       // 0: todo.v1beta1.AddItemRequest
+	(*AddItemResponse)(nil),      // 1: todo.v1beta1.AddItemResponse
+	(*ListItemsRequest)(nil),     // 2: todo.v1beta1.ListItemsRequest
+	(*ListItemsResponse)(nil),    // 3: todo.v1beta1.ListItemsResponse
+	(*DeleteItemsRequest)(nil),   // 4: todo.v1beta1.DeleteItemsRequest
+	(*DeleteItemsResponse)(nil),  // 5: todo.v1beta1.DeleteItemsResponse
+	(*GetItemRequest)(nil),       // 6: todo.v1beta1.GetItemRequest
+	(*GetItemResponse)(nil),      // 7: todo.v1beta1.GetItemResponse
+	(*UpdateItemRequest)(nil),    // 8: todo.v1beta1.UpdateItemRequest
+	(*UpdateItemResponse)(nil),   // 9: todo.v1beta1.UpdateItemResponse
+	(*DeleteItemRequest)(nil),    // 10: todo.v1beta1.DeleteItemRequest
+	(*DeleteItemResponse)(nil),   // 11: todo.v1beta1.DeleteItemResponse
+	(*TodoItem)(nil),             // 12: todo.v1beta1.TodoItem
+	(*wrappers.StringValue)(nil), // 13: google.protobuf.StringValue
+	(*wrappers.BoolValue)(nil),   // 14: google.protobuf.BoolValue
+	(*wrappers.Int32Value)(nil),  // 15: google.protobuf.Int32Value
 }
 var file_todo_v1beta1_todo_list_proto_depIdxs = []int32{
-	6, // 0: todo.v1beta1.ListTodosResponse.todos:type_name -> todo.v1beta1.Todo
-	0, // 1: todo.v1beta1.TodoList.CreateTodo:input_type -> todo.v1beta1.CreateTodoRequest
-	2, // 2: todo.v1beta1.TodoList.ListTodos:input_type -> todo.v1beta1.ListTodosRequest
-	4, // 3: todo.v1beta1.TodoList.MarkAsDone:input_type -> todo.v1beta1.MarkAsDoneRequest
-	1, // 4: todo.v1beta1.TodoList.CreateTodo:output_type -> todo.v1beta1.CreateTodoResponse
-	3, // 5: todo.v1beta1.TodoList.ListTodos:output_type -> todo.v1beta1.ListTodosResponse
-	5, // 6: todo.v1beta1.TodoList.MarkAsDone:output_type -> todo.v1beta1.MarkAsDoneResponse
-	4, // [4:7] is the sub-list for method output_type
-	1, // [1:4] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	12, // 0: todo.v1beta1.AddItemResponse.item:type_name -> todo.v1beta1.TodoItem
+	12, // 1: todo.v1beta1.ListItemsResponse.items:type_name -> todo.v1beta1.TodoItem
+	12, // 2: todo.v1beta1.GetItemResponse.item:type_name -> todo.v1beta1.TodoItem
+	13, // 3: todo.v1beta1.UpdateItemRequest.title:type_name -> google.protobuf.StringValue
+	14, // 4: todo.v1beta1.UpdateItemRequest.completed:type_name -> google.protobuf.BoolValue
+	15, // 5: todo.v1beta1.UpdateItemRequest.order:type_name -> google.protobuf.Int32Value
+	12, // 6: todo.v1beta1.UpdateItemResponse.item:type_name -> todo.v1beta1.TodoItem
+	0,  // 7: todo.v1beta1.TodoList.AddItem:input_type -> todo.v1beta1.AddItemRequest
+	2,  // 8: todo.v1beta1.TodoList.ListItems:input_type -> todo.v1beta1.ListItemsRequest
+	4,  // 9: todo.v1beta1.TodoList.DeleteItems:input_type -> todo.v1beta1.DeleteItemsRequest
+	6,  // 10: todo.v1beta1.TodoList.GetItem:input_type -> todo.v1beta1.GetItemRequest
+	8,  // 11: todo.v1beta1.TodoList.UpdateItem:input_type -> todo.v1beta1.UpdateItemRequest
+	10, // 12: todo.v1beta1.TodoList.DeleteItem:input_type -> todo.v1beta1.DeleteItemRequest
+	1,  // 13: todo.v1beta1.TodoList.AddItem:output_type -> todo.v1beta1.AddItemResponse
+	3,  // 14: todo.v1beta1.TodoList.ListItems:output_type -> todo.v1beta1.ListItemsResponse
+	5,  // 15: todo.v1beta1.TodoList.DeleteItems:output_type -> todo.v1beta1.DeleteItemsResponse
+	7,  // 16: todo.v1beta1.TodoList.GetItem:output_type -> todo.v1beta1.GetItemResponse
+	9,  // 17: todo.v1beta1.TodoList.UpdateItem:output_type -> todo.v1beta1.UpdateItemResponse
+	11, // 18: todo.v1beta1.TodoList.DeleteItem:output_type -> todo.v1beta1.DeleteItemResponse
+	13, // [13:19] is the sub-list for method output_type
+	7,  // [7:13] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_todo_v1beta1_todo_list_proto_init() }
@@ -383,7 +746,7 @@ func file_todo_v1beta1_todo_list_proto_init() {
 	file_todo_v1beta1_todo_proto_init()
 	if !protoimpl.UnsafeEnabled {
 		file_todo_v1beta1_todo_list_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*CreateTodoRequest); i {
+			switch v := v.(*AddItemRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -395,7 +758,7 @@ func file_todo_v1beta1_todo_list_proto_init() {
 			}
 		}
 		file_todo_v1beta1_todo_list_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*CreateTodoResponse); i {
+			switch v := v.(*AddItemResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -407,7 +770,7 @@ func file_todo_v1beta1_todo_list_proto_init() {
 			}
 		}
 		file_todo_v1beta1_todo_list_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ListTodosRequest); i {
+			switch v := v.(*ListItemsRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -419,7 +782,7 @@ func file_todo_v1beta1_todo_list_proto_init() {
 			}
 		}
 		file_todo_v1beta1_todo_list_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ListTodosResponse); i {
+			switch v := v.(*ListItemsResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -431,7 +794,7 @@ func file_todo_v1beta1_todo_list_proto_init() {
 			}
 		}
 		file_todo_v1beta1_todo_list_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MarkAsDoneRequest); i {
+			switch v := v.(*DeleteItemsRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -443,7 +806,79 @@ func file_todo_v1beta1_todo_list_proto_init() {
 			}
 		}
 		file_todo_v1beta1_todo_list_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MarkAsDoneResponse); i {
+			switch v := v.(*DeleteItemsResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_todo_v1beta1_todo_list_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetItemRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_todo_v1beta1_todo_list_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetItemResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_todo_v1beta1_todo_list_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UpdateItemRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_todo_v1beta1_todo_list_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UpdateItemResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_todo_v1beta1_todo_list_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DeleteItemRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_todo_v1beta1_todo_list_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DeleteItemResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -461,7 +896,7 @@ func file_todo_v1beta1_todo_list_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_todo_v1beta1_todo_list_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
@@ -487,12 +922,18 @@ const _ = grpc.SupportPackageIsVersion6
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type TodoListClient interface {
-	// CreateTodo adds a new todo to the todo list.
-	CreateTodo(ctx context.Context, in *CreateTodoRequest, opts ...grpc.CallOption) (*CreateTodoResponse, error)
-	// ListTodos returns the list of todos.
-	ListTodos(ctx context.Context, in *ListTodosRequest, opts ...grpc.CallOption) (*ListTodosResponse, error)
-	// MarkAsDone marks a todo as done.
-	MarkAsDone(ctx context.Context, in *MarkAsDoneRequest, opts ...grpc.CallOption) (*MarkAsDoneResponse, error)
+	// AddItem adds a new item to the list.
+	AddItem(ctx context.Context, in *AddItemRequest, opts ...grpc.CallOption) (*AddItemResponse, error)
+	// ListItems returns a list of items.
+	ListItems(ctx context.Context, in *ListItemsRequest, opts ...grpc.CallOption) (*ListItemsResponse, error)
+	// DeleteItems deletes all items from the list.
+	DeleteItems(ctx context.Context, in *DeleteItemsRequest, opts ...grpc.CallOption) (*DeleteItemsResponse, error)
+	// GetItem returns the details of an item.
+	GetItem(ctx context.Context, in *GetItemRequest, opts ...grpc.CallOption) (*GetItemResponse, error)
+	// UpdateItem updates an existing item.
+	UpdateItem(ctx context.Context, in *UpdateItemRequest, opts ...grpc.CallOption) (*UpdateItemResponse, error)
+	// DeleteItem deletes an item from the list.
+	DeleteItem(ctx context.Context, in *DeleteItemRequest, opts ...grpc.CallOption) (*DeleteItemResponse, error)
 }
 
 type todoListClient struct {
@@ -503,27 +944,54 @@ func NewTodoListClient(cc grpc.ClientConnInterface) TodoListClient {
 	return &todoListClient{cc}
 }
 
-func (c *todoListClient) CreateTodo(ctx context.Context, in *CreateTodoRequest, opts ...grpc.CallOption) (*CreateTodoResponse, error) {
-	out := new(CreateTodoResponse)
-	err := c.cc.Invoke(ctx, "/todo.v1beta1.TodoList/CreateTodo", in, out, opts...)
+func (c *todoListClient) AddItem(ctx context.Context, in *AddItemRequest, opts ...grpc.CallOption) (*AddItemResponse, error) {
+	out := new(AddItemResponse)
+	err := c.cc.Invoke(ctx, "/todo.v1beta1.TodoList/AddItem", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *todoListClient) ListTodos(ctx context.Context, in *ListTodosRequest, opts ...grpc.CallOption) (*ListTodosResponse, error) {
-	out := new(ListTodosResponse)
-	err := c.cc.Invoke(ctx, "/todo.v1beta1.TodoList/ListTodos", in, out, opts...)
+func (c *todoListClient) ListItems(ctx context.Context, in *ListItemsRequest, opts ...grpc.CallOption) (*ListItemsResponse, error) {
+	out := new(ListItemsResponse)
+	err := c.cc.Invoke(ctx, "/todo.v1beta1.TodoList/ListItems", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *todoListClient) MarkAsDone(ctx context.Context, in *MarkAsDoneRequest, opts ...grpc.CallOption) (*MarkAsDoneResponse, error) {
-	out := new(MarkAsDoneResponse)
-	err := c.cc.Invoke(ctx, "/todo.v1beta1.TodoList/MarkAsDone", in, out, opts...)
+func (c *todoListClient) DeleteItems(ctx context.Context, in *DeleteItemsRequest, opts ...grpc.CallOption) (*DeleteItemsResponse, error) {
+	out := new(DeleteItemsResponse)
+	err := c.cc.Invoke(ctx, "/todo.v1beta1.TodoList/DeleteItems", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *todoListClient) GetItem(ctx context.Context, in *GetItemRequest, opts ...grpc.CallOption) (*GetItemResponse, error) {
+	out := new(GetItemResponse)
+	err := c.cc.Invoke(ctx, "/todo.v1beta1.TodoList/GetItem", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *todoListClient) UpdateItem(ctx context.Context, in *UpdateItemRequest, opts ...grpc.CallOption) (*UpdateItemResponse, error) {
+	out := new(UpdateItemResponse)
+	err := c.cc.Invoke(ctx, "/todo.v1beta1.TodoList/UpdateItem", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *todoListClient) DeleteItem(ctx context.Context, in *DeleteItemRequest, opts ...grpc.CallOption) (*DeleteItemResponse, error) {
+	out := new(DeleteItemResponse)
+	err := c.cc.Invoke(ctx, "/todo.v1beta1.TodoList/DeleteItem", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -532,82 +1000,151 @@ func (c *todoListClient) MarkAsDone(ctx context.Context, in *MarkAsDoneRequest, 
 
 // TodoListServer is the server API for TodoList service.
 type TodoListServer interface {
-	// CreateTodo adds a new todo to the todo list.
-	CreateTodo(context.Context, *CreateTodoRequest) (*CreateTodoResponse, error)
-	// ListTodos returns the list of todos.
-	ListTodos(context.Context, *ListTodosRequest) (*ListTodosResponse, error)
-	// MarkAsDone marks a todo as done.
-	MarkAsDone(context.Context, *MarkAsDoneRequest) (*MarkAsDoneResponse, error)
+	// AddItem adds a new item to the list.
+	AddItem(context.Context, *AddItemRequest) (*AddItemResponse, error)
+	// ListItems returns a list of items.
+	ListItems(context.Context, *ListItemsRequest) (*ListItemsResponse, error)
+	// DeleteItems deletes all items from the list.
+	DeleteItems(context.Context, *DeleteItemsRequest) (*DeleteItemsResponse, error)
+	// GetItem returns the details of an item.
+	GetItem(context.Context, *GetItemRequest) (*GetItemResponse, error)
+	// UpdateItem updates an existing item.
+	UpdateItem(context.Context, *UpdateItemRequest) (*UpdateItemResponse, error)
+	// DeleteItem deletes an item from the list.
+	DeleteItem(context.Context, *DeleteItemRequest) (*DeleteItemResponse, error)
 }
 
 // UnimplementedTodoListServer can be embedded to have forward compatible implementations.
 type UnimplementedTodoListServer struct {
 }
 
-func (*UnimplementedTodoListServer) CreateTodo(context.Context, *CreateTodoRequest) (*CreateTodoResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateTodo not implemented")
+func (*UnimplementedTodoListServer) AddItem(context.Context, *AddItemRequest) (*AddItemResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddItem not implemented")
 }
-func (*UnimplementedTodoListServer) ListTodos(context.Context, *ListTodosRequest) (*ListTodosResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListTodos not implemented")
+func (*UnimplementedTodoListServer) ListItems(context.Context, *ListItemsRequest) (*ListItemsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListItems not implemented")
 }
-func (*UnimplementedTodoListServer) MarkAsDone(context.Context, *MarkAsDoneRequest) (*MarkAsDoneResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method MarkAsDone not implemented")
+func (*UnimplementedTodoListServer) DeleteItems(context.Context, *DeleteItemsRequest) (*DeleteItemsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteItems not implemented")
+}
+func (*UnimplementedTodoListServer) GetItem(context.Context, *GetItemRequest) (*GetItemResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetItem not implemented")
+}
+func (*UnimplementedTodoListServer) UpdateItem(context.Context, *UpdateItemRequest) (*UpdateItemResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateItem not implemented")
+}
+func (*UnimplementedTodoListServer) DeleteItem(context.Context, *DeleteItemRequest) (*DeleteItemResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteItem not implemented")
 }
 
 func RegisterTodoListServer(s *grpc.Server, srv TodoListServer) {
 	s.RegisterService(&_TodoList_serviceDesc, srv)
 }
 
-func _TodoList_CreateTodo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateTodoRequest)
+func _TodoList_AddItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddItemRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TodoListServer).CreateTodo(ctx, in)
+		return srv.(TodoListServer).AddItem(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/todo.v1beta1.TodoList/CreateTodo",
+		FullMethod: "/todo.v1beta1.TodoList/AddItem",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TodoListServer).CreateTodo(ctx, req.(*CreateTodoRequest))
+		return srv.(TodoListServer).AddItem(ctx, req.(*AddItemRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TodoList_ListTodos_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListTodosRequest)
+func _TodoList_ListItems_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListItemsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TodoListServer).ListTodos(ctx, in)
+		return srv.(TodoListServer).ListItems(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/todo.v1beta1.TodoList/ListTodos",
+		FullMethod: "/todo.v1beta1.TodoList/ListItems",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TodoListServer).ListTodos(ctx, req.(*ListTodosRequest))
+		return srv.(TodoListServer).ListItems(ctx, req.(*ListItemsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TodoList_MarkAsDone_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MarkAsDoneRequest)
+func _TodoList_DeleteItems_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteItemsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TodoListServer).MarkAsDone(ctx, in)
+		return srv.(TodoListServer).DeleteItems(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/todo.v1beta1.TodoList/MarkAsDone",
+		FullMethod: "/todo.v1beta1.TodoList/DeleteItems",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TodoListServer).MarkAsDone(ctx, req.(*MarkAsDoneRequest))
+		return srv.(TodoListServer).DeleteItems(ctx, req.(*DeleteItemsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TodoList_GetItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetItemRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TodoListServer).GetItem(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/todo.v1beta1.TodoList/GetItem",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TodoListServer).GetItem(ctx, req.(*GetItemRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TodoList_UpdateItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateItemRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TodoListServer).UpdateItem(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/todo.v1beta1.TodoList/UpdateItem",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TodoListServer).UpdateItem(ctx, req.(*UpdateItemRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TodoList_DeleteItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteItemRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TodoListServer).DeleteItem(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/todo.v1beta1.TodoList/DeleteItem",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TodoListServer).DeleteItem(ctx, req.(*DeleteItemRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -617,16 +1154,28 @@ var _TodoList_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*TodoListServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "CreateTodo",
-			Handler:    _TodoList_CreateTodo_Handler,
+			MethodName: "AddItem",
+			Handler:    _TodoList_AddItem_Handler,
 		},
 		{
-			MethodName: "ListTodos",
-			Handler:    _TodoList_ListTodos_Handler,
+			MethodName: "ListItems",
+			Handler:    _TodoList_ListItems_Handler,
 		},
 		{
-			MethodName: "MarkAsDone",
-			Handler:    _TodoList_MarkAsDone_Handler,
+			MethodName: "DeleteItems",
+			Handler:    _TodoList_DeleteItems_Handler,
+		},
+		{
+			MethodName: "GetItem",
+			Handler:    _TodoList_GetItem_Handler,
+		},
+		{
+			MethodName: "UpdateItem",
+			Handler:    _TodoList_UpdateItem_Handler,
+		},
+		{
+			MethodName: "DeleteItem",
+			Handler:    _TodoList_DeleteItem_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

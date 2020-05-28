@@ -19,6 +19,7 @@ require (
 	github.com/go-sql-driver/mysql v1.5.1-0.20200311113236-681ffa848bae
 	github.com/golang/protobuf v1.4.1
 	github.com/goph/idgen v0.4.0
+	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.4
 	github.com/markbates/pkger v0.15.1
 	github.com/mccutchen/go-httpbin v0.0.0-20190116014521-c5cb2f4802fa
@@ -34,7 +35,6 @@ require (
 	github.com/stretchr/testify v1.5.1
 	github.com/vektah/gqlparser/v2 v2.0.1
 	go.opencensus.io v0.22.3
-	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	google.golang.org/genproto v0.0.0-20200507105951-43844f6eee31
 	google.golang.org/grpc v1.29.1
 	google.golang.org/protobuf v1.22.0

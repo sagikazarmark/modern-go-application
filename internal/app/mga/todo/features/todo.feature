@@ -1,17 +1,40 @@
 Feature: Todo list
 
-
-    Scenario: Add a new todo to the list
-        When the user adds a new todo "Call mom" to the list
-        Then "Call mom" should be on the list
+# Inspired by https://paulhammant.com/2017/05/14/todomvc-and-given-when-then-scenarios/
+# and http://todobackend.com/
 
 
-    Scenario: Cannot add an empty todo
-        When the user adds a new todo "" to the list
-        Then it should fail with a validation error for the "text" field saying that "text cannot be empty"
+    Scenario: Adding a new item to an empty list
+        Given an empty todo list
+        When the user adds a new item for "Call mom"
+        Then it should be the only item on the list
 
 
-    Scenario: Mark a todo as done
-        Given there is a todo "Call mom"
-        When the user marks it as done
-        Then it should be done
+    Scenario: Adding new items to an empty list
+        Given an empty todo list
+        When the user adds a new item for "File taxes"
+        And the user also adds a new item for "Walk the dog"
+        Then both items should be on the list
+
+
+    Scenario: An item can be marked as complete
+        Given an empty todo list
+        And an item for "Call grandma"
+        When it is marked as complete
+        Then it should be complete
+        But it should be on the list
+
+
+    Scenario: An item can be deleted
+        Given an empty todo list
+        And an item for "Buy milk"
+        When it is deleted
+        Then the list should be empty
+
+
+    Scenario: All items can be deleted
+        Given an empty todo list
+        And an item for "Buy milk"
+        And an item for "Buy cheese"
+        When all items are deleted
+        Then the list should be empty

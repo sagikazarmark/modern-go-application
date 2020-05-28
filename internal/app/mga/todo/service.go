@@ -6,25 +6,81 @@ import (
 	"emperror.dev/errors"
 )
 
-// Todo is a note describing a task to be done.
-type Todo struct {
-	ID   string
-	Text string
-	Done bool
-}
-
 // +kit:endpoint:errorStrategy=service
 
-// Service manages a list of todos.
+// Service manages a todo list.
 type Service interface {
-	// CreateTodo adds a new todo to the todo list.
-	CreateTodo(ctx context.Context, text string) (id string, err error)
+	// AddItem adds a new item to the list.
+	AddItem(ctx context.Context, newItem NewItem) (item Item, err error)
 
-	// ListTodos returns the list of todos.
-	ListTodos(ctx context.Context) (todos []Todo, err error)
+	// ListItems returns a list of items.
+	ListItems(ctx context.Context) (items []Item, err error)
 
-	// MarkAsDone marks a todo as done.
-	MarkAsDone(ctx context.Context, id string) error
+	// DeleteItems deletes all items from the list.
+	DeleteItems(ctx context.Context) error
+
+	// GetItem returns the details of an item.
+	GetItem(ctx context.Context, id string) (item Item, err error)
+
+	// UpdateItem updates an existing item.
+	UpdateItem(ctx context.Context, id string, itemUpdate ItemUpdate) (item Item, err error)
+
+	// DeleteItem deletes an item from the list.
+	DeleteItem(ctx context.Context, id string) error
+}
+
+// Item is a note describing a task to be done.
+type Item struct {
+	ID        string
+	Title     string
+	Completed bool
+	Order     int
+}
+
+// NewItem contains the details of a new Item.
+type NewItem struct {
+	Title string
+	Order int
+}
+
+func (i NewItem) toItem(id string) Item {
+	return Item{
+		ID:    id,
+		Title: i.Title,
+		Order: i.Order,
+	}
+}
+
+// ItemUpdate contains updates of an existing item.
+type ItemUpdate struct {
+	Title     *string
+	Completed *bool
+	Order     *int
+}
+
+func (i ItemUpdate) update(item Item) Item {
+	if i.Title != nil {
+		item.Title = *i.Title
+	}
+
+	if i.Completed != nil {
+		item.Completed = *i.Completed
+	}
+
+	if i.Order != nil {
+		item.Order = *i.Order
+	}
+
+	return item
+}
+
+// NewService returns a new Service.
+func NewService(idgenerator IDGenerator, store Store, events Events) Service {
+	return &service{
+		idgenerator: idgenerator,
+		store:       store,
+		events:      events,
+	}
 }
 
 type service struct {
@@ -39,31 +95,37 @@ type IDGenerator interface {
 	Generate() (string, error)
 }
 
-// Store provides todo persistence.
+// Store persists items.
 type Store interface {
-	// Store stores a todo.
-	Store(ctx context.Context, todo Todo) error
+	// Store stores an item.
+	Store(ctx context.Context, item Item) error
 
-	// All returns all todos.
-	All(ctx context.Context) ([]Todo, error)
+	// All returns all items.
+	All(ctx context.Context) ([]Item, error)
 
-	// Get returns a single todo by its ID.
-	Get(ctx context.Context, id string) (Todo, error)
+	// DeleteItems deletes all items in the store.
+	DeleteAll(ctx context.Context) error
+
+	// Get returns a single item by its ID.
+	Get(ctx context.Context, id string) (Item, error)
+
+	// DeleteOne deletes a single item by its ID.
+	DeleteOne(ctx context.Context, id string) error
 }
 
-// NotFoundError is returned if a todo cannot be found.
+// NotFoundError is returned if an item cannot be found.
 type NotFoundError struct {
 	ID string
 }
 
 // Error implements the error interface.
 func (NotFoundError) Error() string {
-	return "todo not found"
+	return "item not found"
 }
 
 // Details returns error details.
 func (e NotFoundError) Details() []interface{} {
-	return []interface{}{"todo_id", e.ID}
+	return []interface{}{"item_id", e.ID}
 }
 
 // NotFound tells a client that this error is related to a resource being not found.
@@ -82,24 +144,15 @@ func (NotFoundError) ServiceError() bool {
 
 // Events dispatches todo events.
 type Events interface {
-	// MarkedAsDone dispatches a MarkedAsDone event.
-	MarkedAsDone(ctx context.Context, event MarkedAsDone) error
+	// MarkedAsComplete dispatches a MarkedAsComplete event.
+	MarkedAsComplete(ctx context.Context, event MarkedAsComplete) error
 }
 
 // +mga:event:handler
 
-// MarkedAsDone event is triggered when a todo gets marked as done.
-type MarkedAsDone struct {
+// MarkedAsComplete event is triggered when an item gets marked as complete.
+type MarkedAsComplete struct {
 	ID string
-}
-
-// NewService returns a new Service.
-func NewService(idgenerator IDGenerator, store Store, events Events) Service {
-	return &service{
-		idgenerator: idgenerator,
-		store:       store,
-		events:      events,
-	}
 }
 
 type validationError struct {
@@ -107,7 +160,7 @@ type validationError struct {
 }
 
 func (validationError) Error() string {
-	return "invalid todo"
+	return "invalid item"
 }
 
 func (e validationError) Violations() map[string][]string {
@@ -126,54 +179,83 @@ func (validationError) ServiceError() bool {
 	return true
 }
 
-func (s service) CreateTodo(ctx context.Context, text string) (string, error) {
+func (s service) AddItem(ctx context.Context, newItem NewItem) (Item, error) {
 	id, err := s.idgenerator.Generate()
 	if err != nil {
-		return "", err
+		return Item{}, err
 	}
 
-	if text == "" {
-		return "", errors.WithStack(validationError{violations: map[string][]string{
-			"text": {
-				"text cannot be empty",
+	if newItem.Title == "" {
+		return Item{}, errors.WithStack(validationError{violations: map[string][]string{
+			"title": {
+				"title cannot be empty",
 			},
 		}})
 	}
 
-	todo := Todo{
-		ID:   id,
-		Text: text,
+	item := newItem.toItem(id)
+
+	err = s.store.Store(ctx, item)
+	if err != nil {
+		return Item{}, err
 	}
 
-	err = s.store.Store(ctx, todo)
-
-	return id, err
+	return item, nil
 }
 
-func (s service) ListTodos(ctx context.Context) ([]Todo, error) {
+func (s service) ListItems(ctx context.Context) ([]Item, error) {
 	return s.store.All(ctx)
 }
 
-func (s service) MarkAsDone(ctx context.Context, id string) error {
-	todo, err := s.store.Get(ctx, id)
+func (s service) DeleteItems(ctx context.Context) error {
+	return s.store.DeleteAll(ctx)
+}
+
+func (s service) GetItem(ctx context.Context, id string) (Item, error) {
+	item, err := s.store.Get(ctx, id)
 	if err != nil {
-		return errors.WithMessage(err, "failed to mark todo as done")
+		return Item{}, errors.WithMessage(err, "get item")
 	}
 
-	todo.Done = true
+	return item, nil
+}
 
-	err = s.store.Store(ctx, todo)
+func (s service) UpdateItem(ctx context.Context, id string, itemUpdate ItemUpdate) (Item, error) {
+	item, err := s.store.Get(ctx, id)
 	if err != nil {
-		return errors.WithMessage(err, "failed to mark todo as done")
+		return Item{}, err
 	}
 
-	event := MarkedAsDone{
-		ID: todo.ID,
+	updatedItem := itemUpdate.update(item)
+
+	if item == updatedItem {
+		return item, nil
 	}
 
-	err = s.events.MarkedAsDone(ctx, event)
+	err = s.store.Store(ctx, updatedItem)
 	if err != nil {
-		return errors.WithMessage(err, "failed to mark todo as done")
+		return Item{}, errors.WithMessage(err, "update item")
+	}
+
+	if !item.Completed && updatedItem.Completed {
+		event := MarkedAsComplete{
+			ID: item.ID,
+		}
+
+		err = s.events.MarkedAsComplete(ctx, event)
+		if err != nil {
+			// TODO: rollback item store here? retry?
+			return Item{}, errors.WithMessage(err, "mark item as complete")
+		}
+	}
+
+	return updatedItem, nil
+}
+
+func (s service) DeleteItem(ctx context.Context, id string) error {
+	err := s.store.DeleteOne(ctx, id)
+	if err != nil {
+		return errors.WithMessage(err, "delete item")
 	}
 
 	return nil

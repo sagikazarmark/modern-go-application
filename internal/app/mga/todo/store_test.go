@@ -11,9 +11,9 @@ import (
 func TestInMemoryStore_StoresATodo(t *testing.T) {
 	store := NewInMemoryStore()
 
-	todo := Todo{
-		ID:   "id",
-		Text: "Store me!",
+	todo := Item{
+		ID:    "id",
+		Title: "Store me!",
 	}
 
 	err := store.Store(context.Background(), todo)
@@ -25,18 +25,18 @@ func TestInMemoryStore_StoresATodo(t *testing.T) {
 func TestInMemoryStore_OverwritesAnExistingTodo(t *testing.T) {
 	store := NewInMemoryStore()
 
-	todo := Todo{
-		ID:   "id",
-		Text: "Store me first!",
-		Done: true,
+	todo := Item{
+		ID:        "id",
+		Title:     "Store me first!",
+		Completed: true,
 	}
 
 	err := store.Store(context.Background(), todo)
 	require.NoError(t, err)
 
-	todo = Todo{
-		ID:   "id",
-		Text: "Store me!",
+	todo = Item{
+		ID:    "id",
+		Title: "Store me!",
 	}
 
 	err = store.Store(context.Background(), todo)
@@ -48,22 +48,22 @@ func TestInMemoryStore_OverwritesAnExistingTodo(t *testing.T) {
 func TestInMemoryStore_ListsAllTodos(t *testing.T) {
 	store := NewInMemoryStore()
 
-	store.todos["id"] = Todo{
-		ID:   "id",
-		Text: "Store me first!",
-		Done: true,
+	store.todos["id"] = Item{
+		ID:        "id",
+		Title:     "Store me first!",
+		Completed: true,
 	}
 
-	store.todos["id2"] = Todo{
-		ID:   "id2",
-		Text: "Store me second!",
-		Done: true,
+	store.todos["id2"] = Item{
+		ID:        "id2",
+		Title:     "Store me second!",
+		Completed: true,
 	}
 
 	todos, err := store.All(context.Background())
 	require.NoError(t, err)
 
-	expectedTodos := []Todo{store.todos["id"], store.todos["id2"]}
+	expectedTodos := []Item{store.todos["id"], store.todos["id2"]}
 
 	assert.Equal(t, expectedTodos, todos)
 }
@@ -73,9 +73,9 @@ func TestInMemoryStore_GetsATodo(t *testing.T) {
 
 	id := "id"
 
-	store.todos[id] = Todo{
-		ID:   id,
-		Text: "Store me!",
+	store.todos[id] = Item{
+		ID:    id,
+		Title: "Store me!",
 	}
 
 	todo, err := store.Get(context.Background(), id)
@@ -97,9 +97,9 @@ func TestInMemoryStore_CannotReturnANonExistingTodo(t *testing.T) {
 }
 
 func TestReadOnlyStore_IsReadOnly(t *testing.T) {
-	todo := Todo{
-		ID:   "id",
-		Text: "Store me!",
+	todo := Item{
+		ID:    "id",
+		Title: "Store me!",
 	}
 
 	store := NewReadOnlyStore(NewInMemoryStore())
@@ -112,22 +112,22 @@ func TestReadOnlyStore_ListsAllTodos(t *testing.T) {
 	inmemStore := NewInMemoryStore()
 	store := NewReadOnlyStore(inmemStore)
 
-	inmemStore.todos["id"] = Todo{
-		ID:   "id",
-		Text: "Store me first!",
-		Done: true,
+	inmemStore.todos["id"] = Item{
+		ID:        "id",
+		Title:     "Store me first!",
+		Completed: true,
 	}
 
-	inmemStore.todos["id2"] = Todo{
-		ID:   "id2",
-		Text: "Store me second!",
-		Done: true,
+	inmemStore.todos["id2"] = Item{
+		ID:        "id2",
+		Title:     "Store me second!",
+		Completed: true,
 	}
 
 	todos, err := store.All(context.Background())
 	require.NoError(t, err)
 
-	expectedTodos := []Todo{inmemStore.todos["id"], inmemStore.todos["id2"]}
+	expectedTodos := []Item{inmemStore.todos["id"], inmemStore.todos["id2"]}
 
 	assert.Equal(t, expectedTodos, todos)
 }
@@ -138,9 +138,9 @@ func TestReadOnlyStore_GetsATodo(t *testing.T) {
 
 	id := "id"
 
-	inmemStore.todos[id] = Todo{
-		ID:   id,
-		Text: "Store me!",
+	inmemStore.todos[id] = Item{
+		ID:    id,
+		Title: "Store me!",
 	}
 
 	todo, err := store.Get(context.Background(), id)

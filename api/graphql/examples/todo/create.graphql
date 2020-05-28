@@ -1,9 +1,0 @@
-# Variables:
-#{
-#    "text": "My Todo"
-#}
-mutation($text: String!) {
-    createTodo(input: {
-        text: $text
-    })
-}

@@ -1,7 +1,7 @@
 {
-    todos {
+    todoItems {
         id
-        text
-        done
+        title
+        completed
     }
 }

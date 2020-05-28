@@ -6,5 +6,5 @@ import (
 	"github.com/facebookincubator/ent/dialect/sql"
 )
 
-// Todo is the predicate function for todo builders.
-type Todo func(*sql.Selector)
+// TodoItem is the predicate function for todoitem builders.
+type TodoItem func(*sql.Selector)

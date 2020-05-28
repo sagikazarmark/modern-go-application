@@ -22,6 +22,7 @@ import (
 	"github.com/AppsFlyer/go-sundheit/checks"
 	healthhttp "github.com/AppsFlyer/go-sundheit/http"
 	"github.com/cloudflare/tableflip"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/oklog/run"
 	"github.com/sagikazarmark/appkit/buildinfo"
@@ -263,8 +264,8 @@ func main() {
 		ocgrpc.ServerCompletedRPCsView,
 
 		// Todo
-		tododriver.CreatedTodoCountView,
-		tododriver.DoneTodoCountView,
+		tododriver.CreatedTodoItemCountView,
+		tododriver.CompleteTodoItemCountView,
 	)
 	emperror.Panic(errors.Wrap(err, "failed to register stat views"))
 
@@ -276,9 +277,16 @@ func main() {
 		httpRouter := mux.NewRouter()
 		httpRouter.Use(ocmux.Middleware())
 
+		cors := handlers.CORS(
+			handlers.AllowedOrigins([]string{"*"}),
+			handlers.AllowedMethods([]string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete}),
+			handlers.AllowedHeaders([]string{"content-type"}),
+		)
+
 		httpServer := &http.Server{
 			Handler: &ochttp.Handler{
-				Handler: httpRouter,
+				// Handler: httpRouter,
+				Handler: cors(httpRouter),
 				StartOptions: trace.StartOptions{
 					Sampler:  trace.AlwaysSample(),
 					SpanKind: trace.SpanKindServer,

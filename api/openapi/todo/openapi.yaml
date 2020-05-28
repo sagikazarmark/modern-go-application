@@ -1,0 +1,239 @@
+openapi: 3.0.0
+
+info:
+    title: Todo API
+    description: |
+        The Todo API manages a list of todo items as described by the TodoMVC backend project: http://todobackend.com
+    version: 1.0.0
+
+servers:
+    -   url: https://todo.api/todos
+    -   url: http://todo.api/todos
+    -   url: http://localhost:8080/todos
+
+paths:
+    /todos:
+        post:
+            summary: Add a new item to the list
+            operationId: addItem
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/AddItemRequest"
+                required: true
+            responses:
+                "201":
+                    description: "Item was created successfully"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Item"
+                "400":
+                    $ref: "#/components/responses/InvalidRequest"
+                "422":
+                    $ref: "#/components/responses/ValidationError"
+                default:
+                    $ref: "#/components/responses/Error"
+
+        get:
+            summary: List items
+            operationId: listItems
+            responses:
+                "200":
+                    description: "A list of items"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Items"
+                default:
+                    $ref: "#/components/responses/Error"
+
+        delete:
+            summary: Delete all items
+            operationId: deleteItems
+            responses:
+                "204":
+                    description: "Items were deleted successfully"
+                default:
+                    $ref: "#/components/responses/Error"
+
+    "/todos/{id}":
+        parameters:
+            -   in: path
+                name: id
+                required: true
+                description: Item ID
+                schema:
+                    type: string
+
+        get:
+            summary: Get an item
+            operationId: getItem
+            responses:
+                "200":
+                    description: "An item"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Item"
+                "404":
+                    $ref: "#/components/responses/NotFound"
+                default:
+                    $ref: "#/components/responses/Error"
+
+        patch:
+            summary: Update an existing item
+            operationId: updateItem
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UpdateItemRequest"
+                required: true
+            responses:
+                "200":
+                    description: "Item was successfully updated"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Item"
+                "404":
+                    $ref: "#/components/responses/NotFound"
+                default:
+                    $ref: "#/components/responses/Error"
+
+        delete:
+            summary: Delete an item
+            operationId: deleteItem
+            responses:
+                "204":
+                    description: "Item was successfully deleted"
+                default:
+                    $ref: "#/components/responses/Error"
+
+    "/todos/{id}/complete":
+        patch:
+            summary: Mark a item as complete
+            operationId: markAsComplete
+            parameters:
+                -   in: path
+                    name: id
+                    required: true
+                    description: Item ID
+                    schema:
+                        type: string
+            responses:
+                "200":
+                    description: "Item was successfully marked as complete"
+                "404":
+                    $ref: "#/components/responses/NotFound"
+                default:
+                    $ref: "#/components/responses/Error"
+
+components:
+    responses:
+        Error:
+            description: "Unexpected error"
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/Error"
+
+        InvalidRequest:
+            description: "Invalid request"
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/Error"
+
+        ValidationError:
+            description: "The request did not pass the business validation rules"
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/Error"
+
+        NotFound:
+            description: "The resource cannot be found"
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/Error"
+
+    securitySchemes:
+        api_key:
+            type: apiKey
+            name: api_key
+            in: header
+
+    schemas:
+        Error:
+            type: object
+            properties:
+                type:
+                    type: string
+                title:
+                    type: string
+                status:
+                    type: integer
+                detail:
+                    type: string
+                instance:
+                    type: string
+            required:
+                - type
+            example:
+                type: about:blank
+                title: Not Found
+                status: 404
+
+        AddItemRequest:
+            type: object
+            properties:
+                title:
+                    type: string
+                order:
+                    type: integer
+            required:
+                - title
+                - order
+
+        Item:
+            type: object
+            properties:
+                id:
+                    type: string
+                title:
+                    type: string
+                completed:
+                    type: boolean
+                order:
+                    type: integer
+                url:
+                    type: string
+                    format: uri
+            required:
+                - id
+                - title
+                - completed
+                - order
+                - url
+
+        Items:
+            type: array
+            items:
+                $ref: "#/components/schemas/Item"
+
+        UpdateItemRequest:
+            type: object
+            properties:
+                title:
+                    type: string
+                    nullable: true
+                completed:
+                    type: boolean
+                    nullable: true
+                order:
+                    type: integer
+                    nullable: true

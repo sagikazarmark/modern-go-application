@@ -62,7 +62,7 @@ func InitializeApp(
 	httpServerOptions := []kithttp.ServerOption{
 		kithttp.ServerErrorHandler(transportErrorHandler),
 		kithttp.ServerErrorEncoder(kitxhttp.NewJSONProblemErrorEncoder(appkithttp.NewDefaultProblemConverter())),
-		kithttp.ServerBefore(correlation.HTTPToContext()),
+		kithttp.ServerBefore(correlation.HTTPToContext(), kithttp.PopulateRequestContext),
 	}
 
 	grpcServerOptions := []kitgrpc.ServerOption{
@@ -133,7 +133,7 @@ func InitializeApp(
 func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber, logger Logger) error {
 	todoEventProcessor, _ := cqrs.NewEventProcessor(
 		[]cqrs.EventHandler{
-			todogen.NewMarkedAsDoneEventHandler(todo.NewLogEventHandler(logger), "marked_as_done"),
+			todogen.NewMarkedAsCompleteEventHandler(todo.NewLogEventHandler(logger), "marked_as_complete"),
 		},
 		func(eventName string) string { return todoTopic },
 		func(handlerName string) (message.Subscriber, error) { return subscriber, nil },

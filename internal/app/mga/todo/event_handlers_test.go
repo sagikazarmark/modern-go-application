@@ -12,23 +12,23 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/common/commonadapter"
 )
 
-func TestLogEventHandler_MarkedAsDone(t *testing.T) {
+func TestLogEventHandler_MarkedAsComplete(t *testing.T) {
 	logger := &logur.TestLoggerFacade{}
 
 	eventHandler := NewLogEventHandler(commonadapter.NewLogger(logger))
 
-	event := MarkedAsDone{
+	event := MarkedAsComplete{
 		ID: "1234",
 	}
 
-	err := eventHandler.MarkedAsDone(context.Background(), event)
+	err := eventHandler.MarkedAsComplete(context.Background(), event)
 	require.NoError(t, err)
 
 	logEvent := logur.LogEvent{
 		Level: logur.Info,
-		Line:  "todo marked as done",
+		Line:  "todo marked as complete",
 		Fields: map[string]interface{}{
-			"event":   "MarkedAsDone",
+			"event":   "MarkedAsComplete",
 			"todo_id": "1234",
 		},
 	}

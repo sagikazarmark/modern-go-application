@@ -16,12 +16,12 @@ func NewLogEventHandler(logger Logger) LogEventHandler {
 	}
 }
 
-// MarkedAsDone logs a MarkedAsDone event.
-func (h LogEventHandler) MarkedAsDone(ctx context.Context, event MarkedAsDone) error {
+// MarkedAsComplete logs a MarkedAsComplete event.
+func (h LogEventHandler) MarkedAsComplete(ctx context.Context, event MarkedAsComplete) error {
 	logger := h.logger.WithContext(ctx)
 
-	logger.Info("todo marked as done", map[string]interface{}{
-		"event":   "MarkedAsDone",
+	logger.Info("todo marked as complete", map[string]interface{}{
+		"event":   "MarkedAsComplete",
 		"todo_id": event.ID,
 	})
 

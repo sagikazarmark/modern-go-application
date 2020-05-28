@@ -13,21 +13,21 @@ import (
 )
 
 type createOptions struct {
-	text   string
+	title  string
 	client todov1beta1.TodoListClient
 }
 
-// NewCreateCommand creates a new cobra.Command for creating a todo.
-func NewCreateCommand(c Context) *cobra.Command {
+// NewAddCommand creates a new cobra.Command for adding a new item to the list.
+func NewAddCommand(c Context) *cobra.Command {
 	options := createOptions{}
 
 	cmd := &cobra.Command{
-		Use:     "create",
-		Aliases: []string{"c"},
-		Short:   "Create a TODO",
+		Use:     "add",
+		Aliases: []string{"a"},
+		Short:   "Add an item to the list",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			options.text = args[0]
+			options.title = args[0]
 			options.client = c.GetTodoClient()
 
 			cmd.SilenceErrors = true
@@ -41,14 +41,14 @@ func NewCreateCommand(c Context) *cobra.Command {
 }
 
 func runCreate(options createOptions) error {
-	req := &todov1beta1.CreateTodoRequest{
-		Text: options.text,
+	req := &todov1beta1.AddItemRequest{
+		Title: options.title,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	resp, err := options.client.CreateTodo(ctx, req)
+	resp, err := options.client.AddItem(ctx, req)
 	if err != nil {
 		st := status.Convert(err)
 		for _, detail := range st.Details() {
@@ -66,7 +66,7 @@ func runCreate(options createOptions) error {
 		return err
 	}
 
-	fmt.Printf("Todo %q with ID %s has been created.", options.text, resp.GetId())
+	fmt.Printf("Todo item %q with ID %s has been created.", options.title, resp.GetItem().GetId())
 
 	return nil
 }

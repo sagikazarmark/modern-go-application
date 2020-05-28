@@ -10,32 +10,59 @@ import (
 type TodoListKitServer struct {
 	*UnimplementedTodoListServer
 
-	CreateTodoHandler kitgrpc.Handler
-	ListTodosHandler  kitgrpc.Handler
-	MarkAsDoneHandler kitgrpc.Handler
+	AddItemHandler     kitgrpc.Handler
+	ListItemsHandler   kitgrpc.Handler
+	DeleteItemsHandler kitgrpc.Handler
+	GetItemHandler     kitgrpc.Handler
+	UpdateItemHandler  kitgrpc.Handler
+	DeleteItemHandler  kitgrpc.Handler
 }
 
-func (s TodoListKitServer) CreateTodo(ctx context.Context, req *CreateTodoRequest) (*CreateTodoResponse, error) {
-	_, resp, err := s.CreateTodoHandler.ServeGRPC(ctx, req)
+func (s TodoListKitServer) AddItem(ctx context.Context, req *AddItemRequest) (*AddItemResponse, error) {
+	_, resp, err := s.AddItemHandler.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.(*CreateTodoResponse), nil
+	return resp.(*AddItemResponse), nil
 }
-func (s TodoListKitServer) ListTodos(ctx context.Context, req *ListTodosRequest) (*ListTodosResponse, error) {
-	_, resp, err := s.ListTodosHandler.ServeGRPC(ctx, req)
+func (s TodoListKitServer) ListItems(ctx context.Context, req *ListItemsRequest) (*ListItemsResponse, error) {
+	_, resp, err := s.ListItemsHandler.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.(*ListTodosResponse), nil
+	return resp.(*ListItemsResponse), nil
 }
-func (s TodoListKitServer) MarkAsDone(ctx context.Context, req *MarkAsDoneRequest) (*MarkAsDoneResponse, error) {
-	_, resp, err := s.MarkAsDoneHandler.ServeGRPC(ctx, req)
+func (s TodoListKitServer) DeleteItems(ctx context.Context, req *DeleteItemsRequest) (*DeleteItemsResponse, error) {
+	_, resp, err := s.DeleteItemsHandler.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.(*MarkAsDoneResponse), nil
+	return resp.(*DeleteItemsResponse), nil
+}
+func (s TodoListKitServer) GetItem(ctx context.Context, req *GetItemRequest) (*GetItemResponse, error) {
+	_, resp, err := s.GetItemHandler.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.(*GetItemResponse), nil
+}
+func (s TodoListKitServer) UpdateItem(ctx context.Context, req *UpdateItemRequest) (*UpdateItemResponse, error) {
+	_, resp, err := s.UpdateItemHandler.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.(*UpdateItemResponse), nil
+}
+func (s TodoListKitServer) DeleteItem(ctx context.Context, req *DeleteItemRequest) (*DeleteItemResponse, error) {
+	_, resp, err := s.DeleteItemHandler.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.(*DeleteItemResponse), nil
 }
