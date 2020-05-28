@@ -1,5 +1,5 @@
 {
-    todos {
+    todoItems {
         id
         title
         completed

@@ -9,7 +9,7 @@ import (
 
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/migrate"
 
-	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/todo"
+	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/todoitem"
 
 	"github.com/facebookincubator/ent/dialect"
 	"github.com/facebookincubator/ent/dialect/sql"
@@ -20,8 +20,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
-	// Todo is the client for interacting with the Todo builders.
-	Todo *TodoClient
+	// TodoItem is the client for interacting with the TodoItem builders.
+	TodoItem *TodoItemClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -35,7 +35,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
-	c.Todo = NewTodoClient(c.config)
+	c.TodoItem = NewTodoItemClient(c.config)
 }
 
 // Open opens a connection to the database specified by the driver name and a
@@ -65,8 +65,8 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	}
 	cfg := config{driver: tx, log: c.log, debug: c.debug, hooks: c.hooks}
 	return &Tx{
-		config: cfg,
-		Todo:   NewTodoClient(cfg),
+		config:   cfg,
+		TodoItem: NewTodoItemClient(cfg),
 	}, nil
 }
 
@@ -81,15 +81,15 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	}
 	cfg := config{driver: &txDriver{tx: tx, drv: c.driver}, log: c.log, debug: c.debug, hooks: c.hooks}
 	return &Tx{
-		config: cfg,
-		Todo:   NewTodoClient(cfg),
+		config:   cfg,
+		TodoItem: NewTodoItemClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Todo.
+//		TodoItem.
 //		Query().
 //		Count(ctx)
 //
@@ -111,88 +111,88 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.Todo.Use(hooks...)
+	c.TodoItem.Use(hooks...)
 }
 
-// TodoClient is a client for the Todo schema.
-type TodoClient struct {
+// TodoItemClient is a client for the TodoItem schema.
+type TodoItemClient struct {
 	config
 }
 
-// NewTodoClient returns a client for the Todo from the given config.
-func NewTodoClient(c config) *TodoClient {
-	return &TodoClient{config: c}
+// NewTodoItemClient returns a client for the TodoItem from the given config.
+func NewTodoItemClient(c config) *TodoItemClient {
+	return &TodoItemClient{config: c}
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `todo.Hooks(f(g(h())))`.
-func (c *TodoClient) Use(hooks ...Hook) {
-	c.hooks.Todo = append(c.hooks.Todo, hooks...)
+// A call to `Use(f, g, h)` equals to `todoitem.Hooks(f(g(h())))`.
+func (c *TodoItemClient) Use(hooks ...Hook) {
+	c.hooks.TodoItem = append(c.hooks.TodoItem, hooks...)
 }
 
-// Create returns a create builder for Todo.
-func (c *TodoClient) Create() *TodoCreate {
-	mutation := newTodoMutation(c.config, OpCreate)
-	return &TodoCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Create returns a create builder for TodoItem.
+func (c *TodoItemClient) Create() *TodoItemCreate {
+	mutation := newTodoItemMutation(c.config, OpCreate)
+	return &TodoItemCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Update returns an update builder for Todo.
-func (c *TodoClient) Update() *TodoUpdate {
-	mutation := newTodoMutation(c.config, OpUpdate)
-	return &TodoUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Update returns an update builder for TodoItem.
+func (c *TodoItemClient) Update() *TodoItemUpdate {
+	mutation := newTodoItemMutation(c.config, OpUpdate)
+	return &TodoItemUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *TodoClient) UpdateOne(t *Todo) *TodoUpdateOne {
-	return c.UpdateOneID(t.ID)
+func (c *TodoItemClient) UpdateOne(ti *TodoItem) *TodoItemUpdateOne {
+	return c.UpdateOneID(ti.ID)
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *TodoClient) UpdateOneID(id int) *TodoUpdateOne {
-	mutation := newTodoMutation(c.config, OpUpdateOne)
+func (c *TodoItemClient) UpdateOneID(id int) *TodoItemUpdateOne {
+	mutation := newTodoItemMutation(c.config, OpUpdateOne)
 	mutation.id = &id
-	return &TodoUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+	return &TodoItemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Delete returns a delete builder for Todo.
-func (c *TodoClient) Delete() *TodoDelete {
-	mutation := newTodoMutation(c.config, OpDelete)
-	return &TodoDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Delete returns a delete builder for TodoItem.
+func (c *TodoItemClient) Delete() *TodoItemDelete {
+	mutation := newTodoItemMutation(c.config, OpDelete)
+	return &TodoItemDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a delete builder for the given entity.
-func (c *TodoClient) DeleteOne(t *Todo) *TodoDeleteOne {
-	return c.DeleteOneID(t.ID)
+func (c *TodoItemClient) DeleteOne(ti *TodoItem) *TodoItemDeleteOne {
+	return c.DeleteOneID(ti.ID)
 }
 
 // DeleteOneID returns a delete builder for the given id.
-func (c *TodoClient) DeleteOneID(id int) *TodoDeleteOne {
-	builder := c.Delete().Where(todo.ID(id))
+func (c *TodoItemClient) DeleteOneID(id int) *TodoItemDeleteOne {
+	builder := c.Delete().Where(todoitem.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
-	return &TodoDeleteOne{builder}
+	return &TodoItemDeleteOne{builder}
 }
 
-// Create returns a query builder for Todo.
-func (c *TodoClient) Query() *TodoQuery {
-	return &TodoQuery{config: c.config}
+// Create returns a query builder for TodoItem.
+func (c *TodoItemClient) Query() *TodoItemQuery {
+	return &TodoItemQuery{config: c.config}
 }
 
-// Get returns a Todo entity by its id.
-func (c *TodoClient) Get(ctx context.Context, id int) (*Todo, error) {
-	return c.Query().Where(todo.ID(id)).Only(ctx)
+// Get returns a TodoItem entity by its id.
+func (c *TodoItemClient) Get(ctx context.Context, id int) (*TodoItem, error) {
+	return c.Query().Where(todoitem.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *TodoClient) GetX(ctx context.Context, id int) *Todo {
-	t, err := c.Get(ctx, id)
+func (c *TodoItemClient) GetX(ctx context.Context, id int) *TodoItem {
+	ti, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
 	}
-	return t
+	return ti
 }
 
 // Hooks returns the client hooks.
-func (c *TodoClient) Hooks() []Hook {
-	return c.hooks.Todo
+func (c *TodoItemClient) Hooks() []Hook {
+	return c.hooks.TodoItem
 }

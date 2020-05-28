@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	// TodosColumns holds the columns for the "todos" table.
-	TodosColumns = []*schema.Column{
+	// TodoItemsColumns holds the columns for the "todo_items" table.
+	TodoItemsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "uid", Type: field.TypeString, Unique: true, Size: 26},
 		{Name: "title", Type: field.TypeString, Size: 2147483647},
@@ -18,16 +18,16 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 	}
-	// TodosTable holds the schema information for the "todos" table.
-	TodosTable = &schema.Table{
-		Name:        "todos",
-		Columns:     TodosColumns,
-		PrimaryKey:  []*schema.Column{TodosColumns[0]},
+	// TodoItemsTable holds the schema information for the "todo_items" table.
+	TodoItemsTable = &schema.Table{
+		Name:        "todo_items",
+		Columns:     TodoItemsColumns,
+		PrimaryKey:  []*schema.Column{TodoItemsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		TodosTable,
+		TodoItemsTable,
 	}
 )
 

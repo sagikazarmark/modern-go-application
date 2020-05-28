@@ -38,12 +38,12 @@ func (r *resolver) Query() graphql.QueryResolver {
 
 type mutationResolver struct{ *resolver }
 
-func (r *mutationResolver) CreateTodo(ctx context.Context, input graphql.NewTodo) (string, error) {
-	req := CreateTodoRequest{
+func (r *mutationResolver) AddTodoItem(ctx context.Context, input graphql.NewTodoItem) (string, error) {
+	req := AddItemRequest{
 		NewItem: todo.NewItem{Title: input.Title},
 	}
 
-	resp, err := r.endpoints.CreateTodo(ctx, req)
+	resp, err := r.endpoints.AddItem(ctx, req)
 	if err != nil {
 		r.errorHandler.HandleContext(ctx, err)
 
@@ -54,7 +54,7 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input graphql.NewTodo
 		return "", f.Failed()
 	}
 
-	return resp.(CreateTodoResponse).Todo.ID, nil
+	return resp.(AddItemResponse).Item.ID, nil
 }
 
 func (r *mutationResolver) MarkTodoAsComplete(ctx context.Context, input string) (bool, error) {
@@ -78,17 +78,17 @@ func (r *mutationResolver) MarkTodoAsComplete(ctx context.Context, input string)
 
 type queryResolver struct{ *resolver }
 
-func (r *queryResolver) Todos(ctx context.Context) ([]*todo.Todo, error) {
-	resp, err := r.endpoints.ListTodos(ctx, nil)
+func (r *queryResolver) TodoItems(ctx context.Context) ([]*todo.Item, error) {
+	resp, err := r.endpoints.ListItems(ctx, nil)
 	if err != nil {
 		r.errorHandler.HandleContext(ctx, err)
 
 		return nil, errors.New("internal server error")
 	}
 
-	todos := make([]*todo.Todo, len(resp.(ListTodosResponse).Todos))
+	todos := make([]*todo.Item, len(resp.(ListItemsResponse).Items))
 
-	for i, todo := range resp.(ListTodosResponse).Todos {
+	for i, todo := range resp.(ListItemsResponse).Items {
 		todo := todo
 		todos[i] = &todo
 	}

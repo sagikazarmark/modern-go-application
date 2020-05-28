@@ -30,10 +30,10 @@ func TestList_CreatesATodo(t *testing.T) {
 
 	todoList := NewService(idgen.NewConstantGenerator(expectedID), todoStore, nil)
 
-	todo, err := todoList.CreateTodo(context.Background(), NewItem{Title: text})
+	todo, err := todoList.AddItem(context.Background(), NewItem{Title: text})
 	require.NoError(t, err)
 
-	expectedTodo := Todo{
+	expectedTodo := Item{
 		ID:    expectedID,
 		Title: text,
 	}
@@ -49,14 +49,14 @@ func TestList_CreatesATodo(t *testing.T) {
 func TestList_CannotCreateATodo(t *testing.T) {
 	todoList := NewService(idgen.NewConstantGenerator("id"), NewReadOnlyStore(NewInMemoryStore()), nil)
 
-	_, err := todoList.CreateTodo(context.Background(), NewItem{Title: "My first todo"})
+	_, err := todoList.AddItem(context.Background(), NewItem{Title: "My first todo"})
 	require.Error(t, err)
 }
 
 func TestList_ListTodos(t *testing.T) {
 	todoStore := NewInMemoryStore()
 
-	todo := Todo{
+	todo := Item{
 		ID:    "id",
 		Title: "Make the listing work",
 	}
@@ -64,10 +64,10 @@ func TestList_ListTodos(t *testing.T) {
 
 	todoList := NewService(idgen.NewConstantGenerator("id"), todoStore, nil)
 
-	todos, err := todoList.ListTodos(context.Background())
+	todos, err := todoList.ListItems(context.Background())
 	require.NoError(t, err)
 
-	expectedTodos := []Todo{todo}
+	expectedTodos := []Item{todo}
 
 	assert.Equal(t, expectedTodos, todos)
 }
@@ -77,7 +77,7 @@ func TestList_MarkAsComplete(t *testing.T) {
 
 	const id = "id"
 
-	todo := Todo{
+	todo := Item{
 		ID:    id,
 		Title: "Do me",
 	}
@@ -126,7 +126,7 @@ func TestList_CannotMarkANonExistingTodoComplete(t *testing.T) {
 func TestList_StoringCompleteTodoFails(t *testing.T) {
 	inmemTodoStore := NewInMemoryStore()
 
-	todo := Todo{
+	todo := Item{
 		ID:    "id",
 		Title: "Do me",
 	}
@@ -168,7 +168,7 @@ func TestList(t *testing.T) {
 		func(t gobdd.StepTest, ctx gobdd.Context, text string) {
 			fctx := getFeatureContext(t, ctx)
 
-			todo, err := fctx.Service.CreateTodo(context.Background(), NewItem{Title: text})
+			todo, err := fctx.Service.AddItem(context.Background(), NewItem{Title: text})
 			if err != nil {
 				var cerr interface{ ServiceError() bool }
 
@@ -240,7 +240,7 @@ func TestList(t *testing.T) {
 
 		const id = "todo"
 
-		err := fctx.Store.Store(context.Background(), Todo{
+		err := fctx.Store.Store(context.Background(), Item{
 			ID:        id,
 			Title:     text,
 			Completed: false,

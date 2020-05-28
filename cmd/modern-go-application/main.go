@@ -264,8 +264,8 @@ func main() {
 		ocgrpc.ServerCompletedRPCsView,
 
 		// Todo
-		tododriver.CreatedTodoCountView,
-		tododriver.CompleteTodoCountView,
+		tododriver.CreatedTodoItemCountView,
+		tododriver.CompleteTodoItemCountView,
 	)
 	emperror.Panic(errors.Wrap(err, "failed to register stat views"))
 

@@ -8,11 +8,11 @@ import (
 	"time"
 
 	"github.com/facebookincubator/ent/dialect/sql"
-	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/todo"
+	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/todoitem"
 )
 
-// Todo is the model entity for the Todo schema.
-type Todo struct {
+// TodoItem is the model entity for the TodoItem schema.
+type TodoItem struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
@@ -31,7 +31,7 @@ type Todo struct {
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*Todo) scanValues() []interface{} {
+func (*TodoItem) scanValues() []interface{} {
 	return []interface{}{
 		&sql.NullInt64{},  // id
 		&sql.NullString{}, // uid
@@ -44,94 +44,94 @@ func (*Todo) scanValues() []interface{} {
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the Todo fields.
-func (t *Todo) assignValues(values ...interface{}) error {
-	if m, n := len(values), len(todo.Columns); m < n {
+// to the TodoItem fields.
+func (ti *TodoItem) assignValues(values ...interface{}) error {
+	if m, n := len(values), len(todoitem.Columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	value, ok := values[0].(*sql.NullInt64)
 	if !ok {
 		return fmt.Errorf("unexpected type %T for field id", value)
 	}
-	t.ID = int(value.Int64)
+	ti.ID = int(value.Int64)
 	values = values[1:]
 	if value, ok := values[0].(*sql.NullString); !ok {
 		return fmt.Errorf("unexpected type %T for field uid", values[0])
 	} else if value.Valid {
-		t.UID = value.String
+		ti.UID = value.String
 	}
 	if value, ok := values[1].(*sql.NullString); !ok {
 		return fmt.Errorf("unexpected type %T for field title", values[1])
 	} else if value.Valid {
-		t.Title = value.String
+		ti.Title = value.String
 	}
 	if value, ok := values[2].(*sql.NullBool); !ok {
 		return fmt.Errorf("unexpected type %T for field completed", values[2])
 	} else if value.Valid {
-		t.Completed = value.Bool
+		ti.Completed = value.Bool
 	}
 	if value, ok := values[3].(*sql.NullInt64); !ok {
 		return fmt.Errorf("unexpected type %T for field order", values[3])
 	} else if value.Valid {
-		t.Order = int(value.Int64)
+		ti.Order = int(value.Int64)
 	}
 	if value, ok := values[4].(*sql.NullTime); !ok {
 		return fmt.Errorf("unexpected type %T for field created_at", values[4])
 	} else if value.Valid {
-		t.CreatedAt = value.Time
+		ti.CreatedAt = value.Time
 	}
 	if value, ok := values[5].(*sql.NullTime); !ok {
 		return fmt.Errorf("unexpected type %T for field updated_at", values[5])
 	} else if value.Valid {
-		t.UpdatedAt = value.Time
+		ti.UpdatedAt = value.Time
 	}
 	return nil
 }
 
-// Update returns a builder for updating this Todo.
-// Note that, you need to call Todo.Unwrap() before calling this method, if this Todo
+// Update returns a builder for updating this TodoItem.
+// Note that, you need to call TodoItem.Unwrap() before calling this method, if this TodoItem
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (t *Todo) Update() *TodoUpdateOne {
-	return (&TodoClient{config: t.config}).UpdateOne(t)
+func (ti *TodoItem) Update() *TodoItemUpdateOne {
+	return (&TodoItemClient{config: ti.config}).UpdateOne(ti)
 }
 
 // Unwrap unwraps the entity that was returned from a transaction after it was closed,
 // so that all next queries will be executed through the driver which created the transaction.
-func (t *Todo) Unwrap() *Todo {
-	tx, ok := t.config.driver.(*txDriver)
+func (ti *TodoItem) Unwrap() *TodoItem {
+	tx, ok := ti.config.driver.(*txDriver)
 	if !ok {
-		panic("ent: Todo is not a transactional entity")
+		panic("ent: TodoItem is not a transactional entity")
 	}
-	t.config.driver = tx.drv
-	return t
+	ti.config.driver = tx.drv
+	return ti
 }
 
 // String implements the fmt.Stringer.
-func (t *Todo) String() string {
+func (ti *TodoItem) String() string {
 	var builder strings.Builder
-	builder.WriteString("Todo(")
-	builder.WriteString(fmt.Sprintf("id=%v", t.ID))
+	builder.WriteString("TodoItem(")
+	builder.WriteString(fmt.Sprintf("id=%v", ti.ID))
 	builder.WriteString(", uid=")
-	builder.WriteString(t.UID)
+	builder.WriteString(ti.UID)
 	builder.WriteString(", title=")
-	builder.WriteString(t.Title)
+	builder.WriteString(ti.Title)
 	builder.WriteString(", completed=")
-	builder.WriteString(fmt.Sprintf("%v", t.Completed))
+	builder.WriteString(fmt.Sprintf("%v", ti.Completed))
 	builder.WriteString(", order=")
-	builder.WriteString(fmt.Sprintf("%v", t.Order))
+	builder.WriteString(fmt.Sprintf("%v", ti.Order))
 	builder.WriteString(", created_at=")
-	builder.WriteString(t.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(ti.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", updated_at=")
-	builder.WriteString(t.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(ti.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }
 
-// Todos is a parsable slice of Todo.
-type Todos []*Todo
+// TodoItems is a parsable slice of TodoItem.
+type TodoItems []*TodoItem
 
-func (t Todos) config(cfg config) {
-	for _i := range t {
-		t[_i].config = cfg
+func (ti TodoItems) config(cfg config) {
+	for _i := range ti {
+		ti[_i].config = cfg
 	}
 }

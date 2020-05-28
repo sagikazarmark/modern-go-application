@@ -6,20 +6,20 @@ import (
 	"time"
 
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/schema"
-	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/todo"
+	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/todoitem"
 )
 
 // The init function reads all schema descriptors with runtime
 // code (default values, validators or hooks) and stitches it
 // to their package variables.
 func init() {
-	todoFields := schema.Todo{}.Fields()
-	_ = todoFields
-	// todoDescUID is the schema descriptor for uid field.
-	todoDescUID := todoFields[0].Descriptor()
-	// todo.UIDValidator is a validator for the "uid" field. It is called by the builders before save.
-	todo.UIDValidator = func() func(string) error {
-		validators := todoDescUID.Validators
+	todoitemFields := schema.TodoItem{}.Fields()
+	_ = todoitemFields
+	// todoitemDescUID is the schema descriptor for uid field.
+	todoitemDescUID := todoitemFields[0].Descriptor()
+	// todoitem.UIDValidator is a validator for the "uid" field. It is called by the builders before save.
+	todoitem.UIDValidator = func() func(string) error {
+		validators := todoitemDescUID.Validators
 		fns := [...]func(string) error{
 			validators[0].(func(string) error),
 			validators[1].(func(string) error),
@@ -33,14 +33,14 @@ func init() {
 			return nil
 		}
 	}()
-	// todoDescCreatedAt is the schema descriptor for created_at field.
-	todoDescCreatedAt := todoFields[4].Descriptor()
-	// todo.DefaultCreatedAt holds the default value on creation for the created_at field.
-	todo.DefaultCreatedAt = todoDescCreatedAt.Default.(func() time.Time)
-	// todoDescUpdatedAt is the schema descriptor for updated_at field.
-	todoDescUpdatedAt := todoFields[5].Descriptor()
-	// todo.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	todo.DefaultUpdatedAt = todoDescUpdatedAt.Default.(func() time.Time)
-	// todo.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	todo.UpdateDefaultUpdatedAt = todoDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// todoitemDescCreatedAt is the schema descriptor for created_at field.
+	todoitemDescCreatedAt := todoitemFields[4].Descriptor()
+	// todoitem.DefaultCreatedAt holds the default value on creation for the created_at field.
+	todoitem.DefaultCreatedAt = todoitemDescCreatedAt.Default.(func() time.Time)
+	// todoitemDescUpdatedAt is the schema descriptor for updated_at field.
+	todoitemDescUpdatedAt := todoitemFields[5].Descriptor()
+	// todoitem.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	todoitem.DefaultUpdatedAt = todoitemDescUpdatedAt.Default.(func() time.Time)
+	// todoitem.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	todoitem.UpdateDefaultUpdatedAt = todoitemDescUpdatedAt.UpdateDefault.(func() time.Time)
 }

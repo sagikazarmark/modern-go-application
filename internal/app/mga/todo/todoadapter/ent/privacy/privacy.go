@@ -154,26 +154,26 @@ func DenyMutationOperationRule(op ent.Op) MutationRule {
 	})
 }
 
-// The TodoQueryRuleFunc type is an adapter to allow the use of ordinary
+// The TodoItemQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
-type TodoQueryRuleFunc func(context.Context, *ent.TodoQuery) error
+type TodoItemQueryRuleFunc func(context.Context, *ent.TodoItemQuery) error
 
 // EvalQuery return f(ctx, q).
-func (f TodoQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
-	if q, ok := q.(*ent.TodoQuery); ok {
+func (f TodoItemQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.TodoItemQuery); ok {
 		return f(ctx, q)
 	}
-	return Denyf("ent/privacy: unexpected query type %T, expect *ent.TodoQuery", q)
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.TodoItemQuery", q)
 }
 
-// The TodoMutationRuleFunc type is an adapter to allow the use of ordinary
+// The TodoItemMutationRuleFunc type is an adapter to allow the use of ordinary
 // functions as a mutation rule.
-type TodoMutationRuleFunc func(context.Context, *ent.TodoMutation) error
+type TodoItemMutationRuleFunc func(context.Context, *ent.TodoItemMutation) error
 
 // EvalMutation calls f(ctx, m).
-func (f TodoMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
-	if m, ok := m.(*ent.TodoMutation); ok {
+func (f TodoItemMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.TodoItemMutation); ok {
 		return f(ctx, m)
 	}
-	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.TodoMutation", m)
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.TodoItemMutation", m)
 }

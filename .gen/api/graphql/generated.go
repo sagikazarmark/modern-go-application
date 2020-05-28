@@ -2,6 +2,6 @@
 
 package graphql
 
-type NewTodo struct {
+type NewTodoItem struct {
 	Title string `json:"title"`
 }

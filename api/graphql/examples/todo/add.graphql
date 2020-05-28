@@ -3,7 +3,7 @@
 #    "title": "My Todo"
 #}
 mutation($text: String!) {
-    createTodo(input: {
+    addTodoItem(input: {
         title: $text
     })
 }

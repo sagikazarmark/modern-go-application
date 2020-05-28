@@ -10,26 +10,26 @@ import (
 // InMemoryStore keeps todos in the memory.
 // Use it in tests or for development/demo purposes.
 type InMemoryStore struct {
-	todos map[string]Todo
+	todos map[string]Item
 }
 
 // NewInMemoryStore returns a new inmemory todo store.
 func NewInMemoryStore() *InMemoryStore {
 	return &InMemoryStore{
-		todos: make(map[string]Todo),
+		todos: make(map[string]Item),
 	}
 }
 
 // Store stores a todo.
-func (s *InMemoryStore) Store(ctx context.Context, todo Todo) error {
+func (s *InMemoryStore) Store(ctx context.Context, todo Item) error {
 	s.todos[todo.ID] = todo
 
 	return nil
 }
 
 // All returns all todos.
-func (s *InMemoryStore) All(ctx context.Context) ([]Todo, error) {
-	todos := make([]Todo, len(s.todos))
+func (s *InMemoryStore) All(ctx context.Context) ([]Item, error) {
+	todos := make([]Item, len(s.todos))
 
 	// This makes sure todos are always returned in the same, sorted order
 	keys := make([]string, 0, len(s.todos))
@@ -46,7 +46,7 @@ func (s *InMemoryStore) All(ctx context.Context) ([]Todo, error) {
 }
 
 // Get returns a single todo by its ID.
-func (s *InMemoryStore) Get(ctx context.Context, id string) (Todo, error) {
+func (s *InMemoryStore) Get(ctx context.Context, id string) (Item, error) {
 	todo, ok := s.todos[id]
 	if !ok {
 		return todo, NotFoundError{ID: id}
@@ -55,9 +55,9 @@ func (s *InMemoryStore) Get(ctx context.Context, id string) (Todo, error) {
 	return todo, nil
 }
 
-// DeleteAll deletes all items in the store.
+// DeleteItems deletes all items in the store.
 func (s *InMemoryStore) DeleteAll(_ context.Context) error {
-	s.todos = make(map[string]Todo)
+	s.todos = make(map[string]Item)
 
 	return nil
 }
@@ -87,21 +87,21 @@ func NewReadOnlyStore(store Store) *ReadOnlyStore {
 }
 
 // Store stores a todo.
-func (*ReadOnlyStore) Store(ctx context.Context, todo Todo) error {
+func (*ReadOnlyStore) Store(ctx context.Context, todo Item) error {
 	return errors.NewWithDetails("read-only todo store cannot be modified", "todo_id", todo.ID)
 }
 
 // All returns all todos.
-func (s *ReadOnlyStore) All(ctx context.Context) ([]Todo, error) {
+func (s *ReadOnlyStore) All(ctx context.Context) ([]Item, error) {
 	return s.store.All(ctx)
 }
 
 // Get returns a single todo by its ID.
-func (s *ReadOnlyStore) Get(ctx context.Context, id string) (Todo, error) {
+func (s *ReadOnlyStore) Get(ctx context.Context, id string) (Item, error) {
 	return s.store.Get(ctx, id)
 }
 
-// DeleteAll deletes all items in the store.
+// DeleteItems deletes all items in the store.
 func (s *ReadOnlyStore) DeleteAll(_ context.Context) error {
 	return errors.New("read-only todo store cannot be modified")
 }

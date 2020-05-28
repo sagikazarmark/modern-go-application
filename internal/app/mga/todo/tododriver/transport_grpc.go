@@ -17,13 +17,13 @@ func MakeGRPCServer(endpoints Endpoints, options ...kitgrpc.ServerOption) todov1
 
 	return todov1beta1.TodoListKitServer{
 		CreateTodoHandler: kitxgrpc.NewErrorEncoderHandler(kitgrpc.NewServer(
-			endpoints.CreateTodo,
+			endpoints.AddItem,
 			decodeCreateTodoGRPCRequest,
 			kitxgrpc.ErrorResponseEncoder(encodeCreateTodoGRPCResponse, errorEncoder),
 			options...,
 		), errorEncoder),
 		ListTodosHandler: kitxgrpc.NewErrorEncoderHandler(kitgrpc.NewServer(
-			endpoints.ListTodos,
+			endpoints.ListItems,
 			decodeListTodosGRPCRequest,
 			kitxgrpc.ErrorResponseEncoder(encodeListTodosGRPCResponse, errorEncoder),
 			options...,
@@ -40,16 +40,16 @@ func MakeGRPCServer(endpoints Endpoints, options ...kitgrpc.ServerOption) todov1
 func decodeCreateTodoGRPCRequest(_ context.Context, request interface{}) (interface{}, error) {
 	req := request.(*todov1beta1.CreateTodoRequest)
 
-	return CreateTodoRequest{
+	return AddItemRequest{
 		NewItem: todo.NewItem{Title: req.GetTitle()},
 	}, nil
 }
 
 func encodeCreateTodoGRPCResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp := response.(CreateTodoResponse)
+	resp := response.(AddItemResponse)
 
 	return &todov1beta1.CreateTodoResponse{
-		Id: resp.Todo.ID,
+		Id: resp.Item.ID,
 	}, nil
 }
 
@@ -58,13 +58,13 @@ func decodeListTodosGRPCRequest(_ context.Context, _ interface{}) (interface{}, 
 }
 
 func encodeListTodosGRPCResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp := response.(ListTodosResponse)
+	resp := response.(ListItemsResponse)
 
 	grpcResp := &todov1beta1.ListTodosResponse{
-		Todos: make([]*todov1beta1.Todo, len(resp.Todos)),
+		Todos: make([]*todov1beta1.Todo, len(resp.Items)),
 	}
 
-	for i, t := range resp.Todos {
+	for i, t := range resp.Items {
 		grpcResp.Todos[i] = &todov1beta1.Todo{
 			Id:        t.ID,
 			Title:     t.Title,

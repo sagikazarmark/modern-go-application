@@ -7,13 +7,13 @@ import (
 	"github.com/facebookincubator/ent/schema/field"
 )
 
-// Todo holds the schema definition for the Todo entity.
-type Todo struct {
+// TodoItem holds the schema definition for the TodoItem entity.
+type TodoItem struct {
 	ent.Schema
 }
 
-// Fields of the Todo.
-func (Todo) Fields() []ent.Field {
+// Fields of the TodoItem.
+func (TodoItem) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("uid").
 			MaxLen(26).
@@ -31,7 +31,7 @@ func (Todo) Fields() []ent.Field {
 	}
 }
 
-// Edges of the Todo.
-func (Todo) Edges() []ent.Edge {
+// Edges of the TodoItem.
+func (TodoItem) Edges() []ent.Edge {
 	return nil
 }
