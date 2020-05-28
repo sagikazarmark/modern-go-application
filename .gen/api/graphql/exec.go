@@ -44,8 +44,8 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Mutation struct {
-		AddTodoItem        func(childComplexity int, input NewTodoItem) int
-		MarkTodoAsComplete func(childComplexity int, input string) int
+		AddTodoItem    func(childComplexity int, input NewTodoItem) int
+		UpdateTodoItem func(childComplexity int, input TodoItemUpdate) int
 	}
 
 	Query struct {
@@ -60,8 +60,8 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	AddTodoItem(ctx context.Context, input NewTodoItem) (string, error)
-	MarkTodoAsComplete(ctx context.Context, input string) (bool, error)
+	AddTodoItem(ctx context.Context, input NewTodoItem) (*todo.Item, error)
+	UpdateTodoItem(ctx context.Context, input TodoItemUpdate) (*todo.Item, error)
 }
 type QueryResolver interface {
 	TodoItems(ctx context.Context) ([]*todo.Item, error)
@@ -94,17 +94,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.AddTodoItem(childComplexity, args["input"].(NewTodoItem)), true
 
-	case "Mutation.markTodoAsComplete":
-		if e.complexity.Mutation.MarkTodoAsComplete == nil {
+	case "Mutation.updateTodoItem":
+		if e.complexity.Mutation.UpdateTodoItem == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_markTodoAsComplete_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateTodoItem_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.MarkTodoAsComplete(childComplexity, args["input"].(string)), true
+		return e.complexity.Mutation.UpdateTodoItem(childComplexity, args["input"].(TodoItemUpdate)), true
 
 	case "Query.todoItems":
 		if e.complexity.Query.TodoItems == nil {
@@ -210,11 +210,19 @@ type Query {
 
 input NewTodoItem {
     title: String!
+    order: Int
+}
+
+input TodoItemUpdate {
+    id: ID!
+    title: String
+    completed: Boolean
+    order: Int
 }
 
 type Mutation {
-    addTodoItem(input: NewTodoItem!): ID!
-    markTodoAsComplete(input: ID!): Boolean!
+    addTodoItem(input: NewTodoItem!): TodoItem!
+    updateTodoItem(input: TodoItemUpdate!): TodoItem!
 }
 `, BuiltIn: false},
 }
@@ -238,12 +246,12 @@ func (ec *executionContext) field_Mutation_addTodoItem_args(ctx context.Context,
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_markTodoAsComplete_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateTodoItem_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 TodoItemUpdate
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		arg0, err = ec.unmarshalNTodoItemUpdate2githubᚗcomᚋsagikazarmarkᚋmodernᚑgoᚑapplicationᚋᚗgenᚋapiᚋgraphqlᚐTodoItemUpdate(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -338,12 +346,12 @@ func (ec *executionContext) _Mutation_addTodoItem(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*todo.Item)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNTodoItem2ᚖgithubᚗcomᚋsagikazarmarkᚋmodernᚑgoᚑapplicationᚋinternalᚋappᚋmgaᚋtodoᚐItem(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Mutation_markTodoAsComplete(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Mutation_updateTodoItem(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -359,7 +367,7 @@ func (ec *executionContext) _Mutation_markTodoAsComplete(ctx context.Context, fi
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_markTodoAsComplete_args(ctx, rawArgs)
+	args, err := ec.field_Mutation_updateTodoItem_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -367,7 +375,7 @@ func (ec *executionContext) _Mutation_markTodoAsComplete(ctx context.Context, fi
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().MarkTodoAsComplete(rctx, args["input"].(string))
+		return ec.resolvers.Mutation().UpdateTodoItem(rctx, args["input"].(TodoItemUpdate))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -379,9 +387,9 @@ func (ec *executionContext) _Mutation_markTodoAsComplete(ctx context.Context, fi
 		}
 		return graphql.Null
 	}
-	res := resTmp.(bool)
+	res := resTmp.(*todo.Item)
 	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalNTodoItem2ᚖgithubᚗcomᚋsagikazarmarkᚋmodernᚑgoᚑapplicationᚋinternalᚋappᚋmgaᚋtodoᚐItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_todoItems(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1656,6 +1664,48 @@ func (ec *executionContext) unmarshalInputNewTodoItem(ctx context.Context, obj i
 			if err != nil {
 				return it, err
 			}
+		case "order":
+			var err error
+			it.Order, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTodoItemUpdate(ctx context.Context, obj interface{}) (TodoItemUpdate, error) {
+	var it TodoItemUpdate
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+			it.ID, err = ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "title":
+			var err error
+			it.Title, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "completed":
+			var err error
+			it.Completed, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "order":
+			var err error
+			it.Order, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -1690,8 +1740,8 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "markTodoAsComplete":
-			out.Values[i] = ec._Mutation_markTodoAsComplete(ctx, field)
+		case "updateTodoItem":
+			out.Values[i] = ec._Mutation_updateTodoItem(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -2129,6 +2179,10 @@ func (ec *executionContext) marshalNTodoItem2ᚖgithubᚗcomᚋsagikazarmarkᚋm
 	return ec._TodoItem(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNTodoItemUpdate2githubᚗcomᚋsagikazarmarkᚋmodernᚑgoᚑapplicationᚋᚗgenᚋapiᚋgraphqlᚐTodoItemUpdate(ctx context.Context, v interface{}) (TodoItemUpdate, error) {
+	return ec.unmarshalInputTodoItemUpdate(ctx, v)
+}
+
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
 	return ec.___Directive(ctx, sel, &v)
 }
@@ -2376,6 +2430,29 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	return ec.marshalOBoolean2bool(ctx, sel, *v)
+}
+
+func (ec *executionContext) unmarshalOInt2int(ctx context.Context, v interface{}) (int, error) {
+	return graphql.UnmarshalInt(v)
+}
+
+func (ec *executionContext) marshalOInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	return graphql.MarshalInt(v)
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOInt2int(ctx, v)
+	return &res, err
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec.marshalOInt2int(ctx, sel, *v)
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

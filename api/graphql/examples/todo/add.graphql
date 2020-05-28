@@ -5,5 +5,9 @@
 mutation($text: String!) {
     addTodoItem(input: {
         title: $text
-    })
+    }) {
+        id
+        title
+        completed
+    }
 }

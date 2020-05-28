@@ -38,42 +38,59 @@ func (r *resolver) Query() graphql.QueryResolver {
 
 type mutationResolver struct{ *resolver }
 
-func (r *mutationResolver) AddTodoItem(ctx context.Context, input graphql.NewTodoItem) (string, error) {
+func (r *mutationResolver) AddTodoItem(ctx context.Context, input graphql.NewTodoItem) (*todo.Item, error) {
+	var order int
+	if input.Order != nil {
+		order = *input.Order
+	}
+
 	req := AddItemRequest{
-		NewItem: todo.NewItem{Title: input.Title},
+		NewItem: todo.NewItem{
+			Title: input.Title,
+			Order: order,
+		},
 	}
 
 	resp, err := r.endpoints.AddItem(ctx, req)
 	if err != nil {
 		r.errorHandler.HandleContext(ctx, err)
 
-		return "", errors.New("internal server error")
+		return nil, errors.New("internal server error")
 	}
 
 	if f, ok := resp.(endpoint.Failer); ok {
-		return "", f.Failed()
+		return nil, f.Failed()
 	}
 
-	return resp.(AddItemResponse).Item.ID, nil
+	item := resp.(AddItemResponse).Item
+
+	return &item, nil
 }
 
-func (r *mutationResolver) MarkTodoAsComplete(ctx context.Context, input string) (bool, error) {
-	req := MarkAsCompleteRequest{
-		Id: input,
+func (r *mutationResolver) UpdateTodoItem(ctx context.Context, input graphql.TodoItemUpdate) (*todo.Item, error) {
+	req := UpdateItemRequest{
+		Id: input.ID,
+		ItemUpdate: todo.ItemUpdate{
+			Title:     input.Title,
+			Completed: input.Completed,
+			Order:     input.Order,
+		},
 	}
 
-	resp, err := r.endpoints.MarkAsComplete(ctx, req)
+	resp, err := r.endpoints.AddItem(ctx, req)
 	if err != nil {
 		r.errorHandler.HandleContext(ctx, err)
 
-		return false, errors.New("internal server error")
+		return nil, errors.New("internal server error")
 	}
 
 	if f, ok := resp.(endpoint.Failer); ok {
-		return false, f.Failed()
+		return nil, f.Failed()
 	}
 
-	return true, nil
+	item := resp.(AddItemResponse).Item
+
+	return &item, nil
 }
 
 type queryResolver struct{ *resolver }
@@ -86,12 +103,12 @@ func (r *queryResolver) TodoItems(ctx context.Context) ([]*todo.Item, error) {
 		return nil, errors.New("internal server error")
 	}
 
-	todos := make([]*todo.Item, len(resp.(ListItemsResponse).Items))
+	items := make([]*todo.Item, len(resp.(ListItemsResponse).Items))
 
-	for i, todo := range resp.(ListItemsResponse).Items {
-		todo := todo
-		todos[i] = &todo
+	for i, item := range resp.(ListItemsResponse).Items {
+		item := item
+		items[i] = &item
 	}
 
-	return todos, nil
+	return items, nil
 }

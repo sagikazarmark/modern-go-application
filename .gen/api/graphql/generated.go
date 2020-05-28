@@ -4,4 +4,12 @@ package graphql
 
 type NewTodoItem struct {
 	Title string `json:"title"`
+	Order *int   `json:"order"`
+}
+
+type TodoItemUpdate struct {
+	ID        string  `json:"id"`
+	Title     *string `json:"title"`
+	Completed *bool   `json:"completed"`
+	Order     *int    `json:"order"`
 }
