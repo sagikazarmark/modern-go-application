@@ -214,6 +214,8 @@ components:
                     type: string
                 completed:
                     type: boolean
+                order:
+                    type: integer
                 url:
                     type: string
                     format: uri
@@ -221,6 +223,7 @@ components:
                 - id
                 - title
                 - completed
+                - order
                 - url
 
         TodoList:
@@ -233,8 +236,11 @@ components:
             properties:
                 title:
                     type: string
+                order:
+                    type: integer
             required:
                 - title
+                - order
 
         CreateTodoResponse:
             type: object
@@ -252,6 +258,9 @@ components:
                     nullable: true
                 completed:
                     type: boolean
+                    nullable: true
+                order:
+                    type: integer
                     nullable: true
 
         GenericError:

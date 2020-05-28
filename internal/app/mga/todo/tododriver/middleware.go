@@ -28,12 +28,12 @@ type loggingMiddleware struct {
 	logger todo.Logger
 }
 
-func (mw loggingMiddleware) CreateTodo(ctx context.Context, text string) (todo.Todo, error) {
+func (mw loggingMiddleware) CreateTodo(ctx context.Context, newItem todo.NewItem) (todo.Todo, error) {
 	logger := mw.logger.WithContext(ctx)
 
 	logger.Info("creating todo")
 
-	id, err := mw.next.CreateTodo(ctx, text)
+	id, err := mw.next.CreateTodo(ctx, newItem)
 	if err != nil {
 		return id, err
 	}
@@ -63,14 +63,14 @@ func (mw loggingMiddleware) GetItem(ctx context.Context, id string) (todo.Todo, 
 	return mw.next.GetItem(ctx, id)
 }
 
-func (mw loggingMiddleware) UpdateItem(ctx context.Context, id string, title *string, completed *bool) (todo.Todo, error) { // nolint: lll
+func (mw loggingMiddleware) UpdateItem(ctx context.Context, id string, itemUpdate todo.ItemUpdate) (todo.Todo, error) { // nolint: lll
 	logger := mw.logger.WithContext(ctx)
 
 	logger.Info("updating item", map[string]interface{}{
 		"id": id,
 	})
 
-	return mw.next.UpdateItem(ctx, id, title, completed)
+	return mw.next.UpdateItem(ctx, id, itemUpdate)
 }
 
 func (mw loggingMiddleware) MarkAsComplete(ctx context.Context, id string) error {
@@ -138,8 +138,8 @@ type instrumentationMiddleware struct {
 	next todo.Service
 }
 
-func (mw instrumentationMiddleware) CreateTodo(ctx context.Context, text string) (todo.Todo, error) {
-	todo, err := mw.next.CreateTodo(ctx, text)
+func (mw instrumentationMiddleware) CreateTodo(ctx context.Context, newItem todo.NewItem) (todo.Todo, error) {
+	todo, err := mw.next.CreateTodo(ctx, newItem)
 
 	if span := trace.FromContext(ctx); span != nil {
 		span.AddAttributes(trace.StringAttribute("todo_id", todo.ID))
@@ -158,8 +158,8 @@ func (mw instrumentationMiddleware) GetItem(ctx context.Context, id string) (tod
 	return mw.next.GetItem(ctx, id)
 }
 
-func (mw instrumentationMiddleware) UpdateItem(ctx context.Context, id string, title *string, completed *bool) (todo.Todo, error) { // nolint: lll
-	return mw.next.UpdateItem(ctx, id, title, completed)
+func (mw instrumentationMiddleware) UpdateItem(ctx context.Context, id string, itemUpdate todo.ItemUpdate) (todo.Todo, error) { // nolint: lll
+	return mw.next.UpdateItem(ctx, id, itemUpdate)
 }
 
 func (mw instrumentationMiddleware) MarkAsComplete(ctx context.Context, id string) error {

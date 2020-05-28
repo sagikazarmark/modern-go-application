@@ -11,6 +11,7 @@ type Todo struct {
 	ID        string
 	Title     string
 	Completed bool
+	Order     int
 }
 
 // +kit:endpoint:errorStrategy=service
@@ -18,7 +19,7 @@ type Todo struct {
 // Service manages a list of todos.
 type Service interface {
 	// CreateTodo adds a new todo to the todo list.
-	CreateTodo(ctx context.Context, title string) (todo Todo, err error)
+	CreateTodo(ctx context.Context, newItem NewItem) (todo Todo, err error)
 
 	// ListTodos returns the list of todos.
 	ListTodos(ctx context.Context) (todos []Todo, err error)
@@ -27,7 +28,7 @@ type Service interface {
 	GetItem(ctx context.Context, id string) (todo Todo, err error)
 
 	// UpdateItem updates an existing item.
-	UpdateItem(ctx context.Context, id string, title *string, completed *bool) (todo Todo, err error)
+	UpdateItem(ctx context.Context, id string, itemUpdate ItemUpdate) (todo Todo, err error)
 
 	// MarkAsComplete marks an item as complete.
 	MarkAsComplete(ctx context.Context, id string) error
@@ -37,6 +38,17 @@ type Service interface {
 
 	// DeleteItem deletes an item.
 	DeleteItem(ctx context.Context, id string) error
+}
+
+type NewItem struct {
+	Title string
+	Order int
+}
+
+type ItemUpdate struct {
+	Title     *string
+	Completed *bool
+	Order     *int
 }
 
 // NewService returns a new Service.
@@ -144,23 +156,24 @@ func (validationError) ServiceError() bool {
 	return true
 }
 
-func (s service) CreateTodo(ctx context.Context, text string) (Todo, error) {
+func (s service) CreateTodo(ctx context.Context, newItem NewItem) (Todo, error) {
 	id, err := s.idgenerator.Generate()
 	if err != nil {
 		return Todo{}, err
 	}
 
-	if text == "" {
+	if newItem.Title == "" {
 		return Todo{}, errors.WithStack(validationError{violations: map[string][]string{
-			"text": {
-				"text cannot be empty",
+			"title": {
+				"title cannot be empty",
 			},
 		}})
 	}
 
 	todo := Todo{
 		ID:    id,
-		Title: text,
+		Title: newItem.Title,
+		Order: newItem.Order,
 	}
 
 	err = s.store.Store(ctx, todo)
@@ -184,22 +197,26 @@ func (s service) GetItem(ctx context.Context, id string) (Todo, error) {
 	return todo, nil
 }
 
-func (s service) UpdateItem(ctx context.Context, id string, title *string, completed *bool) (Todo, error) {
+func (s service) UpdateItem(ctx context.Context, id string, itemUpdate ItemUpdate) (Todo, error) {
 	todo, err := s.store.Get(ctx, id)
 	if err != nil {
 		return Todo{}, err
 	}
 
-	if title == nil && completed == nil {
+	if itemUpdate.Title == nil && itemUpdate.Completed == nil && itemUpdate.Order == nil {
 		return todo, nil
 	}
 
-	if title != nil {
-		todo.Title = *title
+	if itemUpdate.Title != nil {
+		todo.Title = *itemUpdate.Title
 	}
 
-	if completed != nil {
-		todo.Completed = *completed
+	if itemUpdate.Completed != nil {
+		todo.Completed = *itemUpdate.Completed
+	}
+
+	if itemUpdate.Order != nil {
+		todo.Order = *itemUpdate.Order
 	}
 
 	err = s.store.Store(ctx, todo)

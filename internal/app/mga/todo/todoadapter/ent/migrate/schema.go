@@ -14,6 +14,7 @@ var (
 		{Name: "uid", Type: field.TypeString, Unique: true, Size: 26},
 		{Name: "title", Type: field.TypeString, Size: 2147483647},
 		{Name: "completed", Type: field.TypeBool},
+		{Name: "order", Type: field.TypeInt},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 	}

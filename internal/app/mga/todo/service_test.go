@@ -30,7 +30,7 @@ func TestList_CreatesATodo(t *testing.T) {
 
 	todoList := NewService(idgen.NewConstantGenerator(expectedID), todoStore, nil)
 
-	todo, err := todoList.CreateTodo(context.Background(), text)
+	todo, err := todoList.CreateTodo(context.Background(), NewItem{Title: text})
 	require.NoError(t, err)
 
 	expectedTodo := Todo{
@@ -49,7 +49,7 @@ func TestList_CreatesATodo(t *testing.T) {
 func TestList_CannotCreateATodo(t *testing.T) {
 	todoList := NewService(idgen.NewConstantGenerator("id"), NewReadOnlyStore(NewInMemoryStore()), nil)
 
-	_, err := todoList.CreateTodo(context.Background(), "My first todo")
+	_, err := todoList.CreateTodo(context.Background(), NewItem{Title: "My first todo"})
 	require.Error(t, err)
 }
 
@@ -168,7 +168,7 @@ func TestList(t *testing.T) {
 		func(t gobdd.StepTest, ctx gobdd.Context, text string) {
 			fctx := getFeatureContext(t, ctx)
 
-			todo, err := fctx.Service.CreateTodo(context.Background(), text)
+			todo, err := fctx.Service.CreateTodo(context.Background(), NewItem{Title: text})
 			if err != nil {
 				var cerr interface{ ServiceError() bool }
 

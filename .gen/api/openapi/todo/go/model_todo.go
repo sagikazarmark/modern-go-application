@@ -17,5 +17,7 @@ type Todo struct {
 
 	Completed bool `json:"completed"`
 
+	Order int32 `json:"order"`
+
 	Url string `json:"url"`
 }

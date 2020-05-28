@@ -207,6 +207,7 @@ components:
         completed: true
         title: title
         url: https://openapi-generator.tech
+        order: 0
       properties:
         id:
           type: string
@@ -214,12 +215,15 @@ components:
           type: string
         completed:
           type: boolean
+        order:
+          type: integer
         url:
           format: uri
           type: string
       required:
       - completed
       - id
+      - order
       - title
       - url
       type: object
@@ -230,10 +234,14 @@ components:
     CreateTodoRequest:
       example:
         title: title
+        order: 0
       properties:
         title:
           type: string
+        order:
+          type: integer
       required:
+      - order
       - title
       type: object
     CreateTodoResponse:
@@ -249,6 +257,7 @@ components:
       example:
         completed: true
         title: title
+        order: 0
       properties:
         title:
           nullable: true
@@ -256,6 +265,9 @@ components:
         completed:
           nullable: true
           type: boolean
+        order:
+          nullable: true
+          type: integer
       type: object
     GenericError:
       example:

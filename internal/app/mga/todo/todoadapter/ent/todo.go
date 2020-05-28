@@ -22,6 +22,8 @@ type Todo struct {
 	Title string `json:"title,omitempty"`
 	// Completed holds the value of the "completed" field.
 	Completed bool `json:"completed,omitempty"`
+	// Order holds the value of the "order" field.
+	Order int `json:"order,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -35,6 +37,7 @@ func (*Todo) scanValues() []interface{} {
 		&sql.NullString{}, // uid
 		&sql.NullString{}, // title
 		&sql.NullBool{},   // completed
+		&sql.NullInt64{},  // order
 		&sql.NullTime{},   // created_at
 		&sql.NullTime{},   // updated_at
 	}
@@ -67,13 +70,18 @@ func (t *Todo) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		t.Completed = value.Bool
 	}
-	if value, ok := values[3].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field created_at", values[3])
+	if value, ok := values[3].(*sql.NullInt64); !ok {
+		return fmt.Errorf("unexpected type %T for field order", values[3])
+	} else if value.Valid {
+		t.Order = int(value.Int64)
+	}
+	if value, ok := values[4].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field created_at", values[4])
 	} else if value.Valid {
 		t.CreatedAt = value.Time
 	}
-	if value, ok := values[4].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field updated_at", values[4])
+	if value, ok := values[5].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field updated_at", values[5])
 	} else if value.Valid {
 		t.UpdatedAt = value.Time
 	}
@@ -109,6 +117,8 @@ func (t *Todo) String() string {
 	builder.WriteString(t.Title)
 	builder.WriteString(", completed=")
 	builder.WriteString(fmt.Sprintf("%v", t.Completed))
+	builder.WriteString(", order=")
+	builder.WriteString(fmt.Sprintf("%v", t.Order))
 	builder.WriteString(", created_at=")
 	builder.WriteString(t.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", updated_at=")

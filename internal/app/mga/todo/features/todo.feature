@@ -8,7 +8,7 @@ Feature: Todo list
 
     Scenario: Cannot add an empty todo
         When the user adds a new todo "" to the list
-        Then it should fail with a validation error for the "text" field saying that "text cannot be empty"
+        Then it should fail with a validation error for the "title" field saying that "title cannot be empty"
 
 
     Scenario: Mark a todo as complete

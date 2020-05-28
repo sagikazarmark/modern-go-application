@@ -22,6 +22,7 @@ func (Todo) Fields() []ent.Field {
 			Immutable(),
 		field.Text("title"),
 		field.Bool("completed"),
+		field.Int("order"),
 		field.Time("created_at").
 			Default(time.Now),
 		field.Time("updated_at").

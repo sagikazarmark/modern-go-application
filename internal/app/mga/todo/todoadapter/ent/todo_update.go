@@ -40,6 +40,19 @@ func (tu *TodoUpdate) SetCompleted(b bool) *TodoUpdate {
 	return tu
 }
 
+// SetOrder sets the order field.
+func (tu *TodoUpdate) SetOrder(i int) *TodoUpdate {
+	tu.mutation.ResetOrder()
+	tu.mutation.SetOrder(i)
+	return tu
+}
+
+// AddOrder adds i to order.
+func (tu *TodoUpdate) AddOrder(i int) *TodoUpdate {
+	tu.mutation.AddOrder(i)
+	return tu
+}
+
 // SetCreatedAt sets the created_at field.
 func (tu *TodoUpdate) SetCreatedAt(t time.Time) *TodoUpdate {
 	tu.mutation.SetCreatedAt(t)
@@ -146,6 +159,20 @@ func (tu *TodoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: todo.FieldCompleted,
 		})
 	}
+	if value, ok := tu.mutation.Order(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: todo.FieldOrder,
+		})
+	}
+	if value, ok := tu.mutation.AddedOrder(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: todo.FieldOrder,
+		})
+	}
 	if value, ok := tu.mutation.CreatedAt(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
@@ -187,6 +214,19 @@ func (tuo *TodoUpdateOne) SetTitle(s string) *TodoUpdateOne {
 // SetCompleted sets the completed field.
 func (tuo *TodoUpdateOne) SetCompleted(b bool) *TodoUpdateOne {
 	tuo.mutation.SetCompleted(b)
+	return tuo
+}
+
+// SetOrder sets the order field.
+func (tuo *TodoUpdateOne) SetOrder(i int) *TodoUpdateOne {
+	tuo.mutation.ResetOrder()
+	tuo.mutation.SetOrder(i)
+	return tuo
+}
+
+// AddOrder adds i to order.
+func (tuo *TodoUpdateOne) AddOrder(i int) *TodoUpdateOne {
+	tuo.mutation.AddOrder(i)
 	return tuo
 }
 
@@ -292,6 +332,20 @@ func (tuo *TodoUpdateOne) sqlSave(ctx context.Context) (t *Todo, err error) {
 			Type:   field.TypeBool,
 			Value:  value,
 			Column: todo.FieldCompleted,
+		})
+	}
+	if value, ok := tuo.mutation.Order(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: todo.FieldOrder,
+		})
+	}
+	if value, ok := tuo.mutation.AddedOrder(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: todo.FieldOrder,
 		})
 	}
 	if value, ok := tuo.mutation.CreatedAt(); ok {

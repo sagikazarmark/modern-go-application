@@ -33,6 +33,8 @@ type TodoMutation struct {
 	uid           *string
 	title         *string
 	completed     *bool
+	order         *int
+	addorder      *int
 	created_at    *time.Time
 	updated_at    *time.Time
 	clearedFields map[string]struct{}
@@ -135,6 +137,45 @@ func (m *TodoMutation) ResetCompleted() {
 	m.completed = nil
 }
 
+// SetOrder sets the order field.
+func (m *TodoMutation) SetOrder(i int) {
+	m.order = &i
+	m.addorder = nil
+}
+
+// Order returns the order value in the mutation.
+func (m *TodoMutation) Order() (r int, exists bool) {
+	v := m.order
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// AddOrder adds i to order.
+func (m *TodoMutation) AddOrder(i int) {
+	if m.addorder != nil {
+		*m.addorder += i
+	} else {
+		m.addorder = &i
+	}
+}
+
+// AddedOrder returns the value that was added to the order field in this mutation.
+func (m *TodoMutation) AddedOrder() (r int, exists bool) {
+	v := m.addorder
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetOrder reset all changes of the order field.
+func (m *TodoMutation) ResetOrder() {
+	m.order = nil
+	m.addorder = nil
+}
+
 // SetCreatedAt sets the created_at field.
 func (m *TodoMutation) SetCreatedAt(t time.Time) {
 	m.created_at = &t
@@ -187,7 +228,7 @@ func (m *TodoMutation) Type() string {
 // this mutation. Note that, in order to get all numeric
 // fields that were in/decremented, call AddedFields().
 func (m *TodoMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 6)
 	if m.uid != nil {
 		fields = append(fields, todo.FieldUID)
 	}
@@ -196,6 +237,9 @@ func (m *TodoMutation) Fields() []string {
 	}
 	if m.completed != nil {
 		fields = append(fields, todo.FieldCompleted)
+	}
+	if m.order != nil {
+		fields = append(fields, todo.FieldOrder)
 	}
 	if m.created_at != nil {
 		fields = append(fields, todo.FieldCreatedAt)
@@ -217,6 +261,8 @@ func (m *TodoMutation) Field(name string) (ent.Value, bool) {
 		return m.Title()
 	case todo.FieldCompleted:
 		return m.Completed()
+	case todo.FieldOrder:
+		return m.Order()
 	case todo.FieldCreatedAt:
 		return m.CreatedAt()
 	case todo.FieldUpdatedAt:
@@ -251,6 +297,13 @@ func (m *TodoMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetCompleted(v)
 		return nil
+	case todo.FieldOrder:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOrder(v)
+		return nil
 	case todo.FieldCreatedAt:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -272,13 +325,21 @@ func (m *TodoMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented
 // or decremented during this mutation.
 func (m *TodoMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addorder != nil {
+		fields = append(fields, todo.FieldOrder)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was in/decremented
 // from a field with the given name. The second value indicates
 // that this field was not set, or was not define in the schema.
 func (m *TodoMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case todo.FieldOrder:
+		return m.AddedOrder()
+	}
 	return nil, false
 }
 
@@ -287,6 +348,13 @@ func (m *TodoMutation) AddedField(name string) (ent.Value, bool) {
 // type mismatch the field type.
 func (m *TodoMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case todo.FieldOrder:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddOrder(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Todo numeric field %s", name)
 }
@@ -323,6 +391,9 @@ func (m *TodoMutation) ResetField(name string) error {
 		return nil
 	case todo.FieldCompleted:
 		m.ResetCompleted()
+		return nil
+	case todo.FieldOrder:
+		m.ResetOrder()
 		return nil
 	case todo.FieldCreatedAt:
 		m.ResetCreatedAt()

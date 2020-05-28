@@ -8,6 +8,7 @@ import (
 	kitxgrpc "github.com/sagikazarmark/kitx/transport/grpc"
 
 	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1beta1"
+	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
 )
 
 // MakeGRPCServer makes a set of endpoints available as a gRPC server.
@@ -40,7 +41,7 @@ func decodeCreateTodoGRPCRequest(_ context.Context, request interface{}) (interf
 	req := request.(*todov1beta1.CreateTodoRequest)
 
 	return CreateTodoRequest{
-		Title: req.GetTitle(),
+		NewItem: todo.NewItem{Title: req.GetTitle()},
 	}, nil
 }
 

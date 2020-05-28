@@ -28,6 +28,7 @@ func (s entStore) Store(ctx context.Context, todo todo.Todo) error {
 			SetUID(todo.ID).
 			SetTitle(todo.Title).
 			SetCompleted(todo.Completed).
+			SetOrder(todo.Order).
 			Save(ctx)
 		if err != nil {
 			return err
@@ -42,6 +43,7 @@ func (s entStore) Store(ctx context.Context, todo todo.Todo) error {
 	_, err = s.client.Todo.UpdateOneID(existing.ID).
 		SetTitle(todo.Title).
 		SetCompleted(todo.Completed).
+		SetOrder(todo.Order).
 		Save(ctx)
 	if err != nil {
 		return err
@@ -63,6 +65,7 @@ func (s entStore) All(ctx context.Context) ([]todo.Todo, error) {
 			ID:        todoModel.UID,
 			Title:     todoModel.Title,
 			Completed: todoModel.Completed,
+			Order:     todoModel.Order,
 		})
 	}
 
@@ -79,6 +82,7 @@ func (s entStore) Get(ctx context.Context, id string) (todo.Todo, error) {
 		ID:        todoModel.UID,
 		Title:     todoModel.Title,
 		Completed: todoModel.Completed,
+		Order:     todoModel.Order,
 	}, nil
 }
 

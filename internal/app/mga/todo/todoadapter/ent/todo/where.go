@@ -113,6 +113,13 @@ func Completed(v bool) predicate.Todo {
 	})
 }
 
+// Order applies equality check predicate on the "order" field. It's identical to OrderEQ.
+func Order(v int) predicate.Todo {
+	return predicate.Todo(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldOrder), v))
+	})
+}
+
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.Todo {
 	return predicate.Todo(func(s *sql.Selector) {
@@ -360,6 +367,82 @@ func CompletedEQ(v bool) predicate.Todo {
 func CompletedNEQ(v bool) predicate.Todo {
 	return predicate.Todo(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldCompleted), v))
+	})
+}
+
+// OrderEQ applies the EQ predicate on the "order" field.
+func OrderEQ(v int) predicate.Todo {
+	return predicate.Todo(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldOrder), v))
+	})
+}
+
+// OrderNEQ applies the NEQ predicate on the "order" field.
+func OrderNEQ(v int) predicate.Todo {
+	return predicate.Todo(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldOrder), v))
+	})
+}
+
+// OrderIn applies the In predicate on the "order" field.
+func OrderIn(vs ...int) predicate.Todo {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Todo(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(vs) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldOrder), v...))
+	})
+}
+
+// OrderNotIn applies the NotIn predicate on the "order" field.
+func OrderNotIn(vs ...int) predicate.Todo {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Todo(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(vs) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldOrder), v...))
+	})
+}
+
+// OrderGT applies the GT predicate on the "order" field.
+func OrderGT(v int) predicate.Todo {
+	return predicate.Todo(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldOrder), v))
+	})
+}
+
+// OrderGTE applies the GTE predicate on the "order" field.
+func OrderGTE(v int) predicate.Todo {
+	return predicate.Todo(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldOrder), v))
+	})
+}
+
+// OrderLT applies the LT predicate on the "order" field.
+func OrderLT(v int) predicate.Todo {
+	return predicate.Todo(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldOrder), v))
+	})
+}
+
+// OrderLTE applies the LTE predicate on the "order" field.
+func OrderLTE(v int) predicate.Todo {
+	return predicate.Todo(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldOrder), v))
 	})
 }
 

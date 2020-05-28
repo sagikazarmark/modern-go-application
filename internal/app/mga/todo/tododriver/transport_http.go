@@ -13,6 +13,7 @@ import (
 	kitxhttp "github.com/sagikazarmark/kitx/transport/http"
 
 	api "github.com/sagikazarmark/modern-go-application/.gen/api/openapi/todo/go"
+	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
 )
 
 // RegisterHTTPHandlers mounts all of the service endpoints into a router.
@@ -78,7 +79,10 @@ func decodeCreateTodoHTTPRequest(_ context.Context, r *http.Request) (interface{
 	}
 
 	return CreateTodoRequest{
-		Title: apiRequest.Title,
+		NewItem: todo.NewItem{
+			Title: apiRequest.Title,
+			Order: int(apiRequest.Order),
+		},
 	}, nil
 }
 
@@ -92,6 +96,7 @@ func encodeCreateTodoHTTPResponse(ctx context.Context, w http.ResponseWriter, re
 		Id:        resp.Todo.ID,
 		Title:     resp.Todo.Title,
 		Completed: resp.Todo.Completed,
+		Order:     int32(resp.Todo.Order),
 		Url:       fmt.Sprintf("http://%s%s/%s", host, path, resp.Todo.ID),
 	}
 
@@ -111,6 +116,7 @@ func encodeListTodosHTTPResponse(ctx context.Context, w http.ResponseWriter, res
 			Id:        todo.ID,
 			Title:     todo.Title,
 			Completed: todo.Completed,
+			Order:     int32(todo.Order),
 			Url:       fmt.Sprintf("http://%s%s/%s", host, path, todo.ID),
 		})
 	}
@@ -141,6 +147,7 @@ func encodeGetItemHTTPResponse(ctx context.Context, w http.ResponseWriter, respo
 		Id:        resp.Todo.ID,
 		Title:     resp.Todo.Title,
 		Completed: resp.Todo.Completed,
+		Order:     int32(resp.Todo.Order),
 		Url:       fmt.Sprintf("http://%s%s", host, path),
 	}
 
@@ -162,10 +169,20 @@ func decodeUpdateItemHTTPRequest(_ context.Context, r *http.Request) (interface{
 		return nil, errors.Wrap(err, "failed to decode request")
 	}
 
+	var order *int
+
+	if apiRequest.Order != nil {
+		o := int(*apiRequest.Order)
+		order = &o
+	}
+
 	return UpdateItemRequest{
-		Id:        id,
-		Title:     apiRequest.Title,
-		Completed: apiRequest.Completed,
+		Id: id,
+		ItemUpdate: todo.ItemUpdate{
+			Title:     apiRequest.Title,
+			Completed: apiRequest.Completed,
+			Order:     order,
+		},
 	}, nil
 }
 
@@ -179,6 +196,7 @@ func encodeUpdateItemHTTPResponse(ctx context.Context, w http.ResponseWriter, re
 		Id:        resp.Todo.ID,
 		Title:     resp.Todo.Title,
 		Completed: resp.Todo.Completed,
+		Order:     int32(resp.Todo.Order),
 		Url:       fmt.Sprintf("http://%s%s", host, path),
 	}
 

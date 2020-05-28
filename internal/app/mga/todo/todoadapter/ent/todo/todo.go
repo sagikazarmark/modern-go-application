@@ -13,7 +13,8 @@ const (
 	FieldID        = "id"         // FieldUID holds the string denoting the uid vertex property in the database.
 	FieldUID       = "uid"        // FieldTitle holds the string denoting the title vertex property in the database.
 	FieldTitle     = "title"      // FieldCompleted holds the string denoting the completed vertex property in the database.
-	FieldCompleted = "completed"  // FieldCreatedAt holds the string denoting the created_at vertex property in the database.
+	FieldCompleted = "completed"  // FieldOrder holds the string denoting the order vertex property in the database.
+	FieldOrder     = "order"      // FieldCreatedAt holds the string denoting the created_at vertex property in the database.
 	FieldCreatedAt = "created_at" // FieldUpdatedAt holds the string denoting the updated_at vertex property in the database.
 	FieldUpdatedAt = "updated_at"
 
@@ -27,6 +28,7 @@ var Columns = []string{
 	FieldUID,
 	FieldTitle,
 	FieldCompleted,
+	FieldOrder,
 	FieldCreatedAt,
 	FieldUpdatedAt,
 }

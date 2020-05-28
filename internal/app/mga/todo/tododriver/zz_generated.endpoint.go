@@ -53,7 +53,7 @@ func MakeEndpoints(service todo.Service, middleware ...endpoint.Middleware) Endp
 
 // CreateTodoRequest is a request struct for CreateTodo endpoint.
 type CreateTodoRequest struct {
-	Title string
+	NewItem todo.NewItem
 }
 
 // CreateTodoResponse is a response struct for CreateTodo endpoint.
@@ -71,7 +71,7 @@ func MakeCreateTodoEndpoint(service todo.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(CreateTodoRequest)
 
-		todo, err := service.CreateTodo(ctx, req.Title)
+		todo, err := service.CreateTodo(ctx, req.NewItem)
 
 		if err != nil {
 			if serviceErr := serviceError(nil); errors.As(err, &serviceErr) && serviceErr.ServiceError() {
@@ -264,9 +264,8 @@ func MakeMarkAsCompleteEndpoint(service todo.Service) endpoint.Endpoint {
 
 // UpdateItemRequest is a request struct for UpdateItem endpoint.
 type UpdateItemRequest struct {
-	Id        string
-	Title     *string
-	Completed *bool
+	Id         string
+	ItemUpdate todo.ItemUpdate
 }
 
 // UpdateItemResponse is a response struct for UpdateItem endpoint.
@@ -284,7 +283,7 @@ func MakeUpdateItemEndpoint(service todo.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(UpdateItemRequest)
 
-		todo, err := service.UpdateItem(ctx, req.Id, req.Title, req.Completed)
+		todo, err := service.UpdateItem(ctx, req.Id, req.ItemUpdate)
 
 		if err != nil {
 			if serviceErr := serviceError(nil); errors.As(err, &serviceErr) && serviceErr.ServiceError() {

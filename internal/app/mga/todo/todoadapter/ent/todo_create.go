@@ -38,6 +38,12 @@ func (tc *TodoCreate) SetCompleted(b bool) *TodoCreate {
 	return tc
 }
 
+// SetOrder sets the order field.
+func (tc *TodoCreate) SetOrder(i int) *TodoCreate {
+	tc.mutation.SetOrder(i)
+	return tc
+}
+
 // SetCreatedAt sets the created_at field.
 func (tc *TodoCreate) SetCreatedAt(t time.Time) *TodoCreate {
 	tc.mutation.SetCreatedAt(t)
@@ -81,6 +87,9 @@ func (tc *TodoCreate) Save(ctx context.Context) (*Todo, error) {
 	}
 	if _, ok := tc.mutation.Completed(); !ok {
 		return nil, errors.New("ent: missing required field \"completed\"")
+	}
+	if _, ok := tc.mutation.Order(); !ok {
+		return nil, errors.New("ent: missing required field \"order\"")
 	}
 	if _, ok := tc.mutation.CreatedAt(); !ok {
 		v := todo.DefaultCreatedAt()
@@ -159,6 +168,14 @@ func (tc *TodoCreate) sqlSave(ctx context.Context) (*Todo, error) {
 			Column: todo.FieldCompleted,
 		})
 		t.Completed = value
+	}
+	if value, ok := tc.mutation.Order(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: todo.FieldOrder,
+		})
+		t.Order = value
 	}
 	if value, ok := tc.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

@@ -12,4 +12,6 @@ package api
 type CreateTodoRequest struct {
 
 	Title string `json:"title"`
+
+	Order int32 `json:"order"`
 }

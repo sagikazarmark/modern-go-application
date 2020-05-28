@@ -14,4 +14,6 @@ type UpdateTodoRequest struct {
 	Title *string `json:"title,omitempty"`
 
 	Completed *bool `json:"completed,omitempty"`
+
+	Order *int32 `json:"order,omitempty"`
 }

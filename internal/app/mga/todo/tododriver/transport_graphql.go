@@ -40,7 +40,7 @@ type mutationResolver struct{ *resolver }
 
 func (r *mutationResolver) CreateTodo(ctx context.Context, input graphql.NewTodo) (string, error) {
 	req := CreateTodoRequest{
-		Title: input.Title,
+		NewItem: todo.NewItem{Title: input.Title},
 	}
 
 	resp, err := r.endpoints.CreateTodo(ctx, req)
