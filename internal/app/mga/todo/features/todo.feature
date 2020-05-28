@@ -17,16 +17,24 @@ Feature: Todo list
         Then both items should be on the list
 
 
-    Scenario: Adding a new item without a title
-        Given an empty todo list
-        When the user adds a new item for ""
-        Then it should fail with a validation error for the "title" field saying that "title cannot be empty"
-        And the list should be empty
-
-
     Scenario: An item can be marked as complete
         Given an empty todo list
-        And an item for "Call mom"
+        And an item for "Call grandma"
         When it is marked as complete
         Then it should be complete
         But it should be on the list
+
+
+    Scenario: An item can be deleted
+        Given an empty todo list
+        And an item for "Buy milk"
+        When it is deleted
+        Then the list should be empty
+
+
+    Scenario: All items can be deleted
+        Given an empty todo list
+        And an item for "Buy milk"
+        And an item for "Buy cheese"
+        When all items are deleted
+        Then the list should be empty

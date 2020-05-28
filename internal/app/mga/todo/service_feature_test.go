@@ -19,13 +19,11 @@ func TestService(t *testing.T) {
 	suite.AddStep(`(?:(?:I|the user)(?: also)? adds? )?(?:a new|an) item for "(.*)"`, addAnItem)
 	suite.AddStep(`it should be (?:the only item )?on the list`, shouldBeOnTheList)
 	suite.AddStep(`both items should be on the list`, allShouldBeOnTheList)
-	suite.AddStep(
-		`it should fail with a validation error for the "(.+)" field saying that "(.+)"`,
-		shouldFailWithValidationError,
-	)
 	suite.AddStep(`the list should be empty`, theListShouldBeEmpty)
 	suite.AddStep(`it is marked as complete`, itemMarkedAsComplete)
 	suite.AddStep(`it should be complete`, itemShouldBeComplete)
+	suite.AddStep(`it is deleted`, deleteAnItem)
+	suite.AddStep(`all items are deleted`, clearList)
 
 	suite.Run()
 }
@@ -128,38 +126,6 @@ func allShouldBeOnTheList(t gobdd.StepTest, ctx gobdd.Context) {
 	}
 }
 
-func shouldFailWithValidationError(t gobdd.StepTest, ctx gobdd.Context, field string, violation string) {
-	var err error
-	{ // See https://github.com/go-bdd/gobdd/pull/95
-		v, _ := ctx.GetError("error", nil)
-		if v == nil {
-			t.Fatal("a validation error was expected, but received none")
-		}
-
-		err = v.(error)
-	}
-
-	var verr interface {
-		Validation() bool
-		Violations() map[string][]string
-	}
-
-	if !errors.As(err, &verr) {
-		t.Fatalf("a validation error was expected, the received error is not one: %s", err)
-	}
-
-	violations := verr.Violations()
-
-	fieldViolations, ok := violations[field]
-	if !ok || len(fieldViolations) == 0 {
-		t.Fatalf("the returned validation error does not have violations for %q field", field)
-	}
-
-	if fieldViolations[0] != violation {
-		t.Errorf("the %q field does not have a(n) %q violation", field, violation)
-	}
-}
-
 func theListShouldBeEmpty(t gobdd.StepTest, ctx gobdd.Context) {
 	service := getService(t, ctx)
 
@@ -195,4 +161,24 @@ func itemShouldBeComplete(t gobdd.StepTest, ctx gobdd.Context) {
 	}
 
 	assert.True(t, item.Completed, "item should be complete")
+}
+
+func deleteAnItem(t gobdd.StepTest, ctx gobdd.Context) {
+	id, _ := ctx.GetString("id")
+
+	service := getService(t, ctx)
+
+	err := service.DeleteItem(context.Background(), id)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func clearList(t gobdd.StepTest, ctx gobdd.Context) {
+	service := getService(t, ctx)
+
+	err := service.DeleteItems(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
 }
