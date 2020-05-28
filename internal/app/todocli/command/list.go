@@ -16,14 +16,14 @@ type listOptions struct {
 	client todov1beta1.TodoListClient
 }
 
-// NewListCommand creates a new cobra.Command for listing todos.
+// NewListCommand creates a new cobra.Command for listing todo items.
 func NewListCommand(c Context) *cobra.Command {
 	options := listOptions{}
 
 	cmd := &cobra.Command{
 		Use:     "list",
 		Aliases: []string{"l"},
-		Short:   "List TODOs",
+		Short:   "List todo items",
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			options.client = c.GetTodoClient()
@@ -40,12 +40,12 @@ func NewListCommand(c Context) *cobra.Command {
 }
 
 func runList(options listOptions) error {
-	req := &todov1beta1.ListTodosRequest{}
+	req := &todov1beta1.ListItemsRequest{}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	resp, err := options.client.ListTodos(ctx, req)
+	resp, err := options.client.ListItems(ctx, req)
 	if err != nil {
 		return err
 	}
@@ -53,8 +53,8 @@ func runList(options listOptions) error {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"ID", "Title", "Completed"})
 
-	for _, t := range resp.GetTodos() {
-		table.Append([]string{t.GetId(), t.GetTitle(), strconv.FormatBool(t.GetCompleted())})
+	for _, item := range resp.GetItems() {
+		table.Append([]string{item.GetId(), item.GetTitle(), strconv.FormatBool(item.GetCompleted())})
 	}
 	table.Render()
 

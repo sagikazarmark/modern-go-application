@@ -16,73 +16,163 @@ func MakeGRPCServer(endpoints Endpoints, options ...kitgrpc.ServerOption) todov1
 	errorEncoder := kitxgrpc.NewStatusErrorResponseEncoder(appkitgrpc.NewDefaultStatusConverter())
 
 	return todov1beta1.TodoListKitServer{
-		CreateTodoHandler: kitxgrpc.NewErrorEncoderHandler(kitgrpc.NewServer(
+		AddItemHandler: kitxgrpc.NewErrorEncoderHandler(kitgrpc.NewServer(
 			endpoints.AddItem,
-			decodeCreateTodoGRPCRequest,
-			kitxgrpc.ErrorResponseEncoder(encodeCreateTodoGRPCResponse, errorEncoder),
+			decodeAddItemGRPCRequest,
+			kitxgrpc.ErrorResponseEncoder(encodeAddItemGRPCResponse, errorEncoder),
 			options...,
 		), errorEncoder),
-		ListTodosHandler: kitxgrpc.NewErrorEncoderHandler(kitgrpc.NewServer(
+		ListItemsHandler: kitxgrpc.NewErrorEncoderHandler(kitgrpc.NewServer(
 			endpoints.ListItems,
-			decodeListTodosGRPCRequest,
-			kitxgrpc.ErrorResponseEncoder(encodeListTodosGRPCResponse, errorEncoder),
+			decodeListItemsGRPCRequest,
+			kitxgrpc.ErrorResponseEncoder(encodeListItemsGRPCResponse, errorEncoder),
 			options...,
 		), errorEncoder),
-		MarkAsCompleteHandler: kitxgrpc.NewErrorEncoderHandler(kitgrpc.NewServer(
-			endpoints.MarkAsComplete,
-			decodeMarkAsCompleteGRPCRequest,
-			kitxgrpc.ErrorResponseEncoder(encodeMarkAsCompleteGRPCResponse, errorEncoder),
+		DeleteItemsHandler: kitxgrpc.NewErrorEncoderHandler(kitgrpc.NewServer(
+			endpoints.DeleteItems,
+			decodeDeleteItemsGRPCRequest,
+			kitxgrpc.ErrorResponseEncoder(encodeDeleteItemsGRPCResponse, errorEncoder),
+			options...,
+		), errorEncoder),
+		GetItemHandler: kitxgrpc.NewErrorEncoderHandler(kitgrpc.NewServer(
+			endpoints.GetItem,
+			decodeGetItemGRPCRequest,
+			kitxgrpc.ErrorResponseEncoder(encodeGetItemGRPCResponse, errorEncoder),
+			options...,
+		), errorEncoder),
+		UpdateItemHandler: kitxgrpc.NewErrorEncoderHandler(kitgrpc.NewServer(
+			endpoints.UpdateItem,
+			decodeUpdateItemGRPCRequest,
+			kitxgrpc.ErrorResponseEncoder(encodeUpdateItemGRPCResponse, errorEncoder),
+			options...,
+		), errorEncoder),
+		DeleteItemHandler: kitxgrpc.NewErrorEncoderHandler(kitgrpc.NewServer(
+			endpoints.DeleteItem,
+			decodeDeleteItemGRPCRequest,
+			kitxgrpc.ErrorResponseEncoder(encodeDeleteItemGRPCResponse, errorEncoder),
 			options...,
 		), errorEncoder),
 	}
 }
 
-func decodeCreateTodoGRPCRequest(_ context.Context, request interface{}) (interface{}, error) {
-	req := request.(*todov1beta1.CreateTodoRequest)
+func decodeAddItemGRPCRequest(_ context.Context, request interface{}) (interface{}, error) {
+	req := request.(*todov1beta1.AddItemRequest)
 
 	return AddItemRequest{
-		NewItem: todo.NewItem{Title: req.GetTitle()},
+		NewItem: todo.NewItem{
+			Title: req.GetTitle(),
+			Order: int(req.GetOrder()),
+		},
 	}, nil
 }
 
-func encodeCreateTodoGRPCResponse(_ context.Context, response interface{}) (interface{}, error) {
+func encodeAddItemGRPCResponse(_ context.Context, response interface{}) (interface{}, error) {
 	resp := response.(AddItemResponse)
 
-	return &todov1beta1.CreateTodoResponse{
-		Id: resp.Item.ID,
+	return &todov1beta1.AddItemResponse{
+		Item: marshalItemGRPC(resp.Item),
 	}, nil
 }
 
-func decodeListTodosGRPCRequest(_ context.Context, _ interface{}) (interface{}, error) {
-	return nil, nil
+func decodeListItemsGRPCRequest(_ context.Context, _ interface{}) (interface{}, error) {
+	return ListItemsRequest{}, nil
 }
 
-func encodeListTodosGRPCResponse(_ context.Context, response interface{}) (interface{}, error) {
+func encodeListItemsGRPCResponse(_ context.Context, response interface{}) (interface{}, error) {
 	resp := response.(ListItemsResponse)
 
-	grpcResp := &todov1beta1.ListTodosResponse{
-		Todos: make([]*todov1beta1.Todo, len(resp.Items)),
+	items := make([]*todov1beta1.TodoItem, 0, len(resp.Items))
+
+	for _, item := range resp.Items {
+		items = append(items, marshalItemGRPC(item))
 	}
 
-	for i, t := range resp.Items {
-		grpcResp.Todos[i] = &todov1beta1.Todo{
-			Id:        t.ID,
-			Title:     t.Title,
-			Completed: t.Completed,
-		}
-	}
-
-	return grpcResp, nil
+	return &todov1beta1.ListItemsResponse{
+		Items: items,
+	}, nil
 }
 
-func decodeMarkAsCompleteGRPCRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
-	req := grpcReq.(*todov1beta1.MarkAsCompleteRequest)
+func decodeDeleteItemsGRPCRequest(_ context.Context, _ interface{}) (interface{}, error) {
+	return DeleteItemsRequest{}, nil
+}
 
-	return MarkAsCompleteRequest{
+func encodeDeleteItemsGRPCResponse(_ context.Context, _ interface{}) (interface{}, error) {
+	return &todov1beta1.DeleteItemsResponse{}, nil
+}
+
+func decodeGetItemGRPCRequest(_ context.Context, request interface{}) (interface{}, error) {
+	req := request.(*todov1beta1.GetItemRequest)
+
+	return GetItemRequest{
 		Id: req.GetId(),
 	}, nil
 }
 
-func encodeMarkAsCompleteGRPCResponse(_ context.Context, _ interface{}) (interface{}, error) {
-	return &todov1beta1.MarkAsCompleteResponse{}, nil
+func encodeGetItemGRPCResponse(_ context.Context, response interface{}) (interface{}, error) {
+	resp := response.(GetItemResponse)
+
+	return &todov1beta1.GetItemResponse{
+		Item: marshalItemGRPC(resp.Item),
+	}, nil
+}
+
+func decodeUpdateItemGRPCRequest(_ context.Context, request interface{}) (interface{}, error) {
+	req := request.(*todov1beta1.UpdateItemRequest)
+
+	var (
+		title     *string
+		completed *bool
+		order     *int
+	)
+
+	if req.Title != nil {
+		title = &req.Title.Value
+	}
+
+	if req.Completed != nil {
+		completed = &req.Completed.Value
+	}
+
+	if req.Order != nil {
+		o := int(req.Order.Value)
+		order = &o
+	}
+
+	return UpdateItemRequest{
+		Id: req.GetId(),
+		ItemUpdate: todo.ItemUpdate{
+			Title:     title,
+			Completed: completed,
+			Order:     order,
+		},
+	}, nil
+}
+
+func encodeUpdateItemGRPCResponse(_ context.Context, response interface{}) (interface{}, error) {
+	resp := response.(UpdateItemResponse)
+
+	return &todov1beta1.UpdateItemResponse{
+		Item: marshalItemGRPC(resp.Item),
+	}, nil
+}
+
+func decodeDeleteItemGRPCRequest(_ context.Context, request interface{}) (interface{}, error) {
+	req := request.(*todov1beta1.DeleteItemRequest)
+
+	return DeleteItemRequest{
+		Id: req.GetId(),
+	}, nil
+}
+
+func encodeDeleteItemGRPCResponse(_ context.Context, _ interface{}) (interface{}, error) {
+	return &todov1beta1.DeleteItemResponse{}, nil
+}
+
+func marshalItemGRPC(item todo.Item) *todov1beta1.TodoItem {
+	return &todov1beta1.TodoItem{
+		Id:        item.ID,
+		Title:     item.Title,
+		Completed: item.Completed,
+		Order:     int32(item.Order),
+	}
 }

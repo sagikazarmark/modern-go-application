@@ -11,33 +11,74 @@ option objc_class_prefix = "TXX";
 option php_namespace = "Todo\\V1Beta1";
 
 import "todo/v1beta1/todo.proto";
+import "google/protobuf/wrappers.proto";
 
-// TodoList manages a list of todos.
+// TodoList manages a list of todo items.
 service TodoList {
-  // CreateTodo adds a new todo to the todo list.
-  rpc CreateTodo(CreateTodoRequest) returns (CreateTodoResponse);
-  // ListTodos returns the list of todos.
-  rpc ListTodos(ListTodosRequest) returns (ListTodosResponse);
-  // MarkAsComplete marks a todo as complete.
-  rpc MarkAsComplete(MarkAsCompleteRequest) returns (MarkAsCompleteResponse);
+  // AddItem adds a new item to the list.
+  rpc AddItem (AddItemRequest) returns (AddItemResponse);
+
+  // ListItems returns a list of items.
+  rpc ListItems (ListItemsRequest) returns (ListItemsResponse);
+
+  // DeleteItems deletes all items from the list.
+  rpc DeleteItems (DeleteItemsRequest) returns (DeleteItemsResponse);
+
+  // GetItem returns the details of an item.
+  rpc GetItem (GetItemRequest) returns (GetItemResponse);
+
+  // UpdateItem updates an existing item.
+  rpc UpdateItem (UpdateItemRequest) returns (UpdateItemResponse);
+
+  // DeleteItem deletes an item from the list.
+  rpc DeleteItem (DeleteItemRequest) returns (DeleteItemResponse);
 }
 
-message CreateTodoRequest {
+message AddItemRequest {
   string title = 1;
+  int32 order = 2;
 }
 
-message CreateTodoResponse {
+message AddItemResponse {
+  TodoItem item = 1;
+}
+
+message ListItemsRequest {
+}
+
+message ListItemsResponse {
+  repeated TodoItem items = 1;
+}
+
+message DeleteItemsRequest {
+}
+
+message DeleteItemsResponse {
+}
+
+message GetItemRequest {
   string id = 1;
 }
 
-message ListTodosRequest {}
-
-message ListTodosResponse {
-  repeated Todo todos = 1;
+message GetItemResponse {
+  TodoItem item = 1;
 }
 
-message MarkAsCompleteRequest {
+message UpdateItemRequest {
+  string id = 1;
+
+  google.protobuf.StringValue title = 2;
+  google.protobuf.BoolValue completed = 3;
+  google.protobuf.Int32Value order = 4;
+}
+
+message UpdateItemResponse {
+  TodoItem item = 1;
+}
+
+message DeleteItemRequest {
   string id = 1;
 }
 
-message MarkAsCompleteResponse {}
+message DeleteItemResponse {
+}

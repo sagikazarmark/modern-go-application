@@ -14,7 +14,7 @@ type Context interface {
 // AddCommands adds all the commands from cli/command to the root command.
 func AddCommands(cmd *cobra.Command, c Context) {
 	cmd.AddCommand(
-		NewCreateCommand(c),
+		NewAddCommand(c),
 		NewListCommand(c),
 		NewMarkAsCompleteCommand(c),
 	)

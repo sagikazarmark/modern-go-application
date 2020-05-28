@@ -89,7 +89,7 @@ func decodeAddItemHTTPRequest(_ context.Context, r *http.Request) (interface{}, 
 func encodeAddItemHTTPResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	resp := response.(AddItemResponse)
 
-	apiResponse := encodeItem(ctx, resp.Item)
+	apiResponse := marshalItemHTTP(ctx, resp.Item)
 
 	return kitxhttp.JSONResponseEncoder(ctx, w, kitxhttp.WithStatusCode(apiResponse, http.StatusCreated))
 }
@@ -100,7 +100,7 @@ func encodeListItemsHTTPResponse(ctx context.Context, w http.ResponseWriter, res
 	items := make([]api.Item, 0, len(resp.Items))
 
 	for _, item := range resp.Items {
-		items = append(items, encodeItem(ctx, item))
+		items = append(items, marshalItemHTTP(ctx, item))
 	}
 
 	return kitxhttp.JSONResponseEncoder(ctx, w, items)
@@ -120,7 +120,7 @@ func decodeGetItemHTTPRequest(_ context.Context, r *http.Request) (interface{}, 
 func encodeGetItemHTTPResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	resp := response.(GetItemResponse)
 
-	apiResponse := encodeItem(ctx, resp.Item)
+	apiResponse := marshalItemHTTP(ctx, resp.Item)
 
 	return kitxhttp.JSONResponseEncoder(ctx, w, apiResponse)
 }
@@ -158,7 +158,7 @@ func decodeUpdateItemHTTPRequest(_ context.Context, r *http.Request) (interface{
 func encodeUpdateItemHTTPResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	resp := response.(UpdateItemResponse)
 
-	apiResponse := encodeItem(ctx, resp.Item)
+	apiResponse := marshalItemHTTP(ctx, resp.Item)
 
 	return kitxhttp.JSONResponseEncoder(ctx, w, apiResponse)
 }
@@ -185,7 +185,7 @@ func decodeMarkAsCompleteHTTPRequest(_ context.Context, r *http.Request) (interf
 	}, nil
 }
 
-func encodeItem(ctx context.Context, item todo.Item) api.Item {
+func marshalItemHTTP(ctx context.Context, item todo.Item) api.Item {
 	host, _ := ctx.Value(kithttp.ContextKeyRequestHost).(string)
 
 	return api.Item{
