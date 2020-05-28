@@ -61,13 +61,6 @@ func RegisterHTTPHandlers(endpoints Endpoints, router *mux.Router, options ...ki
 		kitxhttp.ErrorResponseEncoder(kitxhttp.StatusCodeResponseEncoder(http.StatusNoContent), errorEncoder),
 		options...,
 	))
-
-	router.Methods(http.MethodPost).Path("/{id}/complete").Handler(kithttp.NewServer(
-		endpoints.MarkAsComplete,
-		decodeMarkAsCompleteHTTPRequest,
-		kitxhttp.ErrorResponseEncoder(kitxhttp.NopResponseEncoder, errorEncoder),
-		options...,
-	))
 }
 
 func decodeAddItemHTTPRequest(_ context.Context, r *http.Request) (interface{}, error) {
@@ -170,17 +163,6 @@ func decodeDeleteItemHTTPRequest(_ context.Context, r *http.Request) (interface{
 	}
 
 	return DeleteItemRequest{
-		Id: id,
-	}, nil
-}
-
-func decodeMarkAsCompleteHTTPRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	id, err := getIDParamFromRequest(r)
-	if err != nil {
-		return nil, err
-	}
-
-	return MarkAsCompleteRequest{
 		Id: id,
 	}, nil
 }

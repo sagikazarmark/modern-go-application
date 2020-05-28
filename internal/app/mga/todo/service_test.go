@@ -4,21 +4,10 @@ import (
 	"context"
 	"testing"
 
-	"emperror.dev/errors"
 	"github.com/goph/idgen"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-type todoEventsStub struct {
-	markedAsComplete MarkedAsComplete
-}
-
-func (s *todoEventsStub) MarkedAsComplete(ctx context.Context, event MarkedAsComplete) error {
-	s.markedAsComplete = event
-
-	return nil
-}
 
 func TestList_CreatesATodo(t *testing.T) {
 	todoStore := NewInMemoryStore()
@@ -68,70 +57,4 @@ func TestList_ListTodos(t *testing.T) {
 	expectedTodos := []Item{todo}
 
 	assert.Equal(t, expectedTodos, todos)
-}
-
-func TestList_MarkAsComplete(t *testing.T) {
-	todoStore := NewInMemoryStore()
-
-	const id = "id"
-
-	todo := Item{
-		ID:    id,
-		Title: "Do me",
-	}
-	require.NoError(t, todoStore.Store(context.Background(), todo))
-
-	events := &todoEventsStub{}
-	todoList := NewService(nil, todoStore, events)
-
-	err := todoList.MarkAsComplete(context.Background(), id)
-	require.NoError(t, err)
-
-	expectedTodo := todo
-	expectedTodo.Completed = true
-
-	actualTodo, err := todoStore.Get(context.Background(), todo.ID)
-	require.NoError(t, err)
-
-	assert.Equal(t, expectedTodo, actualTodo)
-
-	expectedEvent := MarkedAsComplete{
-		ID: "id",
-	}
-
-	assert.Equal(t, expectedEvent, events.markedAsComplete)
-}
-
-func TestList_CannotMarkANonExistingTodoComplete(t *testing.T) {
-	todoStore := NewInMemoryStore()
-
-	events := &todoEventsStub{}
-	todoList := NewService(nil, todoStore, events)
-
-	const id = "id"
-
-	err := todoList.MarkAsComplete(context.Background(), id)
-	require.Error(t, err)
-
-	cause := errors.Cause(err)
-
-	require.IsType(t, NotFoundError{}, cause)
-
-	e := cause.(NotFoundError)
-	assert.Equal(t, id, e.ID)
-}
-
-func TestList_StoringCompleteTodoFails(t *testing.T) {
-	inmemTodoStore := NewInMemoryStore()
-
-	todo := Item{
-		ID:    "id",
-		Title: "Do me",
-	}
-	require.NoError(t, inmemTodoStore.Store(context.Background(), todo))
-
-	todoList := NewService(nil, NewReadOnlyStore(inmemTodoStore), &todoEventsStub{})
-
-	err := todoList.MarkAsComplete(context.Background(), "id")
-	require.Error(t, err)
 }

@@ -26,13 +26,12 @@ type serviceError interface {
 // meant to be used as a helper struct, to collect all of the endpoints into a
 // single parameter.
 type Endpoints struct {
-	AddItem        endpoint.Endpoint
-	DeleteItem     endpoint.Endpoint
-	DeleteItems    endpoint.Endpoint
-	GetItem        endpoint.Endpoint
-	ListItems      endpoint.Endpoint
-	MarkAsComplete endpoint.Endpoint
-	UpdateItem     endpoint.Endpoint
+	AddItem     endpoint.Endpoint
+	DeleteItem  endpoint.Endpoint
+	DeleteItems endpoint.Endpoint
+	GetItem     endpoint.Endpoint
+	ListItems   endpoint.Endpoint
+	UpdateItem  endpoint.Endpoint
 }
 
 // MakeEndpoints returns a(n) Endpoints struct where each endpoint invokes
@@ -41,13 +40,12 @@ func MakeEndpoints(service todo.Service, middleware ...endpoint.Middleware) Endp
 	mw := kitxendpoint.Combine(middleware...)
 
 	return Endpoints{
-		AddItem:        kitxendpoint.OperationNameMiddleware("todo.AddItem")(mw(MakeAddItemEndpoint(service))),
-		DeleteItem:     kitxendpoint.OperationNameMiddleware("todo.DeleteItem")(mw(MakeDeleteItemEndpoint(service))),
-		DeleteItems:    kitxendpoint.OperationNameMiddleware("todo.DeleteItems")(mw(MakeDeleteItemsEndpoint(service))),
-		GetItem:        kitxendpoint.OperationNameMiddleware("todo.GetItem")(mw(MakeGetItemEndpoint(service))),
-		ListItems:      kitxendpoint.OperationNameMiddleware("todo.ListItems")(mw(MakeListItemsEndpoint(service))),
-		MarkAsComplete: kitxendpoint.OperationNameMiddleware("todo.MarkAsComplete")(mw(MakeMarkAsCompleteEndpoint(service))),
-		UpdateItem:     kitxendpoint.OperationNameMiddleware("todo.UpdateItem")(mw(MakeUpdateItemEndpoint(service))),
+		AddItem:     kitxendpoint.OperationNameMiddleware("todo.AddItem")(mw(MakeAddItemEndpoint(service))),
+		DeleteItem:  kitxendpoint.OperationNameMiddleware("todo.DeleteItem")(mw(MakeDeleteItemEndpoint(service))),
+		DeleteItems: kitxendpoint.OperationNameMiddleware("todo.DeleteItems")(mw(MakeDeleteItemsEndpoint(service))),
+		GetItem:     kitxendpoint.OperationNameMiddleware("todo.GetItem")(mw(MakeGetItemEndpoint(service))),
+		ListItems:   kitxendpoint.OperationNameMiddleware("todo.ListItems")(mw(MakeListItemsEndpoint(service))),
+		UpdateItem:  kitxendpoint.OperationNameMiddleware("todo.UpdateItem")(mw(MakeUpdateItemEndpoint(service))),
 	}
 }
 
@@ -226,39 +224,6 @@ func MakeListItemsEndpoint(service todo.Service) endpoint.Endpoint {
 		}
 
 		return ListItemsResponse{Items: items}, nil
-	}
-}
-
-// MarkAsCompleteRequest is a request struct for MarkAsComplete endpoint.
-type MarkAsCompleteRequest struct {
-	Id string
-}
-
-// MarkAsCompleteResponse is a response struct for MarkAsComplete endpoint.
-type MarkAsCompleteResponse struct {
-	Err error
-}
-
-func (r MarkAsCompleteResponse) Failed() error {
-	return r.Err
-}
-
-// MakeMarkAsCompleteEndpoint returns an endpoint for the matching method of the underlying service.
-func MakeMarkAsCompleteEndpoint(service todo.Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(MarkAsCompleteRequest)
-
-		err := service.MarkAsComplete(ctx, req.Id)
-
-		if err != nil {
-			if serviceErr := serviceError(nil); errors.As(err, &serviceErr) && serviceErr.ServiceError() {
-				return MarkAsCompleteResponse{Err: err}, nil
-			}
-
-			return MarkAsCompleteResponse{Err: err}, err
-		}
-
-		return MarkAsCompleteResponse{}, nil
 	}
 }
 

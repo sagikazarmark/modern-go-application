@@ -27,9 +27,6 @@ type Service interface {
 
 	// DeleteItem deletes an item from the list.
 	DeleteItem(ctx context.Context, id string) error
-
-	// MarkAsComplete marks an item as complete.
-	MarkAsComplete(ctx context.Context, id string) error
 }
 
 // Item is a note describing a task to be done.
@@ -259,31 +256,6 @@ func (s service) DeleteItem(ctx context.Context, id string) error {
 	err := s.store.DeleteOne(ctx, id)
 	if err != nil {
 		return errors.WithMessage(err, "delete item")
-	}
-
-	return nil
-}
-
-func (s service) MarkAsComplete(ctx context.Context, id string) error {
-	item, err := s.store.Get(ctx, id)
-	if err != nil {
-		return err
-	}
-
-	item.Completed = true
-
-	err = s.store.Store(ctx, item)
-	if err != nil {
-		return errors.WithMessage(err, "mark item as complete")
-	}
-
-	event := MarkedAsComplete{
-		ID: item.ID,
-	}
-
-	err = s.events.MarkedAsComplete(ctx, event)
-	if err != nil {
-		return errors.WithMessage(err, "mark item as complete")
 	}
 
 	return nil
