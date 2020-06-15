@@ -8,12 +8,12 @@ import (
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/spf13/cobra"
 
-	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1beta1"
+	todov1 "github.com/sagikazarmark/todobackend-go-kit/api/todo/v1"
 )
 
 type markAsCompleteOptions struct {
 	todoID string
-	client todov1beta1.TodoListClient
+	client todov1.TodoListServiceClient
 }
 
 // NewMarkAsCompleteCommand creates a new cobra.Command for marking a todo item as complete.
@@ -40,7 +40,7 @@ func NewMarkAsCompleteCommand(c Context) *cobra.Command {
 }
 
 func runMarkAsComplete(options markAsCompleteOptions) error {
-	req := &todov1beta1.UpdateItemRequest{
+	req := &todov1.UpdateItemRequest{
 		Id: options.todoID,
 		Completed: &wrappers.BoolValue{
 			Value: true,

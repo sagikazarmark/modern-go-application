@@ -9,11 +9,11 @@ import (
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 
-	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1beta1"
+	todov1 "github.com/sagikazarmark/todobackend-go-kit/api/todo/v1"
 )
 
 type listOptions struct {
-	client todov1beta1.TodoListClient
+	client todov1.TodoListServiceClient
 }
 
 // NewListCommand creates a new cobra.Command for listing todo items.
@@ -40,7 +40,7 @@ func NewListCommand(c Context) *cobra.Command {
 }
 
 func runList(options listOptions) error {
-	req := &todov1beta1.ListItemsRequest{}
+	req := &todov1.ListItemsRequest{}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()

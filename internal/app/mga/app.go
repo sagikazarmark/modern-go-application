@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"net/http"
 
+	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/ThreeDotsLabs/watermill/components/cqrs"
 	"github.com/ThreeDotsLabs/watermill/message"
 	entsql "github.com/facebookincubator/ent/dialect/sql"
@@ -21,17 +22,19 @@ import (
 	kitxtransport "github.com/sagikazarmark/kitx/transport"
 	kitxgrpc "github.com/sagikazarmark/kitx/transport/grpc"
 	kitxhttp "github.com/sagikazarmark/kitx/transport/http"
+	todov1 "github.com/sagikazarmark/todobackend-go-kit/api/todo/v1"
+	"github.com/sagikazarmark/todobackend-go-kit/todo"
+	"github.com/sagikazarmark/todobackend-go-kit/todo/tododriver"
 	"google.golang.org/grpc"
 	watermilllog "logur.dev/integration/watermill"
 
-	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1beta1"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/httpbin"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/landing/landingdriver"
-	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
+	todo2 "github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/migrate"
-	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/tododriver"
+	tododriver2 "github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/tododriver"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todogen"
 )
 
@@ -45,7 +48,7 @@ func InitializeApp(
 	storage string,
 	db *sql.DB,
 	logger Logger,
-	errorHandler ErrorHandler,
+	errorHandler ErrorHandler, // nolint: interfacer
 ) {
 	endpointMiddleware := []endpoint.Middleware{
 		correlation.Middleware(),
@@ -92,13 +95,10 @@ func InitializeApp(
 			store = todoadapter.NewEntStore(client)
 		}
 
-		service := todo.NewService(
-			ulidgen.NewGenerator(),
-			store,
-			todogen.NewEventDispatcher(eventBus),
-		)
-		service = tododriver.LoggingMiddleware(logger)(service)
-		service = tododriver.InstrumentationMiddleware()(service)
+		service := todo.NewService(ulidgen.NewGenerator(), store)
+		service = todo2.EventMiddleware(todogen.NewEventDispatcher(eventBus))(service)
+		service = tododriver2.LoggingMiddleware(logger)(service)
+		service = tododriver2.InstrumentationMiddleware()(service)
 
 		endpoints := tododriver.MakeEndpoints(
 			service,
@@ -110,16 +110,13 @@ func InitializeApp(
 			httpRouter.PathPrefix("/todos").Subrouter(),
 			kitxhttp.ServerOptions(httpServerOptions),
 		)
-
-		todov1beta1.RegisterTodoListServer(
+		todov1.RegisterTodoListServiceServer(
 			grpcServer,
-			tododriver.MakeGRPCServer(
-				endpoints,
-				kitxgrpc.ServerOptions(grpcServerOptions),
-			),
+			tododriver.MakeGRPCServer(endpoints, kitxgrpc.ServerOptions(grpcServerOptions)),
 		)
-
-		httpRouter.PathPrefix("/graphql").Handler(tododriver.MakeGraphQLHandler(endpoints, errorHandler))
+		httpRouter.PathPrefix("/graphql").Handler(handler.NewDefaultServer(
+			tododriver.MakeGraphQLSchema(endpoints),
+		))
 	}
 
 	landingdriver.RegisterHTTPHandlers(httpRouter)
@@ -133,7 +130,7 @@ func InitializeApp(
 func RegisterEventHandlers(router *message.Router, subscriber message.Subscriber, logger Logger) error {
 	todoEventProcessor, _ := cqrs.NewEventProcessor(
 		[]cqrs.EventHandler{
-			todogen.NewMarkedAsCompleteEventHandler(todo.NewLogEventHandler(logger), "marked_as_complete"),
+			todogen.NewMarkedAsCompleteEventHandler(todo2.NewLogEventHandler(logger), "marked_as_complete"),
 		},
 		func(eventName string) string { return todoTopic },
 		func(handlerName string) (message.Subscriber, error) { return subscriber, nil },

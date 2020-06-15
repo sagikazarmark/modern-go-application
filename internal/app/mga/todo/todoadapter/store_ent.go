@@ -5,7 +5,8 @@ import (
 
 	"emperror.dev/errors"
 
-	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
+	"github.com/sagikazarmark/todobackend-go-kit/todo"
+
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/todoitem"
 )
@@ -52,7 +53,7 @@ func (s entStore) Store(ctx context.Context, todo todo.Item) error {
 	return nil
 }
 
-func (s entStore) All(ctx context.Context) ([]todo.Item, error) {
+func (s entStore) GetAll(ctx context.Context) ([]todo.Item, error) {
 	todoModels, err := s.client.TodoItem.Query().All(ctx)
 	if err != nil {
 		return nil, err
@@ -72,7 +73,7 @@ func (s entStore) All(ctx context.Context) ([]todo.Item, error) {
 	return todos, nil
 }
 
-func (s entStore) Get(ctx context.Context, id string) (todo.Item, error) {
+func (s entStore) GetOne(ctx context.Context, id string) (todo.Item, error) {
 	todoModel, err := s.client.TodoItem.Query().Where(todoitem.UID(id)).First(ctx)
 	if ent.IsNotFound(err) {
 		return todo.Item{}, errors.WithStack(todo.NotFoundError{ID: id})

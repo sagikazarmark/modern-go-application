@@ -1,13 +1,13 @@
 package todocli
 
 import (
-	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1beta1"
+	todov1 "github.com/sagikazarmark/todobackend-go-kit/api/todo/v1"
 )
 
 type context struct {
-	client todov1beta1.TodoListClient
+	client todov1.TodoListServiceClient
 }
 
-func (c *context) GetTodoClient() todov1beta1.TodoListClient {
+func (c *context) GetTodoClient() todov1.TodoListServiceClient {
 	return c.client
 }
