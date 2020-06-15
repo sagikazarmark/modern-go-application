@@ -3,47 +3,16 @@ package tododriver
 import (
 	"context"
 
+	"github.com/sagikazarmark/todobackend-go-kit/todo"
 	"go.opencensus.io/stats"
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/trace"
 
-	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
+	todo2 "github.com/sagikazarmark/modern-go-application/internal/app/mga/todo"
 )
 
-// Middleware is a service middleware.
-type Middleware func(todo.Service) todo.Service
-
-// defaultMiddleware helps implementing partial middleware.
-type defaultMiddleware struct {
-	service todo.Service
-}
-
-func (m defaultMiddleware) AddItem(ctx context.Context, newItem todo.NewItem) (todo.Item, error) {
-	return m.service.AddItem(ctx, newItem)
-}
-
-func (m defaultMiddleware) ListItems(ctx context.Context) ([]todo.Item, error) {
-	return m.service.ListItems(ctx)
-}
-
-func (m defaultMiddleware) DeleteItems(ctx context.Context) error {
-	return m.service.DeleteItems(ctx)
-}
-
-func (m defaultMiddleware) GetItem(ctx context.Context, id string) (todo.Item, error) {
-	return m.service.GetItem(ctx, id)
-}
-
-func (m defaultMiddleware) UpdateItem(ctx context.Context, id string, itemUpdate todo.ItemUpdate) (todo.Item, error) {
-	return m.service.UpdateItem(ctx, id, itemUpdate)
-}
-
-func (m defaultMiddleware) DeleteItem(ctx context.Context, id string) error {
-	return m.service.DeleteItem(ctx, id)
-}
-
 // LoggingMiddleware is a service level logging middleware.
-func LoggingMiddleware(logger todo.Logger) Middleware {
+func LoggingMiddleware(logger todo2.Logger) todo2.Middleware {
 	return func(next todo.Service) todo.Service {
 		return loggingMiddleware{
 			next:   next,
@@ -54,7 +23,7 @@ func LoggingMiddleware(logger todo.Logger) Middleware {
 
 type loggingMiddleware struct {
 	next   todo.Service
-	logger todo.Logger
+	logger todo2.Logger
 }
 
 func (mw loggingMiddleware) AddItem(ctx context.Context, newItem todo.NewItem) (todo.Item, error) {
@@ -137,10 +106,10 @@ var (
 )
 
 // InstrumentationMiddleware is a service level instrumentation middleware.
-func InstrumentationMiddleware() Middleware {
+func InstrumentationMiddleware() todo2.Middleware {
 	return func(next todo.Service) todo.Service {
 		return instrumentationMiddleware{
-			Service: defaultMiddleware{next},
+			Service: todo2.DefaultMiddleware{Service: next},
 			next:    next,
 		}
 	}

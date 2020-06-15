@@ -1,7 +1,0 @@
-{
-    todoItems {
-        id
-        title
-        completed
-    }
-}

@@ -9,12 +9,12 @@ import (
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/status"
 
-	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1beta1"
+	todov1 "github.com/sagikazarmark/todobackend-go-kit/api/todo/v1"
 )
 
 type createOptions struct {
 	title  string
-	client todov1beta1.TodoListClient
+	client todov1.TodoListServiceClient
 }
 
 // NewAddCommand creates a new cobra.Command for adding a new item to the list.
@@ -41,7 +41,7 @@ func NewAddCommand(c Context) *cobra.Command {
 }
 
 func runCreate(options createOptions) error {
-	req := &todov1beta1.AddItemRequest{
+	req := &todov1.AddItemRequest{
 		Title: options.title,
 	}
 

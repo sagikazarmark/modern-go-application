@@ -3,12 +3,12 @@ package command
 import (
 	"github.com/spf13/cobra"
 
-	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1beta1"
+	todov1 "github.com/sagikazarmark/todobackend-go-kit/api/todo/v1"
 )
 
 // Context represents the application context.
 type Context interface {
-	GetTodoClient() todov1beta1.TodoListClient
+	GetTodoClient() todov1.TodoListServiceClient
 }
 
 // AddCommands adds all the commands from cli/command to the root command.

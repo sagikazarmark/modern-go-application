@@ -3,12 +3,12 @@ package todocli
 import (
 	"contrib.go.opencensus.io/exporter/ocagent"
 	"emperror.dev/errors"
+	todov1 "github.com/sagikazarmark/todobackend-go-kit/api/todo/v1"
 	"github.com/spf13/cobra"
 	"go.opencensus.io/plugin/ocgrpc"
 	"go.opencensus.io/trace"
 	"google.golang.org/grpc"
 
-	todov1beta1 "github.com/sagikazarmark/modern-go-application/.gen/api/proto/todo/v1beta1"
 	"github.com/sagikazarmark/modern-go-application/internal/app/todocli/command"
 )
 
@@ -52,7 +52,7 @@ func Configure(rootCmd *cobra.Command) {
 
 		grpcConn = conn
 
-		c.client = todov1beta1.NewTodoListClient(conn)
+		c.client = todov1.NewTodoListServiceClient(conn)
 
 		return nil
 	}

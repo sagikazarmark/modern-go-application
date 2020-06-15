@@ -27,11 +27,7 @@ OPENAPI_DESCRIPTOR_DIR = api/openapi
 
 # Dependency versions
 GOTESTSUM_VERSION = 0.4.2
-GOLANGCI_VERSION = 1.26.0
-OPENAPI_GENERATOR_VERSION = 4.3.1
-PROTOC_VERSION = 3.11.4
-BUF_VERSION = 0.11.0
-PROTOC_GEN_KIT_VERSION = 0.0.2
+GOLANGCI_VERSION = 1.27.0
 MGA_VERSION = 0.2.0
 
 GOLANG_VERSION = 1.14
@@ -180,73 +176,6 @@ generate: bin/mga bin/entc ## Generate code
 	mga generate event handler --output subpkg:suffix=gen ./internal/app/mga/todo/...
 	mga generate event dispatcher --output subpkg:suffix=gen ./internal/app/mga/todo/...
 	entc generate ./internal/app/mga/todo/todoadapter/ent/schema
-
-.PHONY: validate-openapi
-validate-openapi: ## Validate the OpenAPI descriptor
-	for api in `ls ${OPENAPI_DESCRIPTOR_DIR}`; do \
-	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli:v${OPENAPI_GENERATOR_VERSION} validate --recommend -i /local/${OPENAPI_DESCRIPTOR_DIR}/$$api/openapi.yaml; \
-	done
-
-.PHONY: openapi
-openapi: ## Generate client and server stubs from the OpenAPI definition
-	rm -rf .gen/${OPENAPI_DESCRIPTOR_DIR}
-	for api in `ls ${OPENAPI_DESCRIPTOR_DIR}`; do \
-	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli:v${OPENAPI_GENERATOR_VERSION} generate \
-	--additional-properties packageName=api \
-	--additional-properties withGoCodegenComment=true \
-	-i /local/${OPENAPI_DESCRIPTOR_DIR}/$$api/openapi.yaml \
-	-g go-server \
-	-o /local/.gen/${OPENAPI_DESCRIPTOR_DIR}/$$api; \
-	rm -rf .gen/${OPENAPI_DESCRIPTOR_DIR}/$$api/{Dockerfile,go.*,README.md,main.go,go/api*.go,go/logger.go,go/routers.go}; \
-	done
-
-bin/protoc: bin/protoc-${PROTOC_VERSION}
-	@ln -sf protoc-${PROTOC_VERSION}/bin/protoc bin/protoc
-bin/protoc-${PROTOC_VERSION}:
-	@mkdir -p bin/protoc-${PROTOC_VERSION}
-ifeq (${OS}, darwin)
-	curl -L https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-osx-x86_64.zip > bin/protoc.zip
-endif
-ifeq (${OS}, linux)
-	curl -L https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-x86_64.zip > bin/protoc.zip
-endif
-	unzip bin/protoc.zip -d bin/protoc-${PROTOC_VERSION}
-	rm bin/protoc.zip
-
-bin/protoc-gen-go: go.mod
-	@mkdir -p bin
-	go build -o bin/protoc-gen-go github.com/golang/protobuf/protoc-gen-go
-
-bin/protoc-gen-kit: bin/protoc-gen-kit-${PROTOC_GEN_KIT_VERSION}
-	@ln -sf protoc-gen-kit-${PROTOC_GEN_KIT_VERSION} bin/protoc-gen-kit
-bin/protoc-gen-kit-${PROTOC_GEN_KIT_VERSION}:
-	@mkdir -p bin
-	curl -L https://github.com/sagikazarmark/protoc-gen-kit/releases/download/v${PROTOC_GEN_KIT_VERSION}/protoc-gen-kit_${OS}_amd64.tar.gz | tar -zOxf - protoc-gen-kit > ./bin/protoc-gen-kit-${PROTOC_GEN_KIT_VERSION} && chmod +x ./bin/protoc-gen-kit-${PROTOC_GEN_KIT_VERSION}
-
-bin/buf: bin/buf-${BUF_VERSION}
-	@ln -sf buf-${BUF_VERSION} bin/buf
-bin/buf-${BUF_VERSION}:
-	@mkdir -p bin
-	curl -L https://github.com/bufbuild/buf/releases/download/v${BUF_VERSION}/buf-${OS}-x86_64 -o ./bin/buf-${BUF_VERSION} && chmod +x ./bin/buf-${BUF_VERSION}
-
-.PHONY: buf
-buf: bin/buf ## Generate client and server stubs from the protobuf definition
-	bin/buf image build -o /dev/null
-	bin/buf check lint
-
-.PHONY: proto
-proto: bin/protoc bin/protoc-gen-go bin/protoc-gen-kit buf ## Generate client and server stubs from the protobuf definition
-	mkdir -p .gen/proto
-
-	protoc -I bin/protoc-${PROTOC_VERSION} -I api/proto --go_out=plugins=grpc,import_path=$(shell go list .):.gen/api/proto --kit_out=.gen/api/proto $(shell find api/proto -name '*.proto')
-
-bin/gqlgen: go.mod
-	@mkdir -p bin
-	go build -o bin/gqlgen github.com/99designs/gqlgen
-
-.PHONY: graphql
-graphql: bin/gqlgen ## Generate GraphQL code
-	bin/gqlgen
 
 release-%: TAG_PREFIX = v
 release-%:
