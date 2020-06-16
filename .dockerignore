@@ -9,4 +9,5 @@
 !pkg/
 !static/
 !Makefile
+!main.mk
 **/pkged.go

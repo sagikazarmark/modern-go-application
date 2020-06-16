@@ -10,12 +10,16 @@ WORKDIR /workspace
 
 ARG GOPROXY
 
-COPY go.* /workspace/
+COPY go.* ./
 RUN go mod download
 
-COPY . /workspace
-
 ARG BUILD_TARGET
+
+COPY Makefile *.mk ./
+
+RUN if [[ "${BUILD_TARGET}" == "debug" ]]; then make build-debug-deps; else make build-release-deps; fi
+
+COPY . .
 
 RUN set -xe && \
     if [[ "${BUILD_TARGET}" == "debug" ]]; then \
