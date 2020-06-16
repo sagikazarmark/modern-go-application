@@ -17,7 +17,7 @@ executors:
                     GOFLAGS: -mod=readonly
 
 jobs:
-    unit-tests:
+    tests:
         executor: go
 
         steps:
@@ -36,25 +36,6 @@ jobs:
             -   store_test_results:
                     path: build/test_results/
 
-    integration-tests:
-        executor: go
-
-        steps:
-            - checkout
-
-            -   run:
-                    name: Run integration tests
-                    command: |
-                        if [ $CIRCLE_NODE_TOTAL -gt 1 ]; then
-                            export TEST_PKGS=$(echo `go list ./... | circleci tests split`)
-                            export TEST_REPORT_NAME=results_${CIRCLE_NODE_INDEX}.xml
-                        fi
-
-                        make test-integration
-
-            -   store_test_results:
-                    path: build/test_results/
-
     lint:
         executor: go
 
@@ -69,6 +50,5 @@ workflows:
     version: 2
     build:
         jobs:
-            - unit-tests
-            - integration-tests
+            - tests
             - lint
