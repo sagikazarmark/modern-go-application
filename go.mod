@@ -40,4 +40,5 @@ require (
 	logur.dev/adapter/logrus v0.5.0
 	logur.dev/integration/watermill v0.5.0
 	logur.dev/logur v0.16.2
+    github.com/tendermint/tendermint/p2p v0.32.0
 )
