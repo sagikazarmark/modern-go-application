@@ -3,11 +3,11 @@ module github.com/sagikazarmark/modern-go-application
 go 1.14
 
 require (
-	contrib.go.opencensus.io/exporter/ocagent v0.6.0
-	contrib.go.opencensus.io/exporter/prometheus v0.1.0
-	contrib.go.opencensus.io/integrations/ocsql v0.1.5
-	emperror.dev/emperror v0.32.0
-	emperror.dev/errors v0.7.0
+	contrib.go.opencensus.io/exporter/ocagent v0.7.0
+	contrib.go.opencensus.io/exporter/prometheus v0.2.0
+	contrib.go.opencensus.io/integrations/ocsql v0.1.6
+	emperror.dev/emperror v0.33.0
+	emperror.dev/errors v0.8.0
 	emperror.dev/handler/logur v0.4.0
 	github.com/99designs/gqlgen v0.11.3
 	github.com/AppsFlyer/go-sundheit v0.2.0
@@ -16,11 +16,11 @@ require (
 	github.com/facebookincubator/ent v0.2.1
 	github.com/go-kit/kit v0.10.0
 	github.com/go-sql-driver/mysql v1.5.1-0.20200311113236-681ffa848bae
-	github.com/golang/protobuf v1.4.2
+	github.com/golang/protobuf v1.4.3
 	github.com/goph/idgen v0.4.0
-	github.com/gorilla/handlers v1.4.2
-	github.com/gorilla/mux v1.7.4
-	github.com/markbates/pkger v0.17.0
+	github.com/gorilla/handlers v1.5.1
+	github.com/gorilla/mux v1.8.0
+	github.com/markbates/pkger v0.17.1
 	github.com/mccutchen/go-httpbin v0.0.0-20190116014521-c5cb2f4802fa
 	github.com/oklog/run v1.1.0
 	github.com/olekukonko/tablewriter v0.0.4
@@ -28,16 +28,16 @@ require (
 	github.com/sagikazarmark/kitx v0.14.0
 	github.com/sagikazarmark/ocmux v0.2.0
 	github.com/sagikazarmark/todobackend-go-kit v0.5.1
-	github.com/sagikazarmark/todobackend-go-kit/api v0.3.0
-	github.com/sirupsen/logrus v1.6.0
-	github.com/spf13/cobra v1.0.0
+	github.com/sagikazarmark/todobackend-go-kit/api v0.4.0
+	github.com/sirupsen/logrus v1.7.0
+	github.com/spf13/cobra v1.1.1
 	github.com/spf13/pflag v1.0.5
-	github.com/spf13/viper v1.7.0
+	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.6.1
-	go.opencensus.io v0.22.3
-	google.golang.org/genproto v0.0.0-20200528191852-705c0b31589b
-	google.golang.org/grpc v1.29.1
+	go.opencensus.io v0.22.5
+	google.golang.org/genproto v0.0.0-20201022181438-0ff5f38871d5
+	google.golang.org/grpc v1.33.1
 	logur.dev/adapter/logrus v0.5.0
 	logur.dev/integration/watermill v0.5.0
-	logur.dev/logur v0.16.2
+	logur.dev/logur v0.17.0
 )
