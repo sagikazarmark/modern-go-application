@@ -52,7 +52,7 @@ clean-pkged:
 
 bin/entc:
 	@mkdir -p bin
-	go build -o bin/entc github.com/facebookincubator/ent/cmd/entc
+	go build -o bin/entc github.com/facebook/ent/cmd/entc
 
 bin/mga: bin/mga-${MGA_VERSION}
 	@ln -sf mga-${MGA_VERSION} bin/mga

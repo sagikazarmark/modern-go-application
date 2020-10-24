@@ -8,7 +8,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/ThreeDotsLabs/watermill/components/cqrs"
 	"github.com/ThreeDotsLabs/watermill/message"
-	entsql "github.com/facebookincubator/ent/dialect/sql"
+	entsql "github.com/facebook/ent/dialect/sql"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/tracing/opencensus"
 	kitgrpc "github.com/go-kit/kit/transport/grpc"

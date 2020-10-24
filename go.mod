@@ -13,7 +13,7 @@ require (
 	github.com/AppsFlyer/go-sundheit v0.2.0
 	github.com/ThreeDotsLabs/watermill v1.1.1
 	github.com/cloudflare/tableflip v1.2.0
-	github.com/facebookincubator/ent v0.2.1
+	github.com/facebook/ent v0.4.3
 	github.com/go-kit/kit v0.10.0
 	github.com/go-sql-driver/mysql v1.5.1-0.20200311113236-681ffa848bae
 	github.com/golang/protobuf v1.4.3
