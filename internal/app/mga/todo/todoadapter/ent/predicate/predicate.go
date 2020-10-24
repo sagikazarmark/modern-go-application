@@ -3,7 +3,7 @@
 package predicate
 
 import (
-	"github.com/facebookincubator/ent/dialect/sql"
+	"github.com/facebook/ent/dialect/sql"
 )
 
 // TodoItem is the predicate function for todoitem builders.

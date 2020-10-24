@@ -5,7 +5,7 @@ package todoitem
 import (
 	"time"
 
-	"github.com/facebookincubator/ent/dialect/sql"
+	"github.com/facebook/ent/dialect/sql"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/predicate"
 )
 
@@ -157,7 +157,7 @@ func UIDIn(vs ...string) predicate.TodoItem {
 	return predicate.TodoItem(func(s *sql.Selector) {
 		// if not arguments were provided, append the FALSE constants,
 		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(vs) == 0 {
+		if len(v) == 0 {
 			s.Where(sql.False())
 			return
 		}
@@ -174,7 +174,7 @@ func UIDNotIn(vs ...string) predicate.TodoItem {
 	return predicate.TodoItem(func(s *sql.Selector) {
 		// if not arguments were provided, append the FALSE constants,
 		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(vs) == 0 {
+		if len(v) == 0 {
 			s.Where(sql.False())
 			return
 		}
@@ -268,7 +268,7 @@ func TitleIn(vs ...string) predicate.TodoItem {
 	return predicate.TodoItem(func(s *sql.Selector) {
 		// if not arguments were provided, append the FALSE constants,
 		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(vs) == 0 {
+		if len(v) == 0 {
 			s.Where(sql.False())
 			return
 		}
@@ -285,7 +285,7 @@ func TitleNotIn(vs ...string) predicate.TodoItem {
 	return predicate.TodoItem(func(s *sql.Selector) {
 		// if not arguments were provided, append the FALSE constants,
 		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(vs) == 0 {
+		if len(v) == 0 {
 			s.Where(sql.False())
 			return
 		}
@@ -393,7 +393,7 @@ func OrderIn(vs ...int) predicate.TodoItem {
 	return predicate.TodoItem(func(s *sql.Selector) {
 		// if not arguments were provided, append the FALSE constants,
 		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(vs) == 0 {
+		if len(v) == 0 {
 			s.Where(sql.False())
 			return
 		}
@@ -410,7 +410,7 @@ func OrderNotIn(vs ...int) predicate.TodoItem {
 	return predicate.TodoItem(func(s *sql.Selector) {
 		// if not arguments were provided, append the FALSE constants,
 		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(vs) == 0 {
+		if len(v) == 0 {
 			s.Where(sql.False())
 			return
 		}
@@ -469,7 +469,7 @@ func CreatedAtIn(vs ...time.Time) predicate.TodoItem {
 	return predicate.TodoItem(func(s *sql.Selector) {
 		// if not arguments were provided, append the FALSE constants,
 		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(vs) == 0 {
+		if len(v) == 0 {
 			s.Where(sql.False())
 			return
 		}
@@ -486,7 +486,7 @@ func CreatedAtNotIn(vs ...time.Time) predicate.TodoItem {
 	return predicate.TodoItem(func(s *sql.Selector) {
 		// if not arguments were provided, append the FALSE constants,
 		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(vs) == 0 {
+		if len(v) == 0 {
 			s.Where(sql.False())
 			return
 		}
@@ -545,7 +545,7 @@ func UpdatedAtIn(vs ...time.Time) predicate.TodoItem {
 	return predicate.TodoItem(func(s *sql.Selector) {
 		// if not arguments were provided, append the FALSE constants,
 		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(vs) == 0 {
+		if len(v) == 0 {
 			s.Where(sql.False())
 			return
 		}
@@ -562,7 +562,7 @@ func UpdatedAtNotIn(vs ...time.Time) predicate.TodoItem {
 	return predicate.TodoItem(func(s *sql.Selector) {
 		// if not arguments were provided, append the FALSE constants,
 		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(vs) == 0 {
+		if len(v) == 0 {
 			s.Where(sql.False())
 			return
 		}

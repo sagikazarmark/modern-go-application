@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/facebookincubator/ent/dialect"
-	"github.com/facebookincubator/ent/dialect/sql/schema"
+	"github.com/facebook/ent/dialect"
+	"github.com/facebook/ent/dialect/sql/schema"
 )
 
 var (
@@ -29,7 +29,7 @@ var (
 	// flexibility in the schema changes.
 	WithDropIndex = schema.WithDropIndex
 	// WithFixture sets the foreign-key renaming option to the migration when upgrading
-	// ent from v0.1.0 (issue-#285). Defaults to true.
+	// ent from v0.1.0 (issue-#285). Defaults to false.
 	WithFixture = schema.WithFixture
 )
 

@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/facebookincubator/ent/dialect/sql"
-	"github.com/facebookincubator/ent/dialect/sql/sqlgraph"
-	"github.com/facebookincubator/ent/schema/field"
+	"github.com/facebook/ent/dialect/sql"
+	"github.com/facebook/ent/dialect/sql/sqlgraph"
+	"github.com/facebook/ent/schema/field"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/predicate"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/todoitem"
 )
@@ -73,16 +73,18 @@ func (tiu *TodoItemUpdate) SetUpdatedAt(t time.Time) *TodoItemUpdate {
 	return tiu
 }
 
+// Mutation returns the TodoItemMutation object of the builder.
+func (tiu *TodoItemUpdate) Mutation() *TodoItemMutation {
+	return tiu.mutation
+}
+
 // Save executes the query and returns the number of rows/vertices matched by this operation.
 func (tiu *TodoItemUpdate) Save(ctx context.Context) (int, error) {
-	if _, ok := tiu.mutation.UpdatedAt(); !ok {
-		v := todoitem.UpdateDefaultUpdatedAt()
-		tiu.mutation.SetUpdatedAt(v)
-	}
 	var (
 		err      error
 		affected int
 	)
+	tiu.defaults()
 	if len(tiu.hooks) == 0 {
 		affected, err = tiu.sqlSave(ctx)
 	} else {
@@ -93,6 +95,7 @@ func (tiu *TodoItemUpdate) Save(ctx context.Context) (int, error) {
 			}
 			tiu.mutation = mutation
 			affected, err = tiu.sqlSave(ctx)
+			mutation.done = true
 			return affected, err
 		})
 		for i := len(tiu.hooks) - 1; i >= 0; i-- {
@@ -124,6 +127,14 @@ func (tiu *TodoItemUpdate) Exec(ctx context.Context) error {
 func (tiu *TodoItemUpdate) ExecX(ctx context.Context) {
 	if err := tiu.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (tiu *TodoItemUpdate) defaults() {
+	if _, ok := tiu.mutation.UpdatedAt(); !ok {
+		v := todoitem.UpdateDefaultUpdatedAt()
+		tiu.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -250,16 +261,18 @@ func (tiuo *TodoItemUpdateOne) SetUpdatedAt(t time.Time) *TodoItemUpdateOne {
 	return tiuo
 }
 
+// Mutation returns the TodoItemMutation object of the builder.
+func (tiuo *TodoItemUpdateOne) Mutation() *TodoItemMutation {
+	return tiuo.mutation
+}
+
 // Save executes the query and returns the updated entity.
 func (tiuo *TodoItemUpdateOne) Save(ctx context.Context) (*TodoItem, error) {
-	if _, ok := tiuo.mutation.UpdatedAt(); !ok {
-		v := todoitem.UpdateDefaultUpdatedAt()
-		tiuo.mutation.SetUpdatedAt(v)
-	}
 	var (
 		err  error
 		node *TodoItem
 	)
+	tiuo.defaults()
 	if len(tiuo.hooks) == 0 {
 		node, err = tiuo.sqlSave(ctx)
 	} else {
@@ -270,6 +283,7 @@ func (tiuo *TodoItemUpdateOne) Save(ctx context.Context) (*TodoItem, error) {
 			}
 			tiuo.mutation = mutation
 			node, err = tiuo.sqlSave(ctx)
+			mutation.done = true
 			return node, err
 		})
 		for i := len(tiuo.hooks) - 1; i >= 0; i-- {
@@ -284,11 +298,11 @@ func (tiuo *TodoItemUpdateOne) Save(ctx context.Context) (*TodoItem, error) {
 
 // SaveX is like Save, but panics if an error occurs.
 func (tiuo *TodoItemUpdateOne) SaveX(ctx context.Context) *TodoItem {
-	ti, err := tiuo.Save(ctx)
+	node, err := tiuo.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
-	return ti
+	return node
 }
 
 // Exec executes the query on the entity.
@@ -304,7 +318,15 @@ func (tiuo *TodoItemUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
-func (tiuo *TodoItemUpdateOne) sqlSave(ctx context.Context) (ti *TodoItem, err error) {
+// defaults sets the default values of the builder before save.
+func (tiuo *TodoItemUpdateOne) defaults() {
+	if _, ok := tiuo.mutation.UpdatedAt(); !ok {
+		v := todoitem.UpdateDefaultUpdatedAt()
+		tiuo.mutation.SetUpdatedAt(v)
+	}
+}
+
+func (tiuo *TodoItemUpdateOne) sqlSave(ctx context.Context) (_node *TodoItem, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
 			Table:   todoitem.Table,
@@ -317,7 +339,7 @@ func (tiuo *TodoItemUpdateOne) sqlSave(ctx context.Context) (ti *TodoItem, err e
 	}
 	id, ok := tiuo.mutation.ID()
 	if !ok {
-		return nil, fmt.Errorf("missing TodoItem.ID for update")
+		return nil, &ValidationError{Name: "ID", err: fmt.Errorf("missing TodoItem.ID for update")}
 	}
 	_spec.Node.ID.Value = id
 	if value, ok := tiuo.mutation.Title(); ok {
@@ -362,9 +384,9 @@ func (tiuo *TodoItemUpdateOne) sqlSave(ctx context.Context) (ti *TodoItem, err e
 			Column: todoitem.FieldUpdatedAt,
 		})
 	}
-	ti = &TodoItem{config: tiuo.config}
-	_spec.Assign = ti.assignValues
-	_spec.ScanValues = ti.scanValues()
+	_node = &TodoItem{config: tiuo.config}
+	_spec.Assign = _node.assignValues
+	_spec.ScanValues = _node.scanValues()
 	if err = sqlgraph.UpdateNode(ctx, tiuo.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{todoitem.Label}
@@ -373,5 +395,5 @@ func (tiuo *TodoItemUpdateOne) sqlSave(ctx context.Context) (ti *TodoItem, err e
 		}
 		return nil, err
 	}
-	return ti, nil
+	return _node, nil
 }

@@ -3,15 +3,14 @@
 package ent
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"strings"
 
-	"github.com/facebookincubator/ent"
-	"github.com/facebookincubator/ent/dialect"
-	"github.com/facebookincubator/ent/dialect/sql"
-	"github.com/facebookincubator/ent/dialect/sql/sqlgraph"
+	"github.com/facebook/ent"
+	"github.com/facebook/ent/dialect"
+	"github.com/facebook/ent/dialect/sql"
+	"github.com/facebook/ent/dialect/sql/sqlgraph"
 )
 
 // ent aliases to avoid import conflict in user's code.
@@ -26,29 +25,37 @@ type (
 	MutateFunc = ent.MutateFunc
 )
 
-// Order applies an ordering on either graph traversal or sql selector.
-type Order func(*sql.Selector)
+// OrderFunc applies an ordering on the sql selector.
+type OrderFunc func(*sql.Selector, func(string) bool)
 
 // Asc applies the given fields in ASC order.
-func Asc(fields ...string) Order {
-	return func(s *sql.Selector) {
+func Asc(fields ...string) OrderFunc {
+	return func(s *sql.Selector, check func(string) bool) {
 		for _, f := range fields {
-			s.OrderBy(sql.Asc(f))
+			if check(f) {
+				s.OrderBy(sql.Asc(f))
+			} else {
+				s.AddError(&ValidationError{Name: f, err: fmt.Errorf("invalid field %q for ordering", f)})
+			}
 		}
 	}
 }
 
 // Desc applies the given fields in DESC order.
-func Desc(fields ...string) Order {
-	return func(s *sql.Selector) {
+func Desc(fields ...string) OrderFunc {
+	return func(s *sql.Selector, check func(string) bool) {
 		for _, f := range fields {
-			s.OrderBy(sql.Desc(f))
+			if check(f) {
+				s.OrderBy(sql.Desc(f))
+			} else {
+				s.AddError(&ValidationError{Name: f, err: fmt.Errorf("invalid field %q for ordering", f)})
+			}
 		}
 	}
 }
 
-// Aggregate applies an aggregation step on the group-by traversal/selector.
-type Aggregate func(*sql.Selector) string
+// AggregateFunc applies an aggregation step on the group-by traversal/selector.
+type AggregateFunc func(*sql.Selector, func(string) bool) string
 
 // As is a pseudo aggregation function for renaming another other functions with custom names. For example:
 //
@@ -56,45 +63,86 @@ type Aggregate func(*sql.Selector) string
 //	Aggregate(ent.As(ent.Sum(field1), "sum_field1"), (ent.As(ent.Sum(field2), "sum_field2")).
 //	Scan(ctx, &v)
 //
-func As(fn Aggregate, end string) Aggregate {
-	return func(s *sql.Selector) string {
-		return sql.As(fn(s), end)
+func As(fn AggregateFunc, end string) AggregateFunc {
+	return func(s *sql.Selector, check func(string) bool) string {
+		return sql.As(fn(s, check), end)
 	}
 }
 
 // Count applies the "count" aggregation function on each group.
-func Count() Aggregate {
-	return func(s *sql.Selector) string {
+func Count() AggregateFunc {
+	return func(s *sql.Selector, _ func(string) bool) string {
 		return sql.Count("*")
 	}
 }
 
 // Max applies the "max" aggregation function on the given field of each group.
-func Max(field string) Aggregate {
-	return func(s *sql.Selector) string {
+func Max(field string) AggregateFunc {
+	return func(s *sql.Selector, check func(string) bool) string {
+		if !check(field) {
+			s.AddError(&ValidationError{Name: field, err: fmt.Errorf("invalid field %q for grouping", field)})
+			return ""
+		}
 		return sql.Max(s.C(field))
 	}
 }
 
 // Mean applies the "mean" aggregation function on the given field of each group.
-func Mean(field string) Aggregate {
-	return func(s *sql.Selector) string {
+func Mean(field string) AggregateFunc {
+	return func(s *sql.Selector, check func(string) bool) string {
+		if !check(field) {
+			s.AddError(&ValidationError{Name: field, err: fmt.Errorf("invalid field %q for grouping", field)})
+			return ""
+		}
 		return sql.Avg(s.C(field))
 	}
 }
 
 // Min applies the "min" aggregation function on the given field of each group.
-func Min(field string) Aggregate {
-	return func(s *sql.Selector) string {
+func Min(field string) AggregateFunc {
+	return func(s *sql.Selector, check func(string) bool) string {
+		if !check(field) {
+			s.AddError(&ValidationError{Name: field, err: fmt.Errorf("invalid field %q for grouping", field)})
+			return ""
+		}
 		return sql.Min(s.C(field))
 	}
 }
 
 // Sum applies the "sum" aggregation function on the given field of each group.
-func Sum(field string) Aggregate {
-	return func(s *sql.Selector) string {
+func Sum(field string) AggregateFunc {
+	return func(s *sql.Selector, check func(string) bool) string {
+		if !check(field) {
+			s.AddError(&ValidationError{Name: field, err: fmt.Errorf("invalid field %q for grouping", field)})
+			return ""
+		}
 		return sql.Sum(s.C(field))
 	}
+}
+
+// ValidationError returns when validating a field fails.
+type ValidationError struct {
+	Name string // Field or edge name.
+	err  error
+}
+
+// Error implements the error interface.
+func (e *ValidationError) Error() string {
+	return e.err.Error()
+}
+
+// Unwrap implements the errors.Wrapper interface.
+func (e *ValidationError) Unwrap() error {
+	return e.err
+}
+
+// IsValidationError returns a boolean indicating whether the error is a validaton error.
+func IsValidationError(err error) bool {
+	if err == nil {
+		return false
+	}
+	var e *ValidationError
+	return errors.As(err, &e)
 }
 
 // NotFoundError returns when trying to fetch a specific entity and it was not found in the database.
@@ -219,45 +267,4 @@ func rollback(tx dialect.Tx, err error) error {
 		return err
 	}
 	return err
-}
-
-// insertLastID invokes the insert query on the transaction and returns the LastInsertID.
-func insertLastID(ctx context.Context, tx dialect.Tx, insert *sql.InsertBuilder) (int64, error) {
-	query, args := insert.Query()
-	// PostgreSQL does not support the LastInsertId() method of sql.Result
-	// on Exec, and should be extracted manually using the `RETURNING` clause.
-	if insert.Dialect() == dialect.Postgres {
-		rows := &sql.Rows{}
-		if err := tx.Query(ctx, query, args, rows); err != nil {
-			return 0, err
-		}
-		defer rows.Close()
-		if !rows.Next() {
-			return 0, fmt.Errorf("no rows found for query: %v", query)
-		}
-		var id int64
-		if err := rows.Scan(&id); err != nil {
-			return 0, err
-		}
-		return id, nil
-	}
-	// MySQL, SQLite, etc.
-	var res sql.Result
-	if err := tx.Exec(ctx, query, args, &res); err != nil {
-		return 0, err
-	}
-	id, err := res.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-	return id, nil
-}
-
-// keys returns the keys/ids from the edge map.
-func keys(m map[int]struct{}) []int {
-	s := make([]int, 0, len(m))
-	for id := range m {
-		s = append(s, id)
-	}
-	return s
 }

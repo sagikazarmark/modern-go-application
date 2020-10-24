@@ -6,9 +6,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/facebookincubator/ent/dialect/sql"
-	"github.com/facebookincubator/ent/dialect/sql/sqlgraph"
-	"github.com/facebookincubator/ent/schema/field"
+	"github.com/facebook/ent/dialect/sql"
+	"github.com/facebook/ent/dialect/sql/sqlgraph"
+	"github.com/facebook/ent/schema/field"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/predicate"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/todoitem"
 )
@@ -43,6 +43,7 @@ func (tid *TodoItemDelete) Exec(ctx context.Context) (int, error) {
 			}
 			tid.mutation = mutation
 			affected, err = tid.sqlExec(ctx)
+			mutation.done = true
 			return affected, err
 		})
 		for i := len(tid.hooks) - 1; i >= 0; i-- {

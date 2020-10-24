@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/facebookincubator/ent/dialect/sql"
-	"github.com/facebookincubator/ent/dialect/sql/sqlgraph"
-	"github.com/facebookincubator/ent/schema/field"
+	"github.com/facebook/ent/dialect/sql"
+	"github.com/facebook/ent/dialect/sql/sqlgraph"
+	"github.com/facebook/ent/schema/field"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/predicate"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/todoitem"
 )
@@ -20,7 +20,7 @@ type TodoItemQuery struct {
 	config
 	limit      *int
 	offset     *int
-	order      []Order
+	order      []OrderFunc
 	unique     []string
 	predicates []predicate.TodoItem
 	// intermediate query (i.e. traversal path).
@@ -47,30 +47,30 @@ func (tiq *TodoItemQuery) Offset(offset int) *TodoItemQuery {
 }
 
 // Order adds an order step to the query.
-func (tiq *TodoItemQuery) Order(o ...Order) *TodoItemQuery {
+func (tiq *TodoItemQuery) Order(o ...OrderFunc) *TodoItemQuery {
 	tiq.order = append(tiq.order, o...)
 	return tiq
 }
 
 // First returns the first TodoItem entity in the query. Returns *NotFoundError when no todoitem was found.
 func (tiq *TodoItemQuery) First(ctx context.Context) (*TodoItem, error) {
-	tis, err := tiq.Limit(1).All(ctx)
+	nodes, err := tiq.Limit(1).All(ctx)
 	if err != nil {
 		return nil, err
 	}
-	if len(tis) == 0 {
+	if len(nodes) == 0 {
 		return nil, &NotFoundError{todoitem.Label}
 	}
-	return tis[0], nil
+	return nodes[0], nil
 }
 
 // FirstX is like First, but panics if an error occurs.
 func (tiq *TodoItemQuery) FirstX(ctx context.Context) *TodoItem {
-	ti, err := tiq.First(ctx)
+	node, err := tiq.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
-	return ti
+	return node
 }
 
 // FirstID returns the first TodoItem id in the query. Returns *NotFoundError when no id was found.
@@ -97,13 +97,13 @@ func (tiq *TodoItemQuery) FirstXID(ctx context.Context) int {
 
 // Only returns the only TodoItem entity in the query, returns an error if not exactly one entity was returned.
 func (tiq *TodoItemQuery) Only(ctx context.Context) (*TodoItem, error) {
-	tis, err := tiq.Limit(2).All(ctx)
+	nodes, err := tiq.Limit(2).All(ctx)
 	if err != nil {
 		return nil, err
 	}
-	switch len(tis) {
+	switch len(nodes) {
 	case 1:
-		return tis[0], nil
+		return nodes[0], nil
 	case 0:
 		return nil, &NotFoundError{todoitem.Label}
 	default:
@@ -113,11 +113,11 @@ func (tiq *TodoItemQuery) Only(ctx context.Context) (*TodoItem, error) {
 
 // OnlyX is like Only, but panics if an error occurs.
 func (tiq *TodoItemQuery) OnlyX(ctx context.Context) *TodoItem {
-	ti, err := tiq.Only(ctx)
+	node, err := tiq.Only(ctx)
 	if err != nil {
 		panic(err)
 	}
-	return ti
+	return node
 }
 
 // OnlyID returns the only TodoItem id in the query, returns an error if not exactly one id was returned.
@@ -137,8 +137,8 @@ func (tiq *TodoItemQuery) OnlyID(ctx context.Context) (id int, err error) {
 	return
 }
 
-// OnlyXID is like OnlyID, but panics if an error occurs.
-func (tiq *TodoItemQuery) OnlyXID(ctx context.Context) int {
+// OnlyIDX is like OnlyID, but panics if an error occurs.
+func (tiq *TodoItemQuery) OnlyIDX(ctx context.Context) int {
 	id, err := tiq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -156,11 +156,11 @@ func (tiq *TodoItemQuery) All(ctx context.Context) ([]*TodoItem, error) {
 
 // AllX is like All, but panics if an error occurs.
 func (tiq *TodoItemQuery) AllX(ctx context.Context) []*TodoItem {
-	tis, err := tiq.All(ctx)
+	nodes, err := tiq.All(ctx)
 	if err != nil {
 		panic(err)
 	}
-	return tis
+	return nodes
 }
 
 // IDs executes the query and returns a list of TodoItem ids.
@@ -222,7 +222,7 @@ func (tiq *TodoItemQuery) Clone() *TodoItemQuery {
 		config:     tiq.config,
 		limit:      tiq.limit,
 		offset:     tiq.offset,
-		order:      append([]Order{}, tiq.order...),
+		order:      append([]OrderFunc{}, tiq.order...),
 		unique:     append([]string{}, tiq.unique...),
 		predicates: append([]predicate.TodoItem{}, tiq.predicates...),
 		// clone intermediate query.
@@ -362,7 +362,7 @@ func (tiq *TodoItemQuery) querySpec() *sqlgraph.QuerySpec {
 	if ps := tiq.order; len(ps) > 0 {
 		_spec.Order = func(selector *sql.Selector) {
 			for i := range ps {
-				ps[i](selector)
+				ps[i](selector, todoitem.ValidColumn)
 			}
 		}
 	}
@@ -381,7 +381,7 @@ func (tiq *TodoItemQuery) sqlQuery() *sql.Selector {
 		p(selector)
 	}
 	for _, p := range tiq.order {
-		p(selector)
+		p(selector, todoitem.ValidColumn)
 	}
 	if offset := tiq.offset; offset != nil {
 		// limit is mandatory for offset clause. We start
@@ -398,14 +398,14 @@ func (tiq *TodoItemQuery) sqlQuery() *sql.Selector {
 type TodoItemGroupBy struct {
 	config
 	fields []string
-	fns    []Aggregate
+	fns    []AggregateFunc
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (tigb *TodoItemGroupBy) Aggregate(fns ...Aggregate) *TodoItemGroupBy {
+func (tigb *TodoItemGroupBy) Aggregate(fns ...AggregateFunc) *TodoItemGroupBy {
 	tigb.fns = append(tigb.fns, fns...)
 	return tigb
 }
@@ -448,6 +448,32 @@ func (tigb *TodoItemGroupBy) StringsX(ctx context.Context) []string {
 	return v
 }
 
+// String returns a single string from group-by. It is only allowed when querying group-by with one field.
+func (tigb *TodoItemGroupBy) String(ctx context.Context) (_ string, err error) {
+	var v []string
+	if v, err = tigb.Strings(ctx); err != nil {
+		return
+	}
+	switch len(v) {
+	case 1:
+		return v[0], nil
+	case 0:
+		err = &NotFoundError{todoitem.Label}
+	default:
+		err = fmt.Errorf("ent: TodoItemGroupBy.Strings returned %d results when one was expected", len(v))
+	}
+	return
+}
+
+// StringX is like String, but panics if an error occurs.
+func (tigb *TodoItemGroupBy) StringX(ctx context.Context) string {
+	v, err := tigb.String(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+
 // Ints returns list of ints from group-by. It is only allowed when querying group-by with one field.
 func (tigb *TodoItemGroupBy) Ints(ctx context.Context) ([]int, error) {
 	if len(tigb.fields) > 1 {
@@ -463,6 +489,32 @@ func (tigb *TodoItemGroupBy) Ints(ctx context.Context) ([]int, error) {
 // IntsX is like Ints, but panics if an error occurs.
 func (tigb *TodoItemGroupBy) IntsX(ctx context.Context) []int {
 	v, err := tigb.Ints(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// Int returns a single int from group-by. It is only allowed when querying group-by with one field.
+func (tigb *TodoItemGroupBy) Int(ctx context.Context) (_ int, err error) {
+	var v []int
+	if v, err = tigb.Ints(ctx); err != nil {
+		return
+	}
+	switch len(v) {
+	case 1:
+		return v[0], nil
+	case 0:
+		err = &NotFoundError{todoitem.Label}
+	default:
+		err = fmt.Errorf("ent: TodoItemGroupBy.Ints returned %d results when one was expected", len(v))
+	}
+	return
+}
+
+// IntX is like Int, but panics if an error occurs.
+func (tigb *TodoItemGroupBy) IntX(ctx context.Context) int {
+	v, err := tigb.Int(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -490,6 +542,32 @@ func (tigb *TodoItemGroupBy) Float64sX(ctx context.Context) []float64 {
 	return v
 }
 
+// Float64 returns a single float64 from group-by. It is only allowed when querying group-by with one field.
+func (tigb *TodoItemGroupBy) Float64(ctx context.Context) (_ float64, err error) {
+	var v []float64
+	if v, err = tigb.Float64s(ctx); err != nil {
+		return
+	}
+	switch len(v) {
+	case 1:
+		return v[0], nil
+	case 0:
+		err = &NotFoundError{todoitem.Label}
+	default:
+		err = fmt.Errorf("ent: TodoItemGroupBy.Float64s returned %d results when one was expected", len(v))
+	}
+	return
+}
+
+// Float64X is like Float64, but panics if an error occurs.
+func (tigb *TodoItemGroupBy) Float64X(ctx context.Context) float64 {
+	v, err := tigb.Float64(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+
 // Bools returns list of bools from group-by. It is only allowed when querying group-by with one field.
 func (tigb *TodoItemGroupBy) Bools(ctx context.Context) ([]bool, error) {
 	if len(tigb.fields) > 1 {
@@ -511,9 +589,44 @@ func (tigb *TodoItemGroupBy) BoolsX(ctx context.Context) []bool {
 	return v
 }
 
+// Bool returns a single bool from group-by. It is only allowed when querying group-by with one field.
+func (tigb *TodoItemGroupBy) Bool(ctx context.Context) (_ bool, err error) {
+	var v []bool
+	if v, err = tigb.Bools(ctx); err != nil {
+		return
+	}
+	switch len(v) {
+	case 1:
+		return v[0], nil
+	case 0:
+		err = &NotFoundError{todoitem.Label}
+	default:
+		err = fmt.Errorf("ent: TodoItemGroupBy.Bools returned %d results when one was expected", len(v))
+	}
+	return
+}
+
+// BoolX is like Bool, but panics if an error occurs.
+func (tigb *TodoItemGroupBy) BoolX(ctx context.Context) bool {
+	v, err := tigb.Bool(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+
 func (tigb *TodoItemGroupBy) sqlScan(ctx context.Context, v interface{}) error {
+	for _, f := range tigb.fields {
+		if !todoitem.ValidColumn(f) {
+			return &ValidationError{Name: f, err: fmt.Errorf("invalid field %q for group-by", f)}
+		}
+	}
+	selector := tigb.sqlQuery()
+	if err := selector.Err(); err != nil {
+		return err
+	}
 	rows := &sql.Rows{}
-	query, args := tigb.sqlQuery().Query()
+	query, args := selector.Query()
 	if err := tigb.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
@@ -526,7 +639,7 @@ func (tigb *TodoItemGroupBy) sqlQuery() *sql.Selector {
 	columns := make([]string, 0, len(tigb.fields)+len(tigb.fns))
 	columns = append(columns, tigb.fields...)
 	for _, fn := range tigb.fns {
-		columns = append(columns, fn(selector))
+		columns = append(columns, fn(selector, todoitem.ValidColumn))
 	}
 	return selector.Select(columns...).GroupBy(tigb.fields...)
 }
@@ -578,6 +691,32 @@ func (tis *TodoItemSelect) StringsX(ctx context.Context) []string {
 	return v
 }
 
+// String returns a single string from selector. It is only allowed when selecting one field.
+func (tis *TodoItemSelect) String(ctx context.Context) (_ string, err error) {
+	var v []string
+	if v, err = tis.Strings(ctx); err != nil {
+		return
+	}
+	switch len(v) {
+	case 1:
+		return v[0], nil
+	case 0:
+		err = &NotFoundError{todoitem.Label}
+	default:
+		err = fmt.Errorf("ent: TodoItemSelect.Strings returned %d results when one was expected", len(v))
+	}
+	return
+}
+
+// StringX is like String, but panics if an error occurs.
+func (tis *TodoItemSelect) StringX(ctx context.Context) string {
+	v, err := tis.String(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+
 // Ints returns list of ints from selector. It is only allowed when selecting one field.
 func (tis *TodoItemSelect) Ints(ctx context.Context) ([]int, error) {
 	if len(tis.fields) > 1 {
@@ -593,6 +732,32 @@ func (tis *TodoItemSelect) Ints(ctx context.Context) ([]int, error) {
 // IntsX is like Ints, but panics if an error occurs.
 func (tis *TodoItemSelect) IntsX(ctx context.Context) []int {
 	v, err := tis.Ints(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// Int returns a single int from selector. It is only allowed when selecting one field.
+func (tis *TodoItemSelect) Int(ctx context.Context) (_ int, err error) {
+	var v []int
+	if v, err = tis.Ints(ctx); err != nil {
+		return
+	}
+	switch len(v) {
+	case 1:
+		return v[0], nil
+	case 0:
+		err = &NotFoundError{todoitem.Label}
+	default:
+		err = fmt.Errorf("ent: TodoItemSelect.Ints returned %d results when one was expected", len(v))
+	}
+	return
+}
+
+// IntX is like Int, but panics if an error occurs.
+func (tis *TodoItemSelect) IntX(ctx context.Context) int {
+	v, err := tis.Int(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -620,6 +785,32 @@ func (tis *TodoItemSelect) Float64sX(ctx context.Context) []float64 {
 	return v
 }
 
+// Float64 returns a single float64 from selector. It is only allowed when selecting one field.
+func (tis *TodoItemSelect) Float64(ctx context.Context) (_ float64, err error) {
+	var v []float64
+	if v, err = tis.Float64s(ctx); err != nil {
+		return
+	}
+	switch len(v) {
+	case 1:
+		return v[0], nil
+	case 0:
+		err = &NotFoundError{todoitem.Label}
+	default:
+		err = fmt.Errorf("ent: TodoItemSelect.Float64s returned %d results when one was expected", len(v))
+	}
+	return
+}
+
+// Float64X is like Float64, but panics if an error occurs.
+func (tis *TodoItemSelect) Float64X(ctx context.Context) float64 {
+	v, err := tis.Float64(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+
 // Bools returns list of bools from selector. It is only allowed when selecting one field.
 func (tis *TodoItemSelect) Bools(ctx context.Context) ([]bool, error) {
 	if len(tis.fields) > 1 {
@@ -641,7 +832,38 @@ func (tis *TodoItemSelect) BoolsX(ctx context.Context) []bool {
 	return v
 }
 
+// Bool returns a single bool from selector. It is only allowed when selecting one field.
+func (tis *TodoItemSelect) Bool(ctx context.Context) (_ bool, err error) {
+	var v []bool
+	if v, err = tis.Bools(ctx); err != nil {
+		return
+	}
+	switch len(v) {
+	case 1:
+		return v[0], nil
+	case 0:
+		err = &NotFoundError{todoitem.Label}
+	default:
+		err = fmt.Errorf("ent: TodoItemSelect.Bools returned %d results when one was expected", len(v))
+	}
+	return
+}
+
+// BoolX is like Bool, but panics if an error occurs.
+func (tis *TodoItemSelect) BoolX(ctx context.Context) bool {
+	v, err := tis.Bool(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+
 func (tis *TodoItemSelect) sqlScan(ctx context.Context, v interface{}) error {
+	for _, f := range tis.fields {
+		if !todoitem.ValidColumn(f) {
+			return &ValidationError{Name: f, err: fmt.Errorf("invalid field %q for selection", f)}
+		}
+	}
 	rows := &sql.Rows{}
 	query, args := tis.sqlQuery().Query()
 	if err := tis.driver.Query(ctx, query, args, rows); err != nil {

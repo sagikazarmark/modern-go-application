@@ -10,12 +10,18 @@ const (
 	// Label holds the string label denoting the todoitem type in the database.
 	Label = "todo_item"
 	// FieldID holds the string denoting the id field in the database.
-	FieldID        = "id"         // FieldUID holds the string denoting the uid vertex property in the database.
-	FieldUID       = "uid"        // FieldTitle holds the string denoting the title vertex property in the database.
-	FieldTitle     = "title"      // FieldCompleted holds the string denoting the completed vertex property in the database.
-	FieldCompleted = "completed"  // FieldOrder holds the string denoting the order vertex property in the database.
-	FieldOrder     = "order"      // FieldCreatedAt holds the string denoting the created_at vertex property in the database.
-	FieldCreatedAt = "created_at" // FieldUpdatedAt holds the string denoting the updated_at vertex property in the database.
+	FieldID = "id"
+	// FieldUID holds the string denoting the uid field in the database.
+	FieldUID = "uid"
+	// FieldTitle holds the string denoting the title field in the database.
+	FieldTitle = "title"
+	// FieldCompleted holds the string denoting the completed field in the database.
+	FieldCompleted = "completed"
+	// FieldOrder holds the string denoting the order field in the database.
+	FieldOrder = "order"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
 
 	// Table holds the table name of the todoitem in the database.
@@ -31,6 +37,16 @@ var Columns = []string{
 	FieldOrder,
 	FieldCreatedAt,
 	FieldUpdatedAt,
+}
+
+// ValidColumn reports if the column name is valid (part of the table columns).
+func ValidColumn(column string) bool {
+	for i := range Columns {
+		if column == Columns[i] {
+			return true
+		}
+	}
+	return false
 }
 
 var (
