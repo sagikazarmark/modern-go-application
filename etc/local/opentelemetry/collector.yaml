@@ -1,0 +1,30 @@
+receivers:
+    otlp:
+        protocols:
+            grpc:
+                endpoint: "0.0.0.0:55680"
+
+processors:
+extensions:
+    health_check: {}
+
+exporters:
+    jaeger:
+        endpoint: "jaeger:14250"
+        insecure: true
+    prometheus:
+        endpoint: 127.0.0.1:8889
+        namespace: "mga"
+    logging:
+
+service:
+    extensions: [health_check]
+    pipelines:
+        traces:
+            receivers: [otlp]
+            processors: []
+            exporters: [jaeger, logging]
+        metrics:
+            receivers: [otlp]
+            processors: []
+            exporters: [prometheus, logging]

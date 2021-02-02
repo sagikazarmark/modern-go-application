@@ -10,7 +10,6 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message"
 	entsql "github.com/facebook/ent/dialect/sql"
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-kit/kit/tracing/opencensus"
 	kitgrpc "github.com/go-kit/kit/transport/grpc"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/goph/idgen/ulidgen"
@@ -25,6 +24,7 @@ import (
 	todov1 "github.com/sagikazarmark/todobackend-go-kit/api/todo/v1"
 	"github.com/sagikazarmark/todobackend-go-kit/todo"
 	"github.com/sagikazarmark/todobackend-go-kit/todo/tododriver"
+	"go.opentelemetry.io/otel/api/trace"
 	"google.golang.org/grpc"
 	watermilllog "logur.dev/integration/watermill"
 
@@ -36,6 +36,7 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/migrate"
 	tododriver2 "github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/tododriver"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todogen"
+	"github.com/sagikazarmark/modern-go-application/pkg/otelgokit"
 )
 
 const todoTopic = "todo"
@@ -47,16 +48,20 @@ func InitializeApp(
 	publisher message.Publisher,
 	storage string,
 	db *sql.DB,
+	tracerProvider trace.TracerProvider,
 	logger Logger,
 	errorHandler ErrorHandler, // nolint: interfacer
 ) {
 	endpointMiddleware := []endpoint.Middleware{
 		correlation.Middleware(),
-		opencensus.TraceEndpoint("", opencensus.WithSpanName(func(ctx context.Context, _ string) string {
-			name, _ := kitxendpoint.OperationName(ctx)
+		otelgokit.EndpointMiddleware(
+			otelgokit.WithTracerProvider(tracerProvider),
+			otelgokit.WithOperationGetter(func(ctx context.Context, _ string) string {
+				operation, _ := kitxendpoint.OperationName(ctx)
 
-			return name
-		})),
+				return operation
+			}),
+		),
 		appkitendpoint.LoggingMiddleware(logger),
 	}
 

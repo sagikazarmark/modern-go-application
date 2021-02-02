@@ -36,7 +36,7 @@ services:
             - ./etc/local/grafana/provisioning:/etc/grafana/provisioning
 
     jaeger:
-        image: jaegertracing/all-in-one:1.13.1
+        image: jaegertracing/all-in-one:1.20
 
     oc-collector:
         image: omnition/opencensus-collector:0.1.10
@@ -51,5 +51,13 @@ services:
         command: ["--config=/etc/opencensus/agent.yaml"]
         volumes:
             - ./etc/local/opencensus/:/etc/opencensus/:ro
+        depends_on:
+            - oc-collector
+
+    otel-collector:
+        image: otel/opentelemetry-collector:0.13.0
+        command: ["/otelcol", "--config=/etc/opentelemetry/collector.yaml"]
+        volumes:
+            - ./etc/local/opentelemetry/:/etc/opentelemetry/:ro
         depends_on:
             - oc-collector

@@ -18,6 +18,16 @@ sampling = { sampler = "always" }
 [opencensus.prometheus]
 enabled = false
 
+[opentelemetry.exporter]
+enabled = false
+address = "127.0.0.1:55680"
+insecure = false
+reconnectionPeriod = "5s"
+
+[opentelemetry.trace]
+sampling = { sampler = "always" }
+# sampling = { sampler = "probability", fraction = 0.5 }
+
 [app]
 httpAddr = ":8000"
 grpcAddr = ":8001"

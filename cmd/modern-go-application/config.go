@@ -12,6 +12,7 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/log"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/opencensus"
+	"github.com/sagikazarmark/modern-go-application/internal/platform/opentelemetry"
 )
 
 // configuration holds any kind of configuration that comes from the outside world and
@@ -35,6 +36,17 @@ type configuration struct {
 		}
 
 		Trace opencensus.TraceConfig
+	}
+
+	// OpenTelemetry configuration
+	OpenTelemetry struct {
+		Exporter struct {
+			Enabled bool
+
+			opentelemetry.ExporterConfig `mapstructure:",squash"`
+		}
+
+		Trace opentelemetry.TraceConfig
 	}
 
 	// App configuration

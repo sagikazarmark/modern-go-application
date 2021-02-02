@@ -35,6 +35,15 @@ require (
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.6.1
 	go.opencensus.io v0.22.5
+	go.opentelemetry.io/contrib v0.13.0
+	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.13.0
+	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.13.0
+	go.opentelemetry.io/contrib/instrumentation/host v0.13.0
+	go.opentelemetry.io/contrib/instrumentation/runtime v0.13.0
+	go.opentelemetry.io/otel v0.13.0
+	go.opentelemetry.io/otel/exporters/metric/prometheus v0.13.0
+	go.opentelemetry.io/otel/exporters/otlp v0.13.0
+	go.opentelemetry.io/otel/sdk v0.13.0
 	google.golang.org/genproto v0.0.0-20201022181438-0ff5f38871d5
 	google.golang.org/grpc v1.33.1
 	logur.dev/adapter/logrus v0.5.0

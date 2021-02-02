@@ -11,8 +11,6 @@ import (
 	"syscall"
 	"time"
 
-	"contrib.go.opencensus.io/exporter/ocagent"
-	"contrib.go.opencensus.io/exporter/prometheus"
 	"contrib.go.opencensus.io/integrations/ocsql"
 	"emperror.dev/emperror"
 	"emperror.dev/errors"
@@ -28,19 +26,26 @@ import (
 	"github.com/sagikazarmark/appkit/buildinfo"
 	appkiterrors "github.com/sagikazarmark/appkit/errors"
 	appkitrun "github.com/sagikazarmark/appkit/run"
-	"github.com/sagikazarmark/ocmux"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"go.opencensus.io/plugin/ocgrpc"
-	"go.opencensus.io/plugin/ochttp"
-	"go.opencensus.io/stats/view"
-	"go.opencensus.io/trace"
-	"go.opencensus.io/zpages"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	otelhost "go.opentelemetry.io/contrib/instrumentation/host"
+	otelruntime "go.opentelemetry.io/contrib/instrumentation/runtime"
+	"go.opentelemetry.io/otel"
+	otelglobal "go.opentelemetry.io/otel/api/global"
+	"go.opentelemetry.io/otel/api/metric"
+	"go.opentelemetry.io/otel/api/trace"
+	"go.opentelemetry.io/otel/exporters/metric/prometheus"
+	"go.opentelemetry.io/otel/exporters/otlp"
+	"go.opentelemetry.io/otel/propagators"
+	otelresource "go.opentelemetry.io/otel/sdk/resource"
+	otelsdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/semconv"
 	"google.golang.org/grpc"
 	"logur.dev/logur"
 
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga"
-	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/tododriver"
 	"github.com/sagikazarmark/modern-go-application/internal/common/commonadapter"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/appkit"
 	"github.com/sagikazarmark/modern-go-application/internal/platform/database"
@@ -146,34 +151,49 @@ func main() {
 		telemetryRouter.Handle("/healthz/ready", handler)
 	}
 
-	zpages.Handle(telemetryRouter, "/debug")
+	otelglobal.SetErrorHandler(emperror.WithDetails(errorHandler, "component", "otel"))
 
-	trace.ApplyConfig(config.Opencensus.Trace.Config())
+	var meterProvider metric.MeterProvider
+	{
+		exporter, err := prometheus.NewExportPipeline(prometheus.Config{})
+		emperror.Panic(errors.Wrap(err, "initialize prometheus export pipeline"))
 
-	// Configure OpenCensus exporter
-	if config.Opencensus.Exporter.Enabled {
-		exporter, err := ocagent.NewExporter(append(
-			config.Opencensus.Exporter.Options(),
-			ocagent.WithServiceName(appName),
-		)...)
-		emperror.Panic(err)
+		telemetryRouter.Handle("/metrics", exporter)
 
-		trace.RegisterExporter(exporter)
-		view.RegisterExporter(exporter)
+		meterProvider = exporter.MeterProvider()
+		otelglobal.SetMeterProvider(meterProvider)
+
+		err = otelhost.Start(otelhost.WithMeterProvider(meterProvider))
+		emperror.Panic(errors.Wrap(err, "register host metrics"))
+
+		err = otelruntime.Start(otelruntime.WithMeterProvider(meterProvider))
+		emperror.Panic(errors.Wrap(err, "register runtime metrics"))
 	}
 
-	// Configure Prometheus exporter
-	exporter, err := prometheus.NewExporter(prometheus.Options{
-		OnError: emperror.WithDetails(
-			errorHandler,
-			"component", "opencensus",
-			"exporter", "prometheus",
-		).Handle,
-	})
-	emperror.Panic(err)
+	var tracerProvider trace.TracerProvider
+	if config.OpenTelemetry.Exporter.Enabled {
+		options := config.OpenTelemetry.Exporter.Options()
+		options = append(options, otlp.WithGRPCDialOption(grpc.WithBlock()))
 
-	view.RegisterExporter(exporter)
-	telemetryRouter.Handle("/metrics", exporter)
+		exp, err := otlp.NewExporter(options...)
+		emperror.Panic(errors.Wrap(err, "initialize OTLP exporter"))
+
+		bsp := otelsdktrace.NewBatchSpanProcessor(exp)
+		tracerProvider = otelsdktrace.NewTracerProvider(
+			otelsdktrace.WithConfig(config.OpenTelemetry.Trace.Config()),
+			otelsdktrace.WithResource(otelresource.New(
+				// the service name used to display traces in backends
+				semconv.ServiceNameKey.String(appName),
+			)),
+			otelsdktrace.WithSpanProcessor(bsp),
+		)
+
+		otelglobal.SetTextMapPropagator(otel.NewCompositeTextMapPropagator(propagators.TraceContext{}, propagators.Baggage{}))
+		otelglobal.SetTracerProvider(tracerProvider)
+
+		defer bsp.Shutdown()
+		defer exp.Shutdown(context.Background())
+	}
 
 	// configure graceful restart
 	upg, _ := tableflip.New(tableflip.Options{})
@@ -242,32 +262,7 @@ func main() {
 	publisher = watermill.PublisherCorrelationID(publisher)
 	subscriber = watermill.SubscriberCorrelationID(subscriber)
 
-	// Register stat views
-	err = view.Register(
-		// Health checks
-		health.ViewCheckCountByNameAndStatus,
-		health.ViewCheckStatusByName,
-		health.ViewCheckExecutionTime,
-
-		// HTTP
-		ochttp.ServerRequestCountView,
-		ochttp.ServerRequestBytesView,
-		ochttp.ServerResponseBytesView,
-		ochttp.ServerLatencyView,
-		ochttp.ServerRequestCountByMethod,
-		ochttp.ServerResponseCountByStatusCode,
-
-		// GRPC
-		ocgrpc.ServerReceivedBytesPerRPCView,
-		ocgrpc.ServerSentBytesPerRPCView,
-		ocgrpc.ServerLatencyView,
-		ocgrpc.ServerCompletedRPCsView,
-
-		// Todo
-		tododriver.CreatedTodoItemCountView,
-		tododriver.CompleteTodoItemCountView,
-	)
-	emperror.Panic(errors.Wrap(err, "failed to register stat views"))
+	// TODO: register metrics?
 
 	// Set up app server
 	{
@@ -275,7 +270,10 @@ func main() {
 		logger := logur.WithField(logger, "server", name)
 
 		httpRouter := mux.NewRouter()
-		httpRouter.Use(ocmux.Middleware())
+		httpRouter.Use(otelmux.Middleware(
+			fmt.Sprintf("%s-http", appName),
+			otelmux.WithTracerProvider(tracerProvider),
+		))
 
 		cors := handlers.CORS(
 			handlers.AllowedOrigins([]string{"*"}),
@@ -283,27 +281,18 @@ func main() {
 			handlers.AllowedHeaders([]string{"content-type"}),
 		)
 
+		// TODO: add otelhttp
 		httpServer := &http.Server{
-			Handler: &ochttp.Handler{
-				// Handler: httpRouter,
-				Handler: cors(httpRouter),
-				StartOptions: trace.StartOptions{
-					Sampler:  trace.AlwaysSample(),
-					SpanKind: trace.SpanKindServer,
-				},
-				IsPublicEndpoint: true,
-			},
+			Handler:  cors(httpRouter),
 			ErrorLog: log.NewErrorStandardLogger(logger),
 		}
 		defer httpServer.Close()
 
-		grpcServer := grpc.NewServer(grpc.StatsHandler(&ocgrpc.ServerHandler{
-			StartOptions: trace.StartOptions{
-				Sampler:  trace.AlwaysSample(),
-				SpanKind: trace.SpanKindServer,
-			},
-			IsPublicEndpoint: true,
-		}))
+		// TODO: no stats handler?
+		grpcServer := grpc.NewServer(
+			grpc.UnaryInterceptor(otelgrpc.UnaryServerInterceptor()),
+			grpc.StreamInterceptor(otelgrpc.StreamServerInterceptor()),
+		)
 		defer grpcServer.Stop()
 
 		// In larger apps, this should be split up into smaller functions
@@ -314,7 +303,7 @@ func main() {
 				appkiterrors.IsServiceError, // filter out service errors
 			)
 
-			mga.InitializeApp(httpRouter, grpcServer, publisher, config.App.Storage, db, logger, errorHandler)
+			mga.InitializeApp(httpRouter, grpcServer, publisher, config.App.Storage, db, tracerProvider, logger, errorHandler)
 
 			h, err := watermill.NewRouter(logger)
 			emperror.Panic(err)
