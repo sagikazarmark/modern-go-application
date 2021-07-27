@@ -12,7 +12,7 @@ require (
 	github.com/99designs/gqlgen v0.11.3
 	github.com/AppsFlyer/go-sundheit v0.2.0
 	github.com/ThreeDotsLabs/watermill v1.1.1
-	github.com/cloudflare/tableflip v1.2.0
+	github.com/cloudflare/tableflip v1.2.1
 	github.com/facebook/ent v0.4.3
 	github.com/go-kit/kit v0.10.0
 	github.com/go-sql-driver/mysql v1.5.1-0.20200311113236-681ffa848bae
