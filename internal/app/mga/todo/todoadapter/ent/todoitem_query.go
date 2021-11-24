@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/facebook/ent/dialect/sql"
-	"github.com/facebook/ent/dialect/sql/sqlgraph"
-	"github.com/facebook/ent/schema/field"
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/schema/field"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/predicate"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/todoitem"
 )
@@ -20,15 +20,16 @@ type TodoItemQuery struct {
 	config
 	limit      *int
 	offset     *int
+	unique     *bool
 	order      []OrderFunc
-	unique     []string
+	fields     []string
 	predicates []predicate.TodoItem
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
 }
 
-// Where adds a new predicate for the builder.
+// Where adds a new predicate for the TodoItemQuery builder.
 func (tiq *TodoItemQuery) Where(ps ...predicate.TodoItem) *TodoItemQuery {
 	tiq.predicates = append(tiq.predicates, ps...)
 	return tiq
@@ -46,13 +47,21 @@ func (tiq *TodoItemQuery) Offset(offset int) *TodoItemQuery {
 	return tiq
 }
 
+// Unique configures the query builder to filter duplicate records on query.
+// By default, unique is set to true, and can be disabled using this method.
+func (tiq *TodoItemQuery) Unique(unique bool) *TodoItemQuery {
+	tiq.unique = &unique
+	return tiq
+}
+
 // Order adds an order step to the query.
 func (tiq *TodoItemQuery) Order(o ...OrderFunc) *TodoItemQuery {
 	tiq.order = append(tiq.order, o...)
 	return tiq
 }
 
-// First returns the first TodoItem entity in the query. Returns *NotFoundError when no todoitem was found.
+// First returns the first TodoItem entity from the query.
+// Returns a *NotFoundError when no TodoItem was found.
 func (tiq *TodoItemQuery) First(ctx context.Context) (*TodoItem, error) {
 	nodes, err := tiq.Limit(1).All(ctx)
 	if err != nil {
@@ -73,7 +82,8 @@ func (tiq *TodoItemQuery) FirstX(ctx context.Context) *TodoItem {
 	return node
 }
 
-// FirstID returns the first TodoItem id in the query. Returns *NotFoundError when no id was found.
+// FirstID returns the first TodoItem ID from the query.
+// Returns a *NotFoundError when no TodoItem ID was found.
 func (tiq *TodoItemQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
 	if ids, err = tiq.Limit(1).IDs(ctx); err != nil {
@@ -86,8 +96,8 @@ func (tiq *TodoItemQuery) FirstID(ctx context.Context) (id int, err error) {
 	return ids[0], nil
 }
 
-// FirstXID is like FirstID, but panics if an error occurs.
-func (tiq *TodoItemQuery) FirstXID(ctx context.Context) int {
+// FirstIDX is like FirstID, but panics if an error occurs.
+func (tiq *TodoItemQuery) FirstIDX(ctx context.Context) int {
 	id, err := tiq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -95,7 +105,9 @@ func (tiq *TodoItemQuery) FirstXID(ctx context.Context) int {
 	return id
 }
 
-// Only returns the only TodoItem entity in the query, returns an error if not exactly one entity was returned.
+// Only returns a single TodoItem entity found by the query, ensuring it only returns one.
+// Returns a *NotSingularError when exactly one TodoItem entity is not found.
+// Returns a *NotFoundError when no TodoItem entities are found.
 func (tiq *TodoItemQuery) Only(ctx context.Context) (*TodoItem, error) {
 	nodes, err := tiq.Limit(2).All(ctx)
 	if err != nil {
@@ -120,7 +132,9 @@ func (tiq *TodoItemQuery) OnlyX(ctx context.Context) *TodoItem {
 	return node
 }
 
-// OnlyID returns the only TodoItem id in the query, returns an error if not exactly one id was returned.
+// OnlyID is like Only, but returns the only TodoItem ID in the query.
+// Returns a *NotSingularError when exactly one TodoItem ID is not found.
+// Returns a *NotFoundError when no entities are found.
 func (tiq *TodoItemQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
 	if ids, err = tiq.Limit(2).IDs(ctx); err != nil {
@@ -163,7 +177,7 @@ func (tiq *TodoItemQuery) AllX(ctx context.Context) []*TodoItem {
 	return nodes
 }
 
-// IDs executes the query and returns a list of TodoItem ids.
+// IDs executes the query and returns a list of TodoItem IDs.
 func (tiq *TodoItemQuery) IDs(ctx context.Context) ([]int, error) {
 	var ids []int
 	if err := tiq.Select(todoitem.FieldID).Scan(ctx, &ids); err != nil {
@@ -215,15 +229,17 @@ func (tiq *TodoItemQuery) ExistX(ctx context.Context) bool {
 	return exist
 }
 
-// Clone returns a duplicate of the query builder, including all associated steps. It can be
+// Clone returns a duplicate of the TodoItemQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
 func (tiq *TodoItemQuery) Clone() *TodoItemQuery {
+	if tiq == nil {
+		return nil
+	}
 	return &TodoItemQuery{
 		config:     tiq.config,
 		limit:      tiq.limit,
 		offset:     tiq.offset,
 		order:      append([]OrderFunc{}, tiq.order...),
-		unique:     append([]string{}, tiq.unique...),
 		predicates: append([]predicate.TodoItem{}, tiq.predicates...),
 		// clone intermediate query.
 		sql:  tiq.sql.Clone(),
@@ -231,7 +247,7 @@ func (tiq *TodoItemQuery) Clone() *TodoItemQuery {
 	}
 }
 
-// GroupBy used to group vertices by one or more fields/columns.
+// GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
 // Example:
@@ -253,12 +269,13 @@ func (tiq *TodoItemQuery) GroupBy(field string, fields ...string) *TodoItemGroup
 		if err := tiq.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		return tiq.sqlQuery(), nil
+		return tiq.sqlQuery(ctx), nil
 	}
 	return group
 }
 
-// Select one or more fields from the given query.
+// Select allows the selection one or more fields/columns for the given query,
+// instead of selecting all fields in the entity.
 //
 // Example:
 //
@@ -270,19 +287,17 @@ func (tiq *TodoItemQuery) GroupBy(field string, fields ...string) *TodoItemGroup
 //		Select(todoitem.FieldUID).
 //		Scan(ctx, &v)
 //
-func (tiq *TodoItemQuery) Select(field string, fields ...string) *TodoItemSelect {
-	selector := &TodoItemSelect{config: tiq.config}
-	selector.fields = append([]string{field}, fields...)
-	selector.path = func(ctx context.Context) (prev *sql.Selector, err error) {
-		if err := tiq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		return tiq.sqlQuery(), nil
-	}
-	return selector
+func (tiq *TodoItemQuery) Select(fields ...string) *TodoItemSelect {
+	tiq.fields = append(tiq.fields, fields...)
+	return &TodoItemSelect{TodoItemQuery: tiq}
 }
 
 func (tiq *TodoItemQuery) prepareQuery(ctx context.Context) error {
+	for _, f := range tiq.fields {
+		if !todoitem.ValidColumn(f) {
+			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
+		}
+	}
 	if tiq.path != nil {
 		prev, err := tiq.path(ctx)
 		if err != nil {
@@ -298,18 +313,17 @@ func (tiq *TodoItemQuery) sqlAll(ctx context.Context) ([]*TodoItem, error) {
 		nodes = []*TodoItem{}
 		_spec = tiq.querySpec()
 	)
-	_spec.ScanValues = func() []interface{} {
+	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
 		node := &TodoItem{config: tiq.config}
 		nodes = append(nodes, node)
-		values := node.scanValues()
-		return values
+		return node.scanValues(columns)
 	}
-	_spec.Assign = func(values ...interface{}) error {
+	_spec.Assign = func(columns []string, values []interface{}) error {
 		if len(nodes) == 0 {
 			return fmt.Errorf("ent: Assign called without calling ScanValues")
 		}
 		node := nodes[len(nodes)-1]
-		return node.assignValues(values...)
+		return node.assignValues(columns, values)
 	}
 	if err := sqlgraph.QueryNodes(ctx, tiq.driver, _spec); err != nil {
 		return nil, err
@@ -328,7 +342,7 @@ func (tiq *TodoItemQuery) sqlCount(ctx context.Context) (int, error) {
 func (tiq *TodoItemQuery) sqlExist(ctx context.Context) (bool, error) {
 	n, err := tiq.sqlCount(ctx)
 	if err != nil {
-		return false, fmt.Errorf("ent: check existence: %v", err)
+		return false, fmt.Errorf("ent: check existence: %w", err)
 	}
 	return n > 0, nil
 }
@@ -346,6 +360,18 @@ func (tiq *TodoItemQuery) querySpec() *sqlgraph.QuerySpec {
 		From:   tiq.sql,
 		Unique: true,
 	}
+	if unique := tiq.unique; unique != nil {
+		_spec.Unique = *unique
+	}
+	if fields := tiq.fields; len(fields) > 0 {
+		_spec.Node.Columns = make([]string, 0, len(fields))
+		_spec.Node.Columns = append(_spec.Node.Columns, todoitem.FieldID)
+		for i := range fields {
+			if fields[i] != todoitem.FieldID {
+				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
+			}
+		}
+	}
 	if ps := tiq.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -362,26 +388,30 @@ func (tiq *TodoItemQuery) querySpec() *sqlgraph.QuerySpec {
 	if ps := tiq.order; len(ps) > 0 {
 		_spec.Order = func(selector *sql.Selector) {
 			for i := range ps {
-				ps[i](selector, todoitem.ValidColumn)
+				ps[i](selector)
 			}
 		}
 	}
 	return _spec
 }
 
-func (tiq *TodoItemQuery) sqlQuery() *sql.Selector {
+func (tiq *TodoItemQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(tiq.driver.Dialect())
 	t1 := builder.Table(todoitem.Table)
-	selector := builder.Select(t1.Columns(todoitem.Columns...)...).From(t1)
+	columns := tiq.fields
+	if len(columns) == 0 {
+		columns = todoitem.Columns
+	}
+	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if tiq.sql != nil {
 		selector = tiq.sql
-		selector.Select(selector.Columns(todoitem.Columns...)...)
+		selector.Select(selector.Columns(columns...)...)
 	}
 	for _, p := range tiq.predicates {
 		p(selector)
 	}
 	for _, p := range tiq.order {
-		p(selector, todoitem.ValidColumn)
+		p(selector)
 	}
 	if offset := tiq.offset; offset != nil {
 		// limit is mandatory for offset clause. We start
@@ -394,7 +424,7 @@ func (tiq *TodoItemQuery) sqlQuery() *sql.Selector {
 	return selector
 }
 
-// TodoItemGroupBy is the builder for group-by TodoItem entities.
+// TodoItemGroupBy is the group-by builder for TodoItem entities.
 type TodoItemGroupBy struct {
 	config
 	fields []string
@@ -410,7 +440,7 @@ func (tigb *TodoItemGroupBy) Aggregate(fns ...AggregateFunc) *TodoItemGroupBy {
 	return tigb
 }
 
-// Scan applies the group-by query and scan the result into the given value.
+// Scan applies the group-by query and scans the result into the given value.
 func (tigb *TodoItemGroupBy) Scan(ctx context.Context, v interface{}) error {
 	query, err := tigb.path(ctx)
 	if err != nil {
@@ -427,7 +457,8 @@ func (tigb *TodoItemGroupBy) ScanX(ctx context.Context, v interface{}) {
 	}
 }
 
-// Strings returns list of strings from group-by. It is only allowed when querying group-by with one field.
+// Strings returns list of strings from group-by.
+// It is only allowed when executing a group-by query with one field.
 func (tigb *TodoItemGroupBy) Strings(ctx context.Context) ([]string, error) {
 	if len(tigb.fields) > 1 {
 		return nil, errors.New("ent: TodoItemGroupBy.Strings is not achievable when grouping more than 1 field")
@@ -448,7 +479,8 @@ func (tigb *TodoItemGroupBy) StringsX(ctx context.Context) []string {
 	return v
 }
 
-// String returns a single string from group-by. It is only allowed when querying group-by with one field.
+// String returns a single string from a group-by query.
+// It is only allowed when executing a group-by query with one field.
 func (tigb *TodoItemGroupBy) String(ctx context.Context) (_ string, err error) {
 	var v []string
 	if v, err = tigb.Strings(ctx); err != nil {
@@ -474,7 +506,8 @@ func (tigb *TodoItemGroupBy) StringX(ctx context.Context) string {
 	return v
 }
 
-// Ints returns list of ints from group-by. It is only allowed when querying group-by with one field.
+// Ints returns list of ints from group-by.
+// It is only allowed when executing a group-by query with one field.
 func (tigb *TodoItemGroupBy) Ints(ctx context.Context) ([]int, error) {
 	if len(tigb.fields) > 1 {
 		return nil, errors.New("ent: TodoItemGroupBy.Ints is not achievable when grouping more than 1 field")
@@ -495,7 +528,8 @@ func (tigb *TodoItemGroupBy) IntsX(ctx context.Context) []int {
 	return v
 }
 
-// Int returns a single int from group-by. It is only allowed when querying group-by with one field.
+// Int returns a single int from a group-by query.
+// It is only allowed when executing a group-by query with one field.
 func (tigb *TodoItemGroupBy) Int(ctx context.Context) (_ int, err error) {
 	var v []int
 	if v, err = tigb.Ints(ctx); err != nil {
@@ -521,7 +555,8 @@ func (tigb *TodoItemGroupBy) IntX(ctx context.Context) int {
 	return v
 }
 
-// Float64s returns list of float64s from group-by. It is only allowed when querying group-by with one field.
+// Float64s returns list of float64s from group-by.
+// It is only allowed when executing a group-by query with one field.
 func (tigb *TodoItemGroupBy) Float64s(ctx context.Context) ([]float64, error) {
 	if len(tigb.fields) > 1 {
 		return nil, errors.New("ent: TodoItemGroupBy.Float64s is not achievable when grouping more than 1 field")
@@ -542,7 +577,8 @@ func (tigb *TodoItemGroupBy) Float64sX(ctx context.Context) []float64 {
 	return v
 }
 
-// Float64 returns a single float64 from group-by. It is only allowed when querying group-by with one field.
+// Float64 returns a single float64 from a group-by query.
+// It is only allowed when executing a group-by query with one field.
 func (tigb *TodoItemGroupBy) Float64(ctx context.Context) (_ float64, err error) {
 	var v []float64
 	if v, err = tigb.Float64s(ctx); err != nil {
@@ -568,7 +604,8 @@ func (tigb *TodoItemGroupBy) Float64X(ctx context.Context) float64 {
 	return v
 }
 
-// Bools returns list of bools from group-by. It is only allowed when querying group-by with one field.
+// Bools returns list of bools from group-by.
+// It is only allowed when executing a group-by query with one field.
 func (tigb *TodoItemGroupBy) Bools(ctx context.Context) ([]bool, error) {
 	if len(tigb.fields) > 1 {
 		return nil, errors.New("ent: TodoItemGroupBy.Bools is not achievable when grouping more than 1 field")
@@ -589,7 +626,8 @@ func (tigb *TodoItemGroupBy) BoolsX(ctx context.Context) []bool {
 	return v
 }
 
-// Bool returns a single bool from group-by. It is only allowed when querying group-by with one field.
+// Bool returns a single bool from a group-by query.
+// It is only allowed when executing a group-by query with one field.
 func (tigb *TodoItemGroupBy) Bool(ctx context.Context) (_ bool, err error) {
 	var v []bool
 	if v, err = tigb.Bools(ctx); err != nil {
@@ -635,31 +673,39 @@ func (tigb *TodoItemGroupBy) sqlScan(ctx context.Context, v interface{}) error {
 }
 
 func (tigb *TodoItemGroupBy) sqlQuery() *sql.Selector {
-	selector := tigb.sql
-	columns := make([]string, 0, len(tigb.fields)+len(tigb.fns))
-	columns = append(columns, tigb.fields...)
+	selector := tigb.sql.Select()
+	aggregation := make([]string, 0, len(tigb.fns))
 	for _, fn := range tigb.fns {
-		columns = append(columns, fn(selector, todoitem.ValidColumn))
+		aggregation = append(aggregation, fn(selector))
 	}
-	return selector.Select(columns...).GroupBy(tigb.fields...)
+	// If no columns were selected in a custom aggregation function, the default
+	// selection is the fields used for "group-by", and the aggregation functions.
+	if len(selector.SelectedColumns()) == 0 {
+		columns := make([]string, 0, len(tigb.fields)+len(tigb.fns))
+		for _, f := range tigb.fields {
+			columns = append(columns, selector.C(f))
+		}
+		for _, c := range aggregation {
+			columns = append(columns, c)
+		}
+		selector.Select(columns...)
+	}
+	return selector.GroupBy(selector.Columns(tigb.fields...)...)
 }
 
-// TodoItemSelect is the builder for select fields of TodoItem entities.
+// TodoItemSelect is the builder for selecting fields of TodoItem entities.
 type TodoItemSelect struct {
-	config
-	fields []string
+	*TodoItemQuery
 	// intermediate query (i.e. traversal path).
-	sql  *sql.Selector
-	path func(context.Context) (*sql.Selector, error)
+	sql *sql.Selector
 }
 
-// Scan applies the selector query and scan the result into the given value.
+// Scan applies the selector query and scans the result into the given value.
 func (tis *TodoItemSelect) Scan(ctx context.Context, v interface{}) error {
-	query, err := tis.path(ctx)
-	if err != nil {
+	if err := tis.prepareQuery(ctx); err != nil {
 		return err
 	}
-	tis.sql = query
+	tis.sql = tis.TodoItemQuery.sqlQuery(ctx)
 	return tis.sqlScan(ctx, v)
 }
 
@@ -670,7 +716,7 @@ func (tis *TodoItemSelect) ScanX(ctx context.Context, v interface{}) {
 	}
 }
 
-// Strings returns list of strings from selector. It is only allowed when selecting one field.
+// Strings returns list of strings from a selector. It is only allowed when selecting one field.
 func (tis *TodoItemSelect) Strings(ctx context.Context) ([]string, error) {
 	if len(tis.fields) > 1 {
 		return nil, errors.New("ent: TodoItemSelect.Strings is not achievable when selecting more than 1 field")
@@ -691,7 +737,7 @@ func (tis *TodoItemSelect) StringsX(ctx context.Context) []string {
 	return v
 }
 
-// String returns a single string from selector. It is only allowed when selecting one field.
+// String returns a single string from a selector. It is only allowed when selecting one field.
 func (tis *TodoItemSelect) String(ctx context.Context) (_ string, err error) {
 	var v []string
 	if v, err = tis.Strings(ctx); err != nil {
@@ -717,7 +763,7 @@ func (tis *TodoItemSelect) StringX(ctx context.Context) string {
 	return v
 }
 
-// Ints returns list of ints from selector. It is only allowed when selecting one field.
+// Ints returns list of ints from a selector. It is only allowed when selecting one field.
 func (tis *TodoItemSelect) Ints(ctx context.Context) ([]int, error) {
 	if len(tis.fields) > 1 {
 		return nil, errors.New("ent: TodoItemSelect.Ints is not achievable when selecting more than 1 field")
@@ -738,7 +784,7 @@ func (tis *TodoItemSelect) IntsX(ctx context.Context) []int {
 	return v
 }
 
-// Int returns a single int from selector. It is only allowed when selecting one field.
+// Int returns a single int from a selector. It is only allowed when selecting one field.
 func (tis *TodoItemSelect) Int(ctx context.Context) (_ int, err error) {
 	var v []int
 	if v, err = tis.Ints(ctx); err != nil {
@@ -764,7 +810,7 @@ func (tis *TodoItemSelect) IntX(ctx context.Context) int {
 	return v
 }
 
-// Float64s returns list of float64s from selector. It is only allowed when selecting one field.
+// Float64s returns list of float64s from a selector. It is only allowed when selecting one field.
 func (tis *TodoItemSelect) Float64s(ctx context.Context) ([]float64, error) {
 	if len(tis.fields) > 1 {
 		return nil, errors.New("ent: TodoItemSelect.Float64s is not achievable when selecting more than 1 field")
@@ -785,7 +831,7 @@ func (tis *TodoItemSelect) Float64sX(ctx context.Context) []float64 {
 	return v
 }
 
-// Float64 returns a single float64 from selector. It is only allowed when selecting one field.
+// Float64 returns a single float64 from a selector. It is only allowed when selecting one field.
 func (tis *TodoItemSelect) Float64(ctx context.Context) (_ float64, err error) {
 	var v []float64
 	if v, err = tis.Float64s(ctx); err != nil {
@@ -811,7 +857,7 @@ func (tis *TodoItemSelect) Float64X(ctx context.Context) float64 {
 	return v
 }
 
-// Bools returns list of bools from selector. It is only allowed when selecting one field.
+// Bools returns list of bools from a selector. It is only allowed when selecting one field.
 func (tis *TodoItemSelect) Bools(ctx context.Context) ([]bool, error) {
 	if len(tis.fields) > 1 {
 		return nil, errors.New("ent: TodoItemSelect.Bools is not achievable when selecting more than 1 field")
@@ -832,7 +878,7 @@ func (tis *TodoItemSelect) BoolsX(ctx context.Context) []bool {
 	return v
 }
 
-// Bool returns a single bool from selector. It is only allowed when selecting one field.
+// Bool returns a single bool from a selector. It is only allowed when selecting one field.
 func (tis *TodoItemSelect) Bool(ctx context.Context) (_ bool, err error) {
 	var v []bool
 	if v, err = tis.Bools(ctx); err != nil {
@@ -859,22 +905,11 @@ func (tis *TodoItemSelect) BoolX(ctx context.Context) bool {
 }
 
 func (tis *TodoItemSelect) sqlScan(ctx context.Context, v interface{}) error {
-	for _, f := range tis.fields {
-		if !todoitem.ValidColumn(f) {
-			return &ValidationError{Name: f, err: fmt.Errorf("invalid field %q for selection", f)}
-		}
-	}
 	rows := &sql.Rows{}
-	query, args := tis.sqlQuery().Query()
+	query, args := tis.sql.Query()
 	if err := tis.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
-}
-
-func (tis *TodoItemSelect) sqlQuery() sql.Querier {
-	selector := tis.sql
-	selector.Select(selector.Columns(tis.fields...)...)
-	return selector
 }

@@ -9,7 +9,7 @@ import (
 	// required by schema hooks.
 	_ "github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/runtime"
 
-	"github.com/facebook/ent/dialect/sql/schema"
+	"entgo.io/ent/dialect/sql/schema"
 )
 
 type (

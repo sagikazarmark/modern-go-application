@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/facebook/ent/dialect/sql/sqlgraph"
-	"github.com/facebook/ent/schema/field"
+	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/schema/field"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/todoitem"
 )
 
@@ -20,37 +20,37 @@ type TodoItemCreate struct {
 	hooks    []Hook
 }
 
-// SetUID sets the uid field.
+// SetUID sets the "uid" field.
 func (tic *TodoItemCreate) SetUID(s string) *TodoItemCreate {
 	tic.mutation.SetUID(s)
 	return tic
 }
 
-// SetTitle sets the title field.
+// SetTitle sets the "title" field.
 func (tic *TodoItemCreate) SetTitle(s string) *TodoItemCreate {
 	tic.mutation.SetTitle(s)
 	return tic
 }
 
-// SetCompleted sets the completed field.
+// SetCompleted sets the "completed" field.
 func (tic *TodoItemCreate) SetCompleted(b bool) *TodoItemCreate {
 	tic.mutation.SetCompleted(b)
 	return tic
 }
 
-// SetOrder sets the order field.
+// SetOrder sets the "order" field.
 func (tic *TodoItemCreate) SetOrder(i int) *TodoItemCreate {
 	tic.mutation.SetOrder(i)
 	return tic
 }
 
-// SetCreatedAt sets the created_at field.
+// SetCreatedAt sets the "created_at" field.
 func (tic *TodoItemCreate) SetCreatedAt(t time.Time) *TodoItemCreate {
 	tic.mutation.SetCreatedAt(t)
 	return tic
 }
 
-// SetNillableCreatedAt sets the created_at field if the given value is not nil.
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
 func (tic *TodoItemCreate) SetNillableCreatedAt(t *time.Time) *TodoItemCreate {
 	if t != nil {
 		tic.SetCreatedAt(*t)
@@ -58,13 +58,13 @@ func (tic *TodoItemCreate) SetNillableCreatedAt(t *time.Time) *TodoItemCreate {
 	return tic
 }
 
-// SetUpdatedAt sets the updated_at field.
+// SetUpdatedAt sets the "updated_at" field.
 func (tic *TodoItemCreate) SetUpdatedAt(t time.Time) *TodoItemCreate {
 	tic.mutation.SetUpdatedAt(t)
 	return tic
 }
 
-// SetNillableUpdatedAt sets the updated_at field if the given value is not nil.
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
 func (tic *TodoItemCreate) SetNillableUpdatedAt(t *time.Time) *TodoItemCreate {
 	if t != nil {
 		tic.SetUpdatedAt(*t)
@@ -99,11 +99,17 @@ func (tic *TodoItemCreate) Save(ctx context.Context) (*TodoItem, error) {
 				return nil, err
 			}
 			tic.mutation = mutation
-			node, err = tic.sqlSave(ctx)
+			if node, err = tic.sqlSave(ctx); err != nil {
+				return nil, err
+			}
+			mutation.id = &node.ID
 			mutation.done = true
 			return node, err
 		})
 		for i := len(tic.hooks) - 1; i >= 0; i-- {
+			if tic.hooks[i] == nil {
+				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
+			}
 			mut = tic.hooks[i](mut)
 		}
 		if _, err := mut.Mutate(ctx, tic.mutation); err != nil {
@@ -122,6 +128,19 @@ func (tic *TodoItemCreate) SaveX(ctx context.Context) *TodoItem {
 	return v
 }
 
+// Exec executes the query.
+func (tic *TodoItemCreate) Exec(ctx context.Context) error {
+	_, err := tic.Save(ctx)
+	return err
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (tic *TodoItemCreate) ExecX(ctx context.Context) {
+	if err := tic.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
 // defaults sets the default values of the builder before save.
 func (tic *TodoItemCreate) defaults() {
 	if _, ok := tic.mutation.CreatedAt(); !ok {
@@ -137,27 +156,27 @@ func (tic *TodoItemCreate) defaults() {
 // check runs all checks and user-defined validators on the builder.
 func (tic *TodoItemCreate) check() error {
 	if _, ok := tic.mutation.UID(); !ok {
-		return &ValidationError{Name: "uid", err: errors.New("ent: missing required field \"uid\"")}
+		return &ValidationError{Name: "uid", err: errors.New(`ent: missing required field "uid"`)}
 	}
 	if v, ok := tic.mutation.UID(); ok {
 		if err := todoitem.UIDValidator(v); err != nil {
-			return &ValidationError{Name: "uid", err: fmt.Errorf("ent: validator failed for field \"uid\": %w", err)}
+			return &ValidationError{Name: "uid", err: fmt.Errorf(`ent: validator failed for field "uid": %w`, err)}
 		}
 	}
 	if _, ok := tic.mutation.Title(); !ok {
-		return &ValidationError{Name: "title", err: errors.New("ent: missing required field \"title\"")}
+		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "title"`)}
 	}
 	if _, ok := tic.mutation.Completed(); !ok {
-		return &ValidationError{Name: "completed", err: errors.New("ent: missing required field \"completed\"")}
+		return &ValidationError{Name: "completed", err: errors.New(`ent: missing required field "completed"`)}
 	}
 	if _, ok := tic.mutation.Order(); !ok {
-		return &ValidationError{Name: "order", err: errors.New("ent: missing required field \"order\"")}
+		return &ValidationError{Name: "order", err: errors.New(`ent: missing required field "order"`)}
 	}
 	if _, ok := tic.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New("ent: missing required field \"created_at\"")}
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "created_at"`)}
 	}
 	if _, ok := tic.mutation.UpdatedAt(); !ok {
-		return &ValidationError{Name: "updated_at", err: errors.New("ent: missing required field \"updated_at\"")}
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "updated_at"`)}
 	}
 	return nil
 }
@@ -165,8 +184,8 @@ func (tic *TodoItemCreate) check() error {
 func (tic *TodoItemCreate) sqlSave(ctx context.Context) (*TodoItem, error) {
 	_node, _spec := tic.createSpec()
 	if err := sqlgraph.CreateNode(ctx, tic.driver, _spec); err != nil {
-		if cerr, ok := isSQLConstraintError(err); ok {
-			err = cerr
+		if sqlgraph.IsConstraintError(err) {
+			err = &ConstraintError{err.Error(), err}
 		}
 		return nil, err
 	}
@@ -237,7 +256,7 @@ func (tic *TodoItemCreate) createSpec() (*TodoItem, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
-// TodoItemCreateBulk is the builder for creating a bulk of TodoItem entities.
+// TodoItemCreateBulk is the builder for creating many TodoItem entities in bulk.
 type TodoItemCreateBulk struct {
 	config
 	builders []*TodoItemCreate
@@ -266,19 +285,23 @@ func (ticb *TodoItemCreateBulk) Save(ctx context.Context) ([]*TodoItem, error) {
 				if i < len(mutators)-1 {
 					_, err = mutators[i+1].Mutate(root, ticb.builders[i+1].mutation)
 				} else {
+					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, ticb.driver, &sqlgraph.BatchCreateSpec{Nodes: specs}); err != nil {
-						if cerr, ok := isSQLConstraintError(err); ok {
-							err = cerr
+					if err = sqlgraph.BatchCreate(ctx, ticb.driver, spec); err != nil {
+						if sqlgraph.IsConstraintError(err) {
+							err = &ConstraintError{err.Error(), err}
 						}
 					}
 				}
-				mutation.done = true
 				if err != nil {
 					return nil, err
 				}
-				id := specs[i].ID.Value.(int64)
-				nodes[i].ID = int(id)
+				mutation.id = &nodes[i].ID
+				mutation.done = true
+				if specs[i].ID.Value != nil {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = int(id)
+				}
 				return nodes[i], nil
 			})
 			for i := len(builder.hooks) - 1; i >= 0; i-- {
@@ -295,11 +318,24 @@ func (ticb *TodoItemCreateBulk) Save(ctx context.Context) ([]*TodoItem, error) {
 	return nodes, nil
 }
 
-// SaveX calls Save and panics if Save returns an error.
+// SaveX is like Save, but panics if an error occurs.
 func (ticb *TodoItemCreateBulk) SaveX(ctx context.Context) []*TodoItem {
 	v, err := ticb.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return v
+}
+
+// Exec executes the query.
+func (ticb *TodoItemCreateBulk) Exec(ctx context.Context) error {
+	_, err := ticb.Save(ctx)
+	return err
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (ticb *TodoItemCreateBulk) ExecX(ctx context.Context) {
+	if err := ticb.Exec(ctx); err != nil {
+		panic(err)
+	}
 }

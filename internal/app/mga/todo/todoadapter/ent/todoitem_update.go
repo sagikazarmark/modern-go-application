@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/facebook/ent/dialect/sql"
-	"github.com/facebook/ent/dialect/sql/sqlgraph"
-	"github.com/facebook/ent/schema/field"
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/schema/field"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/predicate"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/todoitem"
 )
@@ -17,49 +17,48 @@ import (
 // TodoItemUpdate is the builder for updating TodoItem entities.
 type TodoItemUpdate struct {
 	config
-	hooks      []Hook
-	mutation   *TodoItemMutation
-	predicates []predicate.TodoItem
+	hooks    []Hook
+	mutation *TodoItemMutation
 }
 
-// Where adds a new predicate for the builder.
+// Where appends a list predicates to the TodoItemUpdate builder.
 func (tiu *TodoItemUpdate) Where(ps ...predicate.TodoItem) *TodoItemUpdate {
-	tiu.predicates = append(tiu.predicates, ps...)
+	tiu.mutation.Where(ps...)
 	return tiu
 }
 
-// SetTitle sets the title field.
+// SetTitle sets the "title" field.
 func (tiu *TodoItemUpdate) SetTitle(s string) *TodoItemUpdate {
 	tiu.mutation.SetTitle(s)
 	return tiu
 }
 
-// SetCompleted sets the completed field.
+// SetCompleted sets the "completed" field.
 func (tiu *TodoItemUpdate) SetCompleted(b bool) *TodoItemUpdate {
 	tiu.mutation.SetCompleted(b)
 	return tiu
 }
 
-// SetOrder sets the order field.
+// SetOrder sets the "order" field.
 func (tiu *TodoItemUpdate) SetOrder(i int) *TodoItemUpdate {
 	tiu.mutation.ResetOrder()
 	tiu.mutation.SetOrder(i)
 	return tiu
 }
 
-// AddOrder adds i to order.
+// AddOrder adds i to the "order" field.
 func (tiu *TodoItemUpdate) AddOrder(i int) *TodoItemUpdate {
 	tiu.mutation.AddOrder(i)
 	return tiu
 }
 
-// SetCreatedAt sets the created_at field.
+// SetCreatedAt sets the "created_at" field.
 func (tiu *TodoItemUpdate) SetCreatedAt(t time.Time) *TodoItemUpdate {
 	tiu.mutation.SetCreatedAt(t)
 	return tiu
 }
 
-// SetNillableCreatedAt sets the created_at field if the given value is not nil.
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
 func (tiu *TodoItemUpdate) SetNillableCreatedAt(t *time.Time) *TodoItemUpdate {
 	if t != nil {
 		tiu.SetCreatedAt(*t)
@@ -67,7 +66,7 @@ func (tiu *TodoItemUpdate) SetNillableCreatedAt(t *time.Time) *TodoItemUpdate {
 	return tiu
 }
 
-// SetUpdatedAt sets the updated_at field.
+// SetUpdatedAt sets the "updated_at" field.
 func (tiu *TodoItemUpdate) SetUpdatedAt(t time.Time) *TodoItemUpdate {
 	tiu.mutation.SetUpdatedAt(t)
 	return tiu
@@ -78,7 +77,7 @@ func (tiu *TodoItemUpdate) Mutation() *TodoItemMutation {
 	return tiu.mutation
 }
 
-// Save executes the query and returns the number of rows/vertices matched by this operation.
+// Save executes the query and returns the number of nodes affected by the update operation.
 func (tiu *TodoItemUpdate) Save(ctx context.Context) (int, error) {
 	var (
 		err      error
@@ -99,6 +98,9 @@ func (tiu *TodoItemUpdate) Save(ctx context.Context) (int, error) {
 			return affected, err
 		})
 		for i := len(tiu.hooks) - 1; i >= 0; i-- {
+			if tiu.hooks[i] == nil {
+				return 0, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
+			}
 			mut = tiu.hooks[i](mut)
 		}
 		if _, err := mut.Mutate(ctx, tiu.mutation); err != nil {
@@ -149,7 +151,7 @@ func (tiu *TodoItemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			},
 		},
 	}
-	if ps := tiu.predicates; len(ps) > 0 {
+	if ps := tiu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
@@ -201,8 +203,8 @@ func (tiu *TodoItemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if n, err = sqlgraph.UpdateNodes(ctx, tiu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{todoitem.Label}
-		} else if cerr, ok := isSQLConstraintError(err); ok {
-			err = cerr
+		} else if sqlgraph.IsConstraintError(err) {
+			err = &ConstraintError{err.Error(), err}
 		}
 		return 0, err
 	}
@@ -212,42 +214,43 @@ func (tiu *TodoItemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 // TodoItemUpdateOne is the builder for updating a single TodoItem entity.
 type TodoItemUpdateOne struct {
 	config
+	fields   []string
 	hooks    []Hook
 	mutation *TodoItemMutation
 }
 
-// SetTitle sets the title field.
+// SetTitle sets the "title" field.
 func (tiuo *TodoItemUpdateOne) SetTitle(s string) *TodoItemUpdateOne {
 	tiuo.mutation.SetTitle(s)
 	return tiuo
 }
 
-// SetCompleted sets the completed field.
+// SetCompleted sets the "completed" field.
 func (tiuo *TodoItemUpdateOne) SetCompleted(b bool) *TodoItemUpdateOne {
 	tiuo.mutation.SetCompleted(b)
 	return tiuo
 }
 
-// SetOrder sets the order field.
+// SetOrder sets the "order" field.
 func (tiuo *TodoItemUpdateOne) SetOrder(i int) *TodoItemUpdateOne {
 	tiuo.mutation.ResetOrder()
 	tiuo.mutation.SetOrder(i)
 	return tiuo
 }
 
-// AddOrder adds i to order.
+// AddOrder adds i to the "order" field.
 func (tiuo *TodoItemUpdateOne) AddOrder(i int) *TodoItemUpdateOne {
 	tiuo.mutation.AddOrder(i)
 	return tiuo
 }
 
-// SetCreatedAt sets the created_at field.
+// SetCreatedAt sets the "created_at" field.
 func (tiuo *TodoItemUpdateOne) SetCreatedAt(t time.Time) *TodoItemUpdateOne {
 	tiuo.mutation.SetCreatedAt(t)
 	return tiuo
 }
 
-// SetNillableCreatedAt sets the created_at field if the given value is not nil.
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
 func (tiuo *TodoItemUpdateOne) SetNillableCreatedAt(t *time.Time) *TodoItemUpdateOne {
 	if t != nil {
 		tiuo.SetCreatedAt(*t)
@@ -255,7 +258,7 @@ func (tiuo *TodoItemUpdateOne) SetNillableCreatedAt(t *time.Time) *TodoItemUpdat
 	return tiuo
 }
 
-// SetUpdatedAt sets the updated_at field.
+// SetUpdatedAt sets the "updated_at" field.
 func (tiuo *TodoItemUpdateOne) SetUpdatedAt(t time.Time) *TodoItemUpdateOne {
 	tiuo.mutation.SetUpdatedAt(t)
 	return tiuo
@@ -266,7 +269,14 @@ func (tiuo *TodoItemUpdateOne) Mutation() *TodoItemMutation {
 	return tiuo.mutation
 }
 
-// Save executes the query and returns the updated entity.
+// Select allows selecting one or more fields (columns) of the returned entity.
+// The default is selecting all fields defined in the entity schema.
+func (tiuo *TodoItemUpdateOne) Select(field string, fields ...string) *TodoItemUpdateOne {
+	tiuo.fields = append([]string{field}, fields...)
+	return tiuo
+}
+
+// Save executes the query and returns the updated TodoItem entity.
 func (tiuo *TodoItemUpdateOne) Save(ctx context.Context) (*TodoItem, error) {
 	var (
 		err  error
@@ -287,6 +297,9 @@ func (tiuo *TodoItemUpdateOne) Save(ctx context.Context) (*TodoItem, error) {
 			return node, err
 		})
 		for i := len(tiuo.hooks) - 1; i >= 0; i-- {
+			if tiuo.hooks[i] == nil {
+				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
+			}
 			mut = tiuo.hooks[i](mut)
 		}
 		if _, err := mut.Mutate(ctx, tiuo.mutation); err != nil {
@@ -342,6 +355,25 @@ func (tiuo *TodoItemUpdateOne) sqlSave(ctx context.Context) (_node *TodoItem, er
 		return nil, &ValidationError{Name: "ID", err: fmt.Errorf("missing TodoItem.ID for update")}
 	}
 	_spec.Node.ID.Value = id
+	if fields := tiuo.fields; len(fields) > 0 {
+		_spec.Node.Columns = make([]string, 0, len(fields))
+		_spec.Node.Columns = append(_spec.Node.Columns, todoitem.FieldID)
+		for _, f := range fields {
+			if !todoitem.ValidColumn(f) {
+				return nil, &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
+			}
+			if f != todoitem.FieldID {
+				_spec.Node.Columns = append(_spec.Node.Columns, f)
+			}
+		}
+	}
+	if ps := tiuo.mutation.predicates; len(ps) > 0 {
+		_spec.Predicate = func(selector *sql.Selector) {
+			for i := range ps {
+				ps[i](selector)
+			}
+		}
+	}
 	if value, ok := tiuo.mutation.Title(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -386,12 +418,12 @@ func (tiuo *TodoItemUpdateOne) sqlSave(ctx context.Context) (_node *TodoItem, er
 	}
 	_node = &TodoItem{config: tiuo.config}
 	_spec.Assign = _node.assignValues
-	_spec.ScanValues = _node.scanValues()
+	_spec.ScanValues = _node.scanValues
 	if err = sqlgraph.UpdateNode(ctx, tiuo.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{todoitem.Label}
-		} else if cerr, ok := isSQLConstraintError(err); ok {
-			err = cerr
+		} else if sqlgraph.IsConstraintError(err) {
+			err = &ConstraintError{err.Error(), err}
 		}
 		return nil, err
 	}

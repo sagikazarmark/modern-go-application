@@ -8,9 +8,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/predicate"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/todoitem"
 
-	"github.com/facebook/ent"
+	"entgo.io/ent"
 )
 
 const (
@@ -25,8 +26,7 @@ const (
 	TypeTodoItem = "TodoItem"
 )
 
-// TodoItemMutation represents an operation that mutate the TodoItems
-// nodes in the graph.
+// TodoItemMutation represents an operation that mutates the TodoItem nodes in the graph.
 type TodoItemMutation struct {
 	config
 	op            Op
@@ -42,14 +42,15 @@ type TodoItemMutation struct {
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*TodoItem, error)
+	predicates    []predicate.TodoItem
 }
 
 var _ ent.Mutation = (*TodoItemMutation)(nil)
 
-// todoitemOption allows to manage the mutation configuration using functional options.
+// todoitemOption allows management of the mutation configuration using functional options.
 type todoitemOption func(*TodoItemMutation)
 
-// newTodoItemMutation creates new mutation for $n.Name.
+// newTodoItemMutation creates new mutation for the TodoItem entity.
 func newTodoItemMutation(c config, op Op, opts ...todoitemOption) *TodoItemMutation {
 	m := &TodoItemMutation{
 		config:        c,
@@ -63,7 +64,7 @@ func newTodoItemMutation(c config, op Op, opts ...todoitemOption) *TodoItemMutat
 	return m
 }
 
-// withTodoItemID sets the id field of the mutation.
+// withTodoItemID sets the ID field of the mutation.
 func withTodoItemID(id int) todoitemOption {
 	return func(m *TodoItemMutation) {
 		var (
@@ -114,8 +115,8 @@ func (m TodoItemMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
-// ID returns the id value in the mutation. Note that, the id
-// is available only if it was provided to the builder.
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
 func (m *TodoItemMutation) ID() (id int, exists bool) {
 	if m.id == nil {
 		return
@@ -123,12 +124,12 @@ func (m *TodoItemMutation) ID() (id int, exists bool) {
 	return *m.id, true
 }
 
-// SetUID sets the uid field.
+// SetUID sets the "uid" field.
 func (m *TodoItemMutation) SetUID(s string) {
 	m.uid = &s
 }
 
-// UID returns the uid value in the mutation.
+// UID returns the value of the "uid" field in the mutation.
 func (m *TodoItemMutation) UID() (r string, exists bool) {
 	v := m.uid
 	if v == nil {
@@ -137,13 +138,12 @@ func (m *TodoItemMutation) UID() (r string, exists bool) {
 	return *v, true
 }
 
-// OldUID returns the old uid value of the TodoItem.
-// If the TodoItem object wasn't provided to the builder, the object is fetched
-// from the database.
-// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+// OldUID returns the old "uid" field's value of the TodoItem entity.
+// If the TodoItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *TodoItemMutation) OldUID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldUID is allowed only on UpdateOne operations")
+		return v, fmt.Errorf("OldUID is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
 		return v, fmt.Errorf("OldUID requires an ID field in the mutation")
@@ -155,17 +155,17 @@ func (m *TodoItemMutation) OldUID(ctx context.Context) (v string, err error) {
 	return oldValue.UID, nil
 }
 
-// ResetUID reset all changes of the "uid" field.
+// ResetUID resets all changes to the "uid" field.
 func (m *TodoItemMutation) ResetUID() {
 	m.uid = nil
 }
 
-// SetTitle sets the title field.
+// SetTitle sets the "title" field.
 func (m *TodoItemMutation) SetTitle(s string) {
 	m.title = &s
 }
 
-// Title returns the title value in the mutation.
+// Title returns the value of the "title" field in the mutation.
 func (m *TodoItemMutation) Title() (r string, exists bool) {
 	v := m.title
 	if v == nil {
@@ -174,13 +174,12 @@ func (m *TodoItemMutation) Title() (r string, exists bool) {
 	return *v, true
 }
 
-// OldTitle returns the old title value of the TodoItem.
-// If the TodoItem object wasn't provided to the builder, the object is fetched
-// from the database.
-// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+// OldTitle returns the old "title" field's value of the TodoItem entity.
+// If the TodoItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *TodoItemMutation) OldTitle(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldTitle is allowed only on UpdateOne operations")
+		return v, fmt.Errorf("OldTitle is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
 		return v, fmt.Errorf("OldTitle requires an ID field in the mutation")
@@ -192,17 +191,17 @@ func (m *TodoItemMutation) OldTitle(ctx context.Context) (v string, err error) {
 	return oldValue.Title, nil
 }
 
-// ResetTitle reset all changes of the "title" field.
+// ResetTitle resets all changes to the "title" field.
 func (m *TodoItemMutation) ResetTitle() {
 	m.title = nil
 }
 
-// SetCompleted sets the completed field.
+// SetCompleted sets the "completed" field.
 func (m *TodoItemMutation) SetCompleted(b bool) {
 	m.completed = &b
 }
 
-// Completed returns the completed value in the mutation.
+// Completed returns the value of the "completed" field in the mutation.
 func (m *TodoItemMutation) Completed() (r bool, exists bool) {
 	v := m.completed
 	if v == nil {
@@ -211,13 +210,12 @@ func (m *TodoItemMutation) Completed() (r bool, exists bool) {
 	return *v, true
 }
 
-// OldCompleted returns the old completed value of the TodoItem.
-// If the TodoItem object wasn't provided to the builder, the object is fetched
-// from the database.
-// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+// OldCompleted returns the old "completed" field's value of the TodoItem entity.
+// If the TodoItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *TodoItemMutation) OldCompleted(ctx context.Context) (v bool, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldCompleted is allowed only on UpdateOne operations")
+		return v, fmt.Errorf("OldCompleted is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
 		return v, fmt.Errorf("OldCompleted requires an ID field in the mutation")
@@ -229,18 +227,18 @@ func (m *TodoItemMutation) OldCompleted(ctx context.Context) (v bool, err error)
 	return oldValue.Completed, nil
 }
 
-// ResetCompleted reset all changes of the "completed" field.
+// ResetCompleted resets all changes to the "completed" field.
 func (m *TodoItemMutation) ResetCompleted() {
 	m.completed = nil
 }
 
-// SetOrder sets the order field.
+// SetOrder sets the "order" field.
 func (m *TodoItemMutation) SetOrder(i int) {
 	m._order = &i
 	m.add_order = nil
 }
 
-// Order returns the order value in the mutation.
+// Order returns the value of the "order" field in the mutation.
 func (m *TodoItemMutation) Order() (r int, exists bool) {
 	v := m._order
 	if v == nil {
@@ -249,13 +247,12 @@ func (m *TodoItemMutation) Order() (r int, exists bool) {
 	return *v, true
 }
 
-// OldOrder returns the old order value of the TodoItem.
-// If the TodoItem object wasn't provided to the builder, the object is fetched
-// from the database.
-// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+// OldOrder returns the old "order" field's value of the TodoItem entity.
+// If the TodoItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *TodoItemMutation) OldOrder(ctx context.Context) (v int, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldOrder is allowed only on UpdateOne operations")
+		return v, fmt.Errorf("OldOrder is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
 		return v, fmt.Errorf("OldOrder requires an ID field in the mutation")
@@ -267,7 +264,7 @@ func (m *TodoItemMutation) OldOrder(ctx context.Context) (v int, err error) {
 	return oldValue.Order, nil
 }
 
-// AddOrder adds i to order.
+// AddOrder adds i to the "order" field.
 func (m *TodoItemMutation) AddOrder(i int) {
 	if m.add_order != nil {
 		*m.add_order += i
@@ -276,7 +273,7 @@ func (m *TodoItemMutation) AddOrder(i int) {
 	}
 }
 
-// AddedOrder returns the value that was added to the order field in this mutation.
+// AddedOrder returns the value that was added to the "order" field in this mutation.
 func (m *TodoItemMutation) AddedOrder() (r int, exists bool) {
 	v := m.add_order
 	if v == nil {
@@ -285,18 +282,18 @@ func (m *TodoItemMutation) AddedOrder() (r int, exists bool) {
 	return *v, true
 }
 
-// ResetOrder reset all changes of the "order" field.
+// ResetOrder resets all changes to the "order" field.
 func (m *TodoItemMutation) ResetOrder() {
 	m._order = nil
 	m.add_order = nil
 }
 
-// SetCreatedAt sets the created_at field.
+// SetCreatedAt sets the "created_at" field.
 func (m *TodoItemMutation) SetCreatedAt(t time.Time) {
 	m.created_at = &t
 }
 
-// CreatedAt returns the created_at value in the mutation.
+// CreatedAt returns the value of the "created_at" field in the mutation.
 func (m *TodoItemMutation) CreatedAt() (r time.Time, exists bool) {
 	v := m.created_at
 	if v == nil {
@@ -305,13 +302,12 @@ func (m *TodoItemMutation) CreatedAt() (r time.Time, exists bool) {
 	return *v, true
 }
 
-// OldCreatedAt returns the old created_at value of the TodoItem.
-// If the TodoItem object wasn't provided to the builder, the object is fetched
-// from the database.
-// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+// OldCreatedAt returns the old "created_at" field's value of the TodoItem entity.
+// If the TodoItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *TodoItemMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldCreatedAt is allowed only on UpdateOne operations")
+		return v, fmt.Errorf("OldCreatedAt is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
 		return v, fmt.Errorf("OldCreatedAt requires an ID field in the mutation")
@@ -323,17 +319,17 @@ func (m *TodoItemMutation) OldCreatedAt(ctx context.Context) (v time.Time, err e
 	return oldValue.CreatedAt, nil
 }
 
-// ResetCreatedAt reset all changes of the "created_at" field.
+// ResetCreatedAt resets all changes to the "created_at" field.
 func (m *TodoItemMutation) ResetCreatedAt() {
 	m.created_at = nil
 }
 
-// SetUpdatedAt sets the updated_at field.
+// SetUpdatedAt sets the "updated_at" field.
 func (m *TodoItemMutation) SetUpdatedAt(t time.Time) {
 	m.updated_at = &t
 }
 
-// UpdatedAt returns the updated_at value in the mutation.
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
 func (m *TodoItemMutation) UpdatedAt() (r time.Time, exists bool) {
 	v := m.updated_at
 	if v == nil {
@@ -342,13 +338,12 @@ func (m *TodoItemMutation) UpdatedAt() (r time.Time, exists bool) {
 	return *v, true
 }
 
-// OldUpdatedAt returns the old updated_at value of the TodoItem.
-// If the TodoItem object wasn't provided to the builder, the object is fetched
-// from the database.
-// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+// OldUpdatedAt returns the old "updated_at" field's value of the TodoItem entity.
+// If the TodoItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *TodoItemMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldUpdatedAt is allowed only on UpdateOne operations")
+		return v, fmt.Errorf("OldUpdatedAt is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
 		return v, fmt.Errorf("OldUpdatedAt requires an ID field in the mutation")
@@ -360,9 +355,14 @@ func (m *TodoItemMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err e
 	return oldValue.UpdatedAt, nil
 }
 
-// ResetUpdatedAt reset all changes of the "updated_at" field.
+// ResetUpdatedAt resets all changes to the "updated_at" field.
 func (m *TodoItemMutation) ResetUpdatedAt() {
 	m.updated_at = nil
+}
+
+// Where appends a list predicates to the TodoItemMutation builder.
+func (m *TodoItemMutation) Where(ps ...predicate.TodoItem) {
+	m.predicates = append(m.predicates, ps...)
 }
 
 // Op returns the operation name.
@@ -375,9 +375,9 @@ func (m *TodoItemMutation) Type() string {
 	return m.typ
 }
 
-// Fields returns all fields that were changed during
-// this mutation. Note that, in order to get all numeric
-// fields that were in/decremented, call AddedFields().
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
 func (m *TodoItemMutation) Fields() []string {
 	fields := make([]string, 0, 6)
 	if m.uid != nil {
@@ -401,9 +401,9 @@ func (m *TodoItemMutation) Fields() []string {
 	return fields
 }
 
-// Field returns the value of a field with the given name.
-// The second boolean value indicates that this field was
-// not set, or was not define in the schema.
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
 func (m *TodoItemMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case todoitem.FieldUID:
@@ -422,9 +422,9 @@ func (m *TodoItemMutation) Field(name string) (ent.Value, bool) {
 	return nil, false
 }
 
-// OldField returns the old value of the field from the database.
-// An error is returned if the mutation operation is not UpdateOne,
-// or the query to the database was failed.
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
 func (m *TodoItemMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
 	case todoitem.FieldUID:
@@ -443,9 +443,9 @@ func (m *TodoItemMutation) OldField(ctx context.Context, name string) (ent.Value
 	return nil, fmt.Errorf("unknown TodoItem field %s", name)
 }
 
-// SetField sets the value for the given name. It returns an
-// error if the field is not defined in the schema, or if the
-// type mismatch the field type.
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
 func (m *TodoItemMutation) SetField(name string, value ent.Value) error {
 	switch name {
 	case todoitem.FieldUID:
@@ -494,8 +494,8 @@ func (m *TodoItemMutation) SetField(name string, value ent.Value) error {
 	return fmt.Errorf("unknown TodoItem field %s", name)
 }
 
-// AddedFields returns all numeric fields that were incremented
-// or decremented during this mutation.
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
 func (m *TodoItemMutation) AddedFields() []string {
 	var fields []string
 	if m.add_order != nil {
@@ -504,9 +504,9 @@ func (m *TodoItemMutation) AddedFields() []string {
 	return fields
 }
 
-// AddedField returns the numeric value that was in/decremented
-// from a field with the given name. The second value indicates
-// that this field was not set, or was not define in the schema.
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
 func (m *TodoItemMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case todoitem.FieldOrder:
@@ -515,9 +515,9 @@ func (m *TodoItemMutation) AddedField(name string) (ent.Value, bool) {
 	return nil, false
 }
 
-// AddField adds the value for the given name. It returns an
-// error if the field is not defined in the schema, or if the
-// type mismatch the field type.
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
 func (m *TodoItemMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	case todoitem.FieldOrder:
@@ -531,28 +531,27 @@ func (m *TodoItemMutation) AddField(name string, value ent.Value) error {
 	return fmt.Errorf("unknown TodoItem numeric field %s", name)
 }
 
-// ClearedFields returns all nullable fields that were cleared
-// during this mutation.
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
 func (m *TodoItemMutation) ClearedFields() []string {
 	return nil
 }
 
-// FieldCleared returns a boolean indicates if this field was
+// FieldCleared returns a boolean indicating if a field with the given name was
 // cleared in this mutation.
 func (m *TodoItemMutation) FieldCleared(name string) bool {
 	_, ok := m.clearedFields[name]
 	return ok
 }
 
-// ClearField clears the value for the given name. It returns an
+// ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *TodoItemMutation) ClearField(name string) error {
 	return fmt.Errorf("unknown TodoItem nullable field %s", name)
 }
 
-// ResetField resets all changes in the mutation regarding the
-// given field name. It returns an error if the field is not
-// defined in the schema.
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
 func (m *TodoItemMutation) ResetField(name string) error {
 	switch name {
 	case todoitem.FieldUID:
@@ -577,54 +576,50 @@ func (m *TodoItemMutation) ResetField(name string) error {
 	return fmt.Errorf("unknown TodoItem field %s", name)
 }
 
-// AddedEdges returns all edge names that were set/added in this
-// mutation.
+// AddedEdges returns all edge names that were set/added in this mutation.
 func (m *TodoItemMutation) AddedEdges() []string {
 	edges := make([]string, 0, 0)
 	return edges
 }
 
-// AddedIDs returns all ids (to other nodes) that were added for
-// the given edge name.
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
 func (m *TodoItemMutation) AddedIDs(name string) []ent.Value {
 	return nil
 }
 
-// RemovedEdges returns all edge names that were removed in this
-// mutation.
+// RemovedEdges returns all edge names that were removed in this mutation.
 func (m *TodoItemMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 0)
 	return edges
 }
 
-// RemovedIDs returns all ids (to other nodes) that were removed for
-// the given edge name.
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
 func (m *TodoItemMutation) RemovedIDs(name string) []ent.Value {
 	return nil
 }
 
-// ClearedEdges returns all edge names that were cleared in this
-// mutation.
+// ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *TodoItemMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 0)
 	return edges
 }
 
-// EdgeCleared returns a boolean indicates if this edge was
-// cleared in this mutation.
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
 func (m *TodoItemMutation) EdgeCleared(name string) bool {
 	return false
 }
 
-// ClearEdge clears the value for the given name. It returns an
-// error if the edge name is not defined in the schema.
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
 func (m *TodoItemMutation) ClearEdge(name string) error {
 	return fmt.Errorf("unknown TodoItem unique edge %s", name)
 }
 
-// ResetEdge resets all changes in the mutation regarding the
-// given edge name. It returns an error if the edge is not
-// defined in the schema.
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
 func (m *TodoItemMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown TodoItem edge %s", name)
 }

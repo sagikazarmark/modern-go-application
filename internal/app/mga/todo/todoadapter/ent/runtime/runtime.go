@@ -5,6 +5,5 @@ package runtime
 // The schema-stitching logic is generated in github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/runtime.go
 
 const (
-	Version = "v0.4.3"                                          // Version of ent codegen.
-	Sum     = "h1:ds9HENceKzpGBgCRlkZNq6TqBIegwKcF3e5reuV9Z0M=" // Sum of ent codegen.
+	Version = "(devel)" // Version of ent codegen.
 )

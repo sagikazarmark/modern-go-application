@@ -5,11 +5,11 @@ package todoitem
 import (
 	"time"
 
-	"github.com/facebook/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/predicate"
 )
 
-// ID filters vertices based on their identifier.
+// ID filters vertices based on their ID field.
 func ID(id int) predicate.TodoItem {
 	return predicate.TodoItem(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldID), id))
@@ -598,7 +598,7 @@ func UpdatedAtLTE(v time.Time) predicate.TodoItem {
 	})
 }
 
-// And groups list of predicates with the AND operator between them.
+// And groups predicates with the AND operator between them.
 func And(predicates ...predicate.TodoItem) predicate.TodoItem {
 	return predicate.TodoItem(func(s *sql.Selector) {
 		s1 := s.Clone().SetP(nil)
@@ -609,7 +609,7 @@ func And(predicates ...predicate.TodoItem) predicate.TodoItem {
 	})
 }
 
-// Or groups list of predicates with the OR operator between them.
+// Or groups predicates with the OR operator between them.
 func Or(predicates ...predicate.TodoItem) predicate.TodoItem {
 	return predicate.TodoItem(func(s *sql.Selector) {
 		s1 := s.Clone().SetP(nil)

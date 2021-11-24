@@ -3,8 +3,8 @@
 package migrate
 
 import (
-	"github.com/facebook/ent/dialect/sql/schema"
-	"github.com/facebook/ent/schema/field"
+	"entgo.io/ent/dialect/sql/schema"
+	"entgo.io/ent/schema/field"
 )
 
 var (
@@ -20,10 +20,9 @@ var (
 	}
 	// TodoItemsTable holds the schema information for the "todo_items" table.
 	TodoItemsTable = &schema.Table{
-		Name:        "todo_items",
-		Columns:     TodoItemsColumns,
-		PrimaryKey:  []*schema.Column{TodoItemsColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{},
+		Name:       "todo_items",
+		Columns:    TodoItemsColumns,
+		PrimaryKey: []*schema.Column{TodoItemsColumns[0]},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{

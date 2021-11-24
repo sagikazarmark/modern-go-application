@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/facebook/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/todoitem"
 )
 
@@ -31,72 +31,89 @@ type TodoItem struct {
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*TodoItem) scanValues() []interface{} {
-	return []interface{}{
-		&sql.NullInt64{},  // id
-		&sql.NullString{}, // uid
-		&sql.NullString{}, // title
-		&sql.NullBool{},   // completed
-		&sql.NullInt64{},  // order
-		&sql.NullTime{},   // created_at
-		&sql.NullTime{},   // updated_at
+func (*TodoItem) scanValues(columns []string) ([]interface{}, error) {
+	values := make([]interface{}, len(columns))
+	for i := range columns {
+		switch columns[i] {
+		case todoitem.FieldCompleted:
+			values[i] = new(sql.NullBool)
+		case todoitem.FieldID, todoitem.FieldOrder:
+			values[i] = new(sql.NullInt64)
+		case todoitem.FieldUID, todoitem.FieldTitle:
+			values[i] = new(sql.NullString)
+		case todoitem.FieldCreatedAt, todoitem.FieldUpdatedAt:
+			values[i] = new(sql.NullTime)
+		default:
+			return nil, fmt.Errorf("unexpected column %q for type TodoItem", columns[i])
+		}
 	}
+	return values, nil
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the TodoItem fields.
-func (ti *TodoItem) assignValues(values ...interface{}) error {
-	if m, n := len(values), len(todoitem.Columns); m < n {
+func (ti *TodoItem) assignValues(columns []string, values []interface{}) error {
+	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
-	value, ok := values[0].(*sql.NullInt64)
-	if !ok {
-		return fmt.Errorf("unexpected type %T for field id", value)
-	}
-	ti.ID = int(value.Int64)
-	values = values[1:]
-	if value, ok := values[0].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field uid", values[0])
-	} else if value.Valid {
-		ti.UID = value.String
-	}
-	if value, ok := values[1].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field title", values[1])
-	} else if value.Valid {
-		ti.Title = value.String
-	}
-	if value, ok := values[2].(*sql.NullBool); !ok {
-		return fmt.Errorf("unexpected type %T for field completed", values[2])
-	} else if value.Valid {
-		ti.Completed = value.Bool
-	}
-	if value, ok := values[3].(*sql.NullInt64); !ok {
-		return fmt.Errorf("unexpected type %T for field order", values[3])
-	} else if value.Valid {
-		ti.Order = int(value.Int64)
-	}
-	if value, ok := values[4].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field created_at", values[4])
-	} else if value.Valid {
-		ti.CreatedAt = value.Time
-	}
-	if value, ok := values[5].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field updated_at", values[5])
-	} else if value.Valid {
-		ti.UpdatedAt = value.Time
+	for i := range columns {
+		switch columns[i] {
+		case todoitem.FieldID:
+			value, ok := values[i].(*sql.NullInt64)
+			if !ok {
+				return fmt.Errorf("unexpected type %T for field id", value)
+			}
+			ti.ID = int(value.Int64)
+		case todoitem.FieldUID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field uid", values[i])
+			} else if value.Valid {
+				ti.UID = value.String
+			}
+		case todoitem.FieldTitle:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field title", values[i])
+			} else if value.Valid {
+				ti.Title = value.String
+			}
+		case todoitem.FieldCompleted:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field completed", values[i])
+			} else if value.Valid {
+				ti.Completed = value.Bool
+			}
+		case todoitem.FieldOrder:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field order", values[i])
+			} else if value.Valid {
+				ti.Order = int(value.Int64)
+			}
+		case todoitem.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				ti.CreatedAt = value.Time
+			}
+		case todoitem.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				ti.UpdatedAt = value.Time
+			}
+		}
 	}
 	return nil
 }
 
 // Update returns a builder for updating this TodoItem.
-// Note that, you need to call TodoItem.Unwrap() before calling this method, if this TodoItem
+// Note that you need to call TodoItem.Unwrap() before calling this method if this TodoItem
 // was returned from a transaction, and the transaction was committed or rolled back.
 func (ti *TodoItem) Update() *TodoItemUpdateOne {
 	return (&TodoItemClient{config: ti.config}).UpdateOne(ti)
 }
 
-// Unwrap unwraps the entity that was returned from a transaction after it was closed,
-// so that all next queries will be executed through the driver which created the transaction.
+// Unwrap unwraps the TodoItem entity that was returned from a transaction after it was closed,
+// so that all future queries will be executed through the driver which created the transaction.
 func (ti *TodoItem) Unwrap() *TodoItem {
 	tx, ok := ti.config.driver.(*txDriver)
 	if !ok {
