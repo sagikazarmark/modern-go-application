@@ -27,6 +27,7 @@
           protoc-gen-kit
           # gqlgen
           openapi-generator-cli
+          ent
         ];
       in
       { devShell = pkgs.mkShell { buildInputs = devDeps; }; });

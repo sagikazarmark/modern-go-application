@@ -6,9 +6,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/facebook/ent/dialect/sql"
-	"github.com/facebook/ent/dialect/sql/sqlgraph"
-	"github.com/facebook/ent/schema/field"
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/schema/field"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/predicate"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/todoitem"
 )
@@ -16,14 +16,13 @@ import (
 // TodoItemDelete is the builder for deleting a TodoItem entity.
 type TodoItemDelete struct {
 	config
-	hooks      []Hook
-	mutation   *TodoItemMutation
-	predicates []predicate.TodoItem
+	hooks    []Hook
+	mutation *TodoItemMutation
 }
 
-// Where adds a new predicate to the delete builder.
+// Where appends a list predicates to the TodoItemDelete builder.
 func (tid *TodoItemDelete) Where(ps ...predicate.TodoItem) *TodoItemDelete {
-	tid.predicates = append(tid.predicates, ps...)
+	tid.mutation.Where(ps...)
 	return tid
 }
 
@@ -47,6 +46,9 @@ func (tid *TodoItemDelete) Exec(ctx context.Context) (int, error) {
 			return affected, err
 		})
 		for i := len(tid.hooks) - 1; i >= 0; i-- {
+			if tid.hooks[i] == nil {
+				return 0, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
+			}
 			mut = tid.hooks[i](mut)
 		}
 		if _, err := mut.Mutate(ctx, tid.mutation); err != nil {
@@ -75,7 +77,7 @@ func (tid *TodoItemDelete) sqlExec(ctx context.Context) (int, error) {
 			},
 		},
 	}
-	if ps := tid.predicates; len(ps) > 0 {
+	if ps := tid.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
