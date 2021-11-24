@@ -1,9 +1,8 @@
-# Build image
-FROM golang:1.14-alpine3.11 AS builder
+FROM golang:1.17-alpine3.14 AS builder
 
 ENV GOFLAGS="-mod=readonly"
 
-RUN apk add --update --no-cache ca-certificates make git curl mercurial bzr
+RUN apk add --update --no-cache ca-certificates make git curl mercurial
 
 RUN mkdir -p /workspace
 WORKDIR /workspace
@@ -23,17 +22,16 @@ COPY . .
 
 RUN set -xe && \
     if [[ "${BUILD_TARGET}" == "debug" ]]; then \
-        cd /tmp; GOBIN=/workspace/build/debug go get github.com/go-delve/delve/cmd/dlv; cd -; \
-        make build-debug; \
-        mv build/debug /build; \
+    cd /tmp; GOBIN=/workspace/build/debug go get github.com/go-delve/delve/cmd/dlv; cd -; \
+    make build-debug; \
+    mv build/debug /build; \
     else \
-        make build-release; \
-        mv build/release /build; \
+    make build-release; \
+    mv build/release /build; \
     fi
 
 
-# Final image
-FROM alpine:3.11
+FROM alpine:3.14
 
 RUN apk add --update --no-cache ca-certificates tzdata bash curl
 
