@@ -1,21 +1,21 @@
 package landingdriver
 
 import (
+	"io/fs"
 	"io/ioutil"
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/markbates/pkger"
 )
 
 // RegisterHTTPHandlers mounts the HTTP handler for the landing page in a router.
-func RegisterHTTPHandlers(router *mux.Router) {
-	router.Path("/").Methods(http.MethodGet).Handler(Landing())
+func RegisterHTTPHandlers(router *mux.Router, fsys fs.FS) {
+	router.Path("/").Methods(http.MethodGet).Handler(Landing(fsys))
 }
 
 // Landing is the landing page for Modern Go Application.
-func Landing() http.Handler {
-	file, err := pkger.Open("/static/templates/landing.html")
+func Landing(fsys fs.FS) http.Handler {
+	file, err := fsys.Open("/landing.html")
 	if err != nil {
 		panic(err)
 	}
