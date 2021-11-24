@@ -36,6 +36,7 @@ import (
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todoadapter/ent/migrate"
 	tododriver2 "github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/tododriver"
 	"github.com/sagikazarmark/modern-go-application/internal/app/mga/todo/todogen"
+	"github.com/sagikazarmark/modern-go-application/static/templates"
 )
 
 const todoTopic = "todo"
@@ -119,7 +120,7 @@ func InitializeApp(
 		))
 	}
 
-	landingdriver.RegisterHTTPHandlers(httpRouter)
+	landingdriver.RegisterHTTPHandlers(httpRouter, templates.Files())
 	httpRouter.PathPrefix("/httpbin").Handler(http.StripPrefix(
 		"/httpbin",
 		httpbin.MakeHTTPHandler(logger.WithFields(map[string]interface{}{"module": "httpbin"})),
