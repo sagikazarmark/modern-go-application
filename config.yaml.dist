@@ -1,0 +1,36 @@
+log:
+    format: "json"
+    level: "info"
+
+telemetry:
+    addr: ":10000"
+
+opencensus:
+    exporter:
+        enabled: false
+        address: "127.0.0.1:55678"
+        insecure: false
+        reconnectPeriod: "5s"
+
+    trace:
+        sampling:
+            sampler: "always" # probability
+            # fraction: 0.5
+
+    prometheus:
+        enabled: false
+
+app:
+    httpAddr: ":8000"
+    grpcAddr: ":8001"
+
+    storage: "inmemory"
+
+database:
+    host: "localhost"
+    port: 3306
+    user: "root"
+    pass: ""
+    name: "app"
+    params:
+        collation: "utf8mb4_general_ci"
