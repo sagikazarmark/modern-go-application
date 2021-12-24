@@ -69,22 +69,22 @@ const (
 )
 
 func main() {
-	v, p := viper.New(), pflag.NewFlagSet(friendlyAppName, pflag.ExitOnError)
+	v, f := viper.New(), pflag.NewFlagSet(friendlyAppName, pflag.ExitOnError)
 
-	configure(v, p)
+	configure(v, f)
 
-	p.String("config", "", "Configuration file")
-	p.Bool("version", false, "Show version information")
+	f.String("config", "", "Configuration file")
+	f.Bool("version", false, "Show version information")
 
-	_ = p.Parse(os.Args[1:])
+	_ = f.Parse(os.Args[1:])
 
-	if v, _ := p.GetBool("version"); v {
+	if v, _ := f.GetBool("version"); v {
 		fmt.Printf("%s version %s (%s) built on %s\n", friendlyAppName, version, commitHash, buildDate)
 
 		os.Exit(0)
 	}
 
-	if c, _ := p.GetString("config"); c != "" {
+	if c, _ := f.GetString("config"); c != "" {
 		v.SetConfigFile(c)
 	}
 

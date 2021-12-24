@@ -97,7 +97,7 @@ func (c appConfig) Validate() error {
 }
 
 // configure configures some defaults in the Viper instance.
-func configure(v *viper.Viper, p *pflag.FlagSet) {
+func configure(v *viper.Viper, f *pflag.FlagSet) {
 	// Viper settings
 	v.AddConfigPath(".")
 	v.AddConfigPath("$CONFIG_DIR/")
@@ -119,8 +119,8 @@ func configure(v *viper.Viper, p *pflag.FlagSet) {
 	v.RegisterAlias("log.noColor", "no_color")
 
 	// Telemetry configuration
-	p.String("telemetry-addr", ":10000", "Telemetry HTTP server address")
-	_ = v.BindPFlag("telemetry.addr", p.Lookup("telemetry-addr"))
+	f.String("telemetry-addr", ":10000", "Telemetry HTTP server address")
+	_ = v.BindPFlag("telemetry.addr", f.Lookup("telemetry-addr"))
 	v.SetDefault("telemetry.addr", ":10000")
 
 	// OpenCensus configuration
@@ -132,12 +132,12 @@ func configure(v *viper.Viper, p *pflag.FlagSet) {
 	v.SetDefault("opencensus.prometheus.enabled", false)
 
 	// App configuration
-	p.String("http-addr", ":8000", "App HTTP server address")
-	_ = v.BindPFlag("app.httpAddr", p.Lookup("http-addr"))
+	f.String("http-addr", ":8000", "App HTTP server address")
+	_ = v.BindPFlag("app.httpAddr", f.Lookup("http-addr"))
 	v.SetDefault("app.httpAddr", ":8000")
 
-	p.String("grpc-addr", ":8001", "App GRPC server address")
-	_ = v.BindPFlag("app.grpcAddr", p.Lookup("grpc-addr"))
+	f.String("grpc-addr", ":8001", "App GRPC server address")
+	_ = v.BindPFlag("app.grpcAddr", f.Lookup("grpc-addr"))
 	v.SetDefault("app.grpcAddr", ":8001")
 
 	v.SetDefault("app.storage", "inmemory")
