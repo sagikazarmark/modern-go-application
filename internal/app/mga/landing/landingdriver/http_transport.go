@@ -15,7 +15,7 @@ func RegisterHTTPHandlers(router *mux.Router, fsys fs.FS) {
 
 // Landing is the landing page for Modern Go Application.
 func Landing(fsys fs.FS) http.Handler {
-	file, err := fsys.Open("/landing.html")
+	file, err := fsys.Open("landing.html")
 	if err != nil {
 		panic(err)
 	}
