@@ -36,6 +36,18 @@ import (
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/trace"
 	"go.opencensus.io/zpages"
+	otelhost "go.opentelemetry.io/contrib/instrumentation/host"
+	otelruntime "go.opentelemetry.io/contrib/instrumentation/runtime"
+	otelprometheus "go.opentelemetry.io/otel/exporters/prometheus"
+	"go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/otel/metric/global"
+	"go.opentelemetry.io/otel/sdk/export/metric/aggregation"
+	"go.opentelemetry.io/otel/sdk/metric/aggregator/histogram"
+	controller "go.opentelemetry.io/otel/sdk/metric/controller/basic"
+	processor "go.opentelemetry.io/otel/sdk/metric/processor/basic"
+	selector "go.opentelemetry.io/otel/sdk/metric/selector/simple"
+	otelresource "go.opentelemetry.io/otel/sdk/resource"
+	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 	"google.golang.org/grpc"
 	"logur.dev/logur"
 
@@ -173,7 +185,7 @@ func main() {
 	emperror.Panic(err)
 
 	view.RegisterExporter(exporter)
-	telemetryRouter.Handle("/metrics", exporter)
+	// telemetryRouter.Handle("/metrics", exporter)
 
 	// configure graceful restart
 	upg, _ := tableflip.New(tableflip.Options{})
@@ -190,6 +202,52 @@ func main() {
 	}()
 
 	var group run.Group
+
+	otelres, _ := otelresource.Merge(
+		otelresource.Default(),
+		otelresource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceNameKey.String(appName),
+			semconv.ServiceVersionKey.String(version),
+		),
+	)
+
+	// Set up OpenTelemetry metric controller
+	var meterProvider metric.MeterProvider
+	{
+		config := otelprometheus.Config{}
+
+		c := controller.New(
+			processor.NewFactory(
+				selector.NewWithHistogramDistribution(
+					histogram.WithExplicitBoundaries(config.DefaultHistogramBoundaries),
+				),
+				aggregation.CumulativeTemporalitySelector(),
+				processor.WithMemory(true),
+			),
+			controller.WithResource(otelres),
+		)
+
+		exporter, err := otelprometheus.New(config, c)
+		emperror.Panic(errors.Wrap(err, "failed to initialize prometheus exporter"))
+
+		meterProvider = exporter.MeterProvider()
+		global.SetMeterProvider(meterProvider)
+
+		telemetryRouter.Handle("/metrics", exporter)
+	}
+
+	// Configure host and runtime instrumentation
+	{
+		// Yields "not implemented yet" errors
+		otelhost.Version()
+		// err := otelhost.Start(otelhost.WithMeterProvider(meterProvider))
+		// emperror.Panic(errors.Wrap(err, "failed to start host instrumentation"))
+	}
+	{
+		err := otelruntime.Start(otelruntime.WithMeterProvider(meterProvider))
+		emperror.Panic(errors.Wrap(err, "failed to start runtime instrumentation"))
+	}
 
 	// Set up telemetry server
 	{
