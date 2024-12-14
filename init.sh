@@ -33,8 +33,10 @@ function replace() {
             sed -E -e "$1" $2 > ${DEST}/${dest}
         fi
     else
-        sed -E -e "$1" $2 > $2.new
-        mv -f $2.new $2
+        if [[ -f "$2" ]]; then  # Only try to replace if file exists
+            sed -E -e "$1" $2 > $2.new
+            mv -f $2.new $2
+        fi
     fi
 }
 
@@ -44,13 +46,18 @@ function move() {
         mkdir -p $(dirname "${DEST}/${dest}")
         cp -r "$1" ${DEST}/${dest}
     else
-        mv $@
+        if [[ -e "$1" ]]; then  # Only try to move if source exists
+            mkdir -p $(dirname "$2")  # Create target directory if it doesn't exist
+            mv $@
+        fi
     fi
 }
 
 function remove() {
     if [[ -z "${TEST}" ]]; then
-        rm $@
+        if [[ -e "$1" ]]; then  # Only try to remove if file exists
+            rm $@
+        fi
     fi
 }
 
@@ -85,24 +92,50 @@ prompt "Remove init script" "y/N"
 read removeInit
 removeInit=${removeInit:-n}
 
+# Create necessary directories
+mkdir -p .idea/runConfigurations
+mkdir -p .vscode
+
 # IDE configuration
-move .idea/${originalProjectName}.iml .idea/${projectName}.iml
-replace "s|.idea/${originalProjectName}.iml|.idea/${projectName}.iml|g" .idea/modules.xml
+if [[ -f ".idea/${originalProjectName}.iml" ]]; then
+    move ".idea/${originalProjectName}.iml" ".idea/${projectName}.iml"
+    replace "s|${originalProjectName}.iml|${projectName}.iml|g" .idea/modules.xml
+fi
 
 # Run configurations
-replace 's|name="project"|name="'${projectName}'"|' .idea/runConfigurations/All_tests.xml
-replace 's|name="project"|name="'${projectName}'"|; s|value="\$PROJECT_DIR\$\/cmd\/'${originalBinaryName}'\/"|value="$PROJECT_DIR$/cmd/'${binaryName}'/"|' .idea/runConfigurations/Debug.xml
-replace 's|name="project"|name="'${projectName}'"|' .idea/runConfigurations/Integration_tests.xml
-replace 's|name="project"|name="'${projectName}'"|' .idea/runConfigurations/Tests.xml
-replace "s|${originalBinaryName}|${binaryName}|" .vscode/launch.json
+if [[ -f ".idea/runConfigurations/All_tests.xml" ]]; then
+    replace 's|name="'${originalProjectName}'"|name="'${projectName}'"|; s|module name="'${originalProjectName}'"|module name="'${projectName}'"|; s|value="'${originalPackageName}'"|value="'${packageName}'"|' .idea/runConfigurations/All_tests.xml
+fi
+
+if [[ -f ".idea/runConfigurations/Debug.xml" ]]; then
+    replace 's|name="'${originalProjectName}'"|name="'${projectName}'"|; s|module name="'${originalProjectName}'"|module name="'${projectName}'"|; s|value="'${originalPackageName}'/cmd/'${originalBinaryName}'"|value="'${packageName}'/cmd/'${binaryName}'"|' .idea/runConfigurations/Debug.xml
+fi
+
+if [[ -f ".idea/runConfigurations/Integration_tests.xml" ]]; then
+    replace 's|name="'${originalProjectName}'"|name="'${projectName}'"|; s|module name="'${originalProjectName}'"|module name="'${projectName}'"|; s|value="'${originalPackageName}'"|value="'${packageName}'"|' .idea/runConfigurations/Integration_tests.xml
+fi
+
+if [[ -f ".idea/runConfigurations/Tests.xml" ]]; then
+    replace 's|name="'${originalProjectName}'"|name="'${projectName}'"|; s|module name="'${originalProjectName}'"|module name="'${projectName}'"|; s|value="'${originalPackageName}'"|value="'${packageName}'"|' .idea/runConfigurations/Tests.xml
+fi
+
+# VSCode configuration
+if [[ -f ".vscode/launch.json" ]]; then
+    replace "s|${originalBinaryName}|${binaryName}|" .vscode/launch.json
+fi
 
 # Binary changes:
 #   - binary name
 #   - source code
 #   - variables
-move cmd/${originalBinaryName} cmd/${binaryName}
-replace "s|${originalAppName}|${appName}|; s|${originalFriendlyAppName}|${friendlyAppName}|" ${DEST}/cmd/${binaryName}/main.go
-find ${DEST}/cmd -type f | while read file; do replace "s|${originalPackageName}|${packageName}|" "$file"; done
+if [[ -d "cmd/${originalBinaryName}" ]]; then
+    move cmd/${originalBinaryName} cmd/${binaryName}
+fi
+
+if [[ -d "cmd/${binaryName}" ]]; then
+    replace "s|${originalAppName}|${appName}|; s|${originalFriendlyAppName}|${friendlyAppName}|" ${DEST}/cmd/${binaryName}/main.go
+    find ${DEST}/cmd -type f | while read file; do replace "s|${originalPackageName}|${packageName}|" "$file"; done
+fi
 
 # Other project files
 declare -a files=("CHANGELOG.md" "prototool.yaml" "go.mod" ".golangci.yml" "gqlgen.yml")
@@ -125,8 +158,12 @@ for file in "${files[@]}"; do
 done
 
 # Update source code
-find .gen -type f | while read file; do replace "s|${originalPackageName}|${packageName}|" "$file"; done
-find internal -type f | while read file; do replace "s|${originalPackageName}|${packageName}|" "$file"; done
+if [[ -d ".gen" ]]; then  # Only try to update .gen if it exists
+    find .gen -type f | while read file; do replace "s|${originalPackageName}|${packageName}|" "$file"; done
+fi
+if [[ -d "internal" ]]; then  # Only try to update internal if it exists
+    find internal -type f | while read file; do replace "s|${originalPackageName}|${packageName}|" "$file"; done
+fi
 
 if [[ "${removeInit}" != "n" && "${removeInit}" != "N" ]]; then
     remove "$0"

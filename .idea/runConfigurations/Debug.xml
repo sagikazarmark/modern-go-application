@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="project" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="project" />
+    <working_directory value="$PROJECT_DIR$" />
+    <kind value="PACKAGE" />
+    <package value="github.com/sagikazarmark/modern-go-application/cmd/modern-go-application" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/cmd/modern-go-application/main.go" />
+    <method v="2" />
+  </configuration>
+</component>

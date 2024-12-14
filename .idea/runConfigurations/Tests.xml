@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="project" type="GoTestRunConfiguration" factoryName="Go Test">
+    <module name="project" />
+    <working_directory value="$PROJECT_DIR$" />
+    <go_parameters value="-race" />
+    <kind value="DIRECTORY" />
+    <package value="github.com/sagikazarmark/modern-go-application" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$" />
+    <framework value="gotest" />
+    <method v="2" />
+  </configuration>
+</component>
